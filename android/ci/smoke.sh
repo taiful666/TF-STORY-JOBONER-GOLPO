@@ -7,7 +7,11 @@ adb install -r -g "$APK"
 adb shell pm grant com.taiful.tfstory android.permission.POST_NOTIFICATIONS 2>/dev/null || true
 adb logcat -c
 adb shell am start -W -n com.taiful.tfstory/.MainActivity --ez tf_selftest true
-sleep 30
+for i in $(seq 1 24); do
+  if adb logcat -d -s TFWeb:* | grep -q "SELFTEST"; then echo "web app ready after $((i*5))s"; break; fi
+  sleep 5
+done
+sleep 3
 PID=$(adb shell pidof com.taiful.tfstory | tr -d '\r')
 echo "PID=$PID"
 adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; adb pull /sdcard/ui.xml ui.xml >/dev/null 2>&1
