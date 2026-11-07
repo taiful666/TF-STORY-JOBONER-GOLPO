@@ -13,11 +13,19 @@ echo "PID=$PID"
 adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; adb pull /sdcard/ui.xml ui.xml >/dev/null 2>&1
 echo "---- visible text ----"
 grep -o 'text="[^"]*"' ui.xml | sed 's/text="//;s/"$//' | grep -v '^$' | head -40
+echo "---- web app health ----"
+adb logcat -d -s TFWeb:* | tail -20
+echo "---- screen ----"
+adb shell dumpsys window | grep -E "mCurrentFocus" | head -2
 echo "---- crashes / page errors ----"
 adb logcat -d | grep -E "FATAL EXCEPTION|AndroidRuntime: |chromium.*(Uncaught|SyntaxError|TypeError|ReferenceError)" | head -30
 OK=1
 [ -z "$PID" ] && { echo "FAIL: app is not running"; OK=0; }
 adb logcat -d | grep -q "FATAL EXCEPTION" && { echo "FAIL: app crashed"; OK=0; }
-grep -qE "গল্প|TF Story" ui.xml || { echo "FAIL: app screen text not found"; OK=0; }
+adb logcat -d -s TFWeb:* | grep -qE "health title=TF Story Studio lib=[1-9]" || { echo "FAIL: web app did not start"; OK=0; }
 adb exec-out screencap -p > screen.png
+python3 - <<'PY' || true
+import zlib,struct
+d=open('screen.png','rb').read(); print('screenshot bytes', len(d))
+PY
 [ $OK = 1 ] && echo "SMOKE TEST PASSED" || exit 1

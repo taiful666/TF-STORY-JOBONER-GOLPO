@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.ViewGroup
 import android.webkit.ConsoleMessage
 import android.webkit.PermissionRequest
@@ -94,6 +95,17 @@ class MainActivity : AppCompatActivity() {
             override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? =
                 loader.shouldInterceptRequest(request.url)
 
+            override fun onPageFinished(view: WebView, url: String) {
+                // health check written to the log (used by the automatic emulator test)
+                view.postDelayed({
+                    view.evaluateJavascript("(function(){try{return 'title=' + document.title + ' lib=' + document.querySelectorAll('#libList li').length + ' android=' + (typeof IS_ANDROID!=='undefined' && IS_ANDROID) + ' webcodecs=' + ('VideoEncoder' in window)}catch(e){return 'err ' + e}})()") { r -> Log.i("TFWeb", "health $r") }
+                }, 4000)
+            }
+
+            override fun onReceivedError(view: WebView, request: WebResourceRequest, error: android.webkit.WebResourceError) {
+                if (request.isForMainFrame) Log.e("TFWeb", "load error ${error.errorCode} ${error.description} ${request.url}")
+            }
+
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 val u = request.url
                 if (u.host == "appassets.androidplatform.net") return false
@@ -128,7 +140,10 @@ class MainActivity : AppCompatActivity() {
                 } catch (e: Exception) { fileCallback = null; false }
             }
 
-            override fun onConsoleMessage(m: ConsoleMessage): Boolean = true
+            override fun onConsoleMessage(m: ConsoleMessage): Boolean {
+                if (m.messageLevel() == ConsoleMessage.MessageLevel.ERROR) Log.w("TFWeb", "console ${m.message()} @${m.lineNumber()}")
+                return true
+            }
         }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
