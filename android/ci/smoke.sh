@@ -25,10 +25,11 @@ echo "---- crashes / page errors ----"
 adb logcat -d | grep -E "FATAL EXCEPTION|AndroidRuntime: |chromium.*(Uncaught|SyntaxError|TypeError|ReferenceError)" | head -30
 OK=1
 [ -z "$PID" ] && { echo "FAIL: app is not running"; OK=0; }
-adb logcat -d | grep -q "FATAL EXCEPTION" && { echo "FAIL: app crashed"; OK=0; }
+# only a crash of OUR app counts (the uiautomator test tool itself sometimes crashes on slow emulators)
+adb logcat -d | grep -A3 "FATAL EXCEPTION" | grep -q "Process: com.taiful.tfstory" && { echo "FAIL: app crashed"; OK=0; }
 adb logcat -d -s TFWeb:* | grep -qE 'health "?title=TF Story Studio lib=[1-9]' || { echo "FAIL: web app did not start"; OK=0; }
 adb logcat -d -s TFWeb:* | grep -q "SELFTEST ok" || { echo "FAIL: saving a file through the bridge did not work"; OK=0; }
-adb shell ls "/sdcard/Download/TF Story Studio/" 2>&1 | head -3
+adb shell 'ls "/sdcard/Download/TF Story Studio/"' 2>&1 | head -3
 adb exec-out screencap -p > screen.png
 python3 - <<'PY' || true
 import zlib,struct
