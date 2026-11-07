@@ -478,6 +478,8 @@ summary{font-weight:700}
           <label>গতি <output id="cSpeedOut">1.00</output><input type="range" id="cSpeed" min="0.7" max="1.3" step="0.05" value="1"></label>
           <label>আবেগ<select id="cEmotion"><option value="auto">অটো (প্রতিটা লাইনের ভাব অনুযায়ী)</option><option value="none">স্বাভাবিক</option><option value="calm">শান্ত</option><option value="content">সন্তুষ্ট</option><option value="sad">দুঃখী</option></select></label>
         </div>
+        <label class="chk"><input type="checkbox" id="sMultiVoice"> চরিত্রের সংলাপ চরিত্রের নিজের কণ্ঠে (অটো)</label>
+        <div id="charVoices" class="charvoices"></div>
         <div class="row"><button class="primary" id="btnTTS">পুরো গল্পের কণ্ঠ বানাও</button><span class="muted" id="ttsInfo"></span></div>
         <div class="bar hidden" id="ttsBar"><i></i></div>
         <details class="speech"><summary>কণ্ঠে যেভাবে পড়া হবে (সংখ্যা/সংক্ষেপ ঠিক আছে কিনা দেখুন)</summary><ol id="speechList" class="speechlist"></ol></details>
@@ -649,6 +651,8 @@ summary{font-weight:700}
     </div>
     <label class="chk"><input type="checkbox" id="sCaptions" checked> সাবটাইটেল দেখাও</label>
     <label class="chk"><input type="checkbox" id="sProgress" checked> উপরে পাতলা প্রগ্রেস বার</label>
+    <label>অ্যানিমেশন স্টাইল<select id="sAnimStyle"><option value="jibonpath">জীবনপাঠ সিনেমাটিক (বড় চরিত্র, ঝাপসা পটভূমি, ফোন-কার্ড, ফলাফল কার্ড)</option><option value="classic">সাধারণ (আগের মতো)</option></select></label>
+    <label class="chk"><input type="checkbox" id="sHookCard" checked> গল্পের শুরুতে হুক কার্ড (সবুজ বক্সে শিরোনাম)</label>
     <label class="chk"><input type="checkbox" id="sCinema" checked> সিনেমাটিক লুক (আলো-ছায়া, ক্যামেরা মুভ)</label>
     <label class="chk"><input type="checkbox" id="sCtxBg" checked> কথা অনুযায়ী ব্যাকগ্রাউন্ড বদলাও (হাসপাতাল, অফিস, বাজার, মসজিদ, রাত/সকাল…)</label>
     <label class="chk"><input type="checkbox" id="sThumb" checked> ভিডিওর প্রথম ফ্রেমে থাম্বনেল (ফেসবুক/ইউটিউব এটাকেই কভার দেখাবে)</label>
@@ -2612,7 +2616,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
 </script>
 <script>/* ===================== TF Story Studio — data ===================== */
 'use strict';
-const APP_VERSION = '3.7.0';
+const APP_VERSION = '3.8.0';
 const STORY_LIBRARY = [];
 const FORMAT_VERSION = 1;
 
@@ -2815,7 +2819,7 @@ function buildStoryPrompt(o) {
 চরিত্র: hero=তানিম/hero, ma=মা/mother, baba=বাবা/father
 ক্ষেত্র: পরিবার
 ## dining_home day normal | | hero,ma
-hero:surprised:talk মা, তোমার কানের দুলটা কোথায়? {কানের দুলটা}
+hero:surprised:talk > মা, তোমার কানের দুলটা কোথায়? {কানের দুলটা}
 ma:sad:head_down অথচ এই প্রশ্নের উত্তর মা ৫ বছর লুকিয়ে রেখেছিলেন। {৫ বছর}
 ## rewind
 দুলটা গেল কোথায়? বলছি। {বলছি}
@@ -2842,6 +2846,7 @@ hero:happy:give:gift [compare: জমা ছিল না / মায়ের �
 - থাম্বনেল লাইন: "থাম্বনেল: ছোট প্রসঙ্গ লাইন (৪-৭ শব্দ, কার/কবে) | বড় লাইন ১ (২-৪ শব্দ) | বড় লাইন ২ (২-৪ শব্দ, শেষে !) {সোনালি ফলাফল শব্দ} | আইকন (হাতে-র তালিকা থেকে একটা) | পেছনের বড় প্রতীক (একটা সংখ্যা বা ৳)"। বড় লেখা হবে উল্টো-ফলের হুক: কারণ আর অপ্রত্যাশিত ফল, সংখ্যা দিয়ে ("ছোট জিনিস, বড় দাম!" / "এক কাজে হারাল, আরেক কাজে জিতল!" ধরনের কাঠামো — সবসময় নিজের নতুন লেখা, অন্য চ্যানেলের লাইন নয়)।
 - দৃশ্যের লাইন: "## জায়গা সময় মেজাজ [আবহাওয়া] | ব্যাজ | কারা পর্দায় (সর্বোচ্চ ৩)"
 - গল্পের লাইন: "চরিত্র:মুখের_ভাব:কাজ:হাতে [কার্ড: ঘর / ঘর] ক্যাপশন {সোনালি শব্দ}" — চরিত্র/কার্ড/সোনালি শব্দ ঐচ্ছিক; কথকের লাইনে চরিত্র বাদ দাও।
+- চরিত্র নিজে মুখে যে লাইনটা বলছে (পুরো লাইনটাই তার সংলাপ, কথকের কোনো কথা মেশানো নয়), সেই লাইনের ক্যাপশনের শুরুতে "> " দাও। যেমন: "ma:sad:talk > চিন্তা করিস না বাবা। {চিন্তা করিস না}" — অ্যাপ এই লাইন ওই চরিত্রের নিজের কণ্ঠে বানাবে, বাকি সব কথকের কণ্ঠে। "মা বললেন, ..." ধরনের লাইনে "> " দেবে না। প্রতি গল্পে ৩-৬টা এমন সংলাপ রাখো।
 - জায়গা: ${placeList}
 - সময়: day, evening, night | মেজাজ: normal, happy, sad, tense, regret | আবহাওয়া: rain, fog, sunny
 - চরিত্রের role: ${Object.keys(ROLES).join(', ')}
@@ -2859,7 +2864,7 @@ STORY_LIBRARY.push(
 চরিত্র: hero=তানিম/hero, sajid=সাজিদ/colleague_m, boss=করিম স্যার/boss_m
 ক্ষেত্র: চাকরি/অফিস
 ## conference day tense | | boss,sajid,hero
-boss:happy:talk অভিনন্দন সাজিদ, নতুন প্রজেক্টের লিড তুমি। {প্রজেক্টের লিড}
+boss:happy:talk > অভিনন্দন সাজিদ, নতুন প্রজেক্টের লিড তুমি। {প্রজেক্টের লিড}
 hero:sad:head_down অথচ প্ল্যানটা বানাতে ৩ মাস রাত জেগেছিল তানিম। {৩ মাস রাত}
 ## rewind
 প্ল্যানটা সাজিদের হাতে গেল কীভাবে? বলছি। {বলছি}
@@ -2877,7 +2882,7 @@ hero:crying:hands_on_head তানিমের হাতে কোনো প্
 - তানিম আইডিয়া হারায়নি। হারিয়েছে মুখ খুলে দিয়ে। {মুখ খুলে দিয়ে}
 ## canteen day normal | এক বছর পর | hero,sajid
 hero:neutral:cup নতুন আইডিয়া। আবার সেই ক্যান্টিন, আবার সাজিদ। {আবার সাজিদ}
-sajid:happy:talk কী নিয়ে কাজ করছিস রে, একটু বল না? {একটু বল না}
+sajid:happy:talk > কী নিয়ে কাজ করছিস রে, একটু বল না? {একটু বল না}
 hero:happy:cup তানিম হাসল। একটা প্ল্যান আছে, স্যারকে মেইল করে দিয়েছি। {মেইল করে দিয়েছি}
 ## boss_cabin day happy | | boss,hero
 boss:happy:talk [sms: অফিস ইমেইল / খরচ কমানোর প্ল্যান — তানিম] মেইলটা পড়ে বস নিজেই ডাকলেন। {নিজেই ডাকলেন}
@@ -2896,7 +2901,7 @@ hero:proud:arms_crossed [compare: আড্ডায় সব বলে / প�
 চরিত্র: hero=তানিম/hero, ma=মা/mother, baba=বাবা/father
 ক্ষেত্র: পরিবার
 ## dining_home day normal | | hero,ma
-hero:surprised:talk মা, তোমার কানের দুলটা কোথায়? {কানের দুলটা}
+hero:surprised:talk > মা, তোমার কানের দুলটা কোথায়? {কানের দুলটা}
 ma:sad:head_down অথচ এই প্রশ্নের উত্তর মা ৫ বছর লুকিয়ে রেখেছিলেন। {৫ বছর}
 ## rewind
 দুলটা গেল কোথায়? বলছি। {বলছি}
@@ -2931,7 +2936,7 @@ ma:crying:hold:gift মা কিছু বললেন না। শুধু �
 চরিত্র: hero=তানিম/hero, ma=মা/mother, nafis=নাফিস/friend_m
 ক্ষেত্র: পড়াশোনা
 ## student_room day normal | | hero,ma
-ma:surprised:talk বাবা, এত বই কিনিস, পড়িস কখন? {পড়িস কখন}
+ma:surprised:talk > বাবা, এত বই কিনিস, পড়িস কখন? {পড়িস কখন}
 hero:shy:head_down [counter: শেলফে না-পড়া বই / 0 / 40] অথচ শেলফে ৪০টা বই। একটাও শেষ হয়নি। {একটাও শেষ হয়নি}
 ## rewind
 বই পড়া আটকাচ্ছিল কোথায়? বলছি। {বলছি}
@@ -2944,7 +2949,7 @@ hero:sad:head_down তারপর কাল থাক। তারপর পর
 জেমস ক্লিয়ারের বই অ্যাটমিক হ্যাবিটস বলে, শুরুটা দুই মিনিটে নামিয়ে আনো। {দুই মিনিটে}
 - দুই ঘণ্টা ভয় দেখায়। দুই পাতা কাউকে ভয় দেখায় না। {দুই পাতা}
 ## home_bedroom night normal | এ বছরের শুরুতে | hero,nafis
-nafis:surprised:talk মাত্র দুই পাতা? এতে কী হবে রে? {মাত্র দুই পাতা}
+nafis:surprised:talk > মাত্র দুই পাতা? এতে কী হবে রে? {মাত্র দুই পাতা}
 hero:happy:hold:book নিয়ম একটাই, ঘুমের আগে দুই পাতা। মন চাইলে বেশি। {ঘুমের আগে দুই পাতা}
 hero:happy:idle [check: +ক্লান্ত দিনেও দুই পাতা / +বই বালিশের পাশে / -ফোন বিছানায় নয়] বেশিরভাগ রাতে দুই পাতা হয়ে যেত বিশ পাতা। {বিশ পাতা}
 ## student_room day happy | এক বছর পর | hero,ma
@@ -2968,8 +2973,8 @@ hero:sad:phone [chat: রাশেদ / তোর সাথে আর কথা 
 ## rewind
 একটা "না" থেকে কীভাবে এতদূর? বলছি। {বলছি}
 ## cafe day happy | দুই বছর আগে | hero,rashed
-hero:happy:talk চল, দুজনে মিলে অনলাইন ব্যবসা দিই। {দুজনে মিলে}
-rashed:worried:talk দোস্ত, এখন না। বাবার চিকিৎসায় সব টাকা যাচ্ছে। {এখন না}
+hero:happy:talk > চল, দুজনে মিলে অনলাইন ব্যবসা দিই। {দুজনে মিলে}
+rashed:worried:talk > দোস্ত, এখন না। বাবার চিকিৎসায় সব টাকা যাচ্ছে। {এখন না}
 ## home_bedroom night tense | পরের দুই মাস | hero
 hero:angry:phone [counter: রাশেদকে কল / 0 / 37] তানিম থামল না। ৩৭ বার কল। {৩৭ বার কল}
 hero:angry:phone [chat: তানিম / বন্ধু হলে এত হিসাব করতি না] বন্ধু হলে না বলতি না। {না বলতি না}
@@ -2979,8 +2984,8 @@ hero:angry:phone [chat: তানিম / বন্ধু হলে এত হ�
 - প্রস্তাব দেওয়া তানিমের কাজ। রাজি হওয়া না হওয়া রাশেদের কাজ। {রাশেদের কাজ}
 ## cafe day normal | এক বছর পর | hero,mamun
 hero:neutral:talk নতুন ব্যবসা। এবার প্রস্তাব বন্ধু মামুনকে। {বন্ধু মামুনকে}
-mamun:worried:talk দোস্ত, আমি পারব না রে, সত্যি। {আমি পারব না}
-hero:happy:wave সমস্যা নেই। তোর সিদ্ধান্ত তোর। চা খা। {তোর সিদ্ধান্ত তোর}
+mamun:worried:talk > দোস্ত, আমি পারব না রে, সত্যি। {আমি পারব না}
+hero:happy:wave > সমস্যা নেই। তোর সিদ্ধান্ত তোর। চা খা। {তোর সিদ্ধান্ত তোর}
 ## startup day happy | দেড় বছর পর | hero,mamun
 mamun:happy:give:envelope [price: ৳ ২,০০,০০০] মামুন নিজেই এল। ব্যবসাটা দেখছি, ২ লাখ রাখতে চাই। {মামুন নিজেই এল}
 hero:proud:hold:envelope [compare: জোর করে / বন্ধু হারাল / না মেনে নিয়ে / পার্টনার পেল] জোর করায় গেল বন্ধু, ছেড়ে দেওয়ায় এল পার্টনার। {ছেড়ে দেওয়ায় এল পার্টনার}
@@ -3001,8 +3006,8 @@ hero:sad:phone [call: সৌরভ (দুবাই)] ছোট ভাই সৌ
 ## rewind
 কী বলেছিল তানিম? বলছি। {বলছি}
 ## living_simple evening tense | ছয় বছর আগে | hero,bhai
-bhai:worried:hold:phone ভাইয়া, তোমার ফোনটা পড়ে গেছে। স্ক্রিন ভেঙেছে। {স্ক্রিন ভেঙেছে}
-hero:angry:point তোকে দিয়ে জীবনে কিছু হবে না। বের হ। {কিছু হবে না}
+bhai:worried:hold:phone > ভাইয়া, তোমার ফোনটা পড়ে গেছে। স্ক্রিন ভেঙেছে। {স্ক্রিন ভেঙেছে}
+hero:angry:point > তোকে দিয়ে জীবনে কিছু হবে না। বের হ। {কিছু হবে না}
 bhai:crying:head_down সৌরভ সেই রাতেই ব্যাগ গোছাল। {ব্যাগ গোছাল}
 ## kitchen_home night sad | | ma
 ma:crying:pray_hands [alert: সৌরভ দুবাই চলে গেছে] দুই মাস পর খবর এল, সৌরভ দুবাই। {সৌরভ দুবাই}
@@ -3013,7 +3018,7 @@ ma:crying:pray_hands [alert: সৌরভ দুবাই চলে গেছে
 ## office_open day tense | গত মাসে | hero,junior
 junior:worried:cup [price: ল্যাপটপ: ৳ ৯০,০০০] নতুন জুনিয়র আরিফ চা ফেলল তানিমের ল্যাপটপে। {তানিমের ল্যাপটপে}
 hero:angry:hands_on_head [counter: চুপ থাকা / 0 / 10 / / সেকেন্ড] মুখে কথা আসছিল। তানিম ১০ সেকেন্ড চুপ। গুনল। {১০ সেকেন্ড চুপ}
-hero:neutral:talk ভয় পেয়ো না। চলো, আগে ফাইলগুলো বাঁচাই। {আগে ফাইলগুলো বাঁচাই}
+hero:neutral:talk > ভয় পেয়ো না। চলো, আগে ফাইলগুলো বাঁচাই। {আগে ফাইলগুলো বাঁচাই}
 ## office_open day happy | ছয় মাস পর | hero,junior
 junior:happy:talk আরিফ এখন তানিমের সবচেয়ে ভরসার সহকর্মী। {সবচেয়ে ভরসার}
 hero:sad:phone [compare: ১০ সেকেন্ডের চিৎকার / ভাই হারাল / ১০ সেকেন্ডের চুপ / সঙ্গী পেল] চিৎকারে গেল ভাই, চুপ থাকায় এল ভরসার মানুষ। {চুপ থাকায় এল}
@@ -3030,14 +3035,14 @@ hero:crying:phone [chat: তানিম / সৌরভ, সেদিনের �
 চরিত্র: hero=তানিম/hero, baba=বাবা/father, landlord=হাশেম সাহেব/landlord
 ক্ষেত্র: ছোট ব্যবসা
 ## cafe night sad | | hero,landlord
-landlord:angry:point তিন মাসের ভাড়া বাকি। কাল চাবি দিয়ে যাবেন। {কাল চাবি}
+landlord:angry:point > তিন মাসের ভাড়া বাকি। কাল চাবি দিয়ে যাবেন। {কাল চাবি}
 hero:crying:head_down অথচ ঠিক ৪ মাস আগে এখানেই ২০০ জনের উদ্বোধন। {২০০ জনের উদ্বোধন}
 ## rewind
 এত তাড়াতাড়ি সব শেষ কীভাবে? বলছি। {বলছি}
 ## cafe day happy | চার মাস আগে | hero,baba
 hero:proud:wave [check: +দামি ইন্টেরিয়র / +উদ্বোধনে ডিজে / +২০০ জনকে ফ্রি কফি / -৬ মাসের খরচ] জমানো ৮ লাখের প্রায় সবটাই গেল সাজাতে। {সাজাতে}
 baba:worried:talk বাবা জিজ্ঞেস করেছিলেন, প্রথম ছয় মাস চলবে কী দিয়ে? {চলবে কী দিয়ে}
-hero:happy:talk উদ্বোধন জমলে বাকিটা নিজেই চলবে বাবা। {নিজেই চলবে}
+hero:happy:talk > উদ্বোধন জমলে বাকিটা নিজেই চলবে বাবা। {নিজেই চলবে}
 ## cafe evening regret | দুই মাস পর | hero
 hero:worried:phone [progress: হাতে থাকা টাকা / 4] বিক্রি দিনে ৩ হাজার। খরচ ৭ হাজার। {খরচ ৭ হাজার}
 - আপনার চেনা কারো ব্যবসাও কি উদ্বোধনেই শেষ হয়েছে? {উদ্বোধনেই শেষ}
@@ -3063,7 +3068,7 @@ hero:proud:hold:key [compare: ৮ লাখের ক্যাফে / ৪ ম�
 চরিত্র: hero=তানিম/hero, baba=বাবা/father, aunty=শিরিন আন্টি/neighbor_aunty, elder=জলিল চাচা/elder_wise
 ক্ষেত্র: ছোট ব্যবসা
 ## grocery day happy | | hero,aunty
-aunty:happy:talk তানিম, আমার ছেলের বিস্কুট আজও রেখেছ? {আজও রেখেছ}
+aunty:happy:talk > তানিম, আমার ছেলের বিস্কুট আজও রেখেছ? {আজও রেখেছ}
 hero:happy:give:bag অথচ এক বছর আগে এই দোকান বন্ধ হতে বসেছিল। {বন্ধ হতে বসেছিল}
 ## rewind
 কী বদলাল? বলছি। {বলছি}
@@ -3079,7 +3084,7 @@ elder:neutral:cup জলিল চাচা চা খেতে খেতে ব
 - সুপারশপ ছাড় দিতে পারে। নাম ধরে ডাকতে পারে না। {নাম ধরে ডাকতে}
 ## grocery day normal | পরের মাস থেকে | hero
 hero:neutral:hold:paper [check: +খদ্দেরের নাম / +বাচ্চার পছন্দ / +কে কবে ওষুধ নেন] একটা খাতা। নাম, পছন্দ, ছোট ছোট কথা। {একটা খাতা}
-hero:happy:talk শিরিন আন্টি, আপনার ছেলের পরীক্ষা কেমন হলো? {পরীক্ষা কেমন হলো}
+hero:happy:talk > শিরিন আন্টি, আপনার ছেলের পরীক্ষা কেমন হলো? {পরীক্ষা কেমন হলো}
 ## grocery day happy | এক বছর পর | hero,baba,aunty
 baba:proud:hold:paper [counter: দিনের বিক্রি / 2500 / 11000 / ৳] বিক্রি এখন ১১ হাজার। সুপারশপের চেয়ে দাম একটুও কম না। {একটুও কম না}
 hero:proud:arms_crossed [compare: দাম কমিয়ে / লাভ কমল / নাম মনে রেখে / বিক্রি চারগুণ] দাম কমিয়ে হারল, নাম মনে রেখে জিতল। {নাম মনে রেখে জিতল}
@@ -3108,8 +3113,8 @@ hero:surprised:phone [check: +কার্ডের নম্বর / +ওটি
 রবার্ট চালদিনির বই ইনফ্লুয়েন্স বলে, কম সময়ের চাপ মানুষকে ভাবতে দেয় না। {ভাবতে দেয় না}
 - ঘড়িটা আইফোন বেচছিল না। বেচছিল তানিমের তাড়াহুড়ো। {তানিমের তাড়াহুড়ো}
 ## living_simple day normal | ছয় মাস পর | hero,friend
-friend:happy:raise_phone দোস্ত, প্লট বুকিং, আজ রাত ১২টা পর্যন্ত অর্ধেক দাম। ৩০ হাজার দে। {আজ রাত ১২টা}
-hero:neutral:talk আজ না। কাল সকালে অফিসে গিয়ে দেখে আসি। {কাল সকালে}
+friend:happy:raise_phone > দোস্ত, প্লট বুকিং, আজ রাত ১২টা পর্যন্ত অর্ধেক দাম। ৩০ হাজার দে। {আজ রাত ১২টা}
+hero:neutral:talk > আজ না। কাল সকালে অফিসে গিয়ে দেখে আসি। {কাল সকালে}
 ## street day tense | পরদিন সকালে | hero
 hero:surprised:phone [alert: ঠিকানায় কোনো অফিস নেই] ঠিকানায় গিয়ে দেখা গেল, কোনো অফিসই নেই। {কোনো অফিসই নেই}
 ## living_simple day happy | | hero,ma
@@ -3126,7 +3131,7 @@ hero:proud:talk [compare: ১০ মিনিটের তাড়ায় / �
 চরিত্র: hero=তানিম/hero, nafis=নাফিস/student_m, ma=মা/mother, teacher=কাদের স্যার/teacher_m
 ক্ষেত্র: পড়াশোনা
 ## school_class day happy | | teacher,nafis
-teacher:happy:hold:paper [big: অঙ্কে প্রথম: নাফিস] এবার অঙ্কে প্রথম, নাফিস। {প্রথম, নাফিস}
+teacher:happy:hold:paper [big: অঙ্কে প্রথম: নাফিস] > এবার অঙ্কে প্রথম, নাফিস। {প্রথম, নাফিস}
 - অথচ এক বছর আগে এই নাফিস পেয়েছিল ১০০-তে ২২। {১০০-তে ২২}
 ## rewind
 কে বদলাল নাফিসকে? বলছি। {বলছি}
@@ -3157,25 +3162,25 @@ nafis:proud:hold:paper [compare: আমি পারি না / চেষ্ট
 চরিত্র: hero=তানিম/hero, landlord=হাশেম সাহেব/landlord, riya=রিয়া/wife
 ক্ষেত্র: পরিবার
 ## home_door day happy | | hero,landlord
-landlord:neutral:talk ঠিক আছে তানিম, এ বছর ভাড়া আগের মতোই থাকুক। {আগের মতোই}
+landlord:neutral:talk > ঠিক আছে তানিম, এ বছর ভাড়া আগের মতোই থাকুক। {আগের মতোই}
 - অথচ গত বছর এই বাড়িওয়ালাই ভাড়া বাড়িয়েছিলেন ৫ হাজার। {৫ হাজার}
 ## rewind
 এবার কী বদলাল? বলছি। {বলছি}
 ## home_door day tense | গত বছর | hero,landlord
-landlord:neutral:give:paper [price: নতুন ভাড়া: ৳ ১৮,০০০] সামনের মাস থেকে ভাড়া ১৮ হাজার। {১৮ হাজার}
-hero:angry:point এটা অন্যায়! পুরো এলাকায় কেউ এত নেয় না! {এটা অন্যায়}
-landlord:angry:arms_crossed তাহলে অন্য বাসা দেখেন। এখন ২০ হাজার। {এখন ২০ হাজার}
+landlord:neutral:give:paper [price: নতুন ভাড়া: ৳ ১৮,০০০] > সামনের মাস থেকে ভাড়া ১৮ হাজার। {১৮ হাজার}
+hero:angry:point > এটা অন্যায়! পুরো এলাকায় কেউ এত নেয় না! {এটা অন্যায়}
+landlord:angry:arms_crossed > তাহলে অন্য বাসা দেখেন। এখন ২০ হাজার। {এখন ২০ হাজার}
 ## home_bedroom night sad | | hero,riya
-riya:worried:talk [counter: মাসের ভাড়া / 15000 / 20000 / ৳] তর্কে জিতে আসার কথা ছিল, হেরে এলে ৫ হাজার। {হেরে এলে ৫ হাজার}
+riya:worried:talk [counter: মাসের ভাড়া / 15000 / 20000 / ৳] > তর্কে জিতে আসার কথা ছিল, হেরে এলে ৫ হাজার। {হেরে এলে ৫ হাজার}
 - আপনার বাসার ভাড়াও কি এভাবে হঠাৎ বেড়েছে? {হঠাৎ বেড়েছে}
 ## book
 ক্রিস ভসের বই নেভার স্প্লিট দ্য ডিফারেন্স বলে, তর্ক নয়, "কীভাবে" দিয়ে প্রশ্ন করো। {কীভাবে দিয়ে প্রশ্ন}
 - তর্ক মানুষকে দেয়াল বানায়। প্রশ্ন তাকে ভাবায়। {প্রশ্ন তাকে ভাবায়}
 ## home_door day tense | এ বছর | hero,landlord
 landlord:neutral:give:paper [price: নতুন ভাড়া: ৳ ২৩,০০০] আবার নোটিশ। এবার ২৩ হাজার। {এবার ২৩ হাজার}
-hero:neutral:talk চাচা, এবার বাড়ানোর কারণটা কী, একটু বলবেন? {কারণটা কী}
-landlord:worried:talk গ্যাস বিল, মেরামত, দারোয়ানের বেতন, সব বেড়েছে বাবা। {সব বেড়েছে}
-hero:neutral:talk বুঝলাম। আমি সময়মতো দিই, কিছু নষ্ট করি না। এত টাকা কীভাবে দিই বলেন তো? {কীভাবে দিই}
+hero:neutral:talk > চাচা, এবার বাড়ানোর কারণটা কী, একটু বলবেন? {কারণটা কী}
+landlord:worried:talk > গ্যাস বিল, মেরামত, দারোয়ানের বেতন, সব বেড়েছে বাবা। {সব বেড়েছে}
+hero:neutral:talk > বুঝলাম। আমি সময়মতো দিই, কিছু নষ্ট করি না। এত টাকা কীভাবে দিই বলেন তো? {কীভাবে দিই}
 landlord:neutral:idle হাশেম সাহেব অনেকক্ষণ চুপ। {অনেকক্ষণ চুপ}
 ## home_bedroom night happy | | hero,riya
 hero:proud:talk [compare: তর্ক করে / ৫ হাজার বাড়ল / প্রশ্ন করে / এক টাকাও না] তর্কে বেড়েছিল ৫ হাজার, প্রশ্নে বাড়ল না এক টাকাও। {প্রশ্নে বাড়ল না}
@@ -3199,9 +3204,9 @@ hero:surprised:hold:paper ৩ লাখ ২০ হাজার। তানি�
 ## rewind
 কার লোনের সই? বলছি। {বলছি}
 ## bank_counter day happy | দুই বছর আগে | hero,rashed
-rashed:happy:give:paper দোস্ত, একটা সই দে। জামিনদার। শুধু নিয়মের জন্য। {শুধু নিয়মের জন্য}
+rashed:happy:give:paper > দোস্ত, একটা সই দে। জামিনদার। শুধু নিয়মের জন্য। {শুধু নিয়মের জন্য}
 hero:neutral:hold:paper কাগজটা তানিম পড়েও দেখল না। বন্ধু তো। {পড়েও দেখল না}
-rashed:happy:talk কিস্তি আমি দেব, তোর গায়ে আঁচও লাগবে না। {আঁচও লাগবে না}
+rashed:happy:talk > কিস্তি আমি দেব, তোর গায়ে আঁচও লাগবে না। {আঁচও লাগবে না}
 ## home_bedroom night sad | এক বছর পর | hero
 hero:worried:phone [counter: রাশেদকে কল / 0 / 52] রাশেদের দোকান বন্ধ। ফোন বন্ধ। ৫২ বার কল। {ফোন বন্ধ}
 hero:crying:hands_on_head [progress: তানিমের সঞ্চয় / 0] বেতনের অর্ধেক যাচ্ছে বন্ধুর কিস্তিতে। {বন্ধুর কিস্তিতে}
@@ -3212,7 +3217,7 @@ ma:sad:pray_hands মা জায়নামাজে বসে শুধু �
 - সই মানে শুধু কালি নয়। সই মানে নিজের ভবিষ্যৎ বন্ধক রাখা। {ভবিষ্যৎ বন্ধক}
 ## cafe day tense | দুই বছর পর | hero,sumon
 sumon:happy:give:paper এবার বন্ধু সুমন। দোস্ত, ৫ লাখের লোন, তুই জামিনদার হ। {তুই জামিনদার হ}
-hero:neutral:talk সই দেব না দোস্ত। কিন্তু তোর ব্যবসার প্ল্যানটা দুজনে বসে দেখি। {সই দেব না}
+hero:neutral:talk > সই দেব না দোস্ত। কিন্তু তোর ব্যবসার প্ল্যানটা দুজনে বসে দেখি। {সই দেব না}
 sumon:angry:arms_crossed সুমন রাগ করে চলে গেল। {রাগ করে}
 ## cafe day normal | দুই মাস পর | hero,sumon
 sumon:happy:talk [check: +দোকান ভাড়ায় না, অনলাইনে শুরু / +লোন ৫ নয়, ২ লাখ / -জামিনদার] প্ল্যান ছোট হলো। লোন লাগল ২ লাখ, জামিনদার ছাড়াই। {জামিনদার ছাড়াই}
@@ -3230,13 +3235,13 @@ hero:proud:hold:paper [compare: না পড়ে সই / ৩ লাখ ২�
 চরিত্র: hero=তানিম/hero, baba=বাবা/father, rashed=রাশেদ/friend_m, boss=নুসরাত আপা/boss_f
 ক্ষেত্র: চাকরি/অফিস
 ## it_office day happy | | hero,boss
-boss:happy:give:envelope [price: বেতন: ৳ ১,০০,০০০] অভিনন্দন তানিম, এ মাস থেকে বেতন এক লাখ। {এক লাখ}
+boss:happy:give:envelope [price: বেতন: ৳ ১,০০,০০০] > অভিনন্দন তানিম, এ মাস থেকে বেতন এক লাখ। {এক লাখ}
 - অথচ দুই বছর আগে সবাই বলেছিল, তানিম পাগল হয়ে গেছে। {পাগল হয়ে গেছে}
 ## rewind
 কেন পাগল বলেছিল? বলছি। {বলছি}
 ## drawing_room night tense | দুই বছর আগে | hero,baba
 hero:worried:hold:paper [compare: ব্যাংকের চাকরি / ৳ ৪৫,০০০ / ডেটা টিমে শিক্ষানবিশ / ৳ ৩০,০০০] দুইটা অফার। ব্যাংকে ৪৫ হাজার, ডেটা টিমে ৩০ হাজার। {দুইটা অফার}
-baba:angry:talk ১৫ হাজার কম কেন নিবি? মাথা ঠিক আছে? {১৫ হাজার কম}
+baba:angry:talk > ১৫ হাজার কম কেন নিবি? মাথা ঠিক আছে? {১৫ হাজার কম}
 ## office_open day normal | পাঁচ বছর আগে | rashed
 rashed:tired:phone [counter: একই কাজ / 0 / 5 / / বছর] বন্ধু রাশেদ বেশি বেতনের চাকরিটাই নিয়েছিল। পাঁচ বছর একই ফাইল। {একই ফাইল}
 rashed:sad:head_down [price: বেতন বেড়েছে: ৳ ৬,০০০] পাঁচ বছরে বেতন বেড়েছে মাত্র ৬ হাজার। {মাত্র ৬ হাজার}
@@ -3262,13 +3267,13 @@ hero:proud:arms_crossed [compare: বেশি বেতন নিয়ে / �
 চরিত্র: hero=তানিম/hero, boss=করিম স্যার/boss_m, lipi=লিপি আপা/colleague_f
 ক্ষেত্র: চাকরি/অফিস
 ## office_open day sad | | hero,lipi
-lipi:sad:talk প্রমোশন লিস্টে তোমার নাম নেই তানিম। {তোমার নাম নেই}
+lipi:sad:talk > প্রমোশন লিস্টে তোমার নাম নেই তানিম। {তোমার নাম নেই}
 hero:surprised:head_down অথচ এ বছর পুরো অফিসে সবচেয়ে বেশি টার্গেট তানিমের। {সবচেয়ে বেশি টার্গেট}
 ## rewind
 নামটা কাটল কে? বলছি। {বলছি}
 ## conference day tense | ছয় মাস আগে | boss,hero
 boss:proud:point [big: বিক্রি বাড়বে ৪০%] ৪০ জনের মিটিং। বস দেখালেন, বিক্রি বাড়বে ৪০%। {৪০%}
-hero:neutral:wave স্যার, হিসাবটা ভুল। ৪০ না, ১৪ হবে। {হিসাবটা ভুল}
+hero:neutral:wave > স্যার, হিসাবটা ভুল। ৪০ না, ১৪ হবে। {হিসাবটা ভুল}
 boss:angry:arms_crossed পুরো রুম চুপ। বস হাসলেন, কিন্তু চোখ হাসল না। {চোখ হাসল না}
 ## cubicle evening sad | পরের মাসগুলোতে | hero
 hero:sad:idle:laptop [check: -বড় প্রজেক্ট / -বিদেশি ক্লায়েন্টের মিটিং / -বসের দাওয়াত] বড় প্রজেক্ট গেল অন্যের হাতে। মিটিংয়ে ডাক কমল। {ডাক কমল}
@@ -3278,7 +3283,7 @@ hero:sad:idle:laptop [check: -বড় প্রজেক্ট / -বিদে
 - তানিম ঠিক ছিল। ভুল ছিল সবার সামনে ঠিক হওয়া। {সবার সামনে ঠিক হওয়া}
 ## boss_cabin day normal | এ বছর | hero,boss
 hero:neutral:give:paper [sms: তানিম / স্যার, মিটিংয়ের আগে ছোট একটা হিসাব দেখবেন?] আবার ভুল চোখে পড়ল। এবার মিটিংয়ের আগে, একা, বসের রুমে। {একা, বসের রুমে}
-boss:surprised:hold:paper ওহ, ঠিক তো! ভালো করেছ আগে বলে। {আগে বলে}
+boss:surprised:hold:paper > ওহ, ঠিক তো! ভালো করেছ আগে বলে। {আগে বলে}
 ## conference day happy | | boss,hero
 boss:proud:point [big: সংশোধিত হিসাব] মিটিংয়ে বস নিজেই ঠিক হিসাবটা দেখালেন। সবাই হাততালি দিল। {বস নিজেই}
 boss:happy:talk বের হতে হতে বললেন, তানিম, পরের প্রজেক্টটা তুমি দেখো। {পরের প্রজেক্টটা তুমি}
@@ -3296,7 +3301,7 @@ hero:proud:hold:envelope [compare: সবার সামনে ভুল ধর
 চরিত্র: hero=তানিম/hero, riya=রিয়া/wife, baba=বাবা/father
 ক্ষেত্র: টাকা/সঞ্চয়
 ## home_bedroom night tense | | hero,riya
-riya:surprised:hold:phone [counter: ৫ বছরে ফুড ডেলিভারি / 0 / 273750 / ৳] তানিম, ৫ বছরে শুধু খাবার অর্ডারে ২ লাখ ৭৩ হাজার! {২ লাখ ৭৩ হাজার}
+riya:surprised:hold:phone [counter: ৫ বছরে ফুড ডেলিভারি / 0 / 273750 / ৳] > তানিম, ৫ বছরে শুধু খাবার অর্ডারে ২ লাখ ৭৩ হাজার! {২ লাখ ৭৩ হাজার}
 hero:surprised:hands_on_head অথচ তানিম ভাবত, রোজ তো মাত্র ১৫০ টাকা। {মাত্র ১৫০ টাকা}
 ## rewind
 মাত্র ১৫০ কীভাবে এত হলো? বলছি। {বলছি}
@@ -3327,14 +3332,14 @@ hero:proud:arms_crossed [compare: রোজ ১৫০ খরচ / পৌনে �
 চরিত্র: hero=তানিম/hero, boss=নুসরাত আপা/boss_f, colleague=ফাহিম/colleague_m
 ক্ষেত্র: চাকরি/অফিস
 ## office_open day happy | | boss,hero
-boss:happy:talk পুরো টিমের মধ্যে সবচেয়ে কাজের রিপোর্ট তানিমের। {সবচেয়ে কাজের রিপোর্ট}
+boss:happy:talk > পুরো টিমের মধ্যে সবচেয়ে কাজের রিপোর্ট তানিমের। {সবচেয়ে কাজের রিপোর্ট}
 - অথচ এক বছর আগে তানিম একটা রিপোর্টও সময়ে দিতে পারত না। {সময়ে দিতে পারত না}
 ## rewind
 কী বদলাল? বলছি। {বলছি}
 ## cubicle day tense | এক বছর আগে | hero
 hero:worried:idle:laptop [counter: আজ ফোনে নোটিফিকেশন / 0 / 120] এক ঘণ্টার রিপোর্ট। শুরু করতেই ফোন। আবার শুরু, আবার ফোন। {আবার ফোন}
 hero:tired:phone [chat: অফিস গ্রুপ / কে আজ নাস্তা আনবে?] গ্রুপ চ্যাট, খবর, ভিডিও। দিনে ১২০ বার। {দিনে ১২০ বার}
-boss:angry:point রিপোর্টটা আজও হয়নি তানিম? {আজও হয়নি}
+boss:angry:point > রিপোর্টটা আজও হয়নি তানিম? {আজও হয়নি}
 ## cubicle evening sad | | hero,colleague
 colleague:neutral:cup ফাহিম চুপচাপ বলল, তুমি সারাদিন ব্যস্ত, কিন্তু কাজ কম। {ব্যস্ত, কিন্তু কাজ কম}
 - আপনিও কি কাজের মাঝে বারবার ফোন দেখেন? {বারবার ফোন}
@@ -3345,7 +3350,7 @@ colleague:neutral:cup ফাহিম চুপচাপ বলল, তুমি
 hero:neutral:give:phone [check: +সকাল ১০টা থেকে সাড়ে ১১টা ফোন ড্রয়ারে / +একটাই কাজ / +গ্রুপ চ্যাট দুপুরে একবার] সকাল ১০টা থেকে সাড়ে ১১টা। ফোন ড্রয়ারে। একটাই কাজ। {ফোন ড্রয়ারে}
 hero:happy:idle:laptop [progress: আজকের রিপোর্ট / 100] প্রথম সপ্তাহেই দুই দিনের কাজ এক সকালে শেষ। {এক সকালে শেষ}
 ## conference day happy | এক বছর পর | boss,hero
-boss:proud:give:envelope [big: টিম লিড: তানিম] এবার টিম লিড, তানিম। {টিম লিড}
+boss:proud:give:envelope [big: টিম লিড: তানিম] > এবার টিম লিড, তানিম। {টিম লিড}
 hero:proud:arms_crossed [compare: সারাদিন ফোনের সাথে / রিপোর্ট দেরিতে / রোজ ৯০ মিনিট ফোন ছাড়া / প্রমোশন] সারাদিন ব্যস্ত থেকে কাজ হয়নি, ৯০ মিনিটের মনোযোগে প্রমোশন। {৯০ মিনিটের মনোযোগে}
 - ছড়ানো আলো ঘর আলো করে, জড়ো করা আলো আগুন জ্বালায়। {জড়ো করা আলো}
 ## cta | কাজের সময় আপনি ঘণ্টায় কতবার ফোন দেখেন? | ২-৩ বার, ১০ বার, গুনিনি
@@ -3374,7 +3379,7 @@ mehedi:neutral:talk মেহেদী ভাই বললেন, ঝামে�
 - ঝগড়া মেটে। কে কার বিরুদ্ধে লিখেছিল, সেটা মেটে না। {সেটা মেটে না}
 ## mess_room night tense | দুই মাস পর | hero,roommate
 roommate:angry:point মেসে বিদ্যুৎ বিলের ঝগড়া। অপু চায় তানিম তার পক্ষে বলুক। {তার পক্ষে বলুক}
-hero:neutral:talk দুজনের কথাই শুনব। বিলের কাগজ নিয়ে কাল বসি। {বিলের কাগজ নিয়ে}
+hero:neutral:talk > দুজনের কথাই শুনব। বিলের কাগজ নিয়ে কাল বসি। {বিলের কাগজ নিয়ে}
 hero:neutral:hold:paper [check: +দুজনের কথা আলাদা শোনা / +হিসাবের কাগজ / -কারো নামে খারাপ কথা] কারো নামে একটাও খারাপ কথা না। শুধু হিসাব। {শুধু হিসাব}
 ## mess_room day happy | এক মাস পর | hero,roommate
 roommate:happy:give:key [big: মেস ম্যানেজার: তানিম] মেসের সবাই মিলে চাবি দিল তানিমকে, এখন থেকে তুমিই ম্যানেজার। {তুমিই ম্যানেজার}
@@ -3396,7 +3401,7 @@ hero:proud:give:key [big: নিজের টাকায় কেনা বা
 ## rewind
 কেন? বলছি। {বলছি}
 ## drawing_room night tense | আট বছর আগে | hero,baba
-hero:angry:talk জুবায়েরের বাবা ওকে বাইক কিনে দিয়েছে। তুমি কেন দেবে না? {তুমি কেন দেবে না}
+hero:angry:talk > জুবায়েরের বাবা ওকে বাইক কিনে দিয়েছে। তুমি কেন দেবে না? {তুমি কেন দেবে না}
 baba:neutral:give:book বাবা দিলেন একটা খাতা। প্রথম পাতায় লেখা, বাইক: ১ লাখ ৪০ হাজার। অর্ধেক তোর। {অর্ধেক তোর}
 hero:angry:arms_crossed তানিম খাতাটা ছুড়ে ফেলল। {ছুড়ে ফেলল}
 ## street day normal | | neighbor
@@ -3425,14 +3430,14 @@ hero:proud:arms_crossed [compare: চাইলেই সব পেল / আজ�
 চরিত্র: hero=তানিম/hero, boss=করিম স্যার/boss_m, client=চৌধুরী সাহেব/client
 ক্ষেত্র: চাকরি/অফিস
 ## boss_cabin day happy | | boss,hero
-boss:happy:talk তানিম, কাল থেকে বড় ক্লায়েন্টগুলো তুমি সামলাবে। {তুমি সামলাবে}
+boss:happy:talk > তানিম, কাল থেকে বড় ক্লায়েন্টগুলো তুমি সামলাবে। {তুমি সামলাবে}
 - অথচ ছয় মাস আগে এই বসই তানিমকে বলেছিলেন, আমার রুম থেকে বের হও। {বের হও}
 ## rewind
 কী হয়েছিল? বলছি। {বলছি}
 ## boss_cabin day tense | ছয় মাস আগে | boss,hero
-boss:angry:point [alert: ক্লায়েন্টের ডেডলাইন: আজ] রিপোর্ট এখনো হয়নি কেন? {এখনো হয়নি কেন}
-hero:angry:talk স্যার, আপনিই তো কাল নতুন কাজ দিলেন! {আপনিই তো}
-boss:angry:arms_crossed আমার রুম থেকে বের হও। {বের হও}
+boss:angry:point [alert: ক্লায়েন্টের ডেডলাইন: আজ] > রিপোর্ট এখনো হয়নি কেন? {এখনো হয়নি কেন}
+hero:angry:talk > স্যার, আপনিই তো কাল নতুন কাজ দিলেন! {আপনিই তো}
+boss:angry:arms_crossed > আমার রুম থেকে বের হও। {বের হও}
 ## cubicle evening sad | | hero
 hero:sad:head_down যুক্তিতে তানিম ঠিক ছিল। কিন্তু পরের তিন মাস কোনো বড় কাজ পেল না। {কোনো বড় কাজ}
 - আপনার বসও কি রাগলে কোনো কথা শোনেন না? {কোনো কথা শোনেন না}
@@ -3441,8 +3446,8 @@ hero:sad:head_down যুক্তিতে তানিম ঠিক ছিল�
 - রাগী মানুষ যুক্তি শোনে না। শোনে, কেউ তাকে বুঝল কিনা। {কেউ তাকে বুঝল কিনা}
 ## conference day tense | গত মাসে | client,boss,hero
 client:angry:point চৌধুরী সাহেবের মাল দুই দিন দেরিতে গেছে। বস লাল। {বস লাল}
-boss:angry:talk কে দায়ী? এখনই জবাব চাই! {এখনই জবাব চাই}
-hero:neutral:talk স্যার, মনে হচ্ছে এই দেরিটা আপনাকে ক্লায়েন্টের সামনে বিব্রত করেছে। {বিব্রত করেছে}
+boss:angry:talk > কে দায়ী? এখনই জবাব চাই! {এখনই জবাব চাই}
+hero:neutral:talk > স্যার, মনে হচ্ছে এই দেরিটা আপনাকে ক্লায়েন্টের সামনে বিব্রত করেছে। {বিব্রত করেছে}
 boss:surprised:idle বস এক মুহূর্ত চুপ। তারপর গলা নামল। হ্যাঁ, ঠিক তাই। {গলা নামল}
 hero:neutral:hold:paper [check: +কাল সকালে মাল পৌঁছাবে / +পরের অর্ডারে ৫% ছাড় / +প্রতি সপ্তাহে আপডেট] এখন কী করলে ঠিক হবে, তিনটা উপায় এনেছি। {তিনটা উপায়}
 ## conference day happy | | client,hero
@@ -3469,7 +3474,7 @@ hero:proud:wave [counter: দিনে ফ্লেক্সিলোড / 0 / 2
 ## mobile_shop day sad | এক বছর পর | hero,baba
 hero:worried:phone [counter: দিনে খদ্দের / 200 / 3] সবাই এখন নিজের ফোনেই রিচার্জ করে। খদ্দের নামল ৩ জনে। {৩ জনে}
 baba:neutral:talk বাবা বললেন, দোকানটা একটু বদলা। {একটু বদলা}
-hero:angry:arms_crossed না বাবা, মানুষ আবার ফিরবে। {আবার ফিরবে}
+hero:angry:arms_crossed > না বাবা, মানুষ আবার ফিরবে। {আবার ফিরবে}
 hero:sad:head_down [progress: সঞ্চয় / 10] মানুষ ফিরল না। ছয় মাসে সঞ্চয় শেষ। {সঞ্চয় শেষ}
 - আপনার চেনা কোন দোকান সময়ের সাথে বদলাতে না পেরে বন্ধ হয়েছে? {বদলাতে না পেরে}
 ## book
@@ -3492,12 +3497,12 @@ baba:proud:hold:money [compare: পুরোনো আঁকড়ে / দি�
 চরিত্র: hero=তানিম/hero, ma=মা/mother, aunty=রেহানা আন্টি/neighbor_aunty
 ক্ষেত্র: পরিবার
 ## drawing_room day happy | | hero,ma,aunty
-aunty:surprised:talk তানিম নাকি এখন নিজের অফিস খুলেছে? {নিজের অফিস}
+aunty:surprised:talk > তানিম নাকি এখন নিজের অফিস খুলেছে? {নিজের অফিস}
 - অথচ এই আন্টির একটা কথায় তানিম বছরের পর বছর নিজেকে ছোট ভেবেছিল। {নিজেকে ছোট ভেবেছিল}
 ## rewind
 কোন কথা? বলছি। {বলছি}
 ## drawing_room day sad | সাত বছর আগে | aunty,ma,hero
-aunty:proud:talk [price: আন্টির ছেলে: জিপিএ ৫] আমার রাহাত তো জিপিএ ৫। তোমার তানিম? {তোমার তানিম}
+aunty:proud:talk [price: আন্টির ছেলে: জিপিএ ৫] > আমার রাহাত তো জিপিএ ৫। তোমার তানিম? {তোমার তানিম}
 hero:sad:head_down মা চুপ। তানিম দরজার আড়ালে। {দরজার আড়ালে}
 ## student_room night sad | পরের বছরগুলো | hero
 hero:sad:phone [check: -ও ভালো চাকরি পেয়েছে / -ও গাড়ি কিনেছে / -ও বিদেশ গেছে] ফেসবুক খুললেই অন্যের জয়। নিজের সবই কম। {নিজের সবই কম}
@@ -3532,10 +3537,10 @@ hero:crying:hold:paper [price: অ্যাকাউন্টিং: F] রে�
 ## rewind
 এত ব্যস্ততা কিসের? বলছি। {বলছি}
 ## campus day happy | পরীক্ষার এক মাস আগে | hero,friend
-friend:happy:talk দোস্ত, ক্লাব প্রোগ্রামের ব্যানারটা তুই বানিয়ে দে না। {তুই বানিয়ে দে না}
-hero:happy:wave হ্যাঁ, কোনো সমস্যা নেই। {কোনো সমস্যা নেই}
+friend:happy:talk > দোস্ত, ক্লাব প্রোগ্রামের ব্যানারটা তুই বানিয়ে দে না। {তুই বানিয়ে দে না}
+hero:happy:wave > হ্যাঁ, কোনো সমস্যা নেই। {কোনো সমস্যা নেই}
 ## student_room night tense | | hero,cousin
-cousin:happy:raise_phone ভাইয়া, আমার অ্যাসাইনমেন্টটা একটু দেখে দেবে? {একটু দেখে দেবে}
+cousin:happy:raise_phone > ভাইয়া, আমার অ্যাসাইনমেন্টটা একটু দেখে দেবে? {একটু দেখে দেবে}
 hero:tired:phone [check: +ক্লাবের ব্যানার / +শাওনের অ্যাসাইনমেন্ট / +বড় চাচার বাজার / +বন্ধুর বিয়ের ভিডিও / -নিজের পড়া] হ্যাঁ, হ্যাঁ, হ্যাঁ। চারটা কাজ। নিজের পড়ার সময় শূন্য। {নিজের পড়ার সময় শূন্য}
 hero:tired:idle:book [calendar: পরীক্ষার আগের রাত] পরীক্ষার আগের রাতে বইটা প্রথম খুলল। {প্রথম খুলল}
 ## dining_home night sad | | hero,ma
@@ -3545,8 +3550,8 @@ ma:sad:talk মা বললেন, সবার কাজ করলি, তো�
 গ্রেগ ম্যাককিওনের বই এসেনশিয়ালিজম বলে, বিনয়ের সাথে না বলতে শেখো। {বিনয়ের সাথে না}
 - প্রতিটা হ্যাঁ আসলে অন্য কিছুকে না। তানিম নিজের পরীক্ষাকেই না বলেছিল। {নিজের পরীক্ষাকেই না}
 ## campus day normal | পরের সেমিস্টার | hero,friend
-friend:happy:talk দোস্ত, এবারের প্রোগ্রামের পুরো সাজসজ্জা তুই নে। {পুরো সাজসজ্জা}
-hero:neutral:talk দোস্ত, এ মাসে পারব না। পরীক্ষার পর পুরোটা আমার। {এ মাসে পারব না}
+friend:happy:talk > দোস্ত, এবারের প্রোগ্রামের পুরো সাজসজ্জা তুই নে। {পুরো সাজসজ্জা}
+hero:neutral:talk > দোস্ত, এ মাসে পারব না। পরীক্ষার পর পুরোটা আমার। {এ মাসে পারব না}
 friend:surprised:idle ইমরান একটু অবাক। তারপর বলল, আচ্ছা, ঠিক আছে। {আচ্ছা, ঠিক আছে}
 hero:neutral:hold:book [check: +দিনে ৩ ঘণ্টা নিজের পড়া / +অন্যের কাজ শুধু শুক্রবার / +না বলার আগে ধন্যবাদ] দিনে তিন ঘণ্টা নিজের পড়া। ওই সময়ে কাউকে হ্যাঁ নেই। {কাউকে হ্যাঁ নেই}
 ## result_board day happy | | hero,ma
@@ -3564,7 +3569,7 @@ hero:happy:talk [compare: সবাইকে হ্যাঁ / নিজের �
 চরিত্র: hero=তানিম/hero, riya=রিয়া/wife, hr=এইচআর অফিসার/boss_f
 ক্ষেত্র: চাকরি/অফিস
 ## hr_office day tense | | hr,hero
-hr:neutral:give:envelope [alert: কর্মী ছাঁটাই: ৩০ জন] দুঃখিত তানিম, কোম্পানি ৩০ জন কমাচ্ছে। {৩০ জন কমাচ্ছে}
+hr:neutral:give:envelope [alert: কর্মী ছাঁটাই: ৩০ জন] > দুঃখিত তানিম, কোম্পানি ৩০ জন কমাচ্ছে। {৩০ জন কমাচ্ছে}
 hero:neutral:hold:envelope তানিম খামটা নিল। হাসল। ধন্যবাদ আপা। {ধন্যবাদ আপা}
 - অথচ তিন বছর আগে একই খাম পেয়ে তানিম চার মাস ঘর থেকে বের হয়নি। {চার মাস}
 ## rewind
@@ -3638,7 +3643,7 @@ hero:crying:hands_on_head:laptop [counter: অনলাইন শপে মো�
 ## home_bedroom night tense | এক বছর আগে | hero,friend
 hero:worried:idle:laptop [progress: বিক্রি / 8] ছয় মাস। বিজ্ঞাপন, স্টক, ডেলিভারি। বিক্রি প্রায় নেই। {বিক্রি প্রায় নেই}
 friend:neutral:talk ইমরান বলল, দোস্ত, থাম এবার। {থাম এবার}
-hero:angry:talk ৮০ হাজার ঢেলেছি! এখন থামলে সব জলে যাবে। {সব জলে যাবে}
+hero:angry:talk > ৮০ হাজার ঢেলেছি! এখন থামলে সব জলে যাবে। {সব জলে যাবে}
 hero:worried:phone [price: আরো বিজ্ঞাপন: ৳ ৩০,০০০] আরো বিজ্ঞাপন। আরো স্টক। আরো ৮০ হাজার। {আরো ৮০ হাজার}
 - আপনিও কি এভাবে কোনো কিছুতে শুধু আগের খরচের জন্য আটকে আছেন? {আগের খরচের জন্য}
 ## book
@@ -3648,7 +3653,7 @@ hero:worried:phone [price: আরো বিজ্ঞাপন: ৳ ৩০,০০
 hero:worried:hold:paper [price: কোর্স ফি দেওয়া: ৳ ২০,০০০] এবার একটা প্রফেশনাল কোর্স। ২০ হাজার দেওয়া শেষ। দুই মাস পর বোঝা গেল, কোর্সটা পুরোনো। {কোর্সটা পুরোনো}
 baba:neutral:talk বাবা বললেন, বাকি ৪০ হাজার দিয়ে শেষ করবি? {শেষ করবি}
 hero:neutral:talk [check: -আগে কত গেছে / +এখন থেকে কী পাব / +এই টাকায় ভালো কী আছে] তানিম প্রশ্ন বদলাল। কত গেছে না, এখন থেকে কী পাব। {এখন থেকে কী পাব}
-hero:neutral:wave না বাবা। ২০ গেছে, যাক। বাকি ৪০ বাঁচুক। {বাকি ৪০ বাঁচুক}
+hero:neutral:wave > না বাবা। ২০ গেছে, যাক। বাকি ৪০ বাঁচুক। {বাকি ৪০ বাঁচুক}
 ## it_office day happy | ছয় মাস পর | hero
 hero:happy:idle:laptop [price: নতুন কোর্স: ৳ ১২,০০০] ১২ হাজারের অনলাইন কোর্সে শিখে নতুন প্রজেক্ট। {নতুন প্রজেক্ট}
 hero:proud:arms_crossed [compare: আগের খরচ দেখে / আরো ৮০ হাজার গেল / সামনেটা দেখে / ৪০ হাজার বাঁচল] পেছনে তাকিয়ে গেল ৮০, সামনে তাকিয়ে বাঁচল ৪০। {সামনে তাকিয়ে}
@@ -3664,13 +3669,13 @@ hero:proud:arms_crossed [compare: আগের খরচ দেখে / আর�
 চরিত্র: hero=তানিম/hero, colleague=রুবেল/colleague_m, boss=নুসরাত আপা/boss_f
 ক্ষেত্র: চাকরি/অফিস
 ## office_open day happy | | colleague,hero
-colleague:neutral:talk কী তানিম, আজও নতুন শার্ট? কার জন্য? {কার জন্য}
+colleague:neutral:talk > কী তানিম, আজও নতুন শার্ট? কার জন্য? {কার জন্য}
 hero:happy:cup তানিম হেসে বলল, আপনার জন্যই রুবেল ভাই। চা খাবেন? {চা খাবেন}
 - অথচ এক বছর আগে এই একই খোঁচায় তানিমের পুরো দিন নষ্ট হতো। {পুরো দিন নষ্ট}
 ## rewind
 কী বদলাল? বলছি। {বলছি}
 ## cubicle day sad | এক বছর আগে | colleague,hero
-colleague:neutral:point তোমার প্রেজেন্টেশন তো স্কুলের ছেলেদের মতো। {স্কুলের ছেলেদের মতো}
+colleague:neutral:point > তোমার প্রেজেন্টেশন তো স্কুলের ছেলেদের মতো। {স্কুলের ছেলেদের মতো}
 hero:sad:head_down তানিম সারাদিন সেই কথাটাই ভাবল। কাজে মন বসল না। {সেই কথাটাই ভাবল}
 hero:sad:phone [chat: তানিম / রুবেল ভাই আমাকে দেখতে পারে না কেন?] রাতে বন্ধুকে মেসেজ, স্ত্রীকে নালিশ, ঘুম নেই। {ঘুম নেই}
 boss:worried:talk [progress: তানিমের কাজ / 40] বস বললেন, তোমার কাজ ইদানীং পিছিয়ে যাচ্ছে। {পিছিয়ে যাচ্ছে}
@@ -3679,11 +3684,11 @@ boss:worried:talk [progress: তানিমের কাজ / 40] বস বল
 ডন মিগেল রুইজের বই দ্য ফোর অ্যাগ্রিমেন্টস বলে, কিছুই ব্যক্তিগতভাবে নিয়ো না। {ব্যক্তিগতভাবে নিয়ো না}
 - রুবেল ভাইয়ের কথা রুবেল ভাইয়ের মেজাজের খবর, তানিমের দামের নয়। {মেজাজের খবর}
 ## cubicle day normal | পরের সপ্তাহে | colleague,hero
-colleague:neutral:talk আবার খোঁচা, তোমার রিপোর্টে তো ভুলে ভরা। {ভুলে ভরা}
-hero:neutral:talk কোন পাতায়, রুবেল ভাই? দেখিয়ে দিলে ঠিক করে দিই। {কোন পাতায়}
+colleague:neutral:talk > আবার খোঁচা, তোমার রিপোর্টে তো ভুলে ভরা। {ভুলে ভরা}
+hero:neutral:talk > কোন পাতায়, রুবেল ভাই? দেখিয়ে দিলে ঠিক করে দিই। {কোন পাতায়}
 colleague:surprised:idle রুবেল ভাই পাতা উল্টালেন। একটা বানান ভুল পেলেন। ব্যস। {একটা বানান ভুল}
 ## office_open day happy | এক বছর পর | boss,hero
-boss:happy:give:envelope [big: মাসের সেরা কর্মী: তানিম] মাসের সেরা কর্মী, তানিম। {মাসের সেরা কর্মী}
+boss:happy:give:envelope [big: মাসের সেরা কর্মী: তানিম] > মাসের সেরা কর্মী, তানিম। {মাসের সেরা কর্মী}
 hero:proud:arms_crossed [compare: সব কথা গায়ে মেখে / কাজ পিছিয়ে / কথা ফিরিয়ে দিয়ে / মাসের সেরা] গায়ে মেখে হারাল মন, হেসে নিয়ে পেল সম্মান। {হেসে নিয়ে}
 - অন্যের ছোড়া কাদা তুমি না ধরলে, তোমার হাতে লাগে না। {না ধরলে}
 ## cta | আপনার অফিসের রুবেল ভাইয়ের প্রিয় খোঁচাটা কী? |
@@ -3706,9 +3711,9 @@ hero:neutral:talk তানিম একটা বই থেকে তিথি�
 hero:neutral:point [check: +না চাইতেই প্রতিশ্রুতি / +"না" বলার পরও জোর] না চাইতেই কেউ কথা দিলে, আর না বলার পরও জোর করলে, সাবধান। {না বলার পরও জোর}
 sister:happy:talk তিথি হেসেছিল। ভাইয়া, তুমি বেশি ভয় পাও। {বেশি ভয় পাও}
 ## bus_stand night tense | আজ রাতে | sister,stranger
-stranger:happy:talk বাস তো আজ আসবে না আপা। চলেন আমি পৌঁছে দিই, কোনো সমস্যা হবে না। {কোনো সমস্যা হবে না}
-sister:worried:talk না, ধন্যবাদ। {না, ধন্যবাদ}
-stranger:happy:point আরে ভয় পাচ্ছেন কেন, আমার গাড়ি ওই তো। {ভয় পাচ্ছেন কেন}
+stranger:happy:talk > বাস তো আজ আসবে না আপা। চলেন আমি পৌঁছে দিই, কোনো সমস্যা হবে না। {কোনো সমস্যা হবে না}
+sister:worried:talk > না, ধন্যবাদ। {না, ধন্যবাদ}
+stranger:happy:point > আরে ভয় পাচ্ছেন কেন, আমার গাড়ি ওই তো। {ভয় পাচ্ছেন কেন}
 sister:worried:idle দুইবার না বলার পরও জোর। ঠিক ভাইয়ার বলা সংকেত। {ভাইয়ার বলা সংকেত}
 - আপনিও কি কখনো এমন অস্বস্তির অনুভূতি পাত্তা দেননি? {অস্বস্তির অনুভূতি}
 ## book
@@ -3738,7 +3743,7 @@ hero:happy:hold:plate রাত ১টা। তানিম ফিরে দে
 ## rewind
 কেন? বলছি। {বলছি}
 ## drawing_room day sad | দুই বছর আগে | hero,ma
-hero:angry:talk তুমি কখনো একবারও বলেছ, তোমাকে নিয়ে গর্ব করি? {একবারও বলেছ}
+hero:angry:talk > তুমি কখনো একবারও বলেছ, তোমাকে নিয়ে গর্ব করি? {একবারও বলেছ}
 ma:sad:head_down মা কিছু বললেন না। রান্নাঘরে চলে গেলেন। {রান্নাঘরে চলে গেলেন}
 hero:sad:phone [chat: বন্ধুর মা / বাবা, তোকে খুব ভালোবাসি] বন্ধুদের মায়েরা মেসেজে লেখেন, ভালোবাসি। তানিমের মা লেখেন না। {তানিমের মা লেখেন না}
 - আপনার মা-বাবাও কি মুখে কখনো ভালোবাসার কথা বলেননি? {মুখে কখনো}
@@ -3773,7 +3778,7 @@ daughter:happy:wave বাবা, আজও তুমি পার্কে! ম
 ## cubicle day tense | ছয় মাস আগে | hero
 hero:neutral:idle:laptop [check: +ইমেইল দেখা / +ছোট ফাইল / +চা / -বাজেট রিপোর্ট] সকালে আগে সহজ কাজ। ইমেইল, ছোট ফাইল, চা। {আগে সহজ কাজ}
 hero:tired:hands_on_head [calendar: বিকেল ৫টা] বিকেল ৫টায় হাত দিল আসল কাজে, বাজেট রিপোর্ট। {বাজেট রিপোর্ট}
-boss:angry:point [alert: রিপোর্ট দেরি] রিপোর্ট আবার দেরি তানিম? {আবার দেরি}
+boss:angry:point [alert: রিপোর্ট দেরি] > রিপোর্ট আবার দেরি তানিম? {আবার দেরি}
 ## home_door night sad | | hero
 hero:tired:idle [calendar: রাত ১০টা] রাত ১০টা। দরজা খুলে দেখে মীম ঘুমিয়ে। {মীম ঘুমিয়ে}
 - আপনিও কি কঠিন কাজটা দিনের শেষে ফেলে রাখেন? {দিনের শেষে}
@@ -3832,7 +3837,7 @@ hero:proud:idle [compare: লজ্জায় মুখ ফেরানো / �
 চরিত্র: hero=তানিম/hero, riya=রিয়া/wife, boss=করিম স্যার/boss_m
 ক্ষেত্র: স্বাস্থ্য/অভ্যাস
 ## home_bedroom day happy | | hero,riya
-riya:surprised:talk তানিম, সকাল ৬টায় তুমি উঠে বসে আছ? {সকাল ৬টায়}
+riya:surprised:talk > তানিম, সকাল ৬টায় তুমি উঠে বসে আছ? {সকাল ৬টায়}
 - অথচ তিন মাস আগে তানিম ঘুমাত রাত ৩টায়। রোজ। {রাত ৩টায়}
 ## rewind
 কীভাবে বদলাল? বলছি। {বলছি}
@@ -4227,12 +4232,60 @@ const FG = {
 };
 
 /* ===================== CARDS ===================== */
+let CARD_CINE = false;
+function drawPhoneCard(c, card, lt, k, t) {
+  // full-screen phone held in hand (call / chat / sms) over a darkened scene
+  const T = (s) => String(s == null ? '' : s), ty = card.type;
+  withA(c, .42 * cl(k), () => rect(c, 0, 0, W, H, '#05080a'));
+  const rise = (1 - eo(cl(k))) * 520, px = 270, py = 380 + rise, pw = 540, ph = 1060;
+  c.save(); c.translate(540, py + ph / 2); c.rotate((-2.5 + Math.sin(t * .8) * .6) * Math.PI / 180); c.translate(-540, -(py + ph / 2));
+  c.save(); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 50; c.shadowOffsetY = 20; rr(c, px - 16, py - 16, pw + 32, ph + 32, 74, '#111518'); c.restore();
+  c.save(); c.beginPath(); c.roundRect(px, py, pw, ph, 60); c.clip();
+  if (ty === 'call') {
+    const g = c.createLinearGradient(0, py, 0, py + ph); g.addColorStop(0, '#1F4733'); g.addColorStop(1, '#0E2219'); c.fillStyle = g; c.fillRect(px, py, pw, ph);
+    const nm = T(card.name || 'অচেনা নম্বর'); const r = 92 + 14 * Math.sin(t * 6);
+    withA(c, .25, () => circ(c, 540, py + 360, r + 30, '#ffffff')); circ(c, 540, py + 360, 92, '#E9B04A'); txt(c, nm.replace(/\s*\(.*\)/, '')[0] || '?', 540, py + 392, 90, '#14301F', 800, 'center', FONT_BN);
+    txt(c, nm, 540, py + 540, 58, '#ffffff', 700, 'center', FONT_BN, pw - 60); txt(c, 'কল আসছে…', 540, py + 600, 36, '#B9CFC2', 600, 'center', FONT_BN);
+    circ(c, px + 140, py + ph - 170, 56, '#E53935'); circ(c, px + pw - 140, py + ph - 170 - Math.abs(Math.sin(t * 5)) * 10, 56, '#27AE60');
+    P(c, `M${px + pw - 160},${py + ph - 190} q10,30 40,40 l10,-12 l-14,-10 l-8,8 q-14,-6 -20,-20 l8,-8 l-10,-14Z`, '#fff');
+    c.save(); c.translate(px + 140, py + ph - 170); c.rotate(2.36); P(c, 'M-20,-18 q10,30 40,40 l10,-12 l-14,-10 l-8,8 q-14,-6 -20,-20 l8,-8 l-10,-14Z', '#fff'); c.restore();
+  } else if (ty === 'chat') {
+    rect(c, px, py, pw, ph, '#ECE5DD'); rect(c, px, py, pw, 170, '#1F4733');
+    const nm = T(card.name || 'মেসেজ'); circ(c, px + 80, py + 110, 34, '#E9B04A'); txt(c, nm[0] || 'ম', px + 80, py + 124, 36, '#14301F', 800, 'center', FONT_BN); txt(c, nm, px + 135, py + 122, 38, '#fff', 700, 'left', FONT_BN, pw - 170);
+    const ls = wrapText(c, T(card.text), 40, pw - 150, 600).slice(0, 5); const bh = ls.length * 54 + 60, bx = px + 34, by = py + 260;
+    popAt(c, bx + 200, by + bh / 2, back(lt, .35, .4), () => { rr(c, bx, by, pw - 90, bh, 28, '#ffffff'); ls.forEach((l, i) => txt(c, l, bx + 30, by + 62 + i * 54, 40, '#1d2228', 600, 'left', FONT_BN, pw - 150)); txt(c, 'এইমাত্র', bx + pw - 120, by + bh - 16, 24, '#8a9399', 600, 'right', FONT_BN); });
+    rr(c, px + 30, py + ph - 120, pw - 60, 76, 38, '#ffffff');
+  } else {
+    const g = c.createLinearGradient(0, py, 0, py + ph); g.addColorStop(0, '#2B3A55'); g.addColorStop(1, '#121A2B'); c.fillStyle = g; c.fillRect(px, py, pw, ph);
+    const d = new Date(); txt(c, '৯:৪১', 540, py + 260, 130, '#ffffff', 300, 'center', FONT_EN); txt(c, 'আজ', 540, py + 320, 34, '#C9D3E6', 600, 'center', FONT_BN);
+    const ls = wrapText(c, T(card.text), 36, pw - 150, 600).slice(0, 4); const nh = 110 + ls.length * 46;
+    popAt(c, 540, py + 420 + nh / 2, back(lt, .4, .4), () => { rr(c, px + 30, py + 420, pw - 60, nh, 30, 'rgba(255,255,255,.94)'); circ(c, px + 82, py + 474, 22, '#1F4733'); txt(c, T(card.title || 'নতুন মেসেজ'), px + 120, py + 486, 32, '#1d2228', 700, 'left', FONT_BN, pw - 170); ls.forEach((l, i) => txt(c, l, px + 60, py + 548 + i * 46, 36, '#2d3436', 600, 'left', FONT_BN, pw - 120)); });
+  }
+  c.restore();
+  // thumb of the hand holding the phone
+  P(c, `M${px - 30},${py + ph - 40} q-40,140 60,260 l220,0 q-40,-120 -60,-170 q-30,-60 -90,-110 q-60,-40 -130,20Z`, '#C98B5E', 'rgba(0,0,0,.15)', 3);
+  c.restore();
+}
+function drawResultCards(c, card, lt, k, t) {
+  // red card = the losing way, gold card = the winning way (slides in after it)
+  const T = (s) => String(s == null ? '' : s);
+  const k2 = back(lt, .9, .5);
+  const card1 = (x, y, w, h, bg, fg1, fg2, label, val, mark, kk, fromX) => { if (kk <= 0) return; c.save(); c.globalAlpha *= cl(kk * 1.3); c.translate((1 - cl(kk)) * fromX, 0);
+    c.save(); c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = 30; c.shadowOffsetY = 12; rr(c, x, y, w, h, 26, bg); c.restore();
+    const ls = wrapText(c, label, 42, w - 60, 600).slice(0, 2); ls.forEach((l, i) => txt(c, l, x + w / 2, y + 80 + i * 50, 42, fg1, 600, 'center', FONT_BN, w - 40));
+    const vl = wrapText(c, val, 62, w - 50, 800).slice(0, 2); vl.forEach((l, i) => txt(c, l, x + w / 2, y + 100 + ls.length * 50 + 40 + i * 70, 62, fg2, 800, 'center', FONT_BN, w - 40));
+    circ(c, x + w / 2, y, 30, fg2); txt(c, mark, x + w / 2, y + 13, 36, bg, 800, 'center', FONT_EN); c.restore(); };
+  card1(60, 290, 450, 360, '#8E2F2B', '#F7D9D4', '#FFFFFF', T(card.left), T(card.lv), '✕', k, -500);
+  card1(570, 290, 450, 360, '#EBB54A', '#4A3510', '#14301F', T(card.right), T(card.rv), '✓', k2, 500);
+}
 function drawCard(c, card, lt, dur, t) {
   if (!card || !card.type) return;
   const k = back(lt, .25), out = cl((dur - lt) / .2);
   if (k <= 0 || out <= 0) return;
   c.save(); c.globalAlpha *= out;
   const ty = card.type, cx = 540;
+  if (CARD_CINE && (ty === 'call' || ty === 'chat' || ty === 'sms')) { drawPhoneCard(c, card, lt, k, t); c.restore(); return; }
+  if (CARD_CINE && ty === 'compare') { drawResultCards(c, card, lt, k, t); c.restore(); return; }
   const T = (s) => String(s == null ? '' : s);
   switch (ty) {
     case 'sms': case 'chat': popAt(c, cx, 560, k, () => {
@@ -4720,6 +4773,7 @@ function parseTFScript(text) {
     const sp = rest.split('||'); rest = sp[0].trim(); if (sp[1]) L.say = sp[1].trim();
     const mc = rest.match(/\[([a-z]+)\s*:?\s*([^\]]*)\]/i);
     if (mc) { L.card = cardFromShort(mc[1].toLowerCase(), mc[2]); rest = rest.replace(mc[0], ' ').trim(); }
+    if (/^>\s*/.test(rest)) { if (L.who) L.speak = true; rest = rest.replace(/^>\s*/, ''); }
     const mh = rest.match(/\{([^}]*)\}\s*$/); if (mh) { L.hl = mh[1]; rest = rest.slice(0, mh.index).trim(); }
     if (sc.type === 'takeaways') { const mi = rest.match(/<([^>]+)>/); if (mi) { L.item = mi[1]; rest = rest.replace(mi[0], mi[1]); } }
     L.cap = rest.replace(/\s+/g, ' ').trim(); if (!L.say) L.say = spoken(L.cap);
@@ -4751,7 +4805,7 @@ function toTFScript(st) {
     else if (s.type === 'metaphor') o.push(`## metaphor ${s.metaphor.icon} | ${s.metaphor.left} | ${s.metaphor.right} | ${s.metaphor.winner}`);
     else if (s.type === 'cta') o.push(`## cta | ${s.cta.question} | ${s.cta.options.join(', ')}`);
     else o.push('## ' + s.type);
-    s.lines.forEach(l => { let m = ''; if (l.who) m = [l.who, l.feel, l.do, l.hold].join(':').replace(/:+$/, '') + ' '; let card = ''; if (l.card) { const c = l.card; const v = c.type === 'sms' ? `${c.title} / ${c.text}` : c.type === 'chat' ? `${c.name} / ${c.text}` : c.type === 'counter' ? `${c.label} / ${c.from} / ${c.to} / ${c.prefix || ''}` : c.type === 'compare' ? `${c.left} / ${c.lv} / ${c.right} / ${c.rv}` : c.type === 'progress' ? `${c.label} / ${c.value}` : c.type === 'check' ? (c.items || []).map(i => (i.ok === false ? '-' : '+') + i.t).join(' / ') : c.type === 'call' ? c.name : c.text; card = `[${c.type}: ${v}] `; } o.push(m + card + l.cap + (l.hl ? ` {${l.hl}}` : '') + (l.say && l.say !== spoken(l.cap) ? ` || ${l.say}` : '')); });
+    s.lines.forEach(l => { let m = ''; if (l.who) m = [l.who, l.feel, l.do, l.hold].join(':').replace(/:+$/, '') + ' '; let card = ''; if (l.card) { const c = l.card; const v = c.type === 'sms' ? `${c.title} / ${c.text}` : c.type === 'chat' ? `${c.name} / ${c.text}` : c.type === 'counter' ? `${c.label} / ${c.from} / ${c.to} / ${c.prefix || ''}` : c.type === 'compare' ? `${c.left} / ${c.lv} / ${c.right} / ${c.rv}` : c.type === 'progress' ? `${c.label} / ${c.value}` : c.type === 'check' ? (c.items || []).map(i => (i.ok === false ? '-' : '+') + i.t).join(' / ') : c.type === 'call' ? c.name : c.text; card = `[${c.type}: ${v}] `; } o.push(m + card + (l.speak ? '> ' : '') + l.cap + (l.hl ? ` {${l.hl}}` : '') + (l.say && l.say !== spoken(l.cap) ? ` || ${l.say}` : '')); });
   });
   if (st.youtube && st.youtube.description) o.push('বর্ণনা: ' + st.youtube.description);
   if (st.youtube && st.youtube.hashtags) o.push('হ্যাশট্যাগ: ' + st.youtube.hashtags.join(' '));
@@ -4781,7 +4835,7 @@ function oneOf(v, list, def) { v = str(v).toLowerCase(); return list.includes(v)
 
 function normalizeStory(raw, hero) {
   const warn = [];
-  const st = { title: str(raw.title) || 'নতুন গল্প', thumb: str(raw.thumb), area: str(raw.area), cover: (raw.cover && typeof raw.cover === 'object') ? { ctx: str(raw.cover.ctx), l1: str(raw.cover.l1), l2: str(raw.cover.l2), icon: PROPS.includes(str(raw.cover.icon)) ? str(raw.cover.icon) : '', sym: str(raw.cover.sym).slice(0, 4) } : null, book: raw.book || {}, youtube: raw.youtube || {}, characters: [], scenes: [] };
+  const st = { title: str(raw.title) || 'নতুন গল্প', thumb: str(raw.thumb), area: str(raw.area), voiceMap: (raw.voiceMap && typeof raw.voiceMap === 'object') ? Object.fromEntries(Object.entries(raw.voiceMap).filter(([k, v]) => typeof v === 'string').map(([k, v]) => [String(k).slice(0, 40), v.slice(0, 80)])) : {}, cover: (raw.cover && typeof raw.cover === 'object') ? { ctx: str(raw.cover.ctx), l1: str(raw.cover.l1), l2: str(raw.cover.l2), icon: PROPS.includes(str(raw.cover.icon)) ? str(raw.cover.icon) : '', sym: str(raw.cover.sym).slice(0, 4) } : null, book: raw.book || {}, youtube: raw.youtube || {}, characters: [], scenes: [] };
   st.book = { title: str(st.book.title), author: str(st.book.author), lesson: str(st.book.lesson), lesson_bn: str(st.book.lesson_bn) };
   const ids = new Set(); const roleCount = {};
   (Array.isArray(raw.characters) ? raw.characters : []).forEach((ch, i) => {
@@ -4806,7 +4860,7 @@ function normalizeStory(raw, hero) {
     const lines = Array.isArray(sc.lines) ? sc.lines : (sc.lines ? [sc.lines] : []);
     lines.forEach((ln, li) => {
       if (typeof ln === 'string') ln = { say: ln };
-      const L = { say: str(ln.say) || spoken(str(ln.cap || ln.text)), cap: str(ln.cap || ln.say || ln.text), hl: Array.isArray(ln.hl) ? ln.hl.map(str).join('|') : str(ln.hl), who: findChar(ln.who), focus: findChar(ln.focus), feel: oneOf(ln.feel, FEELS, ''), do: oneOf(ln.do, ACTIONS, ''), hold: oneOf(ln.hold, PROPS, ''), card: null, item: str(ln.item) };
+      const L = { say: str(ln.say) || spoken(str(ln.cap || ln.text)), cap: str(ln.cap || ln.say || ln.text), hl: Array.isArray(ln.hl) ? ln.hl.map(str).join('|') : str(ln.hl), who: findChar(ln.who), speak: !!ln.speak && !!findChar(ln.who), focus: findChar(ln.focus), feel: oneOf(ln.feel, FEELS, ''), do: oneOf(ln.do, ACTIONS, ''), hold: oneOf(ln.hold, PROPS, ''), card: null, item: str(ln.item) };
       if (ln.card && typeof ln.card === 'object') { const ty = oneOf(ln.card.type, CARD_TYPES, ''); if (ty) L.card = Object.assign({}, ln.card, { type: ty }); else warn.push(`দৃশ্য ${si + 1}, লাইন ${li + 1}: কার্ড টাইপ "${ln.card.type}" চেনা নেই — বাদ দেওয়া হলো।`); }
       if (!L.say) { warn.push(`দৃশ্য ${si + 1}, লাইন ${li + 1}: খালি লাইন বাদ দেওয়া হলো।`); return; }
       if (L.who && type === 'story' && !s.cast.includes(L.who)) s.cast.push(L.who);
@@ -4865,6 +4919,7 @@ class StoryRenderer {
   load(story, timeline, settings) {
     this.story = story; this.tl = timeline; this.settings = settings || {};
     this.chars = Object.fromEntries(story.characters.map(ch => [ch.id, { ch, L: lookFor(ch), seed: (hashStr(ch.id) % 100) / 30 }]));
+    this.cine2 = this.settings.animStyle !== 'classic'; this._bg = new Map(); this._ctaBg = null;
     // pre-compute per-shot state (feel/act per char), cameras
     this.state = []; let prevScene = -1, idxInScene = 0, mem = {};
     this.tl.shots.forEach((sh, k) => {
@@ -4874,13 +4929,45 @@ class StoryRenderer {
       sc.cast.forEach(id => { if (!mem[id]) mem[id] = { feel: defFeel, act: 'idle', hold: '' }; });
       const ac = ln.who || ln.focus;
       if (ac && mem[ac]) { if (ln.feel) mem[ac].feel = ln.feel; mem[ac].act = ln.do || (mem[ac].act === 'talk' ? 'idle' : mem[ac].act); mem[ac].hold = ln.hold || ''; if (mem[ac].hold && (mem[ac].act === 'idle' || mem[ac].act === 'talk')) mem[ac].act = 'hold'; }
-      this.state[k] = { mem: JSON.parse(JSON.stringify(mem)), cam: clampCam(camFor(sc, idxInScene, ln)), idx: idxInScene };
+      this.state[k] = { mem: JSON.parse(JSON.stringify(mem)), cam: clampCam(this.cine2 ? this.camFor2(sc, idxInScene, ln) : camFor(sc, idxInScene, ln)), idx: idxInScene };
     });
     // first line where each character speaks in a scene → name tag
     this.nameTag = {}; const seen = {};
     this.tl.shots.forEach((sh, k) => { const ln = story.scenes[sh.si].lines[sh.li]; if (ln.who && story.scenes[sh.si].type === 'story') { const key = sh.si + ':' + ln.who; if (!seen[ln.who]) { seen[ln.who] = 1; this.nameTag[k] = ln.who; } } });
     this.firstStory = story.scenes.findIndex(x => x.type === 'story');
+    this.jump = story.scenes.map((sc, i) => { if (sc.type !== 'story' || i <= this.firstStory || !sc.badge) return ''; if (/আগে/.test(sc.badge)) return 'rw'; if (/পর|পরে|এখন|সেদিন থেকে|শেষে|থেকে/.test(sc.badge)) return 'ff'; return ''; });
     this.trans = story.scenes.map((sc, i) => { if (i === 0) return 'none'; if (sc.type === 'rewind' || story.scenes[i - 1].type === 'rewind') return 'dip'; if (sc.type === 'book' || sc.type === 'cta') return 'circle'; const opts = ['push', 'zoom', 'push', 'slide_up', 'zoom']; return opts[(hashStr(story.title + i) >> 2) % opts.length]; });
+  }
+
+  /* জীবনপাঠ cinematic camera: chest-up close-ups on the speaker, listener at the frame edge, wider group shots in between */
+  camFor2(sc, idx, ln) {
+    if (sc.type !== 'story') return { x: 540, y: 960, z: 1 };
+    const n = Math.min(3, sc.cast.length || 1), pos = CAST_POS[n] || CAST_POS[1];
+    const kidF = id => { const cr = this.chars[id]; return cr ? (cr.L.kid ? .74 : cr.L.teen ? .92 : 1) : 1; };
+    const head = i => { const P0 = pos[i] || pos[0]; return P0[1] - 418 * P0[2] * kidF(sc.cast[i]); };
+    const sp = ln.who ? sc.cast.indexOf(ln.who) : (ln.focus ? sc.cast.indexOf(ln.focus) : -1);
+    const group = n > 1 && (sp < 0 || (idx === 0 && sc.lines.length > 2) || idx % 3 === 2);
+    if (group) {
+      const z = n === 2 ? 1.34 : 1.2, vh = H / z; let top = 1e9; for (let i = 0; i < n; i++) top = Math.min(top, head(i));
+      const xs = pos.slice(0, n).map(p => p[0]); return { x: (Math.min(...xs) + Math.max(...xs)) / 2, y: top - 40 + vh * .5 - vh * .2, z };
+    }
+    const i = Math.max(0, sp), P0 = pos[i] || pos[0];
+    const z = n === 1 ? (idx % 2 ? 1.95 : 1.7) : 1.85, vw = W / z, vh = H / z;
+    const dir = n > 1 ? (P0[0] < 540 ? 1 : -1) : 0;
+    return { x: P0[0] + dir * vw * .2, y: head(i) - 30 + vh * .5 - vh * .19, z };
+  }
+  /* background painted once per scene, softly blurred, with warm bokeh lights (depth of field) */
+  bgFor(si) {
+    if (this._bg.has(si)) return this._bg.get(si);
+    const sc = this.story.scenes[si]; const raw = document.createElement('canvas'); raw.width = W / 2; raw.height = H / 2; const rc = raw.getContext('2d', { alpha: false });
+    rc.scale(.5, .5); try { drawPlace(rc, sc.place, sc.start, sc.time, 'bg'); } catch (e) { rect(rc, 0, 0, W, H, '#ddd'); }
+    const out = document.createElement('canvas'); out.width = W / 2; out.height = H / 2; const oc = out.getContext('2d', { alpha: false });
+    oc.filter = 'blur(7px)'; oc.drawImage(raw, -12, -12, W / 2 + 24, H / 2 + 24); oc.filter = 'none';
+    const night = sc.time === 'night', seed = hashStr(sc.place + si);
+    for (let k = 0; k < 16; k++) { const x = ((seed >> (k % 16)) * 37 + k * 131) % (W / 2), y = 40 + ((k * 211 + seed) % (H * .3)), r = 14 + (k * 7) % 30;
+      const g = oc.createRadialGradient(x, y, 0, x, y, r); const col = night ? '255,214,150' : '255,236,200'; g.addColorStop(0, `rgba(${col},${night ? .55 : .32})`); g.addColorStop(1, `rgba(${col},0)`); oc.fillStyle = g; oc.beginPath(); oc.arc(x, y, r, 0, Math.PI * 2); oc.fill(); }
+    if (this._bg.size > 4) this._bg.delete(this._bg.keys().next().value);
+    this._bg.set(si, out); return out;
   }
   get duration() { return this.tl ? this.tl.total : 0; }
   shotAt(t) { const s = this.tl.shots; let lo = 0, hi = s.length - 1, ans = 0; while (lo <= hi) { const m = (lo + hi) >> 1; if (s[m].start <= t) { ans = m; lo = m + 1; } else hi = m - 1; } return ans; }
@@ -4966,8 +5053,10 @@ class StoryRenderer {
     c.save();
     if (shake) c.translate(Math.sin(t * 70) * shake, Math.cos(t * 55) * shake * .6);
     if (sc.mood === 'regret') c.filter = `grayscale(${.7 * cl((t - sc.start) / .6)})`; else if (sc.mood === 'sad') c.filter = 'saturate(.88)';
+    const jmp = this.cine2 && this.jump ? this.jump[si] : '', jl = t - sc.start;
+    if (jmp && jl < .45) { const f0 = c.filter && c.filter !== 'none' ? c.filter + ' ' : ''; c.filter = f0 + `blur(${(10 * (1 - jl / .45)).toFixed(1)}px)`; }
     c.translate(W / 2, H / 2); c.scale(cam.z * push, cam.z * push); c.translate(-cam.x - drift, -cam.y);
-    drawPlace(c, sc.place, t, sc.time, 'bg');
+    if (this.cine2) c.drawImage(this.bgFor(si), 0, 0, W, H); else drawPlace(c, sc.place, t, sc.time, 'bg');
     // characters
     const n = sc.cast.length || 1, pos = CAST_POS[Math.min(3, n)] || CAST_POS[1];
     sc.cast.forEach((id, i) => {
@@ -4979,9 +5068,11 @@ class StoryRenderer {
       const fromSide = P0[0] < 540 ? -1 : P0[0] > 540 ? 1 : 0;
       const talkLift = talking && cine ? Math.abs(Math.sin(t * 6)) * 4 : 0;
       c.save(); c.globalAlpha *= cl(ent * 1.4); c.translate(fromSide * (1 - ent) * 160, (1 - ent) * 80 - talkLift);
+      if (this.cine2 && ln.who === id && (ln.feel === 'shy' || (ln.do === 'head_down' && /sad|crying/.test(ln.feel || '')))) { const g0 = cl(lt / .5); const f0 = c.filter && c.filter !== 'none' ? c.filter + ' ' : ''; c.filter = f0 + `grayscale(${g0.toFixed(2)})`; c.shadowColor = `rgba(242,193,78,${(.85 * g0).toFixed(2)})`; c.shadowBlur = 22; }
+      if (this.cine2 && cam.z > 1.6 && ln.who && ln.who !== id && n > 1) { const f0 = c.filter && c.filter !== 'none' ? c.filter + ' ' : ''; c.filter = f0 + 'blur(4px)'; }
       drawPerson(c, { L: cr.L, x: P0[0], y: P0[1], s: P0[2], flip: n > 1 && i === n - 1, feel: m.feel, act: m.act, hold: m.hold, talk: talking, t, seed: cr.seed, eye, tear: m.feel === 'crying' });
       c.restore();
-      if (this.nameTag[k] === id && lt < 2.2) { const kk = back(lt, .05, .4) * cl((2.2 - lt) / .3); const s2 = P0[2], ty = P0[1] - 470 * s2 * (cr.L.kid ? .74 : cr.L.teen ? .92 : 1); const nm = cr.ch.name; const w2 = tw(c, nm, 40, 700) + 54; popAt(c, P0[0], ty, kk, () => { rr(c, P0[0] - w2 / 2, ty - 34, w2, 64, 32, C_G, C_GO2, 3); P(c, `M${P0[0] - 12},${ty + 29} L${P0[0]},${ty + 46} L${P0[0] + 12},${ty + 29}Z`, C_G); txt(c, nm, P0[0], ty + 13, 40, C_CR, 700, 'center', FONT_BN, 420); }); }
+      if (this.nameTag[k] === id && lt < 2.2 && !(this.cine2 && si === this.firstStory && t - sc.start < 3.3)) { const kk = back(lt, .05, .4) * cl((2.2 - lt) / .3); const s2 = P0[2], ty = P0[1] - 470 * s2 * (cr.L.kid ? .74 : cr.L.teen ? .92 : 1); const nm = cr.ch.name; const w2 = tw(c, nm, 40, 700) + 54; popAt(c, P0[0], ty, kk, () => { rr(c, P0[0] - w2 / 2, ty - 34, w2, 64, 32, C_G, C_GO2, 3); P(c, `M${P0[0] - 12},${ty + 29} L${P0[0]},${ty + 46} L${P0[0] + 12},${ty + 29}Z`, C_G); txt(c, nm, P0[0], ty + 13, 40, C_CR, 700, 'center', FONT_BN, 420); }); }
     });
     drawPlace(c, sc.place, t, sc.time, 'fg');
     c.restore();
@@ -4991,8 +5082,11 @@ class StoryRenderer {
     if (sc.time === 'night') { c.save(); c.globalCompositeOperation = 'multiply'; c.fillStyle = 'rgba(120,135,190,.30)'; c.fillRect(0, 0, W, H); c.restore(); }
     else if (sc.time === 'evening') { c.save(); c.globalCompositeOperation = 'soft-light'; c.fillStyle = 'rgba(255,150,70,.20)'; c.fillRect(0, 0, W, H); c.restore(); }
     if (sc.mood === 'tense') { const g = c.createRadialGradient(540, 960, 650, 540, 960, 1250); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(90,0,0,.20)'); c.fillStyle = g; c.fillRect(0, 0, W, H); }
+    if (jmp && jl < 1.1) { const a = cl((1.1 - jl) / .3) * cl(jl / .12); withA(c, a, () => {
+      c.save(); c.globalAlpha *= .5; for (let i = 0; i < 18; i++) { const y = (i * 113 + 40) % H, len = 200 + (i * 71) % 400, x = ((jmp === 'ff' ? 1 : -1) * jl * 2600 + i * 197) % (W + 600) - 300; rect(c, jmp === 'ff' ? x : W - x - len, y, len, 4, '#ffffff'); } c.restore();
+      c.save(); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 16; txt(c, jmp === 'ff' ? '▶▶ FAST FORWARD' : '◀◀ REWIND', 60, 330, 44, '#ffffff', 700, 'left', FONT_EN); c.restore(); }); }
     // cards (screen space)
-    if (ln.card) drawCard(c, ln.card, lt, sh.dur + .2, t);
+    CARD_CINE = this.cine2; if (ln.card) drawCard(c, ln.card, lt, sh.dur + .2, t);
   }
   drawRewind(c, si, t) {
     const sc = this.story.scenes[si], lt = t - sc.start;
@@ -5001,7 +5095,7 @@ class StoryRenderer {
     else BG.abstract(c, t);
     c.fillStyle = 'rgba(0,0,0,.07)'; for (let y = 0; y < H; y += 8) c.fillRect(0, y, W, 2);
     withA(c, .22, () => rect(c, 0, 0, W, H, C_NV));
-    txt(c, '◀◀', 110, 330, 80, '#fff', 700, 'left', FONT_EN);
+    txt(c, '◀◀', 110, 330, 80, '#fff', 700, 'left', FONT_EN); if (this.cine2) txt(c, 'REWIND', 300, 322, 54, '#fff', 700, 'left', FONT_EN);
     const cap = sc.lines[0] ? sc.lines[0].cap : ''; const qi = cap.indexOf('?'); const big = qi > 0 ? cap.slice(0, qi + 1) : cap.split(/\s+/).slice(0, 2).join(' ');
     popAt(c, 540, 1000, back(lt, .15), () => { c.save(); c.lineJoin = 'round'; c.font = `800 170px ${FONT_ACC}, ${FONT_FALLBACK}`; c.textAlign = 'center'; let sz = 170; while (sz > 80 && c.measureText(big).width > 960) { sz -= 8; c.font = `800 ${sz}px ${FONT_ACC}, ${FONT_FALLBACK}`; } c.lineWidth = sz * .14; c.strokeStyle = '#0B1623'; c.strokeText(big, 540, 1060); c.fillStyle = C_GO2; c.fillText(big, 540, 1060); c.restore(); });
   }
@@ -5017,6 +5111,14 @@ class StoryRenderer {
     tl.forEach((l, i) => txt(c, l, 5, -130 + i * 58 - (tl.length - 1) * 20, 46, C_GO, 700, 'center', FONT_EN, 320));
     line(c, -80, 90, 90, 90, C_GO, 3); txt(c, (bk.author || '').toUpperCase(), 5, 200, 26, C_GO, 400, 'center', FONT_EN, 320);
     c.restore();
+    if (this.cine2 && lt > reveal + .1) { const les = bk.lesson || ''; const m = les.match(/^((?:law|rule|chapter|principle|habit|lesson)\s*)(\d+)\s*[:\-–]\s*(.*)$/i);
+      if (m) { const al = fin(lt, reveal + .2, .6); withA(c, al, () => {
+        txt(c, m[1].trim().toUpperCase(), 540, 830, 46, C_GO, 700, 'center', FONT_EN);
+        popAt(c, 540, 1000, back(lt, reveal + .25, .55), () => { c.save(); c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = 30; txt(c, m[2], 540, 1090, 250, C_GO2, 800, 'center', FONT_EN); c.restore(); });
+        const bl = wrapText(c, m[3], 54, 900, 700, FONT_EN).slice(0, 2); bl.forEach((l, i) => txt(c, l, 540, 1180 + i * 64, 54, C_CR, 700, 'center', FONT_EN, 960));
+        txt(c, bk.title || '', 540, 1180 + bl.length * 64 + 6, 30, '#9FB8AA', 600, 'center', FONT_EN, 900);
+        if (bk.lesson_bn) txt(c, bk.lesson_bn, 540, 1180 + bl.length * 64 + 90, 56, C_GO2, 400, 'center', FONT_ACC, 960); });
+        return; } }
     if (lt > reveal + .1) {
       const al = fin(lt, reveal + .2, .6);
       withA(c, al, () => {
@@ -5048,7 +5150,31 @@ class StoryRenderer {
       c.restore();
     }
   }
+  /* জীবনপাঠ end card: blurred last scene, question typed word by word, gold answer button, comment pill, channel card + follow */
+  drawCTA2(c, si, t) {
+    const sc = this.story.scenes[si], lt = t - sc.start, S = this.settings;
+    if (!this._ctaBg) { let ls = -1; for (let i = si - 1; i >= 0; i--) if (this.story.scenes[i].type === 'story') { ls = i; break; }
+      const raw = document.createElement('canvas'); raw.width = W / 2; raw.height = H / 2; const rc = raw.getContext('2d', { alpha: false }); rc.scale(.5, .5);
+      try { if (ls >= 0) this.drawStory(rc, ls, this.story.scenes[ls].end - .05); else BG.abstract(rc, 0); } catch (e) { rect(rc, 0, 0, W, H, '#1F4733'); }
+      const out = document.createElement('canvas'); out.width = W / 2; out.height = H / 2; const oc = out.getContext('2d', { alpha: false }); oc.filter = 'blur(10px)'; oc.drawImage(raw, -16, -16, W / 2 + 32, H / 2 + 32); oc.filter = 'none'; oc.fillStyle = 'rgba(10,20,15,.68)'; oc.fillRect(0, 0, W / 2, H / 2); this._ctaBg = out; }
+    c.drawImage(this._ctaBg, 0, 0, W, H);
+    for (let i = 0; i < 40; i++) { const x = (i * 197) % W, y = (i * 331 + t * 12 * (1 + i % 3)) % H; withA(c, .15 + (i % 4) * .06, () => circ(c, x, y, 2 + i % 3, '#F3EBD6')); }
+    const q = (sc.cta && sc.cta.question) || (sc.lines[0] ? sc.lines[0].cap.replace(/কমেন্টে লিখুন।?/, '') : '');
+    const ql = wrapText(c, q, 64, 900, 700).slice(0, 3); const words = ql.join(' ').split(/\s+/); const shown = Math.floor(cl(lt / 1.6) * words.length + .999);
+    let wi = 0; ql.forEach((l, i) => { const ws = l.split(/\s+/); const vis = ws.filter(() => wi++ < shown).join(' '); if (vis) { const full = tw(c, l, 64, 700); c.font = `700 64px ${FONT_BN}, ${FONT_FALLBACK}`; c.textAlign = 'left'; c.fillStyle = i === ql.length - 1 ? C_GO2 : '#FFF6E6'; c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 12; c.fillText(vis, 540 - full / 2, 330 + i * 86); c.restore(); } });
+    let y = 330 + ql.length * 86 + 30;
+    const opts = (sc.cta && sc.cta.options) || [];
+    if (opts.length) { const ow = opts.map(o => tw(c, o, 42, 700) + 70), tot = ow.reduce((a, b) => a + b, 0) + 20 * (opts.length - 1); if (tot <= 960) { let x = 540 - tot / 2; opts.forEach((o, i) => { const w = ow[i], cx2 = x + w / 2; popAt(c, cx2, y + 42, back(lt, 1.7 + i * .2), () => { rr(c, x, y, w, 84, 42, C_GO2); txt(c, o, cx2, y + 56, 42, '#14301F', 700, 'center', FONT_BN, w - 30); }); x += w + 20; }); y += 110; } else { opts.forEach((o, i) => popAt(c, 540, y + i * 96 + 42, back(lt, 1.7 + i * .2), () => { rr(c, 240, y + i * 96, 600, 84, 42, C_GO2); txt(c, o, 540, y + i * 96 + 56, 42, '#14301F', 700, 'center', FONT_BN, 560); })); y += opts.length * 96 + 14; } }
+    else { popAt(c, 540, y + 46, back(lt, 1.7), () => { const w = tw(c, 'আপনার গল্পটা কী?', 50, 800) + 80; rr(c, 540 - w / 2, y, w, 92, 22, C_GO2); txt(c, 'আপনার গল্পটা কী?', 540, y + 64, 50, '#14301F', 800, 'center', FONT_BN); }); y += 116; }
+    popAt(c, 540, y + 38, back(lt, 2.2), () => { const w = 400; rr(c, 540 - w / 2, y, w, 76, 38, '#1F4733', 'rgba(233,176,74,.7)', 3); P(c, `M${410},${y + 22} h44 a10,10 0 0 1 10,10 v22 a10,10 0 0 1 -10,10 h-26 l-12,12 v-12 h-6 a10,10 0 0 1 -10,-10 v-22 a10,10 0 0 1 10,-10z`, C_GO2); txt(c, 'কমেন্টে লিখুন', 570, y + 52, 38, '#FFF6E6', 700, 'center', FONT_BN); });
+    y = Math.max(y + 120, 900);
+    popAt(c, 540, y + 150, back(lt, 2.7), () => { c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 30; c.shadowOffsetY = 10; rr(c, 130, y, 820, 300, 34, 'rgba(22,54,38,.96)'); c.restore(); rr(c, 130, y, 820, 300, 34, null, 'rgba(233,176,74,.7)', 3);
+      drawLogo(c, 260, y + 150, 150, S.logo || 'TF'); txt(c, S.series || 'জীবনপাঠ', 360, y + 140, 66, '#FFF6E6', 800, 'left', FONT_BN, 560); txt(c, S.tagline || '', 360, y + 205, 34, C_GO2, 600, 'left', FONT_BN, 560); });
+    const pulse = 1 + .05 * Math.sin(t * 6) * cl(lt - 3.4);
+    popAt(c, 540, y + 380, back(lt, 3.1) * pulse, () => { rr(c, 330, y + 338, 420, 88, 44, C_GO2); circ(c, 392, y + 382, 22, '#14301F'); P(c, `M${392},${y + 370} v24 M${380},${y + 382} h24`, null, C_GO2, 5); txt(c, 'ফলো করুন', 560, y + 398, 44, '#14301F', 800, 'center', FONT_BN); });
+  }
   drawCTA(c, si, t) {
+    if (this.cine2) return this.drawCTA2(c, si, t);
     const sc = this.story.scenes[si], lt = t - sc.start, S = this.settings; BG.abstract(c, t);
     const q = (sc.cta && sc.cta.question) || (sc.lines[0] ? sc.lines[0].cap.replace(/কমেন্টে লিখুন।?/, '') : '');
     const ql = wrapText(c, q, 66, 900, 700).slice(0, 3);
@@ -5104,6 +5230,13 @@ class StoryRenderer {
     if (sc.type === 'story' && sc.badge) {
       const k = back(lt, .15), bs = 42 * u; const w = tw(c, sc.badge, bs, 600) + 96 * u, by = 150 * u;
       popAt(c, cx, by + 35 * u, k, () => { rr(c, cx - w / 2, by, w, 70 * u, 35 * u, C_G, C_GO, 3 * u); circ(c, cx - w / 2 + 36 * u, by + 35 * u, 8 * u, C_GO); txt(c, sc.badge, cx + 16 * u, by + 50 * u, bs, C_CR, 600); });
+    }
+    if (this.cine2 && S.hookCard !== false && si === this.firstStory && lt < 3.2 && typeof coverData === 'function') {
+      const d = coverData(this.story), a = cl(lt / .25) * cl((3.2 - lt) / .35), k = back(lt, 0, .45);
+      const L1 = d.l1.replace(/[{}]/g, ''), L2 = d.l2.replace(/[{}]/g, ''); const sz = 74 * u;
+      c.font = `800 ${sz}px ${FONT_BN}, ${FONT_FALLBACK}`; const bw = Math.min(fw * .9, Math.max(c.measureText(L1).width, c.measureText(L2).width) + 90 * u), bh = (L2 ? 2 : 1) * sz * 1.25 + 50 * u, by = 150 * u;
+      withA(c, a, () => popAt(c, cx, by + bh / 2, k, () => { c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 26 * u; c.shadowOffsetY = 8 * u; rr(c, cx - bw / 2, by, bw, bh, 22 * u, 'rgba(22,54,38,.95)'); c.restore(); rr(c, cx - bw / 2, by, bw, bh, 22 * u, null, 'rgba(233,176,74,.7)', 3 * u);
+        txt(c, L1, cx, by + 25 * u + sz, sz, '#FFF6E6', 800, 'center', FONT_BN, bw - 50 * u); if (L2) txt(c, L2, cx, by + 25 * u + sz * 2.2, sz, C_GO2, 800, 'center', FONT_BN, bw - 50 * u); }));
     }
     if (S.captions !== false) this.drawCaption(c, t, fw, fh, u);
   }
@@ -5488,12 +5621,12 @@ async function exportRealtime(renderer, mix, onProgress, abort, size) {
 /* ---------- Save for Claude ---------- */
 function cleanStoryForSave(story) {
   return {
-    title: story.title, thumb: story.thumb || '', book: story.book, youtube: story.youtube,
+    title: story.title, thumb: story.thumb || '', cover: story.cover || null, area: story.area || '', voiceMap: story.voiceMap || {}, book: story.book, youtube: story.youtube,
     characters: story.characters.map(c => ({ id: c.id, name: c.name, role: c.role, gender: c.gender, age: c.age })),
     scenes: story.scenes.map(s => {
       const o = { type: s.type }; if (s.type === 'story') Object.assign(o, { place: s.place, time: s.time, mood: s.mood, badge: s.badge, cast: s.cast });
       if (s.metaphor) o.metaphor = s.metaphor; if (s.cta) o.cta = s.cta;
-      o.lines = s.lines.map(l => { const x = { say: l.say, cap: l.cap }; if (l.hl) x.hl = l.hl; if (l.who) x.who = l.who; if (l.focus) x.focus = l.focus; if (l.feel) x.feel = l.feel; if (l.do) x.do = l.do; if (l.hold) x.hold = l.hold; if (l.card) x.card = l.card; if (l.item) x.item = l.item; return x; });
+      o.lines = s.lines.map(l => { const x = { say: l.say, cap: l.cap }; if (l.hl) x.hl = l.hl; if (l.who) x.who = l.who; if (l.focus) x.focus = l.focus; if (l.feel) x.feel = l.feel; if (l.do) x.do = l.do; if (l.hold) x.hold = l.hold; if (l.card) x.card = l.card; if (l.item) x.item = l.item; if (l.speak) x.speak = true; return x; });
       return o;
     })
   };
@@ -5566,6 +5699,21 @@ function loadKeys() { for (const [id, [rem, name]] of Object.entries(KEYS)) { tr
 /* ---------- app state ---------- */
 const app = { settings: S, story: null, warnings: [], tl: null, renderer: new StoryRenderer(), audio: { mode: 'none', tts: new Map(), rec: new Map(), upload: null }, markers: [], mix: null, mixDirty: true, notes: '', t: 0, playing: false, libId: null };
 const voiceSig = () => [S.model, S.voiceId, S.speed, S.emotion].join('|');
+/* multi-voice: a character's own spoken lines ("> ") use that character's voice; everything else is the narrator */
+function charVoiceMap() {
+  const st = app.story; const map = {}; if (!st || S.multiVoice === false) return map;
+  const list = (S.voiceList || []).filter(v => v.id && v.id !== S.voiceId); if (!list.length) return map;
+  const used = {}; const over = st.voiceMap || {};
+  const speakers = []; st.scenes.forEach(sc => sc.lines.forEach(l => { if (l.speak && l.who && !speakers.includes(l.who)) speakers.push(l.who); }));
+  speakers.forEach(id => {
+    if (over[id] === 'narrator') return; if (over[id] && list.find(v => v.id === over[id])) { map[id] = over[id]; return; }
+    const ch = st.characters.find(c => c.id === id); const g = ((ROLES[ch && ch.role] || {}).g) || (ch && /^f/i.test(ch.gender || '') ? 'f' : 'm');
+    const want = g === 'f' ? /fem/i : /masc/i; const pool = list.filter(v => want.test(v.gender || '')); if (!pool.length) return;
+    const free = pool.filter(v => !used[v.id]); const pick = (free.length ? free : pool)[hashStr(id) % (free.length || pool.length)]; used[pick.id] = 1; map[id] = pick.id;
+  });
+  return map;
+}
+function voiceFor(ln) { if (!ln || !ln.speak || !ln.who || S.multiVoice === false) return S.voiceId; return charVoiceMap()[ln.who] || S.voiceId; }
 /* per-line Cartesia emotion when "auto" */
 function emotionFor(si, ln) {
   if (S.emotion !== 'auto') return S.emotion;
@@ -5574,7 +5722,7 @@ function emotionFor(si, ln) {
   if (!sc) return 'neutral'; if (sc.type === 'book' || sc.type === 'takeaways' || sc.type === 'metaphor' || sc.type === 'cta') return 'content';
   return { sad: 'sad', regret: 'sad', tense: 'scared', happy: 'excited' }[sc.mood] || 'neutral';
 }
-function ttsKey(si, ln) { const sig = voiceSig(); return S.emotion === 'auto' ? lineKey(ln.say + '#' + emotionFor(si, ln), sig) : lineKey(ln.say, sig); }
+function ttsKey(si, ln) { const vf = voiceFor(ln); const sig = voiceSig() + (vf && vf !== S.voiceId ? '|v:' + vf : ''); return S.emotion === 'auto' ? lineKey(ln.say + '#' + emotionFor(si, ln), sig) : lineKey(ln.say, sig); }
 function allLines() { const out = []; if (!app.story) return out; app.story.scenes.forEach((sc, si) => sc.lines.forEach((ln, li) => out.push({ si, li, ln }))); return out; }
 function segsFor() {
   const segs = {}; if (!app.story) return segs; const m = app.audio.mode;
@@ -5589,7 +5737,7 @@ function rebuild(keepT) {
   app.renderer.load(app.story, app.tl, S);
   app.mixDirty = true; if (app.playing) stopPlay(true);
   if (!keepT) app.t = Math.min(app.t, app.tl.total);
-  $('pvEmpty').classList.add('hidden'); updateVoicedDots(); updateYT(); drawAt(app.t); updateTime(); autosave(); updateRec();
+  $('pvEmpty').classList.add('hidden'); updateVoicedDots(); updateYT(); try { renderCharVoices(); } catch (e) { } drawAt(app.t); updateTime(); autosave(); updateRec();
   $('lenNote').textContent = app.tl.note || '';
   updateFlow(); speechListSoon(); thumbSoon(); updateExpInfo();
 }
@@ -5938,22 +6086,36 @@ function chooseVoice(m) { app.visited3 = true; setVoiceTab(m); if (m === 'none' 
 async function loadVoices() {
   const key = getKey('cKey'); if (!key) { toast('আগে Cartesia API key দিন', 'err'); return; } storeKey('cKey');
   const b = $('btnVoices'); b.disabled = true;
-  try { const vs = await cartesiaVoices({ key }); const s = $('cVoice'); s.innerHTML = ''; s.append(el('option', { value: '', text: `— ${bn(vs.length)}টা বাংলা ভয়েস —` }));
+  try { const vs = await cartesiaVoices({ key }); S.voiceList = vs.map(v => ({ id: v.id, name: v.name, gender: v.gender || '' })); saveSettings(); renderCharVoices(); const s = $('cVoice'); s.innerHTML = ''; s.append(el('option', { value: '', text: `— ${bn(vs.length)}টা বাংলা ভয়েস —` }));
     vs.forEach(v => s.append(el('option', { value: v.id, 'data-prev': v.preview || '', text: `${v.name}${v.gender ? ' · ' + ({ masculine: 'পুরুষ', feminine: 'নারী' }[v.gender] || v.gender) : ''}` }))); if (S.voiceId) s.value = S.voiceId; }
   catch (e) { toast(e.message, 'err', 7000); } finally { b.disabled = false; }
 }
 let prevAudio = null;
 function previewVoice() { const o = $('cVoice').selectedOptions[0]; const u = o && o.dataset.prev; if (!u) { toast('এই ভয়েসের নমুনা নেই'); return; } if (prevAudio) prevAudio.pause(); prevAudio = new Audio(u); prevAudio.play().catch(() => toast('নমুনা চালানো গেল না', 'err')); }
+
+function renderCharVoices() {
+  const box = $('charVoices'); if (!box) return; box.innerHTML = ''; const st = app.story; if (!st || S.multiVoice === false) return;
+  const speakers = []; st.scenes.forEach(sc => sc.lines.forEach(l => { if (l.speak && l.who && !speakers.includes(l.who)) speakers.push(l.who); }));
+  if (!speakers.length) { box.append(el('p', { class: 'muted sm', text: 'এই গল্পে চরিত্রের নিজের সংলাপ চিহ্নিত নেই — পুরোটা কথকের কণ্ঠে হবে।' })); return; }
+  const list = S.voiceList || []; if (!list.length) { box.append(el('p', { class: 'muted sm', text: 'কণ্ঠের তালিকা লোড হলে (↻) প্রতিটা চরিত্রের কণ্ঠ অটো বসবে। কণ্ঠ বানানোর সময়ও অ্যাপ নিজেই লোড করে নেবে।' })); return; }
+  const map = charVoiceMap(); st.voiceMap = st.voiceMap || {};
+  speakers.forEach(id => { const ch = st.characters.find(c => c.id === id) || { name: id };
+    const s2 = el('select', { onchange: e => { st.voiceMap[id] = e.target.value; rebuild(true); renderCharVoices(); autosave(); } });
+    s2.append(el('option', { value: '', text: 'অটো' + (map[id] ? ' (' + ((list.find(v => v.id === map[id]) || {}).name || '') + ')' : ' (কথকের কণ্ঠ)') })); s2.append(el('option', { value: 'narrator', text: 'কথকের কণ্ঠেই' }));
+    list.filter(v => v.id !== S.voiceId).forEach(v => s2.append(el('option', { value: v.id, text: v.name + (v.gender ? ' · ' + ({ masculine: 'পুরুষ', feminine: 'নারী' }[v.gender] || v.gender) : '') })));
+    s2.value = st.voiceMap[id] || ''; box.append(el('label', null, ch.name, s2)); });
+}
 let ttsBusy = false;
 async function generateTTS() {
   if (!app.story) { toast('আগে গল্প বাছুন', 'err'); return; } if (ttsBusy) return;
   const key = getKey('cKey'); if (!key) { toast('Cartesia API key দিন', 'err'); return; } if (!S.voiceId) { toast('একটা কণ্ঠ বাছুন বা Voice ID দিন', 'err'); return; }
   storeKey('cKey'); ttsBusy = true; const btn = $('btnTTS'); btn.disabled = true; $('ttsBar').classList.remove('hidden');
+  if (S.multiVoice !== false && !(S.voiceList && S.voiceList.length)) { try { const vs = await cartesiaVoices({ key }); S.voiceList = vs.map(v => ({ id: v.id, name: v.name, gender: v.gender || '' })); saveSettings(); } catch (e) { } }
   const cfg = { key, model: S.model, voice: S.voiceId, speed: S.speed, emotion: S.emotion };
   const todo = allLines().filter(({ si, ln }) => !app.audio.tts.has(ttsKey(si, ln))); let done = 0, err = null; const total = todo.length;
   const setBar = () => { $('ttsBar').firstElementChild.style.width = (total ? done / total * 100 : 100) + '%'; btn.textContent = `${bn(done)}/${bn(total)}…`; };
   setBar(); app.audio.mode = 'tts';
-  const work = async (it) => { const k = ttsKey(it.si, it.ln); let bytes = await IDB.get('audio', k); if (!bytes) { bytes = await cartesiaTTS(it.ln.say, Object.assign({}, cfg, { emotion: emotionFor(it.si, it.ln) })); await IDB.set('audio', k, bytes); } const buf = await decodeBytes(bytes); const tr = trimSilence(buf); app.audio.tts.set(k, { buf, off: tr.off, dur: tr.dur }); };
+  const work = async (it) => { const k = ttsKey(it.si, it.ln); let bytes = await IDB.get('audio', k); if (!bytes) { bytes = await cartesiaTTS(it.ln.say, Object.assign({}, cfg, { voice: voiceFor(it.ln), emotion: emotionFor(it.si, it.ln) })); await IDB.set('audio', k, bytes); } const buf = await decodeBytes(bytes); const tr = trimSilence(buf); app.audio.tts.set(k, { buf, off: tr.off, dur: tr.dur }); };
   const queue = todo.slice(); await Promise.all(Array.from({ length: 3 }, async () => { while (queue.length && !err) { const it = queue.shift(); try { await work(it); } catch (e) { err = e; } done++; setBar(); } }));
   ttsBusy = false; btn.disabled = false; btn.textContent = 'পুরো গল্পের কণ্ঠ বানাও'; setTimeout(() => $('ttsBar').classList.add('hidden'), 800); rebuild(true);
   if (err) toast(err.message, 'err', 8000); else toast(total ? `${bn(total)}টা লাইনের কণ্ঠ তৈরি` : 'সব লাইনের কণ্ঠ আগেই আছে', 'ok');
@@ -6253,7 +6415,7 @@ function applySettingsToUI() {
   $('cModel').value = S.model; $('cVoiceId').value = S.voiceId || ''; $('cSpeed').value = S.speed; $('cSpeedOut').textContent = (+S.speed).toFixed(2); $('cEmotion').value = S.emotion || 'none';
   $('mStyle').value = S.music; $('mVol').value = S.musicVol; $('mVolOut').textContent = S.musicVol; $('mSfx').checked = S.sfx !== false; $('mPops').checked = S.pops !== false;
   $('sSeries').value = S.series; $('sTagline').value = S.tagline; $('sLogo').value = S.logo; $('sHero').value = S.hero; $('sOutro').value = S.outro || ''; $('sWm').value = S.wm; $('sWmOut').textContent = S.wm;
-  $('sCap').value = S.capSize; $('sCapOut').textContent = S.capSize; $('sGap').value = S.gap; $('sWatermark').checked = S.watermark !== false; $('sCaptions').checked = S.captions !== false; $('sCapStyle').value = S.capStyle || 'karaoke'; $('sProgress').checked = S.progress !== false; $('sCinema').checked = S.cinema !== false; $('sThumb').checked = S.thumbFrame !== false;
+  $('sCap').value = S.capSize; $('sCapOut').textContent = S.capSize; $('sGap').value = S.gap; $('sWatermark').checked = S.watermark !== false; $('sCaptions').checked = S.captions !== false; $('sCapStyle').value = S.capStyle || 'karaoke'; $('sProgress').checked = S.progress !== false; $('sCinema').checked = S.cinema !== false; $('sAnimStyle').value = S.animStyle === 'classic' ? 'classic' : 'jibonpath'; $('sHookCard').checked = S.hookCard !== false; $('sMultiVoice').checked = S.multiVoice !== false; $('sThumb').checked = S.thumbFrame !== false;
   setSeg('lenTabs', 'len', S.lenMode); $('lenFixedRow').classList.toggle('hidden', S.lenMode !== 'fixed'); $('lenSec').value = S.lenSec;
   setSeg('ratioPick', 'r', S.expRatio); setSeg('resPick', 'res', S.expRes);
   $('pHero').placeholder = S.hero; setSeg('aiTabs', 'ai', S.aiTab); $('ai-api').classList.toggle('hidden', S.aiTab === 'chat'); $('ai-chat').classList.toggle('hidden', S.aiTab !== 'chat');
@@ -6321,7 +6483,7 @@ async function init() {
   bindSetting('lenSec', 'lenSec', t => cl(+t.value || 90, 15, 600));
   // settings dialog
   bindSetting('sSeries', 'series', null, 'input'); bindSetting('sTagline', 'tagline', null, 'input'); bindSetting('sLogo', 'logo', t => t.value.trim() || 'TF', 'input', showLogoUI); bindSetting('sHero', 'hero', t => t.value.trim() || 'তানিম', 'input'); bindSetting('sOutro', 'outro', null, 'input');
-  bindSetting('sWm', 'wm', t => +t.value, 'input', v => $('sWmOut').textContent = v); bindSetting('sCapStyle', 'capStyle'); bindSetting('sProgress', 'progress', t => t.checked); bindSetting('sCinema', 'cinema', t => t.checked); bindSetting('sThumb', 'thumbFrame', t => t.checked);
+  bindSetting('sWm', 'wm', t => +t.value, 'input', v => $('sWmOut').textContent = v); bindSetting('sCapStyle', 'capStyle'); bindSetting('sProgress', 'progress', t => t.checked); bindSetting('sCinema', 'cinema', t => t.checked); bindSetting('sAnimStyle', 'animStyle'); bindSetting('sHookCard', 'hookCard', t => t.checked); bindSetting('sMultiVoice', 'multiVoice', t => t.checked, 'change', () => renderCharVoices()); bindSetting('sThumb', 'thumbFrame', t => t.checked);
   bindSetting('sCapLook', 'capLook'); bindSetting('sCtxBg', 'ctxBg', t => t.checked);
   $('sFontFile').onchange = async e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; if (f.size > 15 * 1024 * 1024) { toast('ফন্ট ফাইল অনেক বড়', 'err'); return; } const bytes = await f.arrayBuffer(); if (!(await loadCustomFont(bytes, f.name))) { toast('এই ফন্ট ফাইল পড়া গেল না (TTF/OTF/WOFF দিন)', 'err'); return; } await IDB.set('kv', 'customFont', { name: f.name, bytes }); S.titleFont = 'custom'; saveSettings(); applyFonts(); buildFontPickers(); thumbSoon(); if (app.story) rebuildSoon(); toast('আপনার ফন্ট যোগ হয়েছে — নিচের তালিকায় "নিজের" বাছুন', 'ok', 5000); };
   $('genArea').append(el('option', { value: '', text: 'AI বেছে নিক (মিশিয়ে)' }), ...LIFE_AREAS.map(a => el('option', { value: a, text: a }))); $('genBook').append(el('option', { value: '', text: 'যেকোনো বই (মিশিয়ে)' }), ...BOOKS.map((b, i) => el('option', { value: i, text: b[0] })));
