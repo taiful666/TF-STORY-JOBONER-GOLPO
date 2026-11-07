@@ -2604,7 +2604,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
 </script>
 <script>/* ===================== TF Story Studio — data ===================== */
 'use strict';
-const APP_VERSION = '3.4.0';
+const APP_VERSION = '3.5.0';
 const STORY_LIBRARY = [];
 const FORMAT_VERSION = 1;
 
@@ -2801,6 +2801,7 @@ function buildStoryPrompt(o) {
 \`\`\`
 === ইউটিউব টাইটেল (বাংলা হুক) | Book Name Explained In Bangla
 বই: The Psychology of Money | Morgan Housel | Chapter 9: Wealth Is What You Don't See | আসল সম্পদ চোখে দেখা যায় না
+থাম্বনেল: প্রথম বেতনের দিন | ৪২ হাজারের ফোন কিনে | ৫ হাজার {ধার করল!} | phone | ৳
 চরিত্র: hero=তানিম/hero, rashed=রাশেদ/friend_m, ma=মা/mother
 ## bedroom day happy | | hero
 hero:happy:raise_phone [price: ৳ ৪২,০০০] প্রথম বেতনে ৪২ হাজারের ফোন। {৪২ হাজারের}
@@ -2823,6 +2824,7 @@ hero:worried:hands_on_head [alert: অপারেশন: ৳ ১৫,০০০] 
 বর্ণনা: ২ লাইনের বর্ণনা
 হ্যাশট্যাগ: #Shorts #বইয়ের_গল্প
 \`\`\`
+- থাম্বনেল লাইন: "থাম্বনেল: ছোট প্রসঙ্গ লাইন (৪-৭ শব্দ, কার/কবে) | বড় লাইন ১ (২-৪ শব্দ) | বড় লাইন ২ (২-৪ শব্দ, শেষে !) {সোনালি ফলাফল শব্দ} | আইকন (হাতে-র তালিকা থেকে একটা) | পেছনের বড় প্রতীক (একটা সংখ্যা বা ৳)"। বড় লেখা হবে উল্টো-ফলের হুক: কারণ আর অপ্রত্যাশিত ফল, সংখ্যা দিয়ে ("১০০ টাকার কাগজ, দাম ১০ লাখ!" ধরনের কাঠামো, কিন্তু নিজের নতুন লেখা)।
 - দৃশ্যের লাইন: "## জায়গা সময় মেজাজ [আবহাওয়া] | ব্যাজ | কারা পর্দায় (সর্বোচ্চ ৩)"
 - গল্পের লাইন: "চরিত্র:মুখের_ভাব:কাজ:হাতে [কার্ড: ঘর / ঘর] ক্যাপশন {সোনালি শব্দ}" — চরিত্র/কার্ড/সোনালি শব্দ ঐচ্ছিক; কথকের লাইনে চরিত্র বাদ দাও।
 - জায়গা: ${placeList}
@@ -2838,6 +2840,7 @@ const buildGeminiPrompt = buildStoryPrompt;
 STORY_LIBRARY.push(
 `=== মিটিংয়ে বেশি বলেই আইডিয়াটা হারাল তানিম | The 48 Laws Of Power Explained In Bangla
 বই: The 48 Laws of Power | Robert Greene | Law 4: Always Say Less Than Necessary | দরকারের চেয়ে কম বলো
+থাম্বনেল: ক্যান্টিনে চায়ের আড্ডায় | পুরো প্ল্যান বলে দিল, | প্রমোশন পেল {সাজিদ!} | paper | ৩
 চরিত্র: hero=তানিম/hero, sajid=সাজিদ/colleague_m, boss=করিম স্যার/boss_m
 ক্ষেত্র: চাকরি/অফিস
 ## conference day happy | | hero,boss
@@ -2872,6 +2875,7 @@ hero:crying:hands_on_head তানিমের হাতে কোনো প্
 
 `=== মা ২ লাখ টাকার গয়না বেচলেন, ছেলে জানল ৫ বছর পর | The Psychology of Money Explained In Bangla
 বই: The Psychology of Money | Morgan Housel | Chapter 13: Room for Error | বিপদের জন্য জায়গা রাখো
+থাম্বনেল: বাবার স্ট্রোকের রাতে | মায়ের কানের দুল | বিক্রি হলো {চুপচাপ!} | envelope | ২
 চরিত্র: hero=তানিম/hero, ma=মা/mother, baba=বাবা/father
 ক্ষেত্র: পরিবার
 ## old_house night sad | | ma
@@ -2905,6 +2909,7 @@ hero:crying:head_down মা সারাজীবন সংসারের খ�
 
 `=== দিনে ২ মিনিট, এক বছরে ৪০ কেজি থেকে ২০ কেজি পড়া | Atomic Habits Explained In Bangla
 বই: Atomic Habits | James Clear | Law 3: Make It Easy (The Two-Minute Rule) | শুরুটা এত সহজ করো যেন না বলা যায় না
+থাম্বনেল: দিনে মাত্র ২ মিনিট | এক বছরে পড়া হলো | {২০টা বই!} | book | ২
 চরিত্র: hero=তানিম/hero, nila=নীলা/sister
 ক্ষেত্র: স্বাস্থ্য/অভ্যাস
 ## student_room night normal | | hero
@@ -2938,6 +2943,7 @@ hero:proud:idle শুরুটা সহজ ছিল বলেই অভ্য
 
 `=== "না" শুনে থামল তানিম, ৩ বছর পর পেল সম্মান | The Courage To Be Disliked Explained In Bangla
 বই: The Courage to Be Disliked | Ichiro Kishimi & Fumitake Koga | Separation of Tasks | কাজটা কার, আগে বোঝো
+থাম্বনেল: "না" শোনার ৩ বছর পর | যে বলেছিল "না", | সে-ই দিল {সম্মান!} | flower | ৩
 চরিত্র: hero=তানিম/hero, mim=মীম/heroine, fahim=ফাহিম/friend_m
 ক্ষেত্র: প্রেম/সম্পর্ক
 ## coaching_center day happy | | hero,mim
@@ -2971,6 +2977,7 @@ hero:surprised:hold:paper [chat: মীম / সেদিন তুমি থে
 
 `=== ১০ সেকেন্ডের রাগ, ৬ বছরের দূরত্ব | Emotional Intelligence Explained In Bangla
 বই: Emotional Intelligence | Daniel Goleman | Amygdala Hijack | রাগের মুহূর্তে চিন্তার মস্তিষ্ক বন্ধ হয়ে যায়
+থাম্বনেল: ১০ সেকেন্ডের একটা কথা | রাগ চলে গেল, | দূরত্ব রইল {৬ বছর!} | phone | ১০
 চরিত্র: hero=তানিম/hero, baba=বাবা/father, ma=মা/mother
 ক্ষেত্র: পরিবার
 ## dining_home night tense | | hero,baba
@@ -3004,6 +3011,7 @@ hero:crying:pray_hands হাসপাতালের বেডে বাবা 
 
 `=== ৫০০ জনকে খাইয়ে ৩ বছর ধরে কিস্তি | The 48 Laws Of Power Explained In Bangla
 বই: The 48 Laws of Power | Robert Greene | Law 29: Plan All the Way to the End | শুধু দিনটা নয়, দিনের পরটাও প্ল্যান করো
+থাম্বনেল: ৫০০ মেহমানের দাওয়াত | এক রাতের বিয়ে, | কিস্তি {৩ বছর!} | money | ৫০০
 চরিত্র: hero=তানিম/hero, ma=মা/mother, riya=রিয়া/wife
 ক্ষেত্র: বিয়ে/সংসার
 ## wedding_hall night happy | | hero
@@ -3037,6 +3045,7 @@ hero:proud:hold:envelope বাকি টাকা খামে, উপরে �
 
 `=== ৫ টাকার লাভে দোকান বাঁচাল তানিম | How To Win Friends And Influence People Explained In Bangla
 বই: How to Win Friends and Influence People | Dale Carnegie | Remember Names | নাম মনে রাখলে মানুষ মনে রাখে
+থাম্বনেল: সুপারশপের পাশে ছোট দোকান | ৫ টাকা কম লাভে | বাঁচল {পুরো দোকান!} | paper | ৫
 চরিত্র: hero=তানিম/hero, uncle=হাশেম চাচা/shopkeeper, cust=রহিম ভাই/customer
 ক্ষেত্র: ছোট ব্যবসা/দোকান
 ## grocery evening happy | | hero,cust
@@ -3070,6 +3079,7 @@ hero:proud:hold:paper [check: +নাম লেখা খাতা / +কার 
 
 `=== ফ্রি আইফোনের লিংকে ক্লিক, হারাল ৪৮ হাজার | Influence Explained In Bangla
 বই: Influence | Robert Cialdini | Scarcity | "শেষ সুযোগ" শুনলেই তাড়াহুড়ো নয়
+থাম্বনেল: "শেষ সুযোগ" লেখা লিংক | ফ্রি আইফোনের লোভে | গেল {৪৮ হাজার!} | phone | ৳
 চরিত্র: hero=তানিম/hero, bon=নীলা/sister
 ক্ষেত্র: অনলাইন/ফেসবুক/স্ক্যাম
 ## home_bedroom night happy | | hero
@@ -3100,6 +3110,7 @@ bon:neutral:point যারা সত্যিই উপহার দেয়, 
 
 `=== সবচেয়ে কম নম্বর পাওয়া ছেলেটাই আজ টপার | Mindset Explained In Bangla
 বই: Mindset | Carol Dweck | The Power of "Yet" | "পারি না" নয়, "এখনো পারি না"
+থাম্বনেল: ক্লাসে সবচেয়ে কম নম্বর | সেই ছেলেটাই | আজ {টপার!} | paper | ১
 চরিত্র: hero=তানিম/hero, sir=মাহমুদ স্যার/teacher_m, rafiq=রফিক/student_m
 ক্ষেত্র: পড়াশোনা/রেজাল্ট
 ## exam_hall day happy | | hero
@@ -3133,6 +3144,7 @@ hero:tired:hold:book [counter: রোজ অংক / 0 / 330 / / দিন] র�
 
 `=== দামে না, প্রশ্নে জিতল তানিম | Never Split The Difference Explained In Bangla
 বই: Never Split the Difference | Chris Voss | Calibrated Questions | "কীভাবে" দিয়ে প্রশ্ন করো
+থাম্বনেল: দোকানে দরদাম ছাড়াই | এক প্রশ্নে কমল | {দাম!} | money | ?
 চরিত্র: hero=তানিম/hero, landlord=বাড়িওয়ালা চাচা/landlord, wife=রিয়া/wife
 ক্ষেত্র: টাকা/ঋণ/সঞ্চয়
 ## home_door day happy | | hero,landlord
@@ -3166,6 +3178,7 @@ landlord:happy:idle চাচা হাসলেন, ১৬ হাজার দ�
 STORY_LIBRARY.push(
 `=== বন্ধুর জামিনদার হয়ে ব্যাংকের নোটিশ পেল তানিম | The Richest Man In Babylon Explained In Bangla
 বই: The Richest Man in Babylon | George S. Clason | Guard Thy Treasures from Loss | সম্পদকে ক্ষতি থেকে রক্ষা করো
+থাম্বনেল: বন্ধুর লোনে এক সই | জামিনদার হয়ে | পেল {ব্যাংকের নোটিশ!} | paper | ৳
 চরিত্র: hero=তানিম/hero, shuvo=শুভ/friend_m, ma=মা/mother
 ক্ষেত্র: টাকা/ঋণ/সঞ্চয়
 ## home_door day tense | | hero
@@ -3198,6 +3211,7 @@ hero:crying:head_down তানিম ৫ বছর ধরে জমানো �
 
 `=== ১০ হাজারের চাকরি ছেড়ে ১ লাখের পথে | Rich Dad Poor Dad Explained In Bangla
 বই: Rich Dad Poor Dad | Robert Kiyosaki | Work to Learn, Not to Earn | টাকার জন্য নয়, শেখার জন্য কাজ করো
+থাম্বনেল: ১০ হাজারের চাকরি ছেড়ে | শেখার পথ ধরল, | এখন {১ লাখের পথে!} | laptop | ১০
 চরিত্র: hero=তানিম/hero, boss=আলম ভাই/client, baba=বাবা/father
 ক্ষেত্র: চাকরি/অফিস
 ## startup day happy | | hero
@@ -3231,6 +3245,7 @@ baba:proud:idle বাবা এখন সবাইকে বলেন, আম�
 
 `=== বসের ভুল ধরিয়ে চাকরি হারানোর পথে তানিম | The 48 Laws Of Power Explained In Bangla
 বই: The 48 Laws of Power | Robert Greene | Law 1: Never Outshine the Master | বসকে ছাপিয়ে যেয়ো না
+থাম্বনেল: মিটিংয়ে সবার সামনে | বসের ভুল ধরিয়ে | বিপদে {তানিম!} | paper | ১
 চরিত্র: hero=তানিম/hero, boss=রহমান স্যার/boss_m, rina=রিনা আপা/colleague_f
 ক্ষেত্র: চাকরি/অফিস
 ## conference day tense | | hero,boss
@@ -3264,6 +3279,7 @@ boss:happy:talk স্যার ঠিক করলেন, মিটিংয়
 
 `=== প্রতিদিন ১০০ টাকা, ১০ বছরে ২০ লাখ | The Compound Effect Explained In Bangla
 বই: The Compound Effect | Darren Hardy | Small Choices + Consistency + Time | ছোট সিদ্ধান্ত, নিয়মিত, দীর্ঘদিন
+থাম্বনেল: রোজ চায়ের টাকা বাঁচিয়ে | দিনে ১০০ টাকা, | ১০ বছরে {২০ লাখ!} | money | ১০০
 চরিত্র: hero=তানিম/hero, rashed=রাশেদ/friend_m
 ক্ষেত্র: টাকা/ঋণ/সঞ্চয়
 ## bank_counter day happy | | rashed
@@ -3296,6 +3312,7 @@ hero:sad:head_down একই ছোট অভ্যাস, একজনের �
 
 `=== মোবাইল ছাড়া ৯০ মিনিট, প্রমোশন এক বছরে | Deep Work Explained In Bangla
 বই: Deep Work | Cal Newport | Rule 1: Work Deeply | মনোযোগের কাজই দামি কাজ
+থাম্বনেল: ফোন ছাড়া রোজ ৯০ মিনিট | এক বছরেই এল | {প্রমোশন!} | laptop | ৯০
 চরিত্র: hero=তানিম/hero, boss=নাসির স্যার/boss_m, rina=রিনা/colleague_f
 ক্ষেত্র: চাকরি/অফিস
 ## boss_cabin day happy | | hero,boss
@@ -3328,6 +3345,7 @@ hero:happy:hold:laptop রিপোর্ট এখন ৩ দিনে না, 
 
 `=== দুই খালার ঝগড়ায় পক্ষ নিল না তানিম | The 48 Laws Of Power Explained In Bangla
 বই: The 48 Laws of Power | Robert Greene | Law 20: Do Not Commit to Anyone | তাড়াহুড়ো করে কারো পক্ষ নিয়ো না
+থাম্বনেল: ঈদের দাওয়াতে দুই খালা | কারো পক্ষ না নিয়ে | জিতল {দুজনকেই!} | gift | ২
 চরিত্র: hero=তানিম/hero, khala1=বড় খালা/aunt, khala2=ছোট খালা/neighbor_aunty, ma=মা/mother
 ক্ষেত্র: প্রতিবেশী/আত্মীয়/সমাজ
 ## eid_home day happy | | hero,khala1,khala2
@@ -3360,6 +3378,7 @@ ma:happy:idle ঈদের রাতে দুই খালা নিজের�
 
 `=== ছেলেকে নতুন বাইক না দিয়ে বাবা দিলেন একটা খাতা | The Millionaire Next Door Explained In Bangla
 বই: The Millionaire Next Door | Thomas Stanley & William Danko | Economic Outpatient Care | সন্তানকে সারাজীবন টাকা দিলে সে নিজে দাঁড়ায় না
+থাম্বনেল: জন্মদিনে নতুন বাইক নয় | বাবা দিলেন | একটা {খাতা!} | book | ১
 চরিত্র: hero=তানিম/hero, baba=বাবা/father, rony=রনি/friend_m
 ক্ষেত্র: পরিবার
 ## main_road day happy | | rony
@@ -3392,6 +3411,7 @@ hero:proud:hold:book তানিমের নিজের ছোট ব্য�
 
 `=== "ঠিক আছে" বলে বসের বকা থেকে বাঁচল তানিম | Never Split The Difference Explained In Bangla
 বই: Never Split the Difference | Chris Voss | Labeling Emotions | অনুভূতির নাম দিলে রাগ কমে
+থাম্বনেল: বসের বকার মাঝখানে | দুটো শব্দেই | থামল {রাগ!} | paper | ২
 চরিত্র: hero=তানিম/hero, boss=জাকির স্যার/boss_m, client=মতিন সাহেব/client
 ক্ষেত্র: চাকরি/অফিস
 ## reception day happy | | hero,client
@@ -3424,6 +3444,7 @@ hero:happy:give:paper [check: +আজ রাতেই অর্ধেক মা�
 
 `=== ২২ বছর বয়সে প্রথম ব্যবসা, প্রথম লোকসান | Who Moved My Cheese Explained In Bangla
 বই: Who Moved My Cheese? | Spencer Johnson | Adapt Quickly | পরিবর্তনের সাথে দ্রুত মানিয়ে নাও
+থাম্বনেল: ২২ বছরে প্রথম ব্যবসা | প্রথম মাসেই | {লোকসান!} | laptop | ২২
 চরিত্র: hero=তানিম/hero, uncle=কাদের মামা/uncle
 ক্ষেত্র: ছোট ব্যবসা/দোকান
 ## mobile_shop day happy | | hero
@@ -3456,6 +3477,7 @@ hero:neutral:talk তানিম বলল, মামা, কাল থেক�
 
 `=== প্রতিবেশীর ছেলে "আমার চেয়ে ভালো", এই কষ্ট থেকে মুক্তি | 12 Rules For Life Explained In Bangla
 বই: 12 Rules for Life | Jordan Peterson | Rule 4: Compare Yourself to Who You Were Yesterday | অন্যের সাথে না, গতকালের নিজের সাথে তুলনা
+থাম্বনেল: পাশের বাসার ছেলের সাথে তুলনা | "ও তোর চেয়ে ভালো" | কষ্টের {শেষ যেভাবে!} | paper | ১
 চরিত্র: hero=তানিম/hero, aunty=পাশের বাসার আন্টি/neighbor_aunty, ma=মা/mother
 ক্ষেত্র: প্রতিবেশী/আত্মীয়/সমাজ
 ## staircase day happy | | hero,aunty
@@ -3489,6 +3511,7 @@ hero:happy:hold:laptop [counter: ক্লায়েন্ট / 0 / 40 / / জ
 STORY_LIBRARY.push(
 `=== সবার "হ্যাঁ" রাখতে গিয়ে নিজের পরীক্ষাই ফেল | Essentialism Explained In Bangla
 বই: Essentialism | Greg McKeown | The Power of No | বিনয়ের সাথে "না" বলতে শেখো
+থাম্বনেল: সবার কাজে "হ্যাঁ" বলে | নিজের পরীক্ষায় | {ফেল!} | paper | ০
 চরিত্র: hero=তানিম/hero, friend=সাকিব/friend_m, sir=স্যার/teacher_m
 ক্ষেত্র: পড়াশোনা/রেজাল্ট
 ## result_board day sad | | hero
@@ -3523,6 +3546,7 @@ hero:proud:hold:paper [big: A-] রেজাল্ট এল এ মাইনা
 
 `=== চাকরি গেল, কিন্তু তানিম ভাঙল না | Meditations Explained In Bangla
 বই: Meditations | Marcus Aurelius | Dichotomy of Control | যা হাতে নেই, তা নিয়ে কষ্ট পেয়ো না
+থাম্বনেল: অফিসে ছাঁটাইয়ের দিন | চাকরি গেল, | তবু {ভাঙল না!} | paper | ০
 চরিত্র: hero=তানিম/hero, riya=রিয়া/wife, hr=এইচআর ম্যাডাম/boss_f
 ক্ষেত্র: চাকরি/অফিস
 ## hr_office day tense | | hero,hr
@@ -3555,6 +3579,7 @@ hero:proud:hold:paper [sms: নতুন অফার / বেতন আগে�
 
 `=== ৮ বছরের সিগারেট ছাড়ল এক সন্ধ্যায় | Allen Carr's Easy Way Explained In Bangla
 বই: Allen Carr's Easy Way to Stop Smoking | Allen Carr | The Illusion of Pleasure | সিগারেটের আরাম আসলে সিগারেটেরই তৈরি অভাব
+থাম্বনেল: ৮ বছরের অভ্যাস | এক সন্ধ্যায় ছাড়ল | {সিগারেট!} | flower | ৮
 চরিত্র: hero=তানিম/hero, meye=ছোট্ট মেয়ে মিম/little_girl, wife=রিয়া/wife
 ক্ষেত্র: স্বাস্থ্য/অভ্যাস
 ## balcony evening happy | | hero,meye
@@ -3588,6 +3613,7 @@ wife:happy:idle [progress: সিগারেট ছাড়ার দিন / 
 
 `=== ৮০ হাজার খরচ করেছি, এখন থামি কীভাবে? | Thinking Fast And Slow Explained In Bangla
 বই: Thinking, Fast and Slow | Daniel Kahneman | Sunk Cost | আগে খরচ হয়েছে বলে ভুল পথে চলতে থেকো না
+থাম্বনেল: ভুল কোর্সে ৮০ হাজার | আরো টাকা ঢালবে, | নাকি {থামবে?} | laptop | ৳
 চরিত্র: hero=তানিম/hero, bhai=বড় ভাই আরিফ/brother, ma=মা/mother
 ক্ষেত্র: ছোট ব্যবসা/দোকান
 ## fastfood day sad | | bhai
@@ -3621,6 +3647,7 @@ bhai:tired:hands_on_head আর ভাই বললেন, ২ লাখ ঢে�
 
 `=== অফিস কলিগের এক কথায় সারা দিন মন খারাপ, আর না | The Four Agreements Explained In Bangla
 বই: The Four Agreements | Don Miguel Ruiz | Don't Take Anything Personally | অন্যের আচরণ তার নিজের ব্যাপার
+থাম্বনেল: কলিগের এক খোঁচায় | সারাদিন মন খারাপ, | এবার {আর না!} | cup | ১
 চরিত্র: hero=তানিম/hero, nadia=নাদিয়া আপা/colleague_f, boss=রহমান স্যার/boss_m
 ক্ষেত্র: চাকরি/অফিস
 ## office_open day happy | | hero,nadia
@@ -3654,6 +3681,7 @@ nadia:crying:hold:cup নাদিয়া আপা চুপ করে রই
 
 `=== অচেনা লোকের "আমি পৌঁছে দিই" প্রস্তাব, বোন বাঁচল যেভাবে | The Gift Of Fear Explained In Bangla
 বই: The Gift of Fear | Gavin de Becker | Unsolicited Promise & Discounting "No" | না চাইতেই প্রতিশ্রুতি আর "না" না মানা বিপদের সংকেত
+থাম্বনেল: রাতে বাসস্ট্যান্ডে বোন | "আমি পৌঁছে দিই" | শুনেই {বাঁচল!} | phone | !
 চরিত্র: hero=তানিম/hero, nila=নীলা/sister, stranger=অচেনা লোক/customer
 ক্ষেত্র: প্রতিবেশী/আত্মীয়/সমাজ
 ## home_door night happy | | hero,nila
@@ -3686,6 +3714,7 @@ hero:worried:hold:phone তানিম পৌঁছাল ২০ মিনি�
 
 `=== মা কখনো "ভালোবাসি" বলেননি, কিন্তু রোজ ভাত রাখতেন | The 5 Love Languages Explained In Bangla
 বই: The 5 Love Languages | Gary Chapman | Acts of Service | কাজ দিয়েও ভালোবাসা প্রকাশ করা যায়
+থাম্বনেল: মা কখনো বলেননি "ভালোবাসি" | তবু রোজ রেখে দিতেন | {এক থালা ভাত!} | plate | ♥
 চরিত্র: hero=তানিম/hero, ma=মা/mother, riya=রিয়া/wife
 ক্ষেত্র: পরিবার
 ## kitchen_home night happy | | hero,ma
@@ -3719,6 +3748,7 @@ ma:crying:hold:cup মা হাসলেন, এই প্রথম বুঝ�
 
 `=== সকালে সবচেয়ে কঠিন কাজ, বিকেলে ছুটি | Eat That Frog Explained In Bangla
 বই: Eat That Frog | Brian Tracy | Eat the Frog First | সবচেয়ে কঠিন কাজটা আগে করো
+থাম্বনেল: সকালে কঠিন কাজটা আগে | বিকেল হলো | {পুরো ছুটি!} | laptop | ১
 চরিত্র: hero=তানিম/hero, boss=সাদিয়া ম্যাডাম/boss_f
 ক্ষেত্র: চাকরি/অফিস
 ## office_open evening happy | | hero
@@ -3751,6 +3781,7 @@ hero:proud:hold:laptop [progress: দুপুরের আগে শেষ / 10
 
 `=== বাবা রিকশা চালান, ছেলে লজ্জা পেত, তারপর একদিন | Man's Search For Meaning Explained In Bangla
 বই: Man's Search for Meaning | Viktor Frankl | A Why to Live For | "কেন" থাকলে যেকোনো "কীভাবে" সহ্য করা যায়
+থাম্বনেল: রিকশাচালক বাবাকে নিয়ে লজ্জা | তারপর একদিন | {মাথা উঁচু!} | book | ১
 চরিত্র: hero=তানিম/hero, baba=বাবা/rickshaw_puller, friend=রাফসান/friend_m
 ক্ষেত্র: পরিবার
 ## graduation day happy | | hero,baba
@@ -3785,6 +3816,7 @@ hero:neutral:hold:book [counter: সিজিপিএ / 2.6 / 3.8] লজ্জ
 
 `=== মোবাইল বিছানা থেকে দূরে, ঘুম ফিরল ৭ ঘণ্টা | Atomic Habits Explained In Bangla
 বই: Atomic Habits | James Clear | Environment Design | ইচ্ছাশক্তি নয়, পরিবেশ বদলাও
+থাম্বনেল: মোবাইল বিছানা থেকে দূরে | ঘুম ফিরল | {৭ ঘণ্টা!} | key | ৭
 চরিত্র: hero=তানিম/hero, riya=রিয়া/wife
 ক্ষেত্র: স্বাস্থ্য/অভ্যাস
 ## home_bedroom day happy | | hero
@@ -4653,6 +4685,7 @@ function parseTFScript(text) {
     if ((m = ln.match(head('বর্ণনা|description')))) { raw.youtube.description = m[2]; continue; }
     if ((m = ln.match(head('হ্যাশট্যাগ|hashtags?')))) { raw.youtube.hashtags = m[2].split(/\s+/).filter(Boolean); continue; }
     if ((m = ln.match(head('ক্ষেত্র|area')))) { raw.area = m[2]; continue; }
+    if ((m = ln.match(head('থাম্বনেল|thumbnail|cover')))) { const p = m[2].split('|').map(x => x.trim()); raw.cover = { ctx: p[0] || '', l1: p[1] || '', l2: p[2] || '', icon: (p[3] || '').toLowerCase(), sym: p[4] || '' }; continue; }
     if ((m = ln.match(/^##\s*(.*)$/))) {
       const parts = m[1].split('|').map(s => s.trim()); const words = parts[0].split(/\s+/).filter(Boolean);
       const t0 = (words[0] || '').toLowerCase();
@@ -4700,6 +4733,7 @@ function cardFromShort(ty, body) {
 function toTFScript(st) {
   const o = []; o.push('=== ' + st.title);
   if (st.book && st.book.title) o.push(`বই: ${st.book.title} | ${st.book.author} | ${st.book.lesson} | ${st.book.lesson_bn}`);
+  if (st.cover && st.cover.l1) o.push(`থাম্বনেল: ${st.cover.ctx} | ${st.cover.l1} | ${st.cover.l2} | ${st.cover.icon} | ${st.cover.sym}`);
   o.push('চরিত্র: ' + st.characters.map(c => `${c.id}=${c.name}/${c.role}`).join(', '));
   st.scenes.forEach(s => {
     if (s.type === 'story') o.push(`## ${s.place} ${s.time} ${s.mood}${s.weather ? ' ' + s.weather : ''} | ${s.badge || ''} | ${s.cast.join(',')}`);
@@ -4736,7 +4770,7 @@ function oneOf(v, list, def) { v = str(v).toLowerCase(); return list.includes(v)
 
 function normalizeStory(raw, hero) {
   const warn = [];
-  const st = { title: str(raw.title) || 'নতুন গল্প', thumb: str(raw.thumb), book: raw.book || {}, youtube: raw.youtube || {}, characters: [], scenes: [] };
+  const st = { title: str(raw.title) || 'নতুন গল্প', thumb: str(raw.thumb), cover: (raw.cover && typeof raw.cover === 'object') ? { ctx: str(raw.cover.ctx), l1: str(raw.cover.l1), l2: str(raw.cover.l2), icon: PROPS.includes(str(raw.cover.icon)) ? str(raw.cover.icon) : '', sym: str(raw.cover.sym).slice(0, 4) } : null, book: raw.book || {}, youtube: raw.youtube || {}, characters: [], scenes: [] };
   st.book = { title: str(st.book.title), author: str(st.book.author), lesson: str(st.book.lesson), lesson_bn: str(st.book.lesson_bn) };
   const ids = new Set(); const roleCount = {};
   (Array.isArray(raw.characters) ? raw.characters : []).forEach((ch, i) => {
@@ -4869,8 +4903,10 @@ class StoryRenderer {
     const text = (st.thumb || st.title || '').split('|')[0].trim();
     const hl = new Set(((st.thumbHl || '') + ' ' + text.match(/[০-৯\d][০-৯\d,.]*\s*\S*/g)).split(/\s+/).filter(Boolean));
     let size = 104; let lines = wrapText(c, text, size, 940, 800); while (lines.length > 3 && size > 64) { size -= 6; lines = wrapText(c, text, size, 940, 800); } lines = lines.slice(0, 4);
-    const y0 = 250 + size * .2; c.save(); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 26; c.shadowOffsetY = 6;
-    lines.forEach((l, i) => { const ws = l.split(' '); c.font = `800 ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; const sp = c.measureText(' ').width; const tot = ws.reduce((a, w) => a + c.measureText(w).width, 0) + sp * (ws.length - 1); let x = 540 - tot / 2; ws.forEach(w => { const isH = /[০-৯\d]/.test(w) || hl.has(w.replace(/[।,.!?]/g, '')); c.fillStyle = isH ? C_GO2 : '#FFFFFF'; c.textAlign = 'left'; c.fillText(w, x, y0 + i * size * 1.22); x += c.measureText(w).width + sp; }); });
+    const y0 = 250 + size * .2;
+    { c.font = `800 ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; const mw = Math.min(1000, Math.max(...lines.map(l => c.measureText(l).width)) + 90); const bh = lines.length * size * 1.22 + size * .55; c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 30; c.shadowOffsetY = 10; rr(c, 540 - mw / 2, y0 - size * 1.02, mw, bh, 22, 'rgba(30,58,47,.94)'); c.restore(); rr(c, 540 - mw / 2, y0 - size * 1.02, mw, bh, 22, null, 'rgba(242,193,78,.55)', 3); }
+    c.save(); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 10; c.shadowOffsetY = 3;
+    lines.forEach((l, i) => { const ws = l.split(' '); c.font = `800 ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; const sp = c.measureText(' ').width; const tot = ws.reduce((a, w) => a + c.measureText(w).width, 0) + sp * (ws.length - 1); let x = 540 - tot / 2; ws.forEach(w => { const isH = (i > 0 && i === lines.length - 1) || /[০-৯\d]/.test(w) || hl.has(w.replace(/[।,.!?]/g, '')); c.fillStyle = isH ? C_GO2 : '#FFF8E8'; c.textAlign = 'left'; c.fillText(w, x, y0 + i * size * 1.22); x += c.measureText(w).width + sp; }); });
     c.restore();
     const bk = st.book && st.book.title; if (bk) { const lab = '📚 ' + bk; const w = Math.min(900, tw(c, lab, 38, 700, FONT_EN) + 70); rr(c, 540 - w / 2, 1640, w, 74, 37, C_GO2); txt(c, bk, 540, 1690, 38, C_G, 700, 'center', FONT_EN, w - 50); }
     drawLogo(c, 540, 1500 - 20, 120, S.logo || 'TF'); c.save(); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 14; txt(c, S.series || '', 540, 1600 - 20, 42, '#fff', 700, 'center', FONT_BN, 900); c.restore();
@@ -5957,10 +5993,88 @@ async function shareFile(blob, name, title) {
   if (navigator.canShare && navigator.canShare({ files: [f] })) { try { try { await navigator.clipboard.writeText(text); } catch (e) { } await navigator.share({ files: [f], title: title || name, text }); return true; } catch (e) { if (e.name === 'AbortError') return false; } }
   downloadBlob(blob, name); toast('সরাসরি শেয়ার হলো না — ফাইল ডাউনলোড হয়েছে, এখন Drive/Facebook-এ আপলোড করুন', '', 7000); return false;
 }
+/* ---------- Shorts cover (thumbnail) — green card layout: icon, small gold line, 2-line headline, framed scene ---------- */
+function coverData(st) {
+  const cv = st.cover || {};
+  const strip = s => String(s || '').replace(/[{}]/g, '').trim();
+  let l1 = cv.l1 || '', l2 = cv.l2 || '', ctx = cv.ctx || '';
+  if (!l1) {
+    const base = (st.thumb || st.title || '').split('|');
+    if (base.length > 1 && !/Explained|Bangla/i.test(base[1])) { l1 = base[0]; l2 = base[1]; }
+    else { const w = base[0].trim().split(/\s+/); const cut = Math.ceil(w.length / 2); l1 = w.slice(0, cut).join(' '); l2 = w.slice(cut).join(' '); }
+  }
+  if (!ctx) ctx = (st.book && st.book.lesson_bn) || '';
+  const allTxt = strip(l1) + ' ' + strip(l2);
+  let icon = cv.icon || '';
+  if (!icon) { for (const sc of st.scenes) { for (const ln of (sc.lines || [])) { if (ln.hold && PROPS.includes(ln.hold)) { icon = ln.hold; break; } } if (icon) break; } }
+  if (!icon) icon = /টাকা|৳|লাখ|হাজার|বেতন/.test(allTxt) ? 'money' : /মিষ্টি/.test(allTxt) ? 'sweets' : /বিয়ে|উপহার/.test(allTxt) ? 'gift' : 'book';
+  let sym = cv.sym || ''; if (!sym) { const m = allTxt.match(/[০-৯\d]+/); sym = m ? m[0].slice(0, 3) : '৳'; }
+  return { ctx: strip(ctx), l1: l1.trim(), l2: l2.trim(), icon, sym };
+}
+function coverPickShot(st, tl) {
+  // the story scene with the most people and strongest feeling → the emotional moment for the picture frame
+  let best = -1, bestScore = -1, bestT = 0;
+  st.scenes.forEach((sc, si) => {
+    if (sc.type !== 'story') return;
+    sc.lines.forEach(ln => {
+      const f = ln.feel || ''; const score = (sc.cast || []).length * 2 + ({ crying: 5, sad: 4, surprised: 4, proud: 3, worried: 3, angry: 3, happy: 2 }[f] || 0);
+      if (score > bestScore) { bestScore = score; best = si; }
+    });
+  });
+  if (best < 0) best = Math.max(0, st.scenes.findIndex(x => x.type === 'story'));
+  const sc = st.scenes[best]; bestT = sc.start + Math.min(1.5, Math.max(.1, (sc.end - sc.start) * .5));
+  return { si: best, t: bestT };
+}
+function drawCoverHeadline(c, s, y, size, maxW, baseCol) {
+  // {গোল্ড} marks gold words; if no marks, the last 1-2 words of line 2 are gold (handled by caller)
+  const parts = []; String(s).split(/(\{[^}]*\})/).forEach(p => { if (!p) return; const gold = p[0] === '{'; p.replace(/[{}]/g, '').split(/\s+/).filter(Boolean).forEach(w => parts.push({ w, gold })); });
+  let sz = size; const meas = () => { c.font = `800 ${sz}px ${FONT_BN}, ${FONT_FALLBACK}`; const sp = c.measureText(' ').width; return parts.reduce((a, p) => a + c.measureText(p.w).width, 0) + sp * (parts.length - 1); };
+  while (meas() > maxW && sz > 40) sz -= 4;
+  const tot = meas(); const sp = c.measureText(' ').width; let x = 540 - tot / 2;
+  c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+  parts.forEach(p => { c.fillStyle = p.gold ? C_GO2 : baseCol; c.fillText(p.w, x, y); x += c.measureText(p.w).width + sp; });
+  return sz;
+}
+function drawCover(c, renderer) {
+  const st = renderer.story, tl = renderer.tl; if (!st || !tl) return;
+  const d = coverData(st);
+  c.save(); c.setTransform(c.getTransform());
+  // background: deep forest green + faint diagonal stripes + soft vignette
+  rect(c, 0, 0, W, H, '#1F4733');
+  c.save(); c.globalAlpha = .07; c.fillStyle = '#ffffff'; c.translate(540, 960); c.rotate(-Math.PI / 4.2);
+  for (let x = -2200; x < 2200; x += 120) c.fillRect(x, -2200, 46, 4400); c.restore();
+  const vg = c.createRadialGradient(540, 820, 300, 540, 960, 1300); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.38)'); c.fillStyle = vg; c.fillRect(0, 0, W, H);
+  // big faint symbol behind the text
+  c.save(); c.globalAlpha = .07; txt(c, d.sym, 540, 760, 560, '#ffffff', 800, 'center', FONT_BN, 1000); c.restore();
+  // small story object at the top
+  c.save(); c.translate(540, 290); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 24; c.shadowOffsetY = 10; drawProp(c, d.icon, 1.6, 0, false); c.restore();
+  // small gold context line
+  let y = 500;
+  if (d.ctx) { txt(c, d.ctx, 540, y, 54, C_GO2, 700, 'center', FONT_BN, 920); y += 10; }
+  // headline: line 1 cream, line 2 cream with gold payoff words
+  c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 18; c.shadowOffsetY = 6;
+  let l2 = d.l2; if (l2 && !/\{/.test(l2) && !/\{/.test(d.l1)) { const w = l2.split(/\s+/); const k = w.length > 2 ? 2 : 1; l2 = w.slice(0, w.length - k).join(' ') + ' {' + w.slice(w.length - k).join(' ') + '}'; }
+  let l1 = d.l1; if (l1 && !/[!?।]$/.test((d.l2 || l1).replace(/[{}]/g, '').trim())) { if (l2) l2 = l2.replace(/(\}?)$/, '!$1'); else l1 += '!'; }
+  const s1 = drawCoverHeadline(c, l1, y + 140, 134, 980, '#FFF8E8');
+  if (l2) drawCoverHeadline(c, l2, y + 140 + s1 * 1.16, Math.round(s1 * .92), 980, '#FFF8E8');
+  c.restore();
+  // framed emotional moment from the story
+  const fx = 160, fy = 890, fw = 760, fh = 660;
+  const pick = coverPickShot(st, tl);
+  const off = document.createElement('canvas'); off.width = W; off.height = H; const oc = off.getContext('2d', { alpha: false });
+  try { renderer.drawScene(oc, pick.si, pick.t); } catch (e) { rect(oc, 0, 0, W, H, C_CR); }
+  // crop chest-up region (characters stand in the lower-middle of the frame)
+  const cw = 880, ch = cw * fh / fw, cx = 100, cy = 560;
+  c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 40; c.shadowOffsetY = 14; rr(c, fx - 8, fy - 8, fw + 16, fh + 16, 34, C_GO); c.restore();
+  c.save(); c.beginPath(); c.roundRect(fx, fy, fw, fh, 28); c.clip(); c.drawImage(off, cx, cy, cw, ch, fx, fy, fw, fh); c.restore();
+  // bottom ~20% stays clean (YouTube shows its title there)
+  c.restore();
+}
+
 /* thumbnail / cover */
 const thumbSoon = debounce(drawThumbPv, 200);
-function drawThumbPv() { const cv = $('thumbPv'); if (!cv || !app.story || !app.tl) return; const [a, b] = RATIOS[S.expRatio] || RATIOS['9:16']; cv.width = 180; cv.height = Math.round(180 * b / a); const c = cv.getContext('2d'); const comp = new FrameComposer(app.renderer, cv.width, cv.height); const th = app.tl.thumb; const keep = app.tl.thumb; if (!th) app.tl.thumb = .75; comp.draw(c, 0); app.tl.thumb = keep; }
-async function thumbBlob() { const { w, h } = frameSize(S.expRatio, 1080); const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const c = cv.getContext('2d', { alpha: false }); const keep = app.tl.thumb; if (!keep) app.tl.thumb = .75; new FrameComposer(app.renderer, w, h).draw(c, 0); app.tl.thumb = keep; return await new Promise(r => cv.toBlob(r, 'image/jpeg', .92)); }
+function drawThumbPv() { const cv = $('thumbPv'); if (!cv || !app.story || !app.tl) return; const [a, b] = RATIOS[S.expRatio] || RATIOS['9:16']; cv.width = 180; cv.height = Math.round(180 * b / a); const c = cv.getContext('2d'); c.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0); drawCover(c, app.renderer); c.setTransform(1, 0, 0, 1, 0, 0); }
+async function thumbBlob() { const { w, h } = frameSize(S.expRatio, 1080); const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const c = cv.getContext('2d', { alpha: false }); cv.width = W; cv.height = H; const c2 = cv.getContext('2d', { alpha: false }); drawCover(c2, app.renderer); return await new Promise(r => cv.toBlob(r, 'image/jpeg', .92)); }
 function renderMarkers() { const ul = $('markerList'); ul.innerHTML = ''; app.markers.forEach((m, i) => ul.append(el('li', null, el('b', { text: `📍 ${fmtT(m.t)} · দৃশ্য ${bn(m.si + 1)}, লাইন ${bn(m.li + 1)}` }), el('input', { value: m.note, placeholder: 'কী ভুল?', oninput: e => { m.note = e.target.value; autosave(); } }), el('button', { class: 'link', type: 'button', text: 'যাও', onclick: () => { stopPlay(true); app.t = m.t; drawAt(app.t); updateTime(); } }), el('button', { class: 'link', type: 'button', text: '✕', onclick: () => { app.markers.splice(i, 1); renderMarkers(); autosave(); } })))); }
 function addMarker() { if (!app.story) return; const sh = app.tl.shots[app.renderer.shotAt(app.t)]; app.markers.push({ t: app.t, si: sh.si, li: sh.li, cap: app.story.scenes[sh.si].lines[sh.li].cap, note: '' }); renderMarkers(); autosave(); toast(`📍 ${fmtT(app.t)} মার্ক হয়েছে — এক্সপোর্ট পাতায় লিখুন কী ভুল`, 'ok'); }
 async function saveForClaude() { if (!app.story) return; app.notes = $('aiNotes').value; const pkg = buildAIPackage(app); pkg.lib_id = app.libId; pkg.tf_script = toTFScript(app.story); downloadBlob(new Blob([JSON.stringify(pkg, null, 1)], { type: 'application/json' }), safeName(app.story.title) + '.tfstory.json'); if ($('aiSheet').checked) { const jpg = await previewSheet(app.renderer); downloadBlob(jpg, safeName(app.story.title) + '_preview.jpg'); drawAt(app.t); } toast('ফাইল ডাউনলোড হয়েছে — Claude-কে দিন', 'ok', 5000); }
