@@ -649,6 +649,7 @@ summary{font-weight:700}
     <div class="row"><button type="button" class="ghost" id="btnClearCache">কণ্ঠ/রেকর্ডিং ক্যাশ মুছুন</button><button type="button" class="ghost" id="btnClearUsed">ব্যবহৃত তালিকা মুছুন</button></div>
     <div class="row"><button type="button" class="ghost" id="btnLibExport2">নিজের গল্প ব্যাকআপ</button><label class="btn ghost filebtn">ব্যাকআপ থেকে ফেরত<input type="file" id="libImportFile" accept=".json,application/json"></label></div>
     <p class="muted sm">সবকিছু এই ব্রাউজারেই সেভ থাকে (ইন্টারনেট ছাড়াও চলে)। অন্য ফোন/পিসিতে নিতে ব্যাকআপ ফাইল ব্যবহার করুন।</p>
+    <div class="keystat ok hidden" id="appInfo"><span id="appVer"></span> · <button type="button" class="link" id="btnCheckUpdate">আপডেট আছে কিনা দেখুন</button></div>
   </div>
   <div class="row end"><button class="primary" value="ok">ঠিক আছে</button></div>
 </form></dialog>
@@ -2603,7 +2604,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
 </script>
 <script>/* ===================== TF Story Studio — data ===================== */
 'use strict';
-const APP_VERSION = '3.3.0';
+const APP_VERSION = '3.4.0';
 const STORY_LIBRARY = [];
 const FORMAT_VERSION = 1;
 
@@ -5455,7 +5456,19 @@ function buildAIPackage(app) {
     story: cleanStoryForSave(story)
   };
 }
-function downloadBlob(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000); }
+/* ---------- Android app bridge (window.TFAndroid exists only inside the APK) ---------- */
+const IS_ANDROID = !!(window.TFAndroid && window.TFAndroid.isAndroid && (() => { try { return window.TFAndroid.isAndroid(); } catch (e) { return false; } })());
+async function androidSendFile(blob, name, action) {
+  const id = window.TFAndroid.fileBegin(String(name), blob.type || 'application/octet-stream'); const CH = 786432; // multiple of 3 → clean base64 chunks
+  for (let off = 0; off < blob.size; off += CH) {
+    const u = new Uint8Array(await blob.slice(off, off + CH).arrayBuffer()); let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000));
+    if (!window.TFAndroid.fileChunk(id, btoa(s))) throw new Error('ফাইল লেখা গেল না');
+  }
+  const r = window.TFAndroid.fileEnd(id, action); if (String(r).startsWith('err')) throw new Error(String(r).slice(4)); return r;
+}
+function downloadBlob(blob, name) {
+  if (IS_ANDROID) { androidSendFile(blob, name, 'save').catch(e => (typeof toast === 'function' ? toast('সেভ হলো না: ' + e.message, 'err', 7000) : null)); return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000); }
 function safeName(s) { return (String(s || 'story').replace(/[\\/:*?"<>|]+/g, '').replace(/\s+/g, '_').slice(0, 60)) || 'story'; }
 async function previewSheet(renderer) {
   const sc = renderer.story.scenes; const pts = []; renderer.tl.shots.forEach((sh, i) => { if (i === 0 || sh.si !== renderer.tl.shots[i - 1].si || i % 3 === 0) pts.push(sh.start + Math.min(sh.dur * .6, 1.2)); });
@@ -5920,7 +5933,7 @@ let abortFlag = null;
 function updateExpInfo() { const { w, h } = frameSize(S.expRatio, S.expRes); const d = app.tl ? app.tl.total : 0; $('expInfo').textContent = `${w} × ${h} · ৩০fps · ${bn(Math.round(d))} সেকেন্ড` + (S.expRatio !== '9:16' ? ' · গল্প খাড়া (৯:১৬) ভাবে আঁকা, পাশে ঝাপসা ব্যাকগ্রাউন্ড থাকবে' : ''); }
 async function doExport() {
   if (!app.story) { toast('আগে গল্প বাছুন', 'err'); return; }
-  stopPlay(true); const b = $('btnExport'); b.disabled = true; $('expDone').classList.add('hidden'); $('expProg').classList.remove('hidden'); abortFlag = { aborted: false };
+  stopPlay(true); if (IS_ANDROID) try { window.TFAndroid.keepAwake(true); } catch (e) { } const b = $('btnExport'); b.disabled = true; $('expDone').classList.add('hidden'); $('expProg').classList.remove('hidden'); abortFlag = { aborted: false };
   const size = frameSize(S.expRatio, S.expRes); const t0 = performance.now(); let tv = 0;
   const STG = { audio: 'অডিও তৈরি হচ্ছে…', video: 'ভিডিওর ফ্রেম তৈরি হচ্ছে…', finish: 'ফাইল গুছানো হচ্ছে…' };
   const setP = (p, stage) => { const pc = Math.min(100, Math.round(5 + p * 95)); $('expBar').firstElementChild.style.width = pc + '%'; $('expPct').textContent = bn(pc) + '%'; if (stage) $('expStage').textContent = STG[stage] || ''; if (stage === 'video' && p > .02) { if (!tv) tv = performance.now(); const el2 = (performance.now() - t0) / 1000, rem = el2 / p * (1 - p); $('expEta').textContent = `বাকি আনুমানিক ${bn(Math.max(1, Math.round(rem)))} সেকেন্ড`; } };
@@ -5931,13 +5944,14 @@ async function doExport() {
     app.exported = true; if (app.libId) addUsed('LIB:' + app.libId); if (app.story.book && app.story.book.title) addUsed(app.story.book.title + ' — ' + (app.story.book.lesson || '')); renderLib(); updateFlow();
     $('expProg').classList.add('hidden'); $('expDone').classList.remove('hidden');
     $('expDoneText').textContent = `ডাউনলোড হয়েছে · ${res.w}×${res.h} · ${(res.blob.size / 1048576).toFixed(1)} MB · ${bn(Math.round((performance.now() - t0) / 1000))} সেকেন্ডে` + (res.audio === 'opus' ? ' · অডিও Opus (পিসিতে না চললে VLC)' : '');
-    $('shareHint').textContent = canShareFiles(res.blob, name) ? 'শেয়ার চাপলে Google Drive, Facebook (Reels/পোস্ট), WhatsApp — যেকোনোটা বেছে নিতে পারবেন।' : 'এই ব্রাউজারে সরাসরি শেয়ার নেই — ডাউনলোড হওয়া ফাইলটা নিচের লিংকে আপলোড করুন (ফোনের Chrome-এ শেয়ার সরাসরি কাজ করে)।';
+    $('shareHint').textContent = IS_ANDROID ? 'ভিডিও ফোনের গ্যালারিতে (Movies › TF Story Studio) সেভ হয়েছে। "শেয়ার" চাপলে Drive, Facebook Reels/পোস্ট, WhatsApp — যেকোনোটা বেছে নিন।' : canShareFiles(res.blob, name) ? 'শেয়ার চাপলে Google Drive, Facebook (Reels/পোস্ট), WhatsApp — যেকোনোটা বেছে নিতে পারবেন।' : 'এই ব্রাউজারে সরাসরি শেয়ার নেই — ডাউনলোড হওয়া ফাইলটা নিচের লিংকে আপলোড করুন (ফোনের Chrome-এ শেয়ার সরাসরি কাজ করে)।';
     toast('ভিডিও তৈরি হয়েছে ✓', 'ok');
   } catch (e) { $('expProg').classList.add('hidden'); if (e.message === 'ABORTED') toast('এক্সপোর্ট বাতিল হয়েছে'); else { console.error(e); toast('এক্সপোর্ট হলো না: ' + e.message, 'err', 8000); } }
-  finally { b.disabled = false; $('expEta').textContent = ''; }
+  finally { b.disabled = false; $('expEta').textContent = ''; if (IS_ANDROID) try { window.TFAndroid.keepAwake(false); } catch (e) { } }
 }
-function canShareFiles(blob, name) { try { const f = new File([blob], name, { type: blob.type }); return !!(navigator.canShare && navigator.canShare({ files: [f] })); } catch (e) { return false; } }
+function canShareFiles(blob, name) { if (IS_ANDROID) return true; try { const f = new File([blob], name, { type: blob.type }); return !!(navigator.canShare && navigator.canShare({ files: [f] })); } catch (e) { return false; } }
 async function shareFile(blob, name, title) {
+  if (IS_ANDROID) { try { try { await navigator.clipboard.writeText($('ytText').value || ''); } catch (e) { } await androidSendFile(blob, name, 'share'); return true; } catch (e) { toast('শেয়ার হলো না: ' + e.message, 'err', 7000); return false; } }
   const f = new File([blob], name, { type: blob.type });
   const text = $('ytText').value || title || '';
   if (navigator.canShare && navigator.canShare({ files: [f] })) { try { try { await navigator.clipboard.writeText(text); } catch (e) { } await navigator.share({ files: [f], title: title || name, text }); return true; } catch (e) { if (e.name === 'AbortError') return false; } }
@@ -6116,7 +6130,10 @@ async function init() {
   const setPvMin = on => { document.body.classList.toggle('pvmin', on); $('btnPvMin').textContent = on ? '▾' : '▴'; $('btnPvMin').title = on ? 'প্রিভিউ দেখাও' : 'প্রিভিউ লুকাও'; try { localStorage.setItem('tf_pvmin', on ? '1' : ''); } catch (e) { } if (!on) setTimeout(sizeCanvas, 30); };
   $('btnPvMin').onclick = () => setPvMin(!document.body.classList.contains('pvmin')); try { if (localStorage.getItem('tf_pvmin')) setPvMin(true); } catch (e) { }
   // installable app (PWA) when served from https (GitHub Pages); later wrapped as an Android APK
-  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => { });
+  if (!IS_ANDROID && 'serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => { });
+  // Android Back button: close dialog → previous step → (app asks to press again to exit)
+  window.TFBack = () => { const d = document.querySelector('dialog[open]'); if (d) { d.close(); return true; } if (curStep > 1) { goStep(curStep - 1); return true; } return false; };
+  if (IS_ANDROID) { document.body.classList.add('in-app'); const v = (() => { try { return window.TFAndroid.appVersion(); } catch (e) { return ''; } })(); $('appInfo').classList.remove('hidden'); $('appVer').textContent = 'অ্যাপ ভার্সন: ' + v; $('btnCheckUpdate').onclick = () => window.TFAndroid.checkUpdate(); $('shareHint').textContent = 'ভিডিও ফোনের গ্যালারিতে (Movies › TF Story Studio) সেভ হয়েছে। "শেয়ার" চাপলে Drive, Facebook Reels/পোস্ট, WhatsApp — যেকোনোটা বেছে নিন।'; }
   try { await Promise.all(['400 40px TFBody', '700 40px TFBody', '400 40px TFKalp', '400 40px TFAdorsho', '400 40px TFBensen', '700 40px TFCap', '700 40px TFDisp', '800 40px TFDisp', '700 40px TFAtma', '700 40px TFMina', '400 40px TFTiro', '700 40px TFSerif', '400 40px TFGalada', '700 40px TFPlay'].map(f => document.fonts.load(f, 'অআকখ২৫ Ab'))); } catch (e) { }
   try { const cf = await IDB.get('kv', 'customFont'); if (cf && cf.bytes) { await loadCustomFont(cf.bytes, cf.name); applyFonts(); buildFontPickers(); } } catch (e) { }
   await document.fonts.ready; sizeCanvas(); await restoreProject(); updateFlow();

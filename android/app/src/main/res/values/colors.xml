@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="tf_green">#1E3A2F</color>
+    <color name="tf_gold">#F2C14E</color>
+    <color name="tf_bg">#F5F6F3</color>
+    <color name="tf_white">#FFFFFF</color>
+    <color name="ic_bg">#1E3A2F</color>
+</resources>

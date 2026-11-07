@@ -1,0 +1,87 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'manifest.webmanifest'
+      - 'icon-*.png'
+      - 'android/**'
+      - '.github/workflows/android.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      TF_VERSION_NAME: '3.4'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Put the web app inside the APK
+        run: |
+          mkdir -p android/app/src/main/assets/www
+          cp index.html manifest.webmanifest icon-192.png icon-512.png icon-maskable-512.png android/app/src/main/assets/www/
+
+      - name: Prepare signing key (from encrypted GitHub secrets — never stored in the repo)
+        env:
+          KS_B64: ${{ secrets.TF_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.TF_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -n "$KS_B64" ] && [ -n "$KS_PASS" ]; then
+            echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+            echo "TF_KEYSTORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+            echo "TF_KEYSTORE_PASSWORD=$KS_PASS" >> "$GITHUB_ENV"
+            echo "SIGNED=true" >> "$GITHUB_ENV"
+            echo "Release signing key found."
+          else
+            echo "SIGNED=false" >> "$GITHUB_ENV"
+            echo "::warning::Signing secrets are missing (TF_KEYSTORE_BASE64 / TF_KEYSTORE_PASSWORD). A test APK is built but NOT published as an update."
+          fi
+
+      - name: Build APK
+        run: gradle -p android assembleRelease --no-daemon --stacktrace
+
+      - name: Name the APK and show its signature
+        run: |
+          VN="${TF_VERSION_NAME}.${GITHUB_RUN_NUMBER}"
+          echo "VN=$VN" >> "$GITHUB_ENV"
+          mkdir -p out
+          cp android/app/build/outputs/apk/release/app-release.apk "out/TF-Story-Studio-v$VN.apk"
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          "$BT/apksigner" verify --print-certs "out/TF-Story-Studio-v$VN.apk" | grep -E "SHA-256|DN" || true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TF-Story-Studio-v${{ env.VN }}
+          path: out/*.apk
+
+      - name: Publish update (GitHub Release → the app shows "নতুন আপডেট এসেছে")
+        if: env.SIGNED == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: b${{ github.run_number }}
+          name: TF Story Studio ${{ env.VN }}
+          body: ${{ github.event.head_commit.message || 'নতুন আপডেট' }}
+          files: out/*.apk
+          make_latest: true
