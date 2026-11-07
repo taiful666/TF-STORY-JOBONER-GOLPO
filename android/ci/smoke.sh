@@ -6,7 +6,7 @@ echo "Installing $APK"
 adb install -r -g "$APK"
 adb shell pm grant com.taiful.tfstory android.permission.POST_NOTIFICATIONS 2>/dev/null || true
 adb logcat -c
-adb shell am start -W -n com.taiful.tfstory/.MainActivity
+adb shell am start -W -n com.taiful.tfstory/.MainActivity --ez tf_selftest true
 sleep 30
 PID=$(adb shell pidof com.taiful.tfstory | tr -d '\r')
 echo "PID=$PID"
@@ -22,7 +22,9 @@ adb logcat -d | grep -E "FATAL EXCEPTION|AndroidRuntime: |chromium.*(Uncaught|Sy
 OK=1
 [ -z "$PID" ] && { echo "FAIL: app is not running"; OK=0; }
 adb logcat -d | grep -q "FATAL EXCEPTION" && { echo "FAIL: app crashed"; OK=0; }
-adb logcat -d -s TFWeb:* | grep -qE "health title=TF Story Studio lib=[1-9]" || { echo "FAIL: web app did not start"; OK=0; }
+adb logcat -d -s TFWeb:* | grep -qE 'health "?title=TF Story Studio lib=[1-9]' || { echo "FAIL: web app did not start"; OK=0; }
+adb logcat -d -s TFWeb:* | grep -q "SELFTEST ok" || { echo "FAIL: saving a file through the bridge did not work"; OK=0; }
+adb shell ls "/sdcard/Download/TF Story Studio/" 2>&1 | head -3
 adb exec-out screencap -p > screen.png
 python3 - <<'PY' || true
 import zlib,struct
