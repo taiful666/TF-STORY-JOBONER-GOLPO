@@ -340,6 +340,75 @@ summary{font-weight:700}
 #dlgSettings{max-width:780px}
 .fpick{min-width:0;width:100%}.fgrid{grid-template-columns:repeat(auto-fill,minmax(min(150px,100%),1fr))}@media (max-width:699px){.fgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}dialog{overflow-x:hidden}
 .platrow{flex-wrap:wrap;gap:8px}[data-plat].on{outline:3px solid #E9B04A;outline-offset:1px}.pubshare{margin:12px 0;padding:12px;border-radius:14px;background:rgba(233,176,74,.08)}#platBox label{display:block;margin-top:8px}#platBox textarea{width:100%}
+/* ===== v3.9 layer: start chooser, AI ways, share sheet ===== */
+.startpick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:6px 0 4px}
+.startpick button{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;padding:18px 16px;border:1px solid var(--line);border-radius:16px;background:#fff;cursor:pointer;color:var(--ink);box-shadow:var(--sh);transition:transform .15s ease-out,border-color .15s,box-shadow .15s;min-height:132px}
+.startpick button:hover{border-color:var(--g);box-shadow:0 6px 22px rgba(30,58,47,.12);transform:translateY(-2px)}
+.startpick button:active{transform:scale(.97)}
+.startpick button:focus-visible,.aiways button:focus-visible,.platgrid button:focus-visible,.chips button:focus-visible{outline:3px solid var(--go);outline-offset:2px}
+.startpick i{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:#eef3ef;color:var(--g)}
+.startpick i svg{width:24px;height:24px}
+.startpick button[data-pick="ai"] i{background:var(--g);color:var(--go)}
+.startpick b{font-size:16.5px}.startpick span{font-size:13.5px;color:var(--sub);line-height:1.4}
+.pickmore{margin:6px 0 0}.pickmore .link{font-size:14px;color:var(--sub)}
+.srcback{display:flex;align-items:center;gap:12px;margin:2px 0 12px}
+.srcback b{font-size:16px}
+.backbtn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;color:var(--g);font-weight:700;border-radius:999px;padding:7px 14px 7px 10px;cursor:pointer;min-height:40px}
+.backbtn:hover{border-color:var(--g)}.backbtn svg{width:16px;height:16px}
+.pane.enter{animation:pin .28s ease-out}
+@keyframes pin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.topiclbl input{font-size:16px}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0 12px}
+.chips button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-size:13.5px;cursor:pointer;color:var(--ink);min-height:34px;transition:background .15s,border-color .15s,color .15s}
+.chips button:hover{border-color:var(--g)}
+.chips button.on{background:var(--g);color:#fff;border-color:var(--g)}
+.more2{margin:10px 0;border:1px solid var(--line);border-radius:12px;padding:4px 12px;background:#fff}
+.more2 summary{cursor:pointer;color:var(--sub);font-weight:600;padding:8px 0;font-size:14px}
+.more2[open]{padding-bottom:10px}
+.howh{margin:18px 0 8px}
+.aiways{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 12px}
+.aiways button{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;border:1px solid var(--line);background:#fff;border-radius:14px;padding:12px;cursor:pointer;color:var(--ink);transition:border-color .15s,background .15s,transform .1s}
+.aiways button:active{transform:scale(.97)}
+.aiways button b{font-size:14.5px}.aiways button span{font-size:12.5px;color:var(--sub);line-height:1.35}
+.aiways button.on{border-color:var(--g);background:#eef3ef;box-shadow:inset 0 0 0 1px var(--g)}
+.chatsteps{margin:0;padding:0 0 0 22px}
+.chatsteps li{margin:0 0 14px}.chatsteps li>b{display:block;margin-bottom:6px}
+.chatsteps textarea{width:100%;margin-bottom:6px}
+.ailinks .btn{min-width:96px;justify-content:center}
+.donebtns{gap:10px}.donebtns button{flex:1;max-width:200px}
+button.primary.gold{background:var(--go);color:var(--g);border-color:var(--go)}
+button.primary.gold:hover{filter:brightness(.96)}
+.pubd{margin-top:22px}
+#dlgShare{max-width:520px}
+.platgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.platgrid button{display:grid;grid-template-columns:42px 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:center;text-align:left;border:1px solid var(--line);background:#fff;border-radius:14px;padding:12px;cursor:pointer;color:var(--ink);min-height:64px;transition:border-color .15s,transform .1s}
+.platgrid button:hover{border-color:var(--g)}.platgrid button:active{transform:scale(.97)}
+.platgrid button:last-child{grid-column:1/-1}
+.platgrid .pi{grid-row:1/3;width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:19px;color:#fff;font-family:Arial,sans-serif}
+.platgrid b{font-size:15px}.platgrid span{font-size:12.5px;color:var(--sub)}
+.pi.fb{background:#1877F2}.pi.yt{background:#E62117;font-size:15px}.pi.wa{background:#25D366}.pi.dr{background:#F2C14E;color:#1E3A2F}.pi.ot{background:#5d6863}
+#platBox{margin-top:12px}#platBox .backbtn{margin-bottom:12px}
+.ytkit{display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px;align-items:start;margin-bottom:12px}
+.ytthumb{width:96px;border-radius:10px;border:1px solid var(--line);display:block}
+.ytrows{display:flex;flex-direction:column;gap:6px;min-width:0}
+.ytrow{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line);padding:4px 0 6px}
+.ytx{flex:1;min-width:0;display:flex;flex-direction:column}
+.ytx small{color:var(--sub);font-size:12px}.ytx span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13.5px}
+.ytrow button{min-height:36px;padding:0 12px}
+.primary.wide{width:100%}
+@media (max-width:1099px) and (min-width:700px){.startpick{grid-template-columns:1fr}.startpick button{flex-direction:row;align-items:center;min-height:0;flex-wrap:wrap}.startpick span{flex-basis:100%;padding-left:56px;margin-top:-10px}}
+@media (max-width:699px){
+  .newbtn{width:auto;padding:0 13px 0 10px;border-radius:999px;background:var(--g);color:#fff;border-color:var(--g);height:40px}
+  .newbtn span{display:inline;font-size:14px}
+  .brand b{font-size:14.5px}
+  .startpick{grid-template-columns:1fr;gap:10px}
+  .startpick button{display:grid;grid-template-columns:44px 1fr;grid-template-rows:auto auto;column-gap:12px;align-items:center;min-height:0;padding:14px}
+  .startpick i{grid-row:1/3}
+  .aiways{grid-template-columns:1fr}
+  .aiways button{flex-direction:row;align-items:baseline;flex-wrap:wrap;column-gap:8px}
+}
+@media (max-width:360px){.brand b{display:none}}
+@media (prefers-reduced-motion:reduce){.pane.enter{animation:none}.startpick button,.platgrid button{transition:none}}
 </style>
 
 </head>
@@ -356,6 +425,10 @@ summary{font-weight:700}
   <symbol id="i-book" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5C10.2 5 7.6 4.5 4 4.8v13c3.6-.3 6.2.2 8 1.7 1.8-1.5 4.4-2 8-1.7v-13c-3.6-.3-6.2.2-8 1.7z"/><path d="M12 6.5v13"/></g></symbol>
   <symbol id="i-film" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><path d="M3.5 9.5h17M8 5v4.5M12 5v4.5M16 5v4.5"/><path d="M10.5 12.5v4l3.5-2z" fill="currentColor"/></g></symbol>
   <symbol id="i-mic" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v2.5"/></g></symbol>
+  <symbol id="i-paste" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4.5" width="14" height="16.5" rx="2.5"/><path d="M9 4.5V3.8c0-.7.6-1.3 1.3-1.3h3.4c.7 0 1.3.6 1.3 1.3v.7M9 10.5h6M9 14h6M9 17.5h3.5"/></g></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="8.5" width="12" height="12" rx="2.5"/><path d="M15.5 8.5V6a2.5 2.5 0 0 0-2.5-2.5H6A2.5 2.5 0 0 0 3.5 6v7A2.5 2.5 0 0 0 6 15.5h2.5"/></g></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 </svg>
 
@@ -383,10 +456,17 @@ summary{font-weight:700}
 
     <!-- STEP 1 -->
     <div class="step" id="step1">
-      <div class="stephead"><h2>গল্প বেছে নিন</h2><p class="muted">লাইব্রেরি থেকে নিন, AI দিয়ে লেখান, অথবা নিজের লেখা পেস্ট করুন।</p></div>
-      <nav class="seg sub" id="srcTabs"><button class="on" data-src="lib">লাইব্রেরি</button><button data-src="ai">AI দিয়ে লিখুন</button><button data-src="paste">পেস্ট / ফাইল</button><button data-src="add">+ লাইব্রেরিতে যোগ</button></nav>
+      <div class="stephead"><h2 id="s1Head">নতুন গল্প কীভাবে শুরু করবেন?</h2><p class="muted" id="s1Sub">নিচের তিনটার যেকোনো একটা বেছে নিন।</p></div>
+      <div class="startpick" id="srcPick">
+        <button type="button" data-pick="lib"><i><svg><use href="#i-book"/></svg></i><b>লাইব্রেরি থেকে নিন</b><span>তৈরি গল্পের তালিকা থেকে বেছে নিন</span></button>
+        <button type="button" data-pick="paste"><i><svg><use href="#i-paste"/></svg></i><b>নিজের গল্প পেস্ট করুন</b><span>লেখা গল্প পেস্ট করুন বা ফাইল দিন</span></button>
+        <button type="button" data-pick="ai"><i><svg><use href="#i-spark"/></svg></i><b>AI দিয়ে নতুন গল্প লিখুন</b><span>বিষয় বা টাইটেল দিন — AI লিখে দেবে</span></button>
+      </div>
+      <p class="center pickmore" id="srcPickMore"><button type="button" class="link" data-pick="add">অনেক গল্প একসাথে লাইব্রেরিতে যোগ করুন</button></p>
+      <div class="srcback hidden" id="srcBack"><button type="button" class="backbtn" id="btnSrcBack"><svg><use href="#i-back"/></svg> অন্য উপায়</button><b id="srcTitle"></b></div>
+      <nav class="seg sub hidden" id="srcTabs"><button class="on" data-src="lib">লাইব্রেরি</button><button data-src="ai">AI দিয়ে লিখুন</button><button data-src="paste">পেস্ট / ফাইল</button><button data-src="add">+ লাইব্রেরিতে যোগ</button></nav>
 
-      <div class="pane" id="src-lib">
+      <div class="pane hidden" id="src-lib">
         <div class="row">
           <input id="libSearch" placeholder="খুঁজুন: টাকা, মা, বেতন, 48 Laws..." class="grow" aria-label="গল্প খুঁজুন">
           <select id="libBook" aria-label="বই"></select>
@@ -397,28 +477,38 @@ summary{font-weight:700}
       </div>
 
       <div class="pane hidden" id="src-ai">
+        <label class="topiclbl">গল্পের বিষয় বা টাইটেল <small class="muted">(নিজে লিখুন, অথবা নিচ থেকে বাছুন)</small><input id="pTopic" placeholder="যেমন: প্রথম বেতন, মায়ের ত্যাগ, বন্ধুর ধার"></label>
+        <div class="chips" id="topicChips" aria-label="বিষয় বাছুন"></div>
         <div class="grid2">
-          <label>বিষয় / পরিস্থিতি<input id="pTopic" placeholder="যেমন: প্রথম বেতন, বিয়ের খরচ"></label>
           <label>জীবনের ক্ষেত্র<select id="pArea"></select></label>
+        </div>
+        <details class="more2"><summary>আরও বাছাই — বই, শিক্ষা, নায়কের নাম, দৈর্ঘ্য (ঐচ্ছিক)</summary>
+        <div class="grid2">
           <label>বই<select id="pBook"></select></label>
           <label>শিক্ষা<select id="pLesson"></select></label>
           <label>নায়কের নাম<input id="pHero" placeholder="তানিম"></label>
           <label>গল্পের দৈর্ঘ্য<select id="pLen"><option value="s">ছোট (১৮–২৪ লাইন)</option><option value="m" selected>মাঝারি (২৪–৩০ লাইন)</option><option value="l">বড় (৩০–৪০ লাইন)</option></select></label>
         </div>
         <div class="row"><button class="link" id="btnRandom">অব্যবহৃত শিক্ষা বেছে দাও</button><span class="muted" id="usedInfo"></span></div>
-        <nav class="seg sub small" id="aiTabs"><button class="on" data-ai="gemini">Gemini API</button><button data-ai="claude">Claude API</button><button data-ai="chat">বাইরে লেখান (ChatGPT/Gemini/Claude)</button></nav>
+        </details>
+        <h4 class="howh">কীভাবে লেখাবেন?</h4>
+        <nav class="aiways" id="aiTabs"><button class="on" data-ai="chat"><b>প্রম্পট কপি করে</b><span>ChatGPT · Gemini · Claude-এ লিখিয়ে এখানে পেস্ট</span></button><button data-ai="gemini"><b>অ্যাপেই — Gemini</b><span>নিজের Gemini API key দিয়ে</span></button><button data-ai="claude"><b>অ্যাপেই — Claude</b><span>নিজের Claude API key দিয়ে</span></button></nav>
         <div class="aip" id="ai-api">
           <p class="keystat" id="aiKeyStat"></p>
           <div class="card2">
             <div class="row"><button class="primary" id="btnWrite">একটা গল্প লিখে খুলুন</button><span class="muted" id="aiStatus"></span></div>
-            <div class="row bulkrow"><span>একসাথে</span><input type="number" id="bulkN" min="1" max="100" value="10" class="num" aria-label="কয়টা গল্প"><span>টা গল্প লিখে</span><button class="ghost" id="btnBulkWrite">লাইব্রেরিতে যোগ করুন</button><button class="link hidden" id="btnBulkStop">থামান</button></div>
-            <div class="bar hidden" id="bulkBar"><i></i></div><p class="muted sm" id="bulkInfo"></p>
+            <details class="more2"><summary>একসাথে অনেক গল্প লিখে লাইব্রেরিতে রাখুন</summary><div class="row bulkrow"><span>একসাথে</span><input type="number" id="bulkN" min="1" max="100" value="10" class="num" aria-label="কয়টা গল্প"><span>টা গল্প লিখে</span><button class="ghost" id="btnBulkWrite">লাইব্রেরিতে যোগ করুন</button><button class="link hidden" id="btnBulkStop">থামান</button></div>
+            <div class="bar hidden" id="bulkBar"><i></i></div><p class="muted sm" id="bulkInfo"></p></details>
           </div>
         </div>
         <div class="aip hidden" id="ai-chat">
-          <p class="muted">প্রম্পট কপি করে ChatGPT, Gemini বা Claude-এ পেস্ট করুন। একটা গল্প হলে উত্তর "পেস্ট / ফাইল"-এ দিন, অনেকগুলো হলে "+ লাইব্রেরিতে যোগ"-এ দিন।</p>
-          <div class="row"><button class="primary" id="btnCopyPrompt">১টা গল্পের প্রম্পট কপি</button><span>অথবা</span><input type="number" id="bulkNChat" min="2" max="30" value="10" class="num" aria-label="কয়টা গল্প"><button class="ghost" id="btnCopyBulkPrompt">টা গল্পের প্রম্পট কপি</button></div>
-          <div class="row"><a class="btn ghost" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">ChatGPT ↗</a><a class="btn ghost" href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer">Gemini ↗</a><a class="btn ghost" href="https://claude.ai/new" target="_blank" rel="noopener noreferrer">Claude ↗</a></div>
+          <ol class="chatsteps">
+            <li><b>প্রম্পট কপি করুন</b><div class="row"><button class="primary" id="btnCopyPrompt"><svg><use href="#i-copy"/></svg> প্রম্পট কপি</button></div></li>
+            <li><b>যেকোনো একটা AI খুলে পেস্ট করুন</b><div class="row ailinks"><a class="btn ghost" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">ChatGPT ↗</a><a class="btn ghost" href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer">Gemini ↗</a><a class="btn ghost" href="https://claude.ai/new" target="_blank" rel="noopener noreferrer">Claude ↗</a></div></li>
+            <li><b>AI-এর উত্তর এখানে পেস্ট করুন</b><textarea id="chatIn" rows="7" class="mono" placeholder="AI যা লিখেছে, পুরোটা এখানে পেস্ট করুন"></textarea>
+              <div class="row"><button class="primary" id="btnChatParse">দৃশ্য সাজাও <svg><use href="#i-arrow"/></svg></button><button class="ghost" type="button" id="btnChatPaste">ক্লিপবোর্ড থেকে পেস্ট</button></div></li>
+          </ol>
+          <details class="more2"><summary>একসাথে অনেক গল্পের প্রম্পট (লাইব্রেরির জন্য)</summary><div class="row"><input type="number" id="bulkNChat" min="2" max="30" value="10" class="num" aria-label="কয়টা গল্প"><button class="ghost" id="btnCopyBulkPrompt">টা গল্পের প্রম্পট কপি</button></div><p class="muted sm">অনেক গল্পের উত্তর "অনেক গল্প একসাথে লাইব্রেরিতে যোগ করুন"-এ পেস্ট করবেন।</p></details>
         </div>
         <p class="note">🔒 API key শুধু আপনার ব্রাউজারে থাকে (সেটিংসে)। কোনো এক্সপোর্ট/শেয়ার ফাইলে key থাকে না।</p>
       </div>
@@ -535,7 +625,8 @@ summary{font-weight:700}
         <h4>রেজোলিউশন</h4>
         <nav class="seg sub small" id="resPick"><button data-res="720">720p (দ্রুত)</button><button data-res="1080" class="on">1080p (সেরা)</button><button data-res="1440">2K</button><button data-res="2160">4K (ধীর)</button></nav>
         <h4>থাম্বনেল (কভার)</h4>
-        <div class="thumbrow"><canvas id="thumbPv" width="180" height="320" aria-label="থাম্বনেল প্রিভিউ"></canvas><div class="grow"><label>থাম্বনেলের বড় লেখা<input id="thumbText" placeholder="খালি রাখলে গল্পের শিরোনাম"></label><p class="muted sm">ভিডিওর একদম প্রথম ফ্রেমে এটা থাকবে। "থাম্বনেল ছবি" চাপলে আলাদা কভার ছবি (জীবনপাঠ ডিজাইনে) নামবে — ইউটিউব শর্টস/ফেসবুকে কভার হিসেবে দিন।</p><label>থাম্বনেলের ডিজাইন<select id="coverTheme"><option value="jibonpath">জীবনপাঠ (পেজের লোগো ও রং)</option><option value="indigo">কাঁথা নীল</option><option value="terracotta">মাটির রং</option><option value="dusk">সাঁঝবাতি</option></select></label><button class="ghost sm" id="btnThumbDl" type="button"><svg><use href="#i-down"/></svg> থাম্বনেল ছবি ফোনে সেভ</button></div></div>
+        <div class="thumbrow"><canvas id="thumbPv" width="180" height="320" aria-label="থাম্বনেল প্রিভিউ"></canvas><div class="grow"><label>থাম্বনেলের বড় লেখা<input id="thumbText" placeholder="খালি রাখলে গল্পের শিরোনাম"></label><p class="muted sm">ভিডিওর প্রথম ফ্রেমেও এটাই থাকবে।</p><label>থাম্বনেলের ডিজাইন<select id="coverTheme"><option value="jibonpath">জীবনপাঠ (পেজের লোগো ও রং)</option><option value="indigo">কাঁথা নীল</option><option value="terracotta">মাটির রং</option><option value="dusk">সাঁঝবাতি</option></select></label><button class="ghost sm" id="btnThumbDl" type="button"><svg><use href="#i-down"/></svg> থাম্বনেল ছবি ফোনে সেভ</button></div></div>
+        <label class="chk"><input type="checkbox" id="sAutoThumb"> এক্সপোর্ট শেষ হলে থাম্বনেল ছবিও অটো সেভ</label>
         <p class="muted center" id="expInfo"></p>
         <button class="primary xl" id="btnExport"><svg><use href="#i-down"/></svg> ভিডিও এক্সপোর্ট</button>
         <div class="prog hidden" id="expProg">
@@ -546,28 +637,14 @@ summary{font-weight:700}
         <div class="done hidden" id="expDone">
           <p class="okline"><svg><use href="#i-check"/></svg> <span id="expDoneText">ভিডিও তৈরি</span></p>
           <p class="center"><b>ভিডিওটা কী করবেন?</b></p>
-          <div class="row center">
-            <button class="primary" id="btnSaveAgain"><svg><use href="#i-down"/></svg> ডিভাইসে সেভ করুন</button>
-            <button class="primary" id="btnShare"><svg><use href="#i-share"/></svg> শেয়ার করুন</button>
+          <div class="row center donebtns">
+            <button class="primary" id="btnSaveAgain"><svg><use href="#i-down"/></svg> সেভ করুন</button>
+            <button class="primary gold" id="btnShare"><svg><use href="#i-share"/></svg> শেয়ার করুন</button>
           </div>
-          <div class="pubshare hidden" id="pubShare">
-            <p class="center"><b>কোথায় শেয়ার করবেন?</b></p>
-            <div class="row center platrow">
-              <button class="ghost" type="button" data-plat="fb">Facebook</button>
-              <button class="ghost" type="button" data-plat="yt">YouTube</button>
-              <button class="ghost" type="button" data-plat="wa">WhatsApp</button>
-              <button class="ghost" type="button" data-plat="drive">Google Drive</button>
-              <button class="ghost" type="button" data-plat="other">অন্য অ্যাপ</button>
-            </div>
-            <div id="platBox"></div>
-          </div>
-          <div class="row center"><span class="muted sm">থাম্বনেল ছবি:</span><button class="ghost sm" type="button" id="btnThumbSave2">সেভ</button><button class="ghost sm" type="button" id="btnThumbShare2">শেয়ার</button></div>
-          <label class="chk center"><input type="checkbox" id="sAutoThumb"> এক্সপোর্ট শেষ হলে থাম্বনেল অটো ফোনে সেভ</label>
-          <p class="muted sm center" id="shareHint">ফোনে "শেয়ার" চাপলে Google Drive, Facebook (Reels/পোস্ট), WhatsApp — যেকোনোটা বেছে নিতে পারবেন।</p>
-          <div class="row center"><a class="btn ghost sm" href="https://www.facebook.com/reels/create" target="_blank" rel="noopener noreferrer">Facebook Reels ↗</a><a class="btn ghost sm" href="https://drive.google.com/drive/my-drive" target="_blank" rel="noopener noreferrer">Google Drive ↗</a><a class="btn ghost sm" href="https://studio.youtube.com/" target="_blank" rel="noopener noreferrer">YouTube Studio ↗</a></div>
+          <p class="muted sm center" id="shareHint"></p>
         </div>
       </div>
-      <h4>ইউটিউব / ফেসবুক লেখা (তৈরি, শুধু কপি করুন)</h4>
+      <details class="more pubd" id="pubDetails"><summary>ইউটিউব / ফেসবুক লেখা দেখুন (টাইটেল, ডিসক্রিপশন, ট্যাগ, ক্যাপশন)</summary>
       <div class="pub" id="pubPack">
         <label>ইউটিউব টাইটেল<textarea id="pubYtTitle" rows="2" readonly></textarea></label>
         <div class="row"><button class="ghost sm" type="button" data-copy="pubYtTitle">টাইটেল কপি</button></div>
@@ -578,6 +655,7 @@ summary{font-weight:700}
         <label>ফেসবুক রিলস/পোস্ট ক্যাপশন<textarea id="pubFb" rows="6" readonly></textarea></label>
         <div class="row"><button class="ghost sm" type="button" data-copy="pubFb">ক্যাপশন কপি</button></div>
       </div>
+      </details>
       <details class="more">
         <summary>ভুল ঠিক করা ও অন্যান্য</summary>
         <h4>Save for Claude</h4>
@@ -606,6 +684,18 @@ summary{font-weight:700}
     <p class="muted center sm" id="lineInfo"></p>
   </aside>
 </main>
+
+<dialog id="dlgShare" aria-labelledby="shareH"><div class="dlg sharesheet">
+  <div class="row between"><h3 class="m0" id="shareH">কোথায় শেয়ার করবেন?</h3><button type="button" class="icon" id="btnShareX" aria-label="বন্ধ"><svg><use href="#i-x"/></svg></button></div>
+  <div class="platgrid" id="platGrid">
+    <button type="button" data-plat="fb"><i class="pi fb">f</i><b>Facebook</b><span>ক্যাপশন অটো কপি</span></button>
+    <button type="button" data-plat="yt"><i class="pi yt">▶</i><b>YouTube</b><span>টাইটেল · থাম্বনেল সহ</span></button>
+    <button type="button" data-plat="wa"><i class="pi wa">W</i><b>WhatsApp</b><span>ছোট লেখা অটো কপি</span></button>
+    <button type="button" data-plat="drive"><i class="pi dr">▲</i><b>Google Drive</b><span>ব্যাকআপ রাখুন</span></button>
+    <button type="button" data-plat="other"><i class="pi ot">…</i><b>অন্য অ্যাপ</b><span>সব অপশন</span></button>
+  </div>
+  <div id="platBox"></div>
+</div></dialog>
 
 <dialog id="dlgSettings"><form method="dialog" novalidate class="dlg">
   <div class="row between"><h3 class="m0">সেটিংস</h3><button type="submit" class="icon" value="x" aria-label="বন্ধ">✕</button></div>
@@ -2631,7 +2721,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
 </script>
 <script>/* ===================== TF Story Studio — data ===================== */
 'use strict';
-const APP_VERSION = '3.8.1';
+const APP_VERSION = '3.9.0';
 const STORY_LIBRARY = [];
 const FORMAT_VERSION = 1;
 
@@ -5857,6 +5947,7 @@ function fillLessons() { const i = $('pBook').value; const s = $('pLesson'); s.i
 function takenLessons() { const t = new Set(usedList().filter(x => !x.startsWith('LIB:'))); LIB.forEach(it => { if (it.book) t.add(it.book + ' — ' + it.lesson); }); return t; }
 function promptOpts(over) { const bi = $('pBook').value; const lines = { s: '১৮-২৪', m: '২৪-৩০', l: '৩০-৪০' }[$('pLen').value]; return Object.assign({ series: S.series, topic: [$('pTopic').value.trim(), $('pArea').value].filter(Boolean).join(' — '), book: bi !== '' ? BOOKS[bi][0] : '', author: bi !== '' ? BOOKS[bi][1] : '', lesson: $('pLesson').value, hero: $('pHero').value.trim() || S.hero, lines, avoid: [...takenLessons()] }, over || {}); }
 function currentPrompt(over) { return buildStoryPrompt(promptOpts(over)); }
+async function copySilent(s) { try { await navigator.clipboard.writeText(s); return true; } catch (e) { try { const ta = el('textarea', { value: s }); ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;opacity:0;left:-9999px'; document.body.append(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok; } catch (e2) { return false; } } }
 async function copyText(s, okMsg) { try { await navigator.clipboard.writeText(s); } catch (e) { const ta = el('textarea', { value: s }); document.body.append(ta); ta.select(); document.execCommand('copy'); ta.remove(); } toast(okMsg || 'কপি হয়েছে', 'ok'); }
 function lessonPool(bookSel) { const taken = takenLessons(); const bi = bookSel != null ? bookSel : $('pBook').value; const pool = []; BOOKS.forEach((b, i) => { if (bi !== '' && +bi !== i) return; b[2].forEach(l => { if (!taken.has(b[0] + ' — ' + l)) pool.push([i, l]); }); }); return pool; }
 function pickRandom() { const pool = lessonPool(); if (!pool.length) { toast('এই বইয়ের সব শিক্ষা নেওয়া হয়ে গেছে — অন্য বই বা বিষয় দিন'); return; } const [bi, l] = pool[Math.floor(Math.random() * pool.length)]; $('pBook').value = bi; fillLessons(); $('pLesson').value = l; $('pArea').value = LIFE_AREAS[Math.floor(Math.random() * LIFE_AREAS.length)]; }
@@ -6185,18 +6276,18 @@ async function doExport() {
     if (S.autoThumb !== false) { try { const tb = await thumbBlob(); downloadBlob(tb, safeName(app.story.title) + '_thumbnail.jpg'); } catch (e) { console.warn(e); } }
     app.exported = true; if (app.libId) addUsed('LIB:' + app.libId); if (app.story.book && app.story.book.title) addUsed(app.story.book.title + ' — ' + (app.story.book.lesson || '')); renderLib(); updateFlow();
     $('expProg').classList.add('hidden'); $('expDone').classList.remove('hidden');
-    $('pubShare').classList.add('hidden'); $('expDoneText').textContent = `ভিডিও তৈরি · ${res.w}×${res.h} · ${(res.blob.size / 1048576).toFixed(1)} MB · ${bn(Math.round((performance.now() - t0) / 1000))} সেকেন্ডে` + (res.audio === 'opus' ? ' · অডিও Opus (পিসিতে না চললে VLC)' : '');
-    $('shareHint').textContent = (S.autoThumb !== false ? 'থাম্বনেল ছবি ফোনে সেভ হয়েছে' + (IS_ANDROID ? ' (Pictures › TF Story Studio)' : '') + '। ' : '') + 'ভিডিওটা ফোনে রাখবেন, নাকি সরাসরি শেয়ার করবেন — নিচে বেছে নিন।';
+    $('expDoneText').textContent = `ভিডিও তৈরি · ${res.w}×${res.h} · ${(res.blob.size / 1048576).toFixed(1)} MB · ${bn(Math.round((performance.now() - t0) / 1000))} সেকেন্ডে` + (res.audio === 'opus' ? ' · অডিও Opus (পিসিতে না চললে VLC)' : '');
+    $('shareHint').textContent = S.autoThumb !== false ? 'থাম্বনেল ছবি সেভ হয়েছে' + (IS_ANDROID ? ' (Pictures › TF Story Studio)' : '') : '';
     toast('ভিডিও তৈরি হয়েছে ✓', 'ok');
   } catch (e) { $('expProg').classList.add('hidden'); if (e.message === 'ABORTED') toast('এক্সপোর্ট বাতিল হয়েছে'); else { console.error(e); toast('এক্সপোর্ট হলো না: ' + e.message, 'err', 8000); } }
   finally { b.disabled = false; $('expEta').textContent = ''; if (IS_ANDROID) try { window.TFAndroid.keepAwake(false); } catch (e) { } }
 }
 function canShareFiles(blob, name) { if (IS_ANDROID) return true; try { const f = new File([blob], name, { type: blob.type }); return !!(navigator.canShare && navigator.canShare({ files: [f] })); } catch (e) { return false; } }
-async function shareFile(blob, name, title) {
-  if (IS_ANDROID) { try { try { await navigator.clipboard.writeText($('ytText').value || ''); } catch (e) { } await androidSendFile(blob, name, 'share'); return true; } catch (e) { toast('শেয়ার হলো না: ' + e.message, 'err', 7000); return false; } }
+async function shareFile(blob, name, title, txt) {
+  const text = txt != null ? txt : ($('ytText').value || title || '');
+  if (IS_ANDROID) { try { if (text) await copySilent(text); await androidSendFile(blob, name, 'share'); return true; } catch (e) { toast('শেয়ার হলো না: ' + e.message, 'err', 7000); return false; } }
   const f = new File([blob], name, { type: blob.type });
-  const text = $('ytText').value || title || '';
-  if (navigator.canShare && navigator.canShare({ files: [f] })) { try { try { await navigator.clipboard.writeText(text); } catch (e) { } await navigator.share({ files: [f], title: title || name, text }); return true; } catch (e) { if (e.name === 'AbortError') return false; } }
+  if (navigator.canShare && navigator.canShare({ files: [f] })) { try { if (text) await copySilent(text); await navigator.share(text ? { files: [f], title: title || name, text } : { files: [f], title: title || name }); return true; } catch (e) { if (e.name === 'AbortError') return false; } }
   downloadBlob(blob, name); toast('সরাসরি শেয়ার হলো না — ফাইল ডাউনলোড হয়েছে, এখন Drive/Facebook-এ আপলোড করুন', '', 7000); return false;
 }
 /* ---------- Shorts cover (thumbnail) — green card layout: icon, small gold line, 2-line headline, framed scene ---------- */
@@ -6387,9 +6478,9 @@ async function newStory() {
   stopPlay(true); app.story = null; app.tl = null; app.renderer = new StoryRenderer(); pvComp = null; app.markers = []; app.notes = ''; app.libId = null; app.warnings = []; app.exported = false; app.lastExport = null; app.visited3 = false; app.t = 0;
   app.audio = { mode: app.audio.mode === 'upload' ? 'none' : app.audio.mode, tts: app.audio.tts, rec: app.audio.rec, upload: null }; app.mix = null; app.mixDirty = true;
   await IDB.set('kv', 'project', null);
-  ['charEditor', 'sceneOverview', 'sceneEditor', 'markerList', 'warnList'].forEach(id => $(id).innerHTML = ''); ['storyIn', 'aiNotes', 'thumbText', 'ytText'].forEach(id => $(id).value = ''); $('storyTitle').textContent = ''; $('uploadInfo').textContent = ''; $('lineInfo').textContent = '';
-  $('expDone').classList.add('hidden'); $('expProg').classList.add('hidden'); $('pvEmpty').classList.remove('hidden'); drawAt(0); updateTime(); renderLib(); goStep(1); setSeg('srcTabs', 'src', 'lib'); ['lib', 'ai', 'paste', 'add'].forEach(x => $('src-' + x).classList.toggle('hidden', x !== 'lib'));
-  toast('নতুন গল্প শুরু করুন', 'ok');
+  ['charEditor', 'sceneOverview', 'sceneEditor', 'markerList', 'warnList'].forEach(id => $(id).innerHTML = ''); ['storyIn', 'aiNotes', 'thumbText', 'ytText', 'chatIn', 'pTopic'].forEach(id => $(id).value = ''); document.querySelectorAll('#topicChips button').forEach(x => x.classList.remove('on')); try { $('dlgShare').open && $('dlgShare').close(); } catch (e) { } $('storyTitle').textContent = ''; $('uploadInfo').textContent = ''; $('lineInfo').textContent = '';
+  $('expDone').classList.add('hidden'); $('expProg').classList.add('hidden'); $('pvEmpty').classList.remove('hidden'); drawAt(0); updateTime(); renderLib(); goStep(1); showSrc(null);
+  toast('স্ক্রিন পরিষ্কার — নতুন গল্প শুরু করুন', 'ok');
 }
 
 /* ---------- autosave ---------- */
@@ -6458,7 +6549,7 @@ async function init() {
   document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => goStep(b.dataset.go)));
   $('btnNew').onclick = newStory; $('btnGallery').onclick = () => openGallery(null);
   segTabs('galFilter', 'gf', v => { galFilter = v; renderGallery(); });
-  segTabs('srcTabs', 'src', v => ['lib', 'ai', 'paste', 'add'].forEach(x => $('src-' + x).classList.toggle('hidden', x !== v)));
+  segTabs('srcTabs', 'src', v => showSrc(v)); initStartPick();
   segTabs('aiTabs', 'ai', v => { S.aiTab = v; saveSettings(); applySettingsToUI(); });
   segTabs('voiceTabs', 'v', chooseVoice); setVoiceTab(app.audio.mode);
   segTabs('lenTabs', 'len', v => { S.lenMode = v; saveSettings(); $('lenFixedRow').classList.toggle('hidden', v !== 'fixed'); rebuild(true); });
@@ -6524,26 +6615,7 @@ async function init() {
   $('btnMark').onclick = addMarker;
   // export
   $('btnExport').onclick = doExport; $('btnCancel').onclick = () => abortFlag && (abortFlag.aborted = true);
-  $('btnShare').onclick = () => { if (!app.lastExport) return; $('pubShare').classList.toggle('hidden'); $('platBox').innerHTML = ''; };
-  const PLAT = { fb: { name: 'Facebook', pkg: 'com.facebook.katana', web: 'https://www.facebook.com/reels/create' }, yt: { name: 'YouTube', pkg: 'com.google.android.youtube', web: 'https://studio.youtube.com/' }, wa: { name: 'WhatsApp', pkg: 'com.whatsapp', web: '' }, drive: { name: 'Google Drive', pkg: 'com.google.android.apps.docs', web: 'https://drive.google.com/drive/my-drive' }, other: { name: 'অন্য অ্যাপ', pkg: '', web: '' } };
-  document.querySelectorAll('[data-plat]').forEach(b => b.onclick = () => {
-    if (!app.lastExport || !app.story) return; const k = b.dataset.plat, P0 = PLAT[k], pk = publishPack(app.story), box = $('platBox'); box.innerHTML = '';
-    document.querySelectorAll('[data-plat]').forEach(x => x.classList.toggle('on', x === b));
-    const field = (label, val, rows) => { const ta = el('textarea', { rows: rows || 3, readonly: true }); ta.value = val; box.append(el('label', null, label, ta), el('div', { class: 'row' }, el('button', { class: 'ghost sm', type: 'button', text: label + ' কপি', onclick: () => copyText(val) }))); };
-    let first = '';
-    if (k === 'fb') { field('ফেসবুক ক্যাপশন', pk.fb, 6); first = pk.fb; }
-    else if (k === 'yt') { field('ইউটিউব টাইটেল', pk.ytTitle, 2); field('ইউটিউব ডিসক্রিপশন', pk.desc, 7); field('ইউটিউব ট্যাগ', pk.tags, 2); first = pk.ytTitle; }
-    else if (k === 'wa' || k === 'other') { const short = pk.fb.split('\n\n').slice(0, 2).join('\n\n'); field('সাথে পাঠানোর লেখা', short, 4); first = short; }
-    const go = el('button', { class: 'primary', type: 'button', text: P0.name + '-এ ভিডিও পাঠান', onclick: async () => {
-      try { await navigator.clipboard.writeText(first); } catch (e) { }
-      if (IS_ANDROID) { try { await androidSendFile(app.lastExport.blob, app.lastExport.name, P0.pkg ? 'share:' + P0.pkg : 'share'); toast(first ? 'লেখা কপি হয়েছে — পোস্টের ঘরে পেস্ট করুন' : 'শেয়ার খুলছে', 'ok', 5000); } catch (e) { toast('শেয়ার হলো না: ' + e.message, 'err', 7000); } }
-      else { const ok = await shareFile(app.lastExport.blob, app.lastExport.name, app.story.title); if (!ok && P0.web) window.open(P0.web, '_blank', 'noopener'); }
-    } });
-    box.append(el('div', { class: 'row center' }, go));
-    if (k === 'yt') box.append(el('p', { class: 'muted sm', text: 'ইউটিউবে আপলোডের সময় টাইটেল, ডিসক্রিপশন আর ট্যাগ একটা একটা করে কপি-পেস্ট করুন। কভার হিসেবে থাম্বনেল ছবিটা দিন।' }));
-  });
-  $('btnThumbSave2').onclick = async () => { if (!app.story) return; downloadBlob(await thumbBlob(), safeName(app.story.title) + '_thumbnail.jpg'); };
-  $('btnThumbShare2').onclick = async () => { if (!app.story) return; shareFile(await thumbBlob(), safeName(app.story.title) + '_thumbnail.jpg', app.story.title); };
+  initShareSheet();
   { const at = $('sAutoThumb'); at.checked = S.autoThumb !== false; at.onchange = () => { S.autoThumb = at.checked; saveSettings(); }; }
   $('btnSaveAgain').onclick = () => app.lastExport && downloadBlob(app.lastExport.blob, app.lastExport.name);
   $('thumbText').addEventListener('input', e => { if (!app.story) return; app.story.thumb = e.target.value.trim(); thumbSoon(); drawAt(app.t); autosave(); });
@@ -6576,6 +6648,73 @@ window.TFStudio = {
   app, LIB
 };
 init();
+/* ===================== v3.9 — start chooser, AI write flow, clean share sheet ===================== */
+const SRC_TITLES = { lib: 'লাইব্রেরি থেকে গল্প বাছুন', paste: 'নিজের গল্প পেস্ট করুন', ai: 'AI দিয়ে নতুন গল্প লিখুন', add: 'অনেক গল্প একসাথে লাইব্রেরিতে যোগ' };
+const TOPIC_IDEAS = ['প্রথম বেতন', 'মায়ের ত্যাগ', 'বাবার শিক্ষা', 'বন্ধুকে ধার', 'ঋণের ফাঁদ', 'সঞ্চয়ের অভ্যাস', 'অফিসের রাজনীতি', 'বসের অপমান', 'বিয়ের খরচ', 'ছোট দোকান শুরু', 'অনলাইন স্ক্যাম', 'আত্মীয়ের হিংসা', 'ফোনের নেশা', 'পরীক্ষায় ফেল', 'সময়ের দাম', 'ভুল সিদ্ধান্ত'];
+function showSrc(v) {
+  const picking = !v;
+  $('srcPick').classList.toggle('hidden', !picking); $('srcPickMore').classList.toggle('hidden', !picking); $('srcBack').classList.toggle('hidden', picking);
+  ['lib', 'ai', 'paste', 'add'].forEach(x => $('src-' + x).classList.toggle('hidden', x !== v));
+  if (v) { setSeg('srcTabs', 'src', v); $('srcTitle').textContent = SRC_TITLES[v] || ''; const p = $('src-' + v); p.classList.remove('enter'); void p.offsetWidth; p.classList.add('enter'); }
+  $('s1Head').textContent = app.story ? 'আরেকটা গল্প শুরু করবেন?' : 'নতুন গল্প কীভাবে শুরু করবেন?';
+  $('s1Head').parentNode.classList.toggle('hidden', !picking);
+  app.srcView = v || null;
+}
+function initStartPick() {
+  document.querySelectorAll('[data-pick]').forEach(b => b.addEventListener('click', () => { showSrc(b.dataset.pick); if (b.dataset.pick === 'ai') setTimeout(() => { try { $('pTopic').focus({ preventScroll: true }); } catch (e) { } }, 60); }));
+  $('btnSrcBack').onclick = () => showSrc(null);
+  const box = $('topicChips');
+  TOPIC_IDEAS.forEach(t => box.append(el('button', { type: 'button', text: t, onclick: e => { const b = e.currentTarget, on = !b.classList.contains('on'); box.querySelectorAll('button').forEach(x => x.classList.remove('on')); b.classList.toggle('on', on); $('pTopic').value = on ? t : ''; } })));
+  $('pTopic').addEventListener('input', () => box.querySelectorAll('button').forEach(x => x.classList.toggle('on', x.textContent === $('pTopic').value.trim())));
+  $('btnChatParse').onclick = () => { const t = $('chatIn').value.trim(); if (!t) { toast('আগে AI-এর উত্তর পেস্ট করুন', 'err'); $('chatIn').focus(); return; } $('storyIn').value = t; $('btnParse').click(); };
+  $('btnChatPaste').onclick = async () => { try { const t = await navigator.clipboard.readText(); if (t) { $('chatIn').value = t; toast('পেস্ট হয়েছে', 'ok'); } else toast('ক্লিপবোর্ড খালি'); } catch (e) { toast('এখানে চেপে ধরে "Paste" চাপুন', '', 5000); $('chatIn').focus(); } };
+  showSrc(null);
+}
+function initShareSheet() {
+  const dlg = $('dlgShare'), box = $('platBox');
+  const PLAT = { fb: { name: 'Facebook', pkg: 'com.facebook.katana', web: 'https://www.facebook.com/reels/create' }, yt: { name: 'YouTube', pkg: 'com.google.android.youtube', web: 'https://studio.youtube.com/' }, wa: { name: 'WhatsApp', pkg: 'com.whatsapp', web: '' }, drive: { name: 'Google Drive', pkg: 'com.google.android.apps.docs', web: 'https://drive.google.com/drive/my-drive' }, other: { name: 'অন্য অ্যাপ', pkg: '', web: '' } };
+  let thumbUrl = null;
+  const close = () => { try { dlg.close(); } catch (e) { } };
+  const reset = () => { box.innerHTML = ''; $('shareH').textContent = 'কোথায় শেয়ার করবেন?'; $('platGrid').classList.remove('hidden'); dlg.querySelectorAll('[data-plat]').forEach(x => x.classList.remove('on')); if (thumbUrl) { URL.revokeObjectURL(thumbUrl); thumbUrl = null; } };
+  dlg.addEventListener('close', reset);
+  dlg.addEventListener('click', e => { if (e.target === dlg) close(); });
+  $('btnShareX').onclick = close;
+  $('btnShare').onclick = () => { if (!app.lastExport) { toast('আগে ভিডিও এক্সপোর্ট করুন', 'err'); return; } reset(); try { dlg.showModal(); } catch (e) { dlg.setAttribute('open', ''); } };
+  async function send(k, text) {
+    const P0 = PLAT[k], ex = app.lastExport; if (!ex) return;
+    let copied = false; if (text) copied = await copySilent(text);
+    if (IS_ANDROID) {
+      try { await androidSendFile(ex.blob, ex.name, P0.pkg ? 'share:' + P0.pkg : 'share'); close(); toast(copied ? 'লেখা কপি হয়েছে — ' + P0.name + '-এ লেখার ঘরে চেপে ধরে Paste করুন' : P0.name + ' খুলছে…', 'ok', 6000); }
+      catch (e) { toast('শেয়ার হলো না: ' + e.message, 'err', 7000); }
+    } else {
+      const ok = await shareFile(ex.blob, ex.name, app.story ? app.story.title : '', text || '');
+      if (ok) { close(); if (copied) toast('লেখা কপি হয়েছে — পোস্টে Paste করুন', 'ok', 6000); }
+      else if (P0.web) window.open(P0.web, '_blank', 'noopener');
+    }
+  }
+  function ytKit(pk) {
+    box.innerHTML = ''; $('platGrid').classList.add('hidden'); $('shareH').textContent = 'YouTube-এ দিন';
+    const back = el('button', { type: 'button', class: 'backbtn', onclick: reset }); back.innerHTML = '<svg><use href="#i-back"/></svg> অন্য জায়গা';
+    const img = el('img', { class: 'ytthumb', alt: 'থাম্বনেল' });
+    thumbBlob().then(b => { if (thumbUrl) URL.revokeObjectURL(thumbUrl); thumbUrl = URL.createObjectURL(b); img.src = thumbUrl; }).catch(() => img.remove());
+    const row = (label, val, btnText, fn) => el('div', { class: 'ytrow' }, el('div', { class: 'ytx' }, el('small', { text: label }), el('span', { text: val })), el('button', { type: 'button', class: 'ghost sm', text: btnText, onclick: fn }));
+    const tname = safeName(app.story.title) + '_thumbnail.jpg';
+    box.append(back,
+      el('div', { class: 'ytkit' }, img, el('div', { class: 'ytrows' },
+        row('টাইটেল', pk.ytTitle, 'কপি', () => copyText(pk.ytTitle, 'টাইটেল কপি হয়েছে')),
+        row('ডিসক্রিপশন', pk.desc.split('\n')[0] + ' …', 'কপি', () => copyText(pk.desc, 'ডিসক্রিপশন কপি হয়েছে')),
+        row('ট্যাগ', pk.tags, 'কপি', () => copyText(pk.tags, 'ট্যাগ কপি হয়েছে')),
+        row('থাম্বনেল ছবি', 'কভার হিসেবে দিন', 'সেভ', async () => { downloadBlob(await thumbBlob(), tname); toast('থাম্বনেল সেভ হচ্ছে', 'ok'); }))),
+      el('button', { type: 'button', class: 'primary wide', text: 'YouTube-এ ভিডিও পাঠান', onclick: () => send('yt', pk.ytTitle) }),
+      el('p', { class: 'muted sm center', text: 'ভিডিও পাঠালে টাইটেল অটো কপি হবে। পরে এখানে ফিরে ডিসক্রিপশন/ট্যাগ কপি করুন।' }));
+  }
+  dlg.querySelectorAll('[data-plat]').forEach(b => b.onclick = () => {
+    if (!app.lastExport || !app.story) return; const k = b.dataset.plat, pk = publishPack(app.story);
+    if (k === 'yt') { ytKit(pk); return; }
+    const short = pk.fb.split('\n\n').slice(0, 2).join('\n\n');
+    send(k, k === 'fb' ? pk.fb : (k === 'wa' || k === 'other') ? short : '');
+  });
+}
 </script>
 </body>
 </html>
