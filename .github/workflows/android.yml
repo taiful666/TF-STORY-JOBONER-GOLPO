@@ -22,12 +22,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    outputs:
+      signed: ${{ steps.sign.outputs.signed }}
+      vn: ${{ steps.name.outputs.vn }}
     env:
       TF_VERSION_NAME: '3.4'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -51,6 +54,7 @@ jobs:
           cp index.html manifest.webmanifest icon-192.png icon-512.png icon-maskable-512.png android/app/src/main/assets/www/
 
       - name: Prepare signing key (from encrypted GitHub secrets — never stored in the repo)
+        id: sign
         env:
           KS_B64: ${{ secrets.TF_KEYSTORE_BASE64 }}
           KS_PASS: ${{ secrets.TF_KEYSTORE_PASSWORD }}
@@ -59,10 +63,10 @@ jobs:
             echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
             echo "TF_KEYSTORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
             echo "TF_KEYSTORE_PASSWORD=$KS_PASS" >> "$GITHUB_ENV"
-            echo "SIGNED=true" >> "$GITHUB_ENV"
+            echo "signed=true" >> "$GITHUB_OUTPUT"
             echo "Release signing key found."
           else
-            echo "SIGNED=false" >> "$GITHUB_ENV"
+            echo "signed=false" >> "$GITHUB_OUTPUT"
             echo "::warning::Signing secrets are missing (TF_KEYSTORE_BASE64 / TF_KEYSTORE_PASSWORD). A test APK is built but NOT published as an update."
           fi
 
@@ -70,9 +74,10 @@ jobs:
         run: gradle -p android assembleRelease --no-daemon --stacktrace
 
       - name: Name the APK and show its signature
+        id: name
         run: |
           VN="${TF_VERSION_NAME}.${GITHUB_RUN_NUMBER}"
-          echo "VN=$VN" >> "$GITHUB_ENV"
+          echo "vn=$VN" >> "$GITHUB_OUTPUT"
           mkdir -p out
           cp android/app/build/outputs/apk/release/app-release.apk "out/TF-Story-Studio-v$VN.apk"
           BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
@@ -80,15 +85,46 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: TF-Story-Studio-v${{ env.VN }}
+          name: apk
           path: out/*.apk
 
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with: { name: apk, path: apk }
+      - name: Enable KVM (fast emulator)
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+      - name: Install and open the app on an Android 14 emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
+          script: bash android/ci/smoke.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: emulator-screenshot, path: screen.png, if-no-files-found: ignore }
+
+  release:
+    needs: [build, test]
+    if: needs.build.outputs.signed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { name: apk, path: out }
       - name: Publish update (GitHub Release → the app shows "নতুন আপডেট এসেছে")
-        if: env.SIGNED == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: b${{ github.run_number }}
-          name: TF Story Studio ${{ env.VN }}
+          name: TF Story Studio ${{ needs.build.outputs.vn }}
           body: ${{ github.event.head_commit.message || 'নতুন আপডেট' }}
           files: out/*.apk
           make_latest: true
