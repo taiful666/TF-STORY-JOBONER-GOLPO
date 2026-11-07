@@ -55,7 +55,10 @@ class WebBridge(private val activity: MainActivity) {
             os.flush(); os.close()
             var where = ""
             if (action == "save" || action == "both") where = saveToPhone(f, name, mime)
-            if (action == "share" || action == "both") share(f, name, mime)
+            // "share:<package>" opens that app directly (Facebook, YouTube, WhatsApp, Drive); falls back to the share sheet
+            val pkg = if (action.startsWith("share:")) action.removePrefix("share:").trim() else ""
+            if (pkg.isNotEmpty() && !Regex("^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z0-9_]+)+$").matches(pkg)) return "err:bad package"
+            if (action == "share" || action == "both" || pkg.isNotEmpty()) share(f, name, mime, pkg)
             cleanupLater()
             "ok:$where"
         } catch (e: Exception) { "err:${e.message}" }
@@ -92,13 +95,22 @@ class WebBridge(private val activity: MainActivity) {
         }
     }
 
-    private fun share(f: File, name: String, mime: String) {
+    private fun share(f: File, name: String, mime: String, pkg: String = "") {
         val named = File(f.parentFile, name).let { if (it.absolutePath == f.absolutePath) f else { f.copyTo(it, overwrite = true); it } }
         val uri: Uri = FileProvider.getUriForFile(activity, "${activity.packageName}.files", named)
         val send = Intent(Intent.ACTION_SEND).apply {
             type = mime; putExtra(Intent.EXTRA_STREAM, uri); addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        activity.runOnUiThread { activity.startActivity(Intent.createChooser(send, "শেয়ার করুন — Drive, Facebook, WhatsApp…")) }
+        activity.runOnUiThread {
+            val chooser = Intent.createChooser(send, "শেয়ার করুন — Drive, Facebook, WhatsApp…")
+            if (pkg.isEmpty()) { activity.startActivity(chooser); return@runOnUiThread }
+            val direct = Intent(send).setPackage(pkg)
+            try { activity.startActivity(direct) }
+            catch (e: android.content.ActivityNotFoundException) {
+                Toast.makeText(activity, "অ্যাপটা ফোনে নেই — অন্য অ্যাপ বেছে নিন", Toast.LENGTH_SHORT).show()
+                activity.startActivity(chooser)
+            }
+        }
     }
 
     private fun cleanupLater() {
