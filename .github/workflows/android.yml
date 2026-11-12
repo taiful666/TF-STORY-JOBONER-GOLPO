@@ -26,7 +26,7 @@ jobs:
       signed: ${{ steps.sign.outputs.signed }}
       vn: ${{ steps.name.outputs.vn }}
     env:
-      TF_VERSION_NAME: '4.0'
+      TF_VERSION_NAME: '4.1'
     steps:
       - uses: actions/checkout@v5
 

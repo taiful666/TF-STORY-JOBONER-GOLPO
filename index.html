@@ -2722,7 +2722,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
 </script>
 <script>/* ===================== TF Story Studio — data ===================== */
 'use strict';
-const APP_VERSION = '4.0.0';
+const APP_VERSION = '4.1.0';
 const STORY_LIBRARY = [];
 const FORMAT_VERSION = 1;
 
@@ -6014,18 +6014,45 @@ function loadKeys() { for (const [id, [rem, name]] of Object.entries(KEYS)) { tr
 /* ---------- app state ---------- */
 const app = { settings: S, story: null, warnings: [], tl: null, renderer: new StoryRenderer(), audio: { mode: 'none', tts: new Map(), rec: new Map(), upload: null }, markers: [], mix: null, mixDirty: true, notes: '', t: 0, playing: false, libId: null };
 const voiceSig = () => [S.model, S.voiceId, S.speed, S.emotion].join('|');
-/* multi-voice: a character's own spoken lines ("> ") use that character's voice; everything else is the narrator */
+/* voices: one fixed narrator (S.voiceId) + one fixed voice per character role (S.roleVoices: father → id, mother → id …).
+   A role's voice is picked automatically the first time it is needed, saved, and then kept for every story until the user changes it.
+   A character's own spoken lines ("> ") use that voice; everything else is the narrator. */
+function setVoiceList(vs) { S.voiceList = (vs || []).map(v => ({ id: v.id, name: v.name, gender: v.gender || '', desc: v.desc || '' })); saveSettings(); }
+function speakersOf(st) { const out = []; if (st) st.scenes.forEach(sc => sc.lines.forEach(l => { if (l.speak && l.who && !out.includes(l.who)) out.push(l.who); })); return out; }
+function roleSlots() { // character id → voice slot (its role; a second character with the same role gets "role#2")
+  const st = app.story, out = {}, seen = {}; if (!st) return out;
+  speakersOf(st).forEach(id => { const ch = st.characters.find(c => c.id === id) || {}; const r = ROLES[ch.role] ? ch.role : (/^f/i.test(ch.gender || '') ? 'heroine' : 'hero'); seen[r] = (seen[r] || 0) + 1; out[id] = seen[r] > 1 ? r + '#' + seen[r] : r; });
+  return out;
+}
+function slotLabel(slot) { const [r, n] = slot.split('#'); return ((ROLES[r] || {}).bn || r) + (n ? ' ' + bn(n) : ''); }
+function pickVoiceFor(slot, taken, inStory) {
+  const role = slot.split('#')[0], R = ROLES[role] || {}, g = R.g || 'm', a = R.a || 'adult';
+  const list = (S.voiceList || []).filter(v => v.id && v.id !== S.voiceId); if (!list.length) return '';
+  const gOk = v => g === 'f' ? /^fem/i.test(v.gender || '') : /^masc/i.test(v.gender || '');
+  const ageW = { kid: /child|kid|little|young|boy|girl/i, teen: /teen|young|youth|boy|girl/i, young: /young|youth/i, adult: /adult|mature|professional|confident/i, old: /mature|older|old|warm|deep/i, elder: /elder|old|grand|aged|deep/i }[a];
+  const score = v => (gOk(v) ? 100 : /neutral/i.test(v.gender || '') ? 30 : 0) + (ageW && ageW.test((v.name || '') + ' ' + (v.desc || '')) ? 15 : 0) - (taken.has(v.id) ? 60 : 0) - (inStory && inStory.has(v.id) ? 80 : 0) + (hashStr(slot + v.id) % 7);
+  const best = list.slice().sort((x, y) => score(y) - score(x))[0];
+  return best && score(best) >= 30 ? best.id : '';
+}
+function autoNarrator() {
+  if (S.voiceId) return S.voiceId; const list = S.voiceList || []; if (!list.length) return '';
+  const pick = list.find(v => /^masc/i.test(v.gender || '') && /narrat|story|calm|deep|warm/i.test((v.name || '') + ' ' + (v.desc || ''))) || list.find(v => /^masc/i.test(v.gender || '')) || list[0];
+  S.voiceId = pick.id; S.voiceName = pick.name; saveSettings(); try { $('cVoiceId').value = S.voiceId; $('cVoice').value = S.voiceId; } catch (e) { }
+  return S.voiceId;
+}
 function charVoiceMap() {
-  const st = app.story; const map = {}; if (!st || S.multiVoice === false) return map;
-  const list = (S.voiceList || []).filter(v => v.id && v.id !== S.voiceId); if (!list.length) return map;
-  const used = {}; const over = st.voiceMap || {};
-  const speakers = []; st.scenes.forEach(sc => sc.lines.forEach(l => { if (l.speak && l.who && !speakers.includes(l.who)) speakers.push(l.who); }));
-  speakers.forEach(id => {
-    if (over[id] === 'narrator') return; if (over[id] && list.find(v => v.id === over[id])) { map[id] = over[id]; return; }
-    const ch = st.characters.find(c => c.id === id); const g = ((ROLES[ch && ch.role] || {}).g) || (ch && /^f/i.test(ch.gender || '') ? 'f' : 'm');
-    const want = g === 'f' ? /fem/i : /masc/i; const pool = list.filter(v => want.test(v.gender || '')); if (!pool.length) return;
-    const free = pool.filter(v => !used[v.id]); const pick = (free.length ? free : pool)[hashStr(id) % (free.length || pool.length)]; used[pick.id] = 1; map[id] = pick.id;
+  const st = app.story, map = {}; if (!st || S.multiVoice === false) return map;
+  S.roleVoices = S.roleVoices || {}; const slots = roleSlots(); let changed = false;
+  const taken = new Set(Object.values(S.roleVoices).filter(v => v && v !== 'narrator'));
+  const inStory = new Set();
+  Object.entries(slots).forEach(([id, slot]) => {
+    const over = (st.voiceMap || {})[id]; if (over === 'narrator') return;
+    if (over) { map[id] = over; return; }                       // an older per-story choice still wins
+    let vid = S.roleVoices[slot]; if (vid === 'narrator') return;
+    if (!vid) { vid = pickVoiceFor(slot, new Set([...taken, ...inStory]), inStory); if (vid) { S.roleVoices[slot] = vid; taken.add(vid); changed = true; } }
+    if (vid && vid !== S.voiceId) { map[id] = vid; inStory.add(vid); }
   });
+  if (changed) saveSettings();
   return map;
 }
 function voiceFor(ln) { if (!ln || !ln.speak || !ln.who || S.multiVoice === false) return S.voiceId; return charVoiceMap()[ln.who] || S.voiceId; }
@@ -6037,11 +6064,15 @@ function emotionFor(si, ln) {
   if (!sc) return 'neutral'; if (sc.type === 'book' || sc.type === 'takeaways' || sc.type === 'metaphor' || sc.type === 'cta') return 'content';
   return { sad: 'sad', regret: 'sad', tense: 'scared', happy: 'excited' }[sc.mood] || 'neutral';
 }
-function ttsKey(si, ln) { const vf = voiceFor(ln); const sig = voiceSig() + (vf && vf !== S.voiceId ? '|v:' + vf : ''); return S.emotion === 'auto' ? lineKey(ln.say + '#' + emotionFor(si, ln), sig) : lineKey(ln.say, sig); }
+function ttsKey(si, ln) { const v = voiceFor(ln), sig = [S.model, v, S.speed].join('|'), emo = S.emotion === 'auto' ? emotionFor(si, ln) : (S.emotion || 'none'); return lineKey(ln.say + '#' + emo, sig); }
+function legacyKey(si, ln) { const sig = voiceSig(); return S.emotion === 'auto' ? lineKey(ln.say + '#' + emotionFor(si, ln), sig) : lineKey(ln.say, sig); }
+/* the last audio made for this exact line (whatever voice/speed it had): used when the exact key is missing, so changing a setting never silences the video */
+function textKey(ln) { return 't' + hashStr((ln.who || '') + '|' + ln.say).toString(36); }
+function ttsEntry(si, ln) { const a = app.audio.tts.get(ttsKey(si, ln)); if (a) return a; const ak = (app.audio.alias || new Map()).get(textKey(ln)); return ak ? app.audio.tts.get(ak) : null; }
 function allLines() { const out = []; if (!app.story) return out; app.story.scenes.forEach((sc, si) => sc.lines.forEach((ln, li) => out.push({ si, li, ln }))); return out; }
 function segsFor() {
   const segs = {}; if (!app.story) return segs; const m = app.audio.mode;
-  if (m === 'tts') allLines().forEach(({ si, li, ln }) => { const a = app.audio.tts.get(ttsKey(si, ln)); if (a) segs[si + ':' + li] = a; });
+  if (m === 'tts') allLines().forEach(({ si, li, ln }) => { const a = ttsEntry(si, ln); if (a) segs[si + ':' + li] = a; });
   if (m === 'rec') allLines().forEach(({ si, li, ln }) => { const a = app.audio.rec.get(lineKey(ln.cap, 'rec')); if (a) segs[si + ':' + li] = a; });
   if (m === 'upload' && app.audio.upload) { const L = allLines(); const al = alignUpload(app.audio.upload.buf, L.map(x => x.ln.say)); L.forEach((x, i) => segs[x.si + ':' + x.li] = { buf: app.audio.upload.buf, off: al[i].off, dur: al[i].dur }); }
   return segs;
@@ -6075,7 +6106,7 @@ async function startPlay() {
   if (!app.story) { toast('আগে একটা গল্প বাছুন', 'err'); return; }
   if (playBusy || app.playing) return; playBusy = true;
   try {
-    $('btnPlay').textContent = '…'; await ensureMix();
+    $('btnPlay').textContent = '…'; await ensureVoices(false); await ensureMix();
     if (src) { try { src.stop(); } catch (e) { } try { src.disconnect(); } catch (e) { } src = null; }
     actx = actx || new (window.AudioContext || window.webkitAudioContext)({ sampleRate: SR }); await actx.resume();
     if (app.t >= app.tl.total - .05) app.t = 0;
@@ -6234,10 +6265,18 @@ async function loadPackage(pkg) {
   app.audio = { mode: 'none', tts: app.audio.tts, rec: app.audio.rec, upload: null };
   if (pkg.audio_mode === 'upload' && pkg.upload_key) await restoreUpload(pkg.upload_key, pkg.audio_file); else await restoreCached(pkg.audio_mode);
 }
+async function loadKeyAudio(k) { if (app.audio.tts.has(k)) return true; const b = await IDB.get('audio', k); if (!b) return false; try { const buf = await decodeBytes(b); const tr = trimSilence(buf); app.audio.tts.set(k, { buf, off: tr.off, dur: tr.dur }); return true; } catch (e) { return false; } }
+async function loadLineAudio(si, ln) {
+  app.audio.alias = app.audio.alias || new Map(); const k = ttsKey(si, ln), tk = textKey(ln);
+  if (await loadKeyAudio(k)) { app.audio.alias.set(tk, k); return true; }
+  const lk = legacyKey(si, ln); if (await loadKeyAudio(lk)) { app.audio.alias.set(tk, lk); return true; }
+  const ak = app.audio.alias.get(tk) || await IDB.get('kv', 'alias:' + tk); if (ak && await loadKeyAudio(ak)) { app.audio.alias.set(tk, ak); return true; }
+  return false;
+}
 async function restoreCached(prefer) {
   let tts = 0, rec = 0;
   for (const { si, ln } of allLines()) {
-    if (S.voiceId) { const k = ttsKey(si, ln); if (!app.audio.tts.has(k)) { const b = await IDB.get('audio', k); if (b) try { const buf = await decodeBytes(b); const tr = trimSilence(buf); app.audio.tts.set(k, { buf, off: tr.off, dur: tr.dur }); } catch (e) { } } if (app.audio.tts.has(k)) tts++; }
+    if (S.voiceId) { if (await loadLineAudio(si, ln)) tts++; }
     const rk = lineKey(ln.cap, 'rec'); if (!app.audio.rec.has(rk)) { const b = await IDB.get('audio', rk); if (b) try { const buf = await decodeBytes(b); const tr = trimSilence(buf); app.audio.rec.set(rk, { buf, off: tr.off, dur: tr.dur }); } catch (e) { } } if (app.audio.rec.has(rk)) rec++;
   }
   if (prefer === 'rec' && rec) app.audio.mode = 'rec'; else if (tts) app.audio.mode = 'tts'; else if (rec) app.audio.mode = 'rec'; else if (app.audio.mode !== 'upload') app.audio.mode = (prefer === 'tts' || S.voiceId) ? 'tts' : 'none';
@@ -6409,7 +6448,7 @@ function chooseVoice(m) { app.visited3 = true; setVoiceTab(m); if (m === 'none' 
 async function loadVoices() {
   const key = getKey('cKey'); if (!key) { toast('আগে Cartesia API key দিন', 'err'); return; } storeKey('cKey');
   const b = $('btnVoices'); b.disabled = true;
-  try { const vs = await cartesiaVoices({ key }); S.voiceList = vs.map(v => ({ id: v.id, name: v.name, gender: v.gender || '' })); saveSettings(); renderCharVoices(); const s = $('cVoice'); s.innerHTML = ''; s.append(el('option', { value: '', text: `— ${bn(vs.length)}টা বাংলা ভয়েস —` }));
+  try { const vs = await cartesiaVoices({ key }); setVoiceList(vs); autoNarrator(); renderCharVoices(); const s = $('cVoice'); s.innerHTML = ''; s.append(el('option', { value: '', text: `— ${bn(vs.length)}টা বাংলা ভয়েস —` }));
     vs.forEach(v => s.append(el('option', { value: v.id, 'data-prev': v.preview || '', text: `${v.name}${v.gender ? ' · ' + ({ masculine: 'পুরুষ', feminine: 'নারী' }[v.gender] || v.gender) : ''}` }))); if (S.voiceId) s.value = S.voiceId; }
   catch (e) { toast(e.message, 'err', 7000); } finally { b.disabled = false; }
 }
@@ -6417,31 +6456,67 @@ let prevAudio = null;
 function previewVoice() { const o = $('cVoice').selectedOptions[0]; const u = o && o.dataset.prev; if (!u) { toast('এই ভয়েসের নমুনা নেই'); return; } if (prevAudio) prevAudio.pause(); prevAudio = new Audio(u); prevAudio.play().catch(() => toast('নমুনা চালানো গেল না', 'err')); }
 
 function renderCharVoices() {
-  const box = $('charVoices'); if (!box) return; box.innerHTML = ''; const st = app.story; if (!st || S.multiVoice === false) return;
-  const speakers = []; st.scenes.forEach(sc => sc.lines.forEach(l => { if (l.speak && l.who && !speakers.includes(l.who)) speakers.push(l.who); }));
+  const box = $('charVoices'); if (!box) return; box.innerHTML = ''; const st = app.story; if (!st) return;
+  const list = S.voiceList || []; const vname = id => { const v = list.find(x => x.id === id); return v ? v.name + (v.gender ? ' · ' + ({ masculine: 'পুরুষ', feminine: 'নারী' }[v.gender] || v.gender) : '') : (id ? id.slice(0, 8) + '…' : ''); };
+  box.append(el('p', { class: 'muted sm', text: 'কথক (ফিক্সড): ' + (S.voiceId ? (S.voiceName || vname(S.voiceId)) : 'এখনো বাছা হয়নি — ↻ চাপলে অটো বাছবে') }));
+  if (S.multiVoice === false) return;
+  const speakers = speakersOf(st);
   if (!speakers.length) { box.append(el('p', { class: 'muted sm', text: 'এই গল্পে চরিত্রের নিজের সংলাপ চিহ্নিত নেই — পুরোটা কথকের কণ্ঠে হবে।' })); return; }
-  const list = S.voiceList || []; if (!list.length) { box.append(el('p', { class: 'muted sm', text: 'কণ্ঠের তালিকা লোড হলে (↻) প্রতিটা চরিত্রের কণ্ঠ অটো বসবে। কণ্ঠ বানানোর সময়ও অ্যাপ নিজেই লোড করে নেবে।' })); return; }
-  const map = charVoiceMap(); st.voiceMap = st.voiceMap || {};
-  speakers.forEach(id => { const ch = st.characters.find(c => c.id === id) || { name: id };
-    const s2 = el('select', { onchange: e => { st.voiceMap[id] = e.target.value; rebuild(true); renderCharVoices(); autosave(); } });
-    s2.append(el('option', { value: '', text: 'অটো' + (map[id] ? ' (' + ((list.find(v => v.id === map[id]) || {}).name || '') + ')' : ' (কথকের কণ্ঠ)') })); s2.append(el('option', { value: 'narrator', text: 'কথকের কণ্ঠেই' }));
-    list.filter(v => v.id !== S.voiceId).forEach(v => s2.append(el('option', { value: v.id, text: v.name + (v.gender ? ' · ' + ({ masculine: 'পুরুষ', feminine: 'নারী' }[v.gender] || v.gender) : '') })));
-    s2.value = st.voiceMap[id] || ''; box.append(el('label', null, ch.name, s2)); });
+  if (!list.length) { box.append(el('p', { class: 'muted sm', text: 'কণ্ঠের তালিকা লোড হলে (↻) প্রতিটা চরিত্রের কণ্ঠ অটো বসবে এবং সেভ থাকবে। কণ্ঠ বানানোর সময়ও অ্যাপ নিজেই লোড করে নেবে।' })); return; }
+  const map = charVoiceMap(), slots = roleSlots(); st.voiceMap = st.voiceMap || {};
+  box.append(el('p', { class: 'muted sm', text: 'প্রতিটা ভূমিকার কণ্ঠ একবার বাছা হলে সব গল্পে একই থাকে (বাবা সবসময় একই কণ্ঠে, মা সবসময় একই কণ্ঠে)।' }));
+  speakers.forEach(id => { const ch = st.characters.find(c => c.id === id) || { name: id }; const slot = slots[id];
+    const s2 = el('select', { onchange: e => { const v = e.target.value; delete st.voiceMap[id]; S.roleVoices = S.roleVoices || {}; if (v) S.roleVoices[slot] = v; else delete S.roleVoices[slot]; saveSettings(); rebuild(true); renderCharVoices(); autosave(); } });
+    s2.append(el('option', { value: '', text: 'অটো বাছাই' })); s2.append(el('option', { value: 'narrator', text: 'কথকের কণ্ঠেই' }));
+    list.filter(v => v.id !== S.voiceId).forEach(v => s2.append(el('option', { value: v.id, text: vname(v.id) })));
+    const cur = st.voiceMap[id] || (S.roleVoices || {})[slot] || ''; s2.value = cur; if (s2.value !== cur) s2.value = '';
+    box.append(el('label', null, `${ch.name} · ${slotLabel(slot)}${map[id] ? '' : ' (কথকের কণ্ঠে)'}`, s2)); });
+  box.append(el('button', { class: 'link sm', text: 'সব ভূমিকার কণ্ঠ নতুন করে অটো বাছাই', onclick: e => { e.preventDefault(); if (!confirm('সব চরিত্রের সেভ করা কণ্ঠ মুছে নতুন করে বাছাই হবে। আগের বানানো অডিও আবার বানাতে হতে পারে।')) return; S.roleVoices = {}; saveSettings(); rebuild(true); renderCharVoices(); } }));
 }
 let ttsBusy = false;
-async function generateTTS() {
-  if (!app.story) { toast('আগে গল্প বাছুন', 'err'); return; } if (ttsBusy) return;
-  const key = getKey('cKey'); if (!key) { toast('Cartesia API key দিন', 'err'); return; } if (!S.voiceId) { toast('একটা কণ্ঠ বাছুন বা Voice ID দিন', 'err'); return; }
+async function ttsWithRetry(text, cfg) {
+  let last; for (let a = 0; a < 4; a++) { try { return await cartesiaTTS(text, cfg); } catch (e) { last = e; if (/key ভুল|ক্রেডিট শেষ/.test(e.message)) throw e; await new Promise(r => setTimeout(r, 900 * (a + 1) * (/429/.test(e.message) ? 2 : 1))); } }
+  throw last;
+}
+async function generateTTS(auto) {
+  if (!app.story) { toast('আগে গল্প বাছুন', 'err'); return -1; } if (ttsBusy) return -1;
+  const key = getKey('cKey'); if (!key) { toast('Cartesia API key দিন', 'err'); return -1; }
   storeKey('cKey'); ttsBusy = true; const btn = $('btnTTS'); btn.disabled = true; $('ttsBar').classList.remove('hidden');
-  if (S.multiVoice !== false && !(S.voiceList && S.voiceList.length)) { try { const vs = await cartesiaVoices({ key }); S.voiceList = vs.map(v => ({ id: v.id, name: v.name, gender: v.gender || '' })); saveSettings(); } catch (e) { } }
-  const cfg = { key, model: S.model, voice: S.voiceId, speed: S.speed, emotion: S.emotion };
-  const todo = allLines().filter(({ si, ln }) => !app.audio.tts.has(ttsKey(si, ln))); let done = 0, err = null; const total = todo.length;
-  const setBar = () => { $('ttsBar').firstElementChild.style.width = (total ? done / total * 100 : 100) + '%'; btn.textContent = `${bn(done)}/${bn(total)}…`; };
-  setBar(); app.audio.mode = 'tts';
-  const work = async (it) => { const k = ttsKey(it.si, it.ln); let bytes = await IDB.get('audio', k); if (!bytes) { bytes = await cartesiaTTS(it.ln.say, Object.assign({}, cfg, { voice: voiceFor(it.ln), emotion: emotionFor(it.si, it.ln) })); await IDB.set('audio', k, bytes); } const buf = await decodeBytes(bytes); const tr = trimSilence(buf); app.audio.tts.set(k, { buf, off: tr.off, dur: tr.dur }); };
-  const queue = todo.slice(); await Promise.all(Array.from({ length: 3 }, async () => { while (queue.length && !err) { const it = queue.shift(); try { await work(it); } catch (e) { err = e; } done++; setBar(); } }));
-  ttsBusy = false; btn.disabled = false; btn.textContent = 'পুরো গল্পের কণ্ঠ বানাও'; setTimeout(() => $('ttsBar').classList.add('hidden'), 800); rebuild(true);
-  if (err) toast(err.message, 'err', 8000); else toast(total ? `${bn(total)}টা লাইনের কণ্ঠ তৈরি` : 'সব লাইনের কণ্ঠ আগেই আছে', 'ok');
+  try {
+    if (!(S.voiceList && S.voiceList.length)) { try { setVoiceList(await cartesiaVoices({ key })); } catch (e) { } }
+    if (!autoNarrator()) { toast('একটা কণ্ঠ বাছুন বা Voice ID দিন', 'err'); return -1; }
+    app.audio.alias = app.audio.alias || new Map(); app.audio.mode = 'tts'; setVoiceTab('tts');
+    for (const { si, ln } of allLines()) await loadLineAudio(si, ln);
+    const cfg = { key, model: S.model, speed: S.speed };
+    const todo = allLines().filter(({ si, ln }) => !app.audio.tts.has(ttsKey(si, ln))); let done = 0; const total = todo.length, failed = [];
+    const setBar = () => { $('ttsBar').firstElementChild.style.width = (total ? done / total * 100 : 100) + '%'; btn.textContent = `${bn(done)}/${bn(total)}…`; };
+    setBar(); let fatal = null;
+    const work = async (it) => {
+      const k = ttsKey(it.si, it.ln), tk = textKey(it.ln), want = voiceFor(it.ln), emo = emotionFor(it.si, it.ln); let bytes = await IDB.get('audio', k);
+      if (!bytes) { try { bytes = await ttsWithRetry(it.ln.say, Object.assign({}, cfg, { voice: want, emotion: emo })); }
+        catch (e) { if (/key ভুল|ক্রেডিট শেষ/.test(e.message) || want === S.voiceId) throw e; bytes = await ttsWithRetry(it.ln.say, Object.assign({}, cfg, { voice: S.voiceId, emotion: emo })); } // character voice failed → the narrator reads it
+        await IDB.set('audio', k, bytes); }
+      const buf = await decodeBytes(bytes); const tr = trimSilence(buf); app.audio.tts.set(k, { buf, off: tr.off, dur: tr.dur }); app.audio.alias.set(tk, k); IDB.set('kv', 'alias:' + tk, k);
+    };
+    const queue = todo.slice(); await Promise.all(Array.from({ length: 3 }, async () => { while (queue.length && !fatal) { const it = queue.shift(); try { await work(it); } catch (e) { failed.push(it); if (/key ভুল|ক্রেডিট শেষ/.test(e.message)) fatal = e; else console.warn(e); } done++; setBar(); } }));
+    rebuild(true);
+    const left = app.tl.shots.filter(sh => !sh.seg).length;
+    if (fatal) toast(fatal.message, 'err', 9000);
+    else if (left) toast(`${bn(left)}টা লাইনের কণ্ঠ বানানো যায়নি — আবার "কণ্ঠ বানাও" চাপুন`, 'err', 8000);
+    else if (!auto || total) toast(total ? `${bn(total)}টা লাইনের কণ্ঠ তৈরি ✓` : 'সব লাইনের কণ্ঠ আগেই আছে ✓', 'ok');
+    return left;
+  } finally { ttsBusy = false; btn.disabled = false; btn.textContent = 'পুরো গল্পের কণ্ঠ বানাও'; setTimeout(() => $('ttsBar').classList.add('hidden'), 800); }
+}
+/* before preview/export: make sure every line has a voice (load the cache, then make what is missing). Returns false if the user cancels. */
+async function ensureVoices(interactive) {
+  if (!app.story || !app.tl) return true; const m = app.audio.mode;
+  if (m === 'rec' || m === 'upload') return true;
+  const missing = () => app.tl.shots.filter(sh => !sh.seg).length;
+  if (m === 'tts' && !missing()) return true;
+  if (S.voiceId || (S.voiceList || []).length) { app.audio.mode = 'tts'; for (const { si, ln } of allLines()) await loadLineAudio(si, ln); rebuild(true); if (!missing()) return true; }
+  if (getKey('cKey')) { toast(`${bn(missing())}টা লাইনের কণ্ঠ নেই — Cartesia দিয়ে এখনই বানানো হচ্ছে…`, '', 5000); await generateTTS(true); if (!missing()) return true; }
+  if (!interactive) { toast('কিছু লাইনে কণ্ঠ নেই — "কণ্ঠ ও মিউজিক" ধাপে কণ্ঠ বানান', 'err', 6000); return true; }
+  return confirm(getKey('cKey') ? `${bn(missing())}টা লাইনের কণ্ঠ বানানো গেল না। এভাবেই (ওই লাইনগুলো কণ্ঠ ছাড়া) এক্সপোর্ট করবেন?` : 'Cartesia key নেই, তাই কণ্ঠ বানানো গেল না। কণ্ঠ ছাড়া এক্সপোর্ট করবেন?\n(সেটিংসে Cartesia key দিলে অ্যাপ নিজেই কণ্ঠ বানিয়ে নেবে)');
 }
 async function uploadAudio(file) {
   if (!file || !app.story) { if (!app.story) toast('আগে গল্প বাছুন', 'err'); return; } if (file.size > 100 * 1024 * 1024) { toast('ফাইল অনেক বড়', 'err'); return; }
@@ -6479,15 +6554,20 @@ async function doExport() {
   stopPlay(true); if (IS_ANDROID) try { window.TFAndroid.keepAwake(true); } catch (e) { } const b = $('btnExport'); b.disabled = true; $('expDone').classList.add('hidden'); $('expProg').classList.remove('hidden'); abortFlag = { aborted: false };
   const size = frameSize(S.expRatio, S.expRes); const t0 = performance.now(); let tv = 0;
   const STG = { audio: 'অডিও তৈরি হচ্ছে…', video: 'ভিডিওর ফ্রেম তৈরি হচ্ছে…', finish: 'ফাইল গুছানো হচ্ছে…' };
-  const setP = (p, stage) => { const pc = Math.min(100, Math.round(5 + p * 95)); $('expBar').firstElementChild.style.width = pc + '%'; $('expPct').textContent = bn(pc) + '%'; if (stage) $('expStage').textContent = STG[stage] || ''; if (stage === 'video' && p > .02) { if (!tv) tv = performance.now(); const el2 = (performance.now() - t0) / 1000, rem = el2 / p * (1 - p); $('expEta').textContent = `বাকি আনুমানিক ${bn(Math.max(1, Math.round(rem)))} সেকেন্ড`; } };
-  try { setP(0, 'audio'); $('expStage').textContent = 'অডিও মিক্স হচ্ছে…'; const mix = await ensureMix(); let res;
+  const vidLen = app.tl ? app.tl.total : 0;
+  const setP = (p, stage) => { const pc = Math.min(100, Math.round(5 + p * 95)); $('expBar').firstElementChild.style.width = pc + '%'; $('expPct').textContent = bn(pc) + '%'; if (stage) $('expStage').textContent = STG[stage] || '';
+    const el2 = (performance.now() - t0) / 1000; let eta = '';
+    if (stage === 'video' && p > .02) { if (!tv) tv = performance.now(); eta = ` · বাকি আনুমানিক ${fmtT(Math.max(1, el2 / p * (1 - p)))} মিনিট`; }
+    $('expEta').textContent = `${fmtT(vidLen * cl(p))} / ${fmtT(vidLen)} মিনিটের ভিডিও তৈরি · সময় লেগেছে ${fmtT(el2)} মিনিট` + eta; };
+  try { $('expStage').textContent = 'কণ্ঠ দেখা হচ্ছে…'; if (!(await ensureVoices(true))) throw new Error('ABORTED');
+    setP(0, 'audio'); $('expStage').textContent = 'অডিও মিক্স হচ্ছে…'; const mix = await ensureMix(); let res;
     try { res = await exportMP4(app.renderer, mix, setP, abortFlag, size); } catch (e) { if (e.message !== 'NO_WEBCODECS') throw e; toast('এই ব্রাউজারে দ্রুত MP4 নেই — রিয়েল-টাইমে রেকর্ড হচ্ছে। Chrome/Edge-এ দ্রুত হবে।', '', 7000); res = await exportRealtime(app.renderer, mix, setP, abortFlag, size); }
     const ext = res.blob.type.includes('mp4') ? 'mp4' : 'webm'; const name = safeName(app.story.title) + '_' + S.expRatio.replace(':', 'x') + '.' + ext;
     app.lastExport = { blob: res.blob, name, type: res.blob.type };
     if (S.autoThumb !== false) { try { const tb = await thumbBlob(); downloadBlob(tb, safeName(app.story.title) + '_thumbnail.jpg'); } catch (e) { console.warn(e); } }
     app.exported = true; if (app.libId) addUsed('LIB:' + app.libId); if (app.story.book && app.story.book.title) addUsed(app.story.book.title + ' — ' + (app.story.book.lesson || '')); renderLib(); updateFlow();
     $('expProg').classList.add('hidden'); $('expDone').classList.remove('hidden');
-    $('expDoneText').textContent = `ভিডিও তৈরি · ${res.w}×${res.h} · ${(res.blob.size / 1048576).toFixed(1)} MB · ${bn(Math.round((performance.now() - t0) / 1000))} সেকেন্ডে` + (res.audio === 'opus' ? ' · অডিও Opus (পিসিতে না চললে VLC)' : '');
+    $('expDoneText').textContent = `${fmtT(vidLen)} মিনিটের ভিডিও তৈরি · ${res.w}×${res.h} · ${(res.blob.size / 1048576).toFixed(1)} MB · ${fmtT((performance.now() - t0) / 1000)} মিনিটে` + (res.audio === 'opus' ? ' · অডিও Opus (পিসিতে না চললে VLC)' : '');
     $('shareHint').textContent = S.autoThumb !== false ? 'থাম্বনেল ছবি সেভ হয়েছে' + (IS_ANDROID ? ' (Pictures › TF Story Studio)' : '') : '';
     toast('ভিডিও তৈরি হয়েছে ✓', 'ok');
   } catch (e) { $('expProg').classList.add('hidden'); if (e.message === 'ABORTED') toast('এক্সপোর্ট বাতিল হয়েছে'); else { console.error(e); toast('এক্সপোর্ট হলো না: ' + e.message, 'err', 8000); } }
@@ -6852,7 +6932,7 @@ async function init() {
   bindSetting('cVoiceId', 'voiceId', t => t.value.trim(), 'change', () => restoreCached('tts').then(() => rebuild(true)));
   bindSetting('cModel', 'model', null, 'change', () => { updateKeyStatus(); restoreCached('tts').then(() => rebuild(true)); });
   bindSetting('cSpeed', 'speed', t => +t.value, 'input', v => { $('cSpeedOut').textContent = (+v).toFixed(2); }); bindSetting('cEmotion', 'emotion', null, 'change', () => restoreCached('tts').then(() => rebuild(true)));
-  $('btnTTS').onclick = generateTTS; $('audioUpload').onchange = e => { uploadAudio(e.target.files[0]); e.target.value = ''; };
+  $('btnTTS').onclick = () => generateTTS(false); $('audioUpload').onchange = e => { uploadAudio(e.target.files[0]); e.target.value = ''; };
   $('recBtn').onclick = () => toggleRec(false); $('recAll').onclick = () => toggleRec(true); $('recPlay').onclick = playRecLine;
   $('recPrev').onclick = () => { recIdx--; updateRec(); }; $('recNext').onclick = () => { recIdx++; updateRec(); };
   bindSetting('mStyle', 'music', null, 'change', v => { if (v === 'upload' && !S._musicBuf) { toast('নিচের বাটন দিয়ে মিউজিক ফাইল দিন'); } });
