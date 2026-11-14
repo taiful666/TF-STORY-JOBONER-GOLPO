@@ -409,6 +409,7 @@ button.primary.gold:hover{filter:brightness(.96)}
 }
 @media (max-width:440px){.brand b{display:none}}.newbtn span{white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.pane.enter{animation:none}.startpick button,.platgrid button{transition:none}}
+.exphint{margin:8px 0 0;line-height:1.5}
 /* Gmail login + cloud sync */
 .acbtn{position:relative;overflow:visible}.acbtn img{width:100%;height:100%;border-radius:inherit;object-fit:cover}.acbtn.in svg{display:none}
 .acdot{position:absolute;right:-3px;top:-3px;width:12px;height:12px;border-radius:50%;background:var(--ok);border:2px solid #fff}.acdot.wait{background:var(--go)}.acdot.err{background:var(--bad)}
@@ -646,6 +647,7 @@ button.primary.gold:hover{filter:brightness(.96)}
           <div class="row between"><b id="expStage">তৈরি হচ্ছে…</b><b class="pct" id="expPct">০%</b></div>
           <div class="bar big" id="expBar"><i></i></div>
           <div class="row between"><span class="muted sm" id="expEta"></span><button class="link" id="btnCancel">বাতিল</button></div>
+          <p class="muted sm exphint" id="expHint">এক্সপোর্ট চলার সময় অন্য ট্যাব বা অ্যাপে যেতে পারেন, স্ক্রিনও বন্ধ হবে না। শুধু এই পেজটা বন্ধ করবেন না, আর পিসি স্লিপ মোডে দেবেন না।</p>
         </div>
         <div class="done hidden" id="expDone">
           <p class="okline"><svg><use href="#i-check"/></svg> <span id="expDoneText">ভিডিও তৈরি</span></p>
@@ -5389,10 +5391,14 @@ class StoryRenderer {
     if (cine && ln.card && ln.card.type === 'reveal') { push *= 1 + .09 * eo(lt / .7); if (lt < .32) shake = (1 - lt / .32) * 11; }
     c.save();
     if (shake) c.translate(Math.sin(t * 70) * shake, Math.cos(t * 55) * shake * .6);
-    if (sc.mood === 'regret') c.filter = `grayscale(${.7 * cl((t - sc.start) / .6)})`; else if (sc.mood === 'sad') c.filter = 'saturate(.88)';
+    // scene-wide look (regret = grey, sad = softer colours, jump cut = blur): applied ONCE to the finished scene,
+    // not to every shape, otherwise a single frame can take seconds and the export hangs
+    const sceneF = [c.filter && c.filter !== 'none' ? c.filter : '', sc.mood === 'regret' ? `grayscale(${.7 * cl((t - sc.start) / .6)})` : sc.mood === 'sad' ? 'saturate(.88)' : ''];
     const jmp = this.cine2 && this.jump ? this.jump[si] : '', jl = t - sc.start;
-    if (jmp && jl < .45) { const f0 = c.filter && c.filter !== 'none' ? c.filter + ' ' : ''; c.filter = f0 + `blur(${(10 * (1 - jl / .45)).toFixed(1)}px)`; }
+    if (jmp && jl < .45) sceneF.push(`blur(${(10 * (1 - jl / .45)).toFixed(1)}px)`);
+    c.filter = 'none';
     c.translate(W / 2, H / 2); c.scale(cam.z * push, cam.z * push); c.translate(-cam.x - drift, -cam.y);
+    filteredLayer(c, sceneF.filter(Boolean).join(' '), null, c => {
     if (this.cine2) c.drawImage(this.bgFor(si), 0, 0, W, H); else drawPlace(c, sc.place, t, sc.time, 'bg');
     // characters
     const n = sc.cast.length || 1, pos = CAST_POS[Math.min(3, n)] || CAST_POS[1];
@@ -5405,13 +5411,16 @@ class StoryRenderer {
       const fromSide = P0[0] < 540 ? -1 : P0[0] > 540 ? 1 : 0;
       const talkLift = talking && cine ? Math.abs(Math.sin(t * 6)) * 4 : 0;
       c.save(); c.globalAlpha *= cl(ent * 1.4); c.translate(fromSide * (1 - ent) * 160, (1 - ent) * 80 - talkLift);
-      if (this.cine2 && ln.who === id && (ln.feel === 'shy' || (ln.do === 'head_down' && /sad|crying/.test(ln.feel || '')))) { const g0 = cl(lt / .5); const f0 = c.filter && c.filter !== 'none' ? c.filter + ' ' : ''; c.filter = f0 + `grayscale(${g0.toFixed(2)})`; c.shadowColor = `rgba(242,193,78,${(.85 * g0).toFixed(2)})`; c.shadowBlur = 22; }
-      if (this.cine2 && cam.z > 1.6 && ln.who && ln.who !== id && n > 1) { const f0 = c.filter && c.filter !== 'none' ? c.filter + ' ' : ''; c.filter = f0 + 'blur(4px)'; }
-      drawPerson(c, { L: cr.L, x: P0[0], y: P0[1], s: P0[2], flip: n > 1 && i === n - 1, feel: m.feel, act: m.act, hold: m.hold, talk: talking, t, seed: cr.seed, eye, tear: m.feel === 'crying' });
+      // per-person look (shy/sad = grey + gold glow, listener in close-up = soft blur): drawn once onto a layer
+      const pf = []; let psh = null;
+      if (this.cine2 && ln.who === id && (ln.feel === 'shy' || (ln.do === 'head_down' && /sad|crying/.test(ln.feel || '')))) { const g0 = cl(lt / .5); pf.push(`grayscale(${g0.toFixed(2)})`); psh = { color: `rgba(242,193,78,${(.85 * g0).toFixed(2)})`, blur: 22 }; }
+      if (this.cine2 && cam.z > 1.6 && ln.who && ln.who !== id && n > 1) pf.push('blur(4px)');
+      filteredLayer(c, pf.join(' '), psh, c => drawPerson(c, { L: cr.L, x: P0[0], y: P0[1], s: P0[2], flip: n > 1 && i === n - 1, feel: m.feel, act: m.act, hold: m.hold, talk: talking, t, seed: cr.seed, eye, tear: m.feel === 'crying' }));
       c.restore();
       if (!this.golpo && this.nameTag[k] === id && lt < 2.2 && !(this.cine2 && si === this.firstStory && t - sc.start < 3.3)) { const kk = back(lt, .05, .4) * cl((2.2 - lt) / .3); const s2 = P0[2], ty = P0[1] - 470 * s2 * (cr.L.kid ? .74 : cr.L.teen ? .92 : 1); const nm = cr.ch.name; const w2 = tw(c, nm, 40, 700) + 54; popAt(c, P0[0], ty, kk, () => { rr(c, P0[0] - w2 / 2, ty - 34, w2, 64, 32, C_G, C_GO2, 3); P(c, `M${P0[0] - 12},${ty + 29} L${P0[0]},${ty + 46} L${P0[0] + 12},${ty + 29}Z`, C_G); txt(c, nm, P0[0], ty + 13, 40, C_CR, 700, 'center', FONT_BN, 420); }); }
     });
     drawPlace(c, sc.place, t, sc.time, 'fg');
+    });
     c.restore();
     if (sc.weather) drawWeather(c, sc.weather, t);
     // time-of-day / mood tints (screen space)
@@ -5910,6 +5919,49 @@ async function pickAudioCodec() {
   }
   return null;
 }
+/* Draw something with a CSS filter / shadow applied once to the whole result (fast) instead of to every shape
+   (canvas re-runs the filter for each fill/stroke, which made some frames take seconds). Same look, much faster. */
+const FX_LAYERS = [];
+function filteredLayer(c, filter, shadow, draw) {
+  if ((!filter || filter === 'none') && !shadow) return draw(c);
+  const src = c.canvas, d = filteredLayer.depth || 0;
+  const L = FX_LAYERS[d] || (FX_LAYERS[d] = document.createElement('canvas'));
+  if (L.width !== src.width || L.height !== src.height) { L.width = src.width; L.height = src.height; }
+  const lc = L.getContext('2d');
+  lc.setTransform(1, 0, 0, 1, 0, 0); lc.globalAlpha = 1; lc.globalCompositeOperation = 'source-over'; lc.filter = 'none'; lc.shadowBlur = 0; lc.shadowColor = 'transparent';
+  lc.clearRect(0, 0, L.width, L.height); lc.setTransform(c.getTransform());
+  filteredLayer.depth = d + 1;
+  try { lc.save(); draw(lc); lc.restore(); } finally { filteredLayer.depth = d; }
+  c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.filter = filter || 'none';
+  if (shadow) { c.shadowColor = shadow.color; c.shadowBlur = shadow.blur; c.shadowOffsetX = 0; c.shadowOffsetY = 0; }
+  c.drawImage(L, 0, 0); c.restore();
+}
+/* Export keeps full speed in a background tab / minimized window: the browser slows setTimeout there to once
+   per second (even once per minute after a while), so export never waits on timers. It yields with MessageChannel
+   (not throttled) and waits for the encoder's own 'dequeue' event. */
+const yieldNow = (() => { const ch = new MessageChannel(), q = []; ch.port1.onmessage = () => { const f = q.shift(); if (f) f(); }; return () => new Promise(r => { q.push(r); ch.port2.postMessage(0); }); })();
+function encoderRoom(enc, max) { // resolves when the encoder queue has room again
+  if (enc.encodeQueueSize <= max) return Promise.resolve();
+  if (!('ondequeue' in enc)) return (async () => { while (enc.encodeQueueSize > max && enc.state === 'configured') await yieldNow(); })(); // older browsers
+  return new Promise(res => { const done = () => { enc.removeEventListener('dequeue', check); clearTimeout(tm); res(); }; const check = () => { if (enc.encodeQueueSize <= max || enc.state !== 'configured') done(); }; enc.addEventListener('dequeue', check); const tm = setTimeout(done, 1000); });
+}
+/* while exporting: keep the screen awake, show progress in the tab title, warn before closing the page */
+const ExportGuard = {
+  wl: null, onVis: null, onLeave: null, unlock: null, title: '', active: false,
+  async wake() { try { if (this.active && !this.wl && document.visibilityState === 'visible' && 'wakeLock' in navigator) { this.wl = await navigator.wakeLock.request('screen'); this.wl.addEventListener('release', () => { this.wl = null; }); } } catch (e) { } },
+  start() {
+    this.active = true; this.title = document.title;
+    this.onVis = () => this.wake(); document.addEventListener('visibilitychange', this.onVis); this.wake();
+    this.onLeave = e => { e.preventDefault(); e.returnValue = ''; }; window.addEventListener('beforeunload', this.onLeave);
+    try { if (navigator.locks) navigator.locks.request('tf-export', () => new Promise(r => { this.unlock = r; })).catch(() => { }); } catch (e) { } // a held lock keeps the tab from being frozen
+  },
+  progress(pc) { if (this.active) document.title = `${bn(pc)}% · ভিডিও তৈরি হচ্ছে`; },
+  stop() {
+    this.active = false; document.title = this.title || document.title;
+    if (this.onVis) document.removeEventListener('visibilitychange', this.onVis); if (this.onLeave) window.removeEventListener('beforeunload', this.onLeave);
+    try { if (this.wl) this.wl.release(); } catch (e) { } this.wl = null; if (this.unlock) { this.unlock(); this.unlock = null; }
+  }
+};
 async function exportMP4(renderer, mix, onProgress, abort, size) {
   const w = (size && size.w) || W, h = (size && size.h) || H;
   const vc = await pickVideoCodec(w, h);
@@ -5929,7 +5981,7 @@ async function exportMP4(renderer, mix, onProgress, abort, size) {
       const n = Math.min(step, mix.length - off); const data = new Float32Array(n * 2); data.set(L.subarray(off, off + n), 0); data.set(R.subarray(off, off + n), n);
       const ad = new AudioData({ format: 'f32-planar', sampleRate: SR, numberOfFrames: n, numberOfChannels: 2, timestamp: Math.round(off / SR * 1e6), data });
       aenc.encode(ad); ad.close();
-      if (aenc.encodeQueueSize > 64) await new Promise(r => setTimeout(r, 0));
+      if (aenc.encodeQueueSize > 64) await encoderRoom(aenc, 32);
     }
     await aenc.flush(); aenc.close();
   }
@@ -5943,8 +5995,8 @@ async function exportMP4(renderer, mix, onProgress, abort, size) {
     comp.draw(c, i / FPS);
     const vf = new VideoFrame(cv, { timestamp: Math.round(i * 1e6 / FPS), duration: Math.round(1e6 / FPS) });
     venc.encode(vf, { keyFrame: i % (FPS * 2) === 0 }); vf.close();
-    while (venc.encodeQueueSize > 6) await new Promise(r => setTimeout(r, 2));
-    if (i % 4 === 0) { onProgress && onProgress(i / frames, 'video'); await new Promise(r => setTimeout(r, 0)); }
+    if (venc.encodeQueueSize > 6) await encoderRoom(venc, 4);
+    if (i % 6 === 0) { onProgress && onProgress(i / frames, 'video'); await yieldNow(); } // keep the page responsive
   }
   onProgress && onProgress(.995, 'finish');
   await venc.flush(); venc.close(); if (encErr) throw encErr;
@@ -6586,11 +6638,11 @@ let abortFlag = null;
 function updateExpInfo() { const { w, h } = frameSize(S.expRatio, S.expRes); const d = app.tl ? app.tl.total : 0; $('expInfo').textContent = `${w} × ${h} · ৩০fps · ${bn(Math.round(d))} সেকেন্ড` + (S.expRatio !== '9:16' ? ' · গল্প খাড়া (৯:১৬) ভাবে আঁকা, পাশে ঝাপসা ব্যাকগ্রাউন্ড থাকবে' : ''); }
 async function doExport() {
   if (!app.story) { toast('আগে গল্প বাছুন', 'err'); return; }
-  stopPlay(true); if (IS_ANDROID) try { window.TFAndroid.keepAwake(true); } catch (e) { } const b = $('btnExport'); b.disabled = true; $('expDone').classList.add('hidden'); $('expProg').classList.remove('hidden'); abortFlag = { aborted: false };
+  stopPlay(true); if (IS_ANDROID) try { window.TFAndroid.keepAwake(true); } catch (e) { } ExportGuard.start(); const b = $('btnExport'); b.disabled = true; $('expDone').classList.add('hidden'); $('expProg').classList.remove('hidden'); abortFlag = { aborted: false };
   const size = frameSize(S.expRatio, S.expRes); const t0 = performance.now(); let tv = 0;
   const STG = { audio: 'অডিও তৈরি হচ্ছে…', video: 'ভিডিওর ফ্রেম তৈরি হচ্ছে…', finish: 'ফাইল গুছানো হচ্ছে…' };
   const vidLen = app.tl ? app.tl.total : 0;
-  const setP = (p, stage) => { const pc = Math.min(100, Math.round(5 + p * 95)); $('expBar').firstElementChild.style.width = pc + '%'; $('expPct').textContent = bn(pc) + '%'; if (stage) $('expStage').textContent = STG[stage] || '';
+  const setP = (p, stage) => { const pc = Math.min(100, Math.round(5 + p * 95)); ExportGuard.progress(pc); $('expBar').firstElementChild.style.width = pc + '%'; $('expPct').textContent = bn(pc) + '%'; if (stage) $('expStage').textContent = STG[stage] || '';
     const el2 = (performance.now() - t0) / 1000; let eta = '';
     if (stage === 'video' && p > .02) { if (!tv) tv = performance.now(); eta = ` · বাকি আনুমানিক ${fmtT(Math.max(1, el2 / p * (1 - p)))} মিনিট`; }
     $('expEta').textContent = `${fmtT(vidLen * cl(p))} / ${fmtT(vidLen)} মিনিটের ভিডিও তৈরি · সময় লেগেছে ${fmtT(el2)} মিনিট` + eta; };
@@ -6606,7 +6658,7 @@ async function doExport() {
     $('shareHint').textContent = S.autoThumb !== false ? 'থাম্বনেল ছবি সেভ হয়েছে' + (IS_ANDROID ? ' (Pictures › TF Story Studio)' : '') : '';
     toast('ভিডিও তৈরি হয়েছে ✓', 'ok');
   } catch (e) { $('expProg').classList.add('hidden'); if (e.message === 'ABORTED') toast('এক্সপোর্ট বাতিল হয়েছে'); else { console.error(e); toast('এক্সপোর্ট হলো না: ' + e.message, 'err', 8000); } }
-  finally { b.disabled = false; $('expEta').textContent = ''; if (IS_ANDROID) try { window.TFAndroid.keepAwake(false); } catch (e) { } }
+  finally { ExportGuard.stop(); b.disabled = false; $('expEta').textContent = ''; if (IS_ANDROID) try { window.TFAndroid.keepAwake(false); } catch (e) { } }
 }
 function canShareFiles(blob, name) { if (IS_ANDROID) return true; try { const f = new File([blob], name, { type: blob.type }); return !!(navigator.canShare && navigator.canShare({ files: [f] })); } catch (e) { return false; } }
 async function shareFile(blob, name, title, txt) {
