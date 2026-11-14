@@ -130,6 +130,13 @@ class WebBridge(private val activity: MainActivity) {
         activity.runOnUiThread { try { activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) } catch (_: Exception) {} }
     }
 
+    /** Opens the phone's Google account picker; the result goes to window.TFAuthResult({status, value}). */
+    @JavascriptInterface
+    fun googleSignIn() { activity.runOnUiThread { GoogleSignIn.signIn(activity) { r -> activity.sendAuthResult(r) } } }
+
+    @JavascriptInterface
+    fun googleSignOut() { activity.runOnUiThread { GoogleSignIn.signOut(activity) } }
+
     @JavascriptInterface
     fun checkUpdate() { activity.runOnUiThread { Updater.check(activity, true) } }
 

@@ -6927,7 +6927,8 @@ const TF_CLOUD = { apiKey: 'AIzaSyAfZ29i4FwMlsDKoXqLvVpKN4uZWkJ4Edw', authDomain
 const Cloud = {
   user: null, auth: null, db: null, unsub: [], remoteIds: null, seen: { lib: false, used: false }, meta: {}, errText: '',
   configured() { return !!(TF_CLOUD.apiKey && TF_CLOUD.authDomain && TF_CLOUD.projectId && TF_CLOUD.appId); },
-  usable() { return this.configured() && !IS_ANDROID; },
+  native() { return IS_ANDROID && !!(window.TFAndroid && window.TFAndroid.googleSignIn); },
+  usable() { return this.configured() && (!IS_ANDROID || this.native()); },
   loadScript(src) { return new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = src; sc.onload = res; sc.onerror = () => rej(new Error(src)); document.head.append(sc); }); },
   async init() {
     $('btnAccount').onclick = () => this.open();
@@ -6955,12 +6956,22 @@ const Cloud = {
     if (c.includes('popup-blocked')) return 'পপআপ আটকে গেছে — ব্রাউজারে এই সাইটের পপআপ চালু করে আবার চাপুন';
     if (c.includes('unauthorized-domain')) return 'এই ওয়েবসাইটটা Firebase-এ "Authorized domains"-এ যোগ করা হয়নি';
     if (c.includes('network')) return 'ইন্টারনেট নেই — একটু পরে আবার চেষ্টা করুন';
+    if (c.includes('no-account')) return 'ফোনে কোনো Google অ্যাকাউন্ট পাওয়া যায়নি — ফোনের Settings → Accounts থেকে Gmail যোগ করে আবার চেষ্টা করুন';
+    if (c.startsWith('native/')) return 'Google লগইন হয়নি — ইন্টারনেট দেখে আবার চেষ্টা করুন (' + c.slice(7) + ')';
     return 'সমস্যা হয়েছে, পেজ রিফ্রেশ করে আবার চেষ্টা করুন (' + ((e && e.message) || c) + ')';
   },
   async signIn() {
     if (!this.auth) { toast(this.errText || 'লগইন এখনো লোড হচ্ছে, একটু পরে চাপুন'); return; }
     const b = $('btnSignIn'), lbl = b.querySelector('span'); b.disabled = true; lbl.textContent = 'লগইন হচ্ছে…';
-    try { const pr = new firebase.auth.GoogleAuthProvider(); pr.setCustomParameters({ prompt: 'select_account' }); await this.auth.signInWithPopup(pr); toast('লগইন হয়েছে — গল্প সিঙ্ক হচ্ছে', 'ok'); }
+    try {
+      if (this.native()) { // Android app: Google blocks its web sign-in inside apps, so use the phone's account picker
+        const r = await new Promise(res => { window.TFAuthResult = res; window.TFAndroid.googleSignIn(); });
+        if (!r || r.status === 'cancel') { b.disabled = false; lbl.textContent = 'Google (Gmail) দিয়ে লগইন'; return; }
+        if (r.status !== 'ok') throw { code: 'native/' + r.value, message: r.value };
+        await this.auth.signInWithCredential(firebase.auth.GoogleAuthProvider.credential(r.value));
+      } else { const pr = new firebase.auth.GoogleAuthProvider(); pr.setCustomParameters({ prompt: 'select_account' }); await this.auth.signInWithPopup(pr); }
+      toast('লগইন হয়েছে — গল্প সিঙ্ক হচ্ছে', 'ok');
+    }
     catch (e) { if (!/popup-closed-by-user|cancelled-popup-request/.test(e.code || '')) toast(this.msg(e), 'err'); }
     b.disabled = false; lbl.textContent = 'Google (Gmail) দিয়ে লগইন';
   },
@@ -6971,6 +6982,7 @@ const Cloud = {
     if (!sent && !confirm('কিছু পরিবর্তন এখনো ক্লাউডে পৌঁছায়নি (ইন্টারনেট নেই?)। এখন লগআউট করলে সেগুলো হারাবে। তবুও লগআউট করবেন?')) return;
     const uid = this.user.uid; this.stop();
     try { await this.auth.signOut(); } catch (e) { }
+    if (this.native()) try { window.TFAndroid.googleSignOut(); } catch (e) { }
     USERLIB = []; await IDB.set('kv', 'userLib', []);
     try { localStorage.removeItem('tf_used'); localStorage.removeItem('tf_cloud_merged_' + uid); } catch (e) { }
     try { await this.db.terminate(); await this.db.clearPersistence(); } catch (e) { }
@@ -7043,7 +7055,7 @@ const Cloud = {
   render() {
     const u = this.user, on = this.usable();
     $('acOff').classList.toggle('hidden', IS_ANDROID || this.configured());
-    $('acApp').classList.toggle('hidden', !IS_ANDROID);
+    $('acApp').classList.toggle('hidden', !IS_ANDROID || this.native());
     $('acOut').classList.toggle('hidden', !on || !!u);
     $('acIn').classList.toggle('hidden', !u);
     $('acOutErr').textContent = !u && this.errText ? this.errText : ''; $('acOutErr').classList.toggle('hidden', !!u || !this.errText);

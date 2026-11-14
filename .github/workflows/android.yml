@@ -8,6 +8,7 @@ on:
       - 'manifest.webmanifest'
       - 'icon-*.png'
       - 'android/**'
+      - 'vendor/**'
       - '.github/workflows/android.yml'
   workflow_dispatch:
 
@@ -26,7 +27,7 @@ jobs:
       signed: ${{ steps.sign.outputs.signed }}
       vn: ${{ steps.name.outputs.vn }}
     env:
-      TF_VERSION_NAME: '4.1'
+      TF_VERSION_NAME: '4.2'
     steps:
       - uses: actions/checkout@v5
 
@@ -52,6 +53,7 @@ jobs:
         run: |
           mkdir -p android/app/src/main/assets/www
           cp index.html manifest.webmanifest icon-192.png icon-512.png icon-maskable-512.png android/app/src/main/assets/www/
+          cp -r vendor android/app/src/main/assets/www/
 
       - name: Prepare signing key (from encrypted GitHub secrets — never stored in the repo)
         id: sign
@@ -81,7 +83,7 @@ jobs:
           mkdir -p out
           cp android/app/build/outputs/apk/release/app-release.apk "out/TF-Story-Studio-v$VN.apk"
           BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
-          "$BT/apksigner" verify --print-certs "out/TF-Story-Studio-v$VN.apk" | grep -E "SHA-256|DN" || true
+          "$BT/apksigner" verify --print-certs "out/TF-Story-Studio-v$VN.apk" | grep -E "SHA-256|SHA-1|DN" || true
 
       - uses: actions/upload-artifact@v4
         with:

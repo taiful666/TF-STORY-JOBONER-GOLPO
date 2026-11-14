@@ -20,6 +20,8 @@ android {
         versionCode = runNumber
         versionName = appVersionName
         buildConfigField("String", "UPDATE_REPO", "\"taiful666/TF-STORY-JOBONER-GOLPO\"")
+        // Google sign-in: the Firebase project's Web client ID (public value, not a secret)
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"91248581816-edb3ndrh35pj40to6m0ia2nh4c67uvbq.apps.googleusercontent.com\"")
     }
 
     // Signing key is NEVER stored in the repo. GitHub Actions writes it from encrypted secrets.
@@ -61,4 +63,8 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.9.2")
     implementation("androidx.webkit:webkit:1.11.0")
     implementation("androidx.work:work-runtime-ktx:2.9.1")
+    // Sign in with Google (phone account picker) for the cloud sync of stories
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
 }

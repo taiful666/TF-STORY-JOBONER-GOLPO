@@ -171,6 +171,12 @@ class MainActivity : AppCompatActivity() {
         web.postDelayed({ Updater.check(this, intent?.getBooleanExtra(EXTRA_UPDATE, false) == true) }, 2500)
     }
 
+    /** hands the Google sign-in result (a JSON object) to the page */
+    fun sendAuthResult(json: String) {
+        if (!::web.isInitialized) return
+        web.evaluateJavascript("window.TFAuthResult && window.TFAuthResult($json)", null)
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         if (intent.getBooleanExtra(EXTRA_UPDATE, false)) Updater.check(this, true)
