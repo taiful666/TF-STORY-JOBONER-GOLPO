@@ -1,0 +1,42 @@
+rules_version = '2';
+// TF Story Studio — Firestore security rules.
+// Paste this whole file into Firebase console → Firestore Database → Rules, then press "Publish".
+// IMPORTANT: replace YOUR_GMAIL@gmail.com below with your own Gmail (only in the console, not in this public repo).
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+    // Only these Gmail accounts may use the cloud. Add more like: ['a@gmail.com', 'b@gmail.com']
+    function allowed() {
+      return request.auth.token.email in ['YOUR_GMAIL@gmail.com'];
+    }
+    // each account can only touch its own folder users/{its own uid}
+    function owner(uid) {
+      return signedIn() && allowed() && request.auth.uid == uid;
+    }
+
+    match /users/{uid} {
+      allow read, delete: if owner(uid);
+      allow create, update: if owner(uid)
+        && request.resource.data.keys().hasOnly(['used', 'updatedAt'])
+        && (!('used' in request.resource.data)
+            || (request.resource.data.used is list && request.resource.data.used.size() <= 5000));
+
+      match /stories/{storyId} {
+        allow read, delete: if owner(uid);
+        allow create, update: if owner(uid)
+          && storyId.size() <= 64
+          && request.resource.data.keys().hasOnly(['txt', 'at'])
+          && request.resource.data.txt is string
+          && request.resource.data.txt.size() <= 200000
+          && request.resource.data.at is number;
+      }
+    }
+
+    // everything else is closed
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

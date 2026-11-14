@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src data:; img-src 'self' data: blob:; media-src data: blob: https:; connect-src https://api.cartesia.ai https://generativelanguage.googleapis.com https://api.anthropic.com data: blob:; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://apis.google.com; style-src 'unsafe-inline'; font-src data:; img-src 'self' data: blob: https://lh3.googleusercontent.com; media-src data: blob: https:; connect-src https://api.cartesia.ai https://generativelanguage.googleapis.com https://api.anthropic.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://apis.google.com data: blob:; frame-src https://*.firebaseapp.com https://accounts.google.com https://apis.google.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#1E3A2F">
 <meta name="mobile-web-app-capable" content="yes">
@@ -407,8 +407,19 @@ button.primary.gold:hover{filter:brightness(.96)}
   .aiways{grid-template-columns:1fr}
   .aiways button{flex-direction:row;align-items:baseline;flex-wrap:wrap;column-gap:8px}
 }
-@media (max-width:360px){.brand b{display:none}}
+@media (max-width:440px){.brand b{display:none}}.newbtn span{white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.pane.enter{animation:none}.startpick button,.platgrid button{transition:none}}
+/* Gmail login + cloud sync */
+.acbtn{position:relative;overflow:visible}.acbtn img{width:100%;height:100%;border-radius:inherit;object-fit:cover}.acbtn.in svg{display:none}
+.acdot{position:absolute;right:-3px;top:-3px;width:12px;height:12px;border-radius:50%;background:var(--ok);border:2px solid #fff}.acdot.wait{background:var(--go)}.acdot.err{background:var(--bad)}
+.acgoogle{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:48px;padding:12px 16px;margin:4px 0 10px}.acgoogle svg{width:20px;height:20px;flex:none}
+.acgoogle:disabled{opacity:.6;cursor:progress}
+.acwhy{line-height:1.65;margin:12px 0;text-wrap:pretty}
+.acuser{display:flex;gap:12px;align-items:center;margin:14px 0 12px}.acuser img{width:48px;height:48px;border-radius:50%;object-fit:cover;background:var(--soft);flex:none}
+.acwho{display:flex;flex-direction:column;min-width:0}.acwho span{color:var(--sub);font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acstats{list-style:none;padding:0;margin:0 0 14px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.acstats li{background:var(--soft);border-radius:12px;padding:10px 6px;text-align:center;display:flex;flex-direction:column;gap:2px}
+.acstats b{font-size:22px;font-variant-numeric:tabular-nums}.acstats span{font-size:13px;color:var(--sub);line-height:1.35}
 </style>
 
 </head>
@@ -417,7 +428,7 @@ button.primary.gold:hover{filter:brightness(.96)}
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
   <symbol id="i-gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></g></symbol>
   <symbol id="i-help" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M9.3 9.2a2.8 2.8 0 0 1 5.4 1c0 1.9-2.7 2.5-2.7 4"/><circle cx="12" cy="17.6" r=".6" fill="currentColor"/></g></symbol>
-  <symbol id="i-users" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.8 20c.7-3.6 3.2-5.6 6.2-5.6s5.5 2 6.2 5.6"/><circle cx="17" cy="9" r="2.6"/><path d="M16.2 14.3c2.6.1 4.4 1.9 5 4.7"/></g></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="8" r="3.8"/><path d="M4.5 20.5c.9-4 3.9-6.2 7.5-6.2s6.6 2.2 7.5 6.2"/></g></symbol><symbol id="i-users" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.8 20c.7-3.6 3.2-5.6 6.2-5.6s5.5 2 6.2 5.6"/><circle cx="17" cy="9" r="2.6"/><path d="M16.2 14.3c2.6.1 4.4 1.9 5 4.7"/></g></symbol>
   <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-share" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7.5 7.5 12 3l4.5 4.5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></g></symbol>
   <symbol id="i-down" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7.5 10.5 12 15l4.5-4.5"/><path d="M4 19h16"/></g></symbol>
@@ -445,6 +456,7 @@ button.primary.gold:hover{filter:brightness(.96)}
     <button data-step="4"><i><svg><use href="#i-share"/></svg><em>✓</em></i><span class="lbl"><b class="lf">এক্সপোর্ট</b><b class="ls">এক্সপোর্ট</b><small class="sn">ভিডিও ও শেয়ার</small></span></button>
   </nav>
   <div class="tools">
+    <button class="icon acbtn" id="btnAccount" type="button" title="Gmail লগইন ও ক্লাউড সিঙ্ক" aria-label="Gmail অ্যাকাউন্ট"><svg aria-hidden="true"><use href="#i-user"/></svg><img id="acBtnPhoto" class="hidden" alt="" width="42" height="42" referrerpolicy="no-referrer"><i class="acdot hidden" id="acDot" aria-hidden="true"></i></button>
     <button class="icon" id="btnGallery" title="সব চরিত্র দেখুন" aria-label="সব চরিত্র"><svg><use href="#i-users"/></svg></button>
     <button class="icon" id="btnHelp" title="সাহায্য" aria-label="সাহায্য"><svg><use href="#i-help"/></svg></button>
     <button class="icon" id="btnSettings" title="সেটিংস (চ্যানেল, লোগো, API key)" aria-label="সেটিংস"><svg><use href="#i-gear"/></svg></button>
@@ -766,10 +778,33 @@ button.primary.gold:hover{filter:brightness(.96)}
   <div class="stp hidden" id="st-data">
     <div class="row"><button type="button" class="ghost" id="btnClearCache">কণ্ঠ/রেকর্ডিং ক্যাশ মুছুন</button><button type="button" class="ghost" id="btnClearUsed">ব্যবহৃত তালিকা মুছুন</button></div>
     <div class="row"><button type="button" class="ghost" id="btnLibExport2">নিজের গল্প ব্যাকআপ</button><label class="btn ghost filebtn">ব্যাকআপ থেকে ফেরত<input type="file" id="libImportFile" accept=".json,application/json"></label></div>
-    <p class="muted sm">সবকিছু এই ব্রাউজারেই সেভ থাকে (ইন্টারনেট ছাড়াও চলে)। অন্য ফোন/পিসিতে নিতে ব্যাকআপ ফাইল ব্যবহার করুন।</p>
+    <p class="muted sm">সবকিছু এই ব্রাউজারেও সেভ থাকে (ইন্টারনেট ছাড়াও চলে)। <button type="button" class="link" id="btnAccount2">Gmail দিয়ে লগইন</button> করলে নিজের গল্প ও ব্যবহৃত তালিকা ক্লাউডে থাকে, যেকোনো পিসি/ফোনে একই রকম দেখায়।</p>
     <div class="keystat ok hidden" id="appInfo"><span id="appVer"></span> · <button type="button" class="link" id="btnCheckUpdate">আপডেট আছে কিনা দেখুন</button></div>
   </div>
   <div class="row end"><button class="primary" value="ok">ঠিক আছে</button></div>
+</form></dialog>
+
+<dialog id="dlgAccount" aria-labelledby="acTitle"><form method="dialog" novalidate class="dlg">
+  <div class="row between"><h3 class="m0" id="acTitle">Gmail অ্যাকাউন্ট ও ক্লাউড সিঙ্ক</h3><button type="submit" class="icon" value="x" aria-label="বন্ধ">✕</button></div>
+  <div id="acOff" class="keystat bad hidden" role="status">ক্লাউড সেটআপ এখনো বাকি। রিপোর <b>FIREBASE-SETUP.md</b> ফাইলের ধাপগুলো শেষ করে কনফিগ বসালে লগইন চালু হবে।</div>
+  <div id="acApp" class="keystat hidden" role="status">অ্যাপে Gmail লগইন পরের আপডেটে আসছে। এখন ব্রাউজারে <b>taiful666.github.io</b> খুলে লগইন করুন।</div>
+  <div id="acOut" class="hidden">
+    <p class="acwhy">Gmail দিয়ে লগইন করলে আপনার <b>নিজের যোগ করা সব গল্প</b> আর <b>কোন গল্প ব্যবহার হয়েছে</b> তার হিস্ট্রি ক্লাউডে সেভ থাকবে। অন্য পিসি বা ফোনের ব্রাউজারে একই Gmail দিয়ে ঢুকলে সব একই রকম দেখাবে, গল্প হারাবে না।</p>
+    <button type="button" class="ghost wide acgoogle" id="btnSignIn"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span>Google (Gmail) দিয়ে লগইন</span></button>
+    <div class="keystat bad hidden" id="acOutErr" role="alert"></div>
+    <p class="muted sm">এই অ্যাপ শুধু আপনার নাম, ইমেইল আর ছবি দেখতে পায়। আপনার মেইল বা পাসওয়ার্ড কখনো দেখা যায় না। API key-গুলো ক্লাউডে যায় না, এই ডিভাইসেই থাকে।</p>
+  </div>
+  <div id="acIn" class="hidden">
+    <div class="acuser"><img id="acPhoto" alt="" referrerpolicy="no-referrer" width="48" height="48"><div class="acwho"><b id="acName"></b><span id="acEmail"></span></div></div>
+    <div class="keystat" id="acSync" role="status" aria-live="polite">সিঙ্ক হচ্ছে…</div>
+    <ul class="acstats" aria-label="আপনার হিস্ট্রি">
+      <li><b id="acMine">০</b><span>নিজের যোগ করা গল্প</span></li>
+      <li><b id="acUsedN">০</b><span>ব্যবহৃত গল্প</span></li>
+      <li><b id="acNewN">০</b><span>এখনো অব্যবহৃত</span></li>
+    </ul>
+    <div class="row"><button type="button" class="ghost" id="btnAcLib">লাইব্রেরিতে হিস্ট্রি দেখুন</button><button type="button" class="ghost" id="btnSignOut">লগআউট</button></div>
+    <p class="muted sm">লগআউট করলে আপনার গল্প ও হিস্ট্রি এই ব্রাউজার থেকে সরিয়ে ফেলা হয়, ক্লাউডে নিরাপদ থাকে। তাই অন্য কারো পিসিতে লগইন করলেও কাজ শেষে লগআউট করে দিন।</p>
+  </div>
 </form></dialog>
 
 <dialog id="dlgChars"><form method="dialog" novalidate class="dlg wide">
@@ -6139,14 +6174,14 @@ function setSeg(navId, attr, val) { $(navId).querySelectorAll('button').forEach(
 
 /* ---------- library (built-in + your own stories) ---------- */
 function usedList() { try { return JSON.parse(localStorage.getItem('tf_used') || '[]'); } catch (e) { return []; } }
-function addUsed(s) { const u = usedList(); if (!u.includes(s)) { u.push(s); try { localStorage.setItem('tf_used', JSON.stringify(u.slice(-5000))); } catch (e) { } } updateUsedInfo(); }
+function addUsed(s) { const u = usedList(); if (!u.includes(s)) { u.push(s); try { localStorage.setItem('tf_used', JSON.stringify(u.slice(-5000))); } catch (e) { } Cloud.addUsed(s); } updateUsedInfo(); }
 function updateUsedInfo() { const n = usedList().filter(x => !x.startsWith('LIB:')).length, total = BOOKS.reduce((a, b) => a + b[2].length, 0); $('usedInfo').textContent = `ব্যবহৃত শিক্ষা ${bn(n)} / ${bn(total)}`; }
 function libMeta(txt, id, n, mine) { const title = (txt.match(/^\s*===\s*(.*)$/m) || [, ''])[1].split('|')[0].trim(); const bk = (txt.match(/^\s*বই:\s*(.*)$/m) || [, ''])[1].split('|').map(s => s.trim()); const area = (txt.match(/^\s*ক্ষেত্র:\s*(.*)$/m) || [, ''])[1].trim(); const lines = txt.split('\n').filter(l => l.trim() && !/^(===|##|বই:|থাম্বনেল:|চরিত্র:|বর্ণনা:|হ্যাশট্যাগ:|ক্ষেত্র:|```)/.test(l.trim())).length; return { id, n, txt, title: title || 'শিরোনামহীন', book: bk[0] || '', author: bk[1] || '', lesson: bk[2] || '', area, lines, mine }; }
 const BUILTIN = (typeof STORY_LIBRARY !== 'undefined' ? STORY_LIBRARY : []).map((txt, i) => libMeta(txt, 'lb3_' + (i + 1), i + 1, false));
 let USERLIB = []; let LIB = BUILTIN.slice();
 function rebuildLIB() { LIB = BUILTIN.concat(USERLIB.map((u, i) => libMeta(u.txt, u.id, BUILTIN.length + i + 1, true))); }
 async function loadUserLib() { const u = await IDB.get('kv', 'userLib'); USERLIB = Array.isArray(u) ? u : []; rebuildLIB(); }
-async function saveUserLib() { await IDB.set('kv', 'userLib', USERLIB); rebuildLIB(); }
+async function saveUserLib() { await IDB.set('kv', 'userLib', USERLIB); rebuildLIB(); Cloud.pushLib(); }
 const storySig = txt => { const m = libMeta(txt, '', 0); const first = (txt.split('\n').find(l => l.trim() && !/^\s*(===|বই:|চরিত্র:|ক্ষেত্র:|##)/.test(l)) || '').trim(); return hashStr((m.title + '|' + first).replace(/\s+/g, '')).toString(36); };
 /* split pasted text (one or many stories, TF Script or JSON) into individual valid stories */
 function splitStories(text) {
@@ -6884,12 +6919,156 @@ function applySettingsToUI() {
 function bindSetting(id, key, conv, ev, after) { $(id).addEventListener(ev || 'change', e => { S[key] = conv ? conv(e.target) : e.target.value; saveSettings(); if (after) after(S[key]); if (app.story) { app.mixDirty = true; rebuildSoon(); } }); }
 async function fillModels(selId, fn, key) { try { const ms = await fn(); if (!ms.length) { toast('কোনো মডেল পাওয়া যায়নি'); return; } const s = $(selId); s.innerHTML = ''; ms.forEach(m => s.append(el('option', { value: m, text: m }))); if (ms.includes(S[key])) s.value = S[key]; else { S[key] = ms[0]; saveSettings(); } updateKeyStatus(); toast(`${bn(ms.length)}টা মডেল পাওয়া গেছে`, 'ok'); } catch (e) { toast(e.message, 'err', 7000); } }
 
+/* ---------- Gmail login + cloud sync (Firebase Auth + Firestore) ----------
+   Fill TF_CLOUD with the 4 values from the Firebase console (see FIREBASE-SETUP.md).
+   These values are PUBLIC by design (safe in a public repo): the Firestore security rules decide who can read what,
+   and they only let each signed-in Gmail account read/write its own users/{uid} data. API keys never leave this device. */
+const TF_CLOUD = { apiKey: 'AIzaSyAfZ29i4FwMlsDKoXqLvVpKN4uZWkJ4Edw', authDomain: 'tf-story-studio.firebaseapp.com', projectId: 'tf-story-studio', appId: '1:91248581816:web:d900f083014d5cbee8a84d' };
+const Cloud = {
+  user: null, auth: null, db: null, unsub: [], remoteIds: null, seen: { lib: false, used: false }, meta: {}, errText: '',
+  configured() { return !!(TF_CLOUD.apiKey && TF_CLOUD.authDomain && TF_CLOUD.projectId && TF_CLOUD.appId); },
+  usable() { return this.configured() && !IS_ANDROID; },
+  loadScript(src) { return new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = src; sc.onload = res; sc.onerror = () => rej(new Error(src)); document.head.append(sc); }); },
+  async init() {
+    $('btnAccount').onclick = () => this.open();
+    $('btnAccount2').onclick = () => { $('dlgSettings').close(); this.open(); };
+    $('btnSignIn').onclick = () => this.signIn();
+    $('btnSignOut').onclick = () => this.signOut();
+    $('btnAcLib').onclick = () => { $('dlgAccount').close(); goStep(1); showSrc('lib'); $('libFilter').value = 'all'; renderLib(); };
+    window.addEventListener('online', () => this.render()); window.addEventListener('offline', () => this.render());
+    this.render();
+    if (!this.usable()) return;
+    try { for (const m of ['app', 'auth', 'firestore']) await this.loadScript(`vendor/firebase-${m}-compat.js`); }
+    catch (e) { this.errText = 'লগইন চালু করা গেল না (ইন্টারনেট আছে কি?) — পেজ রিফ্রেশ করুন'; this.render(); return; }
+    try {
+      firebase.initializeApp(TF_CLOUD);
+      this.auth = firebase.auth(); this.db = firebase.firestore();
+      try { await this.db.enablePersistence({ synchronizeTabs: true }); } catch (e) { } // offline queue survives reloads
+      this.auth.onAuthStateChanged(u => this.onUser(u));
+    } catch (e) { this.errText = 'ক্লাউড সেটআপে ভুল আছে: ' + e.message; this.render(); }
+  },
+  open() { this.render(); $('dlgAccount').showModal(); },
+  ref() { return this.db.collection('users').doc(this.user.uid); },
+  msg(e) {
+    const c = (e && e.code) || '';
+    if (c.includes('permission-denied')) return 'এই Gmail-কে ঢোকার অনুমতি দেওয়া হয়নি — লগআউট করে সঠিক Gmail দিয়ে ঢুকুন, অথবা Firebase Rules-এ এই Gmail যোগ করুন';
+    if (c.includes('popup-blocked')) return 'পপআপ আটকে গেছে — ব্রাউজারে এই সাইটের পপআপ চালু করে আবার চাপুন';
+    if (c.includes('unauthorized-domain')) return 'এই ওয়েবসাইটটা Firebase-এ "Authorized domains"-এ যোগ করা হয়নি';
+    if (c.includes('network')) return 'ইন্টারনেট নেই — একটু পরে আবার চেষ্টা করুন';
+    return 'সমস্যা হয়েছে, পেজ রিফ্রেশ করে আবার চেষ্টা করুন (' + ((e && e.message) || c) + ')';
+  },
+  async signIn() {
+    if (!this.auth) { toast(this.errText || 'লগইন এখনো লোড হচ্ছে, একটু পরে চাপুন'); return; }
+    const b = $('btnSignIn'), lbl = b.querySelector('span'); b.disabled = true; lbl.textContent = 'লগইন হচ্ছে…';
+    try { const pr = new firebase.auth.GoogleAuthProvider(); pr.setCustomParameters({ prompt: 'select_account' }); await this.auth.signInWithPopup(pr); toast('লগইন হয়েছে — গল্প সিঙ্ক হচ্ছে', 'ok'); }
+    catch (e) { if (!/popup-closed-by-user|cancelled-popup-request/.test(e.code || '')) toast(this.msg(e), 'err'); }
+    b.disabled = false; lbl.textContent = 'Google (Gmail) দিয়ে লগইন';
+  },
+  async signOut() {
+    if (!this.user) return;
+    if (!confirm('লগআউট করবেন? আপনার গল্প ও হিস্ট্রি ক্লাউডে নিরাপদ থাকবে, শুধু এই ব্রাউজার থেকে সরিয়ে ফেলা হবে।')) return;
+    const sent = await Promise.race([this.db.waitForPendingWrites().then(() => true), new Promise(r => setTimeout(() => r(false), 6000))]);
+    if (!sent && !confirm('কিছু পরিবর্তন এখনো ক্লাউডে পৌঁছায়নি (ইন্টারনেট নেই?)। এখন লগআউট করলে সেগুলো হারাবে। তবুও লগআউট করবেন?')) return;
+    const uid = this.user.uid; this.stop();
+    try { await this.auth.signOut(); } catch (e) { }
+    USERLIB = []; await IDB.set('kv', 'userLib', []);
+    try { localStorage.removeItem('tf_used'); localStorage.removeItem('tf_cloud_merged_' + uid); } catch (e) { }
+    try { await this.db.terminate(); await this.db.clearPersistence(); } catch (e) { }
+    location.reload();
+  },
+  stop() { this.unsub.forEach(f => { try { f(); } catch (e) { } }); this.unsub = []; },
+  onUser(u) {
+    this.stop(); this.user = u; this.remoteIds = null; this.seen = { lib: false, used: false }; this.meta = {}; this.errText = '';
+    if (!u) { this.render(); return; }
+    const uref = this.ref(), col = uref.collection('stories'), flag = 'tf_cloud_merged_' + u.uid;
+    // first sign-in on this device: upload what is already saved here, so nothing is lost (union, never overwrite)
+    if (!localStorage.getItem(flag)) {
+      const used = usedList().slice(-3000);
+      if (used.length) uref.set({ used: firebase.firestore.FieldValue.arrayUnion(...used), updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }).catch(e => this.fail(e));
+      this.commit(USERLIB.map(x => ['set', x])).then(ok => { if (ok) try { localStorage.setItem(flag, '1'); } catch (e) { } });
+    }
+    this.remoteIds = new Set(USERLIB.map(x => x.id));
+    this.unsub.push(col.onSnapshot({ includeMetadataChanges: true }, q => this.applyLib(q), e => this.fail(e)));
+    this.unsub.push(uref.onSnapshot({ includeMetadataChanges: true }, d => this.applyUsed(d), e => this.fail(e)));
+    this.render();
+  },
+  applyLib(q) {
+    this.meta.lib = q.metadata; if (!q.metadata.fromCache) this.seen.lib = true;
+    if (this.seen.lib) { // until the server has answered once, never drop anything saved on this device
+      const remote = q.docs.map(d => ({ id: d.id, txt: d.get('txt'), at: d.get('at') || 0 })).filter(x => typeof x.txt === 'string').sort((a, b) => a.at - b.at);
+      const sig = l => l.map(x => x.id + ':' + x.txt.length).join(',');
+      if (sig(remote) !== sig(USERLIB)) { USERLIB = remote; IDB.set('kv', 'userLib', USERLIB); rebuildLIB(); renderLib(); updateMyLibInfo(); fillLibFilters(); }
+      this.remoteIds = new Set(remote.map(x => x.id));
+    }
+    this.render();
+  },
+  applyUsed(d) {
+    this.meta.used = d.metadata; if (!d.metadata.fromCache) this.seen.used = true;
+    if (this.seen.used) {
+      const remote = (d.exists && Array.isArray(d.get('used'))) ? d.get('used').filter(x => typeof x === 'string') : [];
+      if (JSON.stringify(remote) !== JSON.stringify(usedList())) { try { localStorage.setItem('tf_used', JSON.stringify(remote)); } catch (e) { } updateUsedInfo(); renderLib(); }
+    }
+    this.render();
+  },
+  commit(ops) {
+    if (!this.user) return Promise.resolve(false);
+    if (!ops.length) return Promise.resolve(true);
+    const col = this.ref().collection('stories'), jobs = [];
+    for (let i = 0; i < ops.length; i += 400) {
+      const b = this.db.batch();
+      ops.slice(i, i + 400).forEach(([kind, x]) => kind === 'set' ? b.set(col.doc(x.id), { txt: String(x.txt), at: Number(x.at) || Date.now() }) : b.delete(col.doc(x)));
+      jobs.push(b.commit());
+    }
+    this.render();
+    return Promise.all(jobs).then(() => true, e => { this.fail(e); return false; });
+  },
+  pushLib() { // called after every local library change: send only the difference
+    if (!this.user || !this.remoteIds) return;
+    const cur = new Set(USERLIB.map(x => x.id)), ops = [];
+    USERLIB.forEach(x => { if (!this.remoteIds.has(x.id)) ops.push(['set', x]); });
+    this.remoteIds.forEach(id => { if (!cur.has(id)) ops.push(['del', id]); });
+    this.remoteIds = cur; this.commit(ops);
+  },
+  addUsed(s) { if (this.user) this.ref().set({ used: firebase.firestore.FieldValue.arrayUnion(s), updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }).catch(e => this.fail(e)); },
+  clearUsed() { if (this.user) this.ref().set({ used: [], updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }).catch(e => this.fail(e)); },
+  fail(e) { console.warn('cloud', e); this.errText = this.msg(e); this.render(); },
+  status() {
+    if (this.errText) return ['err', this.errText];
+    const m = Object.values(this.meta);
+    if (m.length < 2 || !this.seen.lib || !this.seen.used) return navigator.onLine ? ['wait', 'ক্লাউড থেকে আনা হচ্ছে…'] : ['wait', 'অফলাইন — ইন্টারনেট এলে নিজে থেকেই সিঙ্ক হবে'];
+    if (m.some(x => x.hasPendingWrites)) return ['wait', navigator.onLine ? 'পরিবর্তন ক্লাউডে পাঠানো হচ্ছে…' : 'অফলাইন — পরিবর্তনগুলো ইন্টারনেট এলে পাঠানো হবে'];
+    if (m.some(x => x.fromCache)) return ['wait', 'অফলাইন — ইন্টারনেট এলে নিজে থেকেই সিঙ্ক হবে'];
+    return ['ok', '✓ সব সিঙ্ক হয়েছে — অন্য ডিভাইসেও একই গল্প দেখাবে'];
+  },
+  render() {
+    const u = this.user, on = this.usable();
+    $('acOff').classList.toggle('hidden', IS_ANDROID || this.configured());
+    $('acApp').classList.toggle('hidden', !IS_ANDROID);
+    $('acOut').classList.toggle('hidden', !on || !!u);
+    $('acIn').classList.toggle('hidden', !u);
+    $('acOutErr').textContent = !u && this.errText ? this.errText : ''; $('acOutErr').classList.toggle('hidden', !!u || !this.errText);
+    const photo = u && /^https:\/\/lh3\.googleusercontent\.com\//.test(u.photoURL || '') ? u.photoURL : '';
+    const bp = $('acBtnPhoto'); if (photo && bp.src !== photo) bp.src = photo; bp.classList.toggle('hidden', !photo); $('btnAccount').classList.toggle('in', !!photo);
+    const [kind, text] = u ? this.status() : ['', ''];
+    $('acDot').className = 'acdot' + (u ? '' : ' hidden') + (kind === 'wait' ? ' wait' : kind === 'err' ? ' err' : '');
+    $('btnAccount').title = u ? `${u.email} — ${text}` : 'Gmail দিয়ে লগইন ও ক্লাউড সিঙ্ক';
+    $('btnAccount').setAttribute('aria-label', u ? `Gmail অ্যাকাউন্ট: ${u.email} — ${text}` : 'Gmail দিয়ে লগইন');
+    if (!u) return;
+    $('acName').textContent = u.displayName || 'Gmail অ্যাকাউন্ট'; $('acEmail').textContent = u.email || '';
+    const ap = $('acPhoto'); ap.classList.toggle('hidden', !photo); if (photo && ap.src !== photo) ap.src = photo;
+    const st = $('acSync'); st.textContent = text; st.className = 'keystat' + (kind === 'ok' ? ' ok' : kind === 'err' ? ' bad' : '');
+    const used = LIB.filter(libUsed).length;
+    $('acMine').textContent = bn(USERLIB.length); $('acUsedN').textContent = bn(used); $('acNewN').textContent = bn(LIB.length - used);
+  }
+};
+
 /* ---------- init ---------- */
 async function init() {
   Object.entries(MUSIC_STYLES).forEach(([k, v]) => $('mStyle').append(el('option', { value: k, text: v })));
   try { await setLogoFromDataURL(localStorage.getItem('tf_logo') || ''); } catch (e) { }
   await loadUserLib();
   fillPromptSelects(); fillLibFilters(); renderLib(); updateUsedInfo(); updateMyLibInfo(); loadKeys(); applySettingsToUI();
+  Cloud.init();
   document.querySelectorAll('#stepBar button').forEach(b => b.addEventListener('click', () => goStep(b.dataset.step)));
   document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => goStep(b.dataset.go)));
   $('btnNew').onclick = newStory; $('btnGallery').onclick = () => openGallery(null);
@@ -6922,7 +7101,7 @@ async function init() {
   const libExport = () => { if (!USERLIB.length) { toast('নিজের যোগ করা কোনো গল্প নেই'); return; } downloadBlob(new Blob([JSON.stringify({ format: 'tf_story_library', version: 1, stories: USERLIB.map(u => u.txt) })], { type: 'application/json' }), 'TF_Story_Library_' + new Date().toISOString().slice(0, 10) + '.json'); };
   $('btnLibExport').onclick = libExport; $('btnLibExport2').onclick = libExport;
   $('libImportFile').onchange = async e => { const f = e.target.files[0]; if (!f) return; try { const j = JSON.parse(await f.text()); const txt = (j.stories || []).join('\n\n'); const r = await addStoriesToLib(txt); toast(`${bn(r.ok)}টা গল্প ফেরত এসেছে`, 'ok'); fillLibFilters(); } catch (er) { toast('ব্যাকআপ ফাইল পড়া গেল না', 'err'); } e.target.value = ''; };
-  $('btnLibClear').onclick = async () => { if (!USERLIB.length || !confirm(`নিজের যোগ করা ${bn(USERLIB.length)}টা গল্প মুছে ফেলবেন? (আগে ব্যাকআপ নিয়ে রাখুন)`)) return; USERLIB = []; await saveUserLib(); renderLib(); updateMyLibInfo(); fillLibFilters(); };
+  $('btnLibClear').onclick = async () => { if (!USERLIB.length || !confirm(`নিজের যোগ করা ${bn(USERLIB.length)}টা গল্প মুছে ফেলবেন?${Cloud.user ? ' ক্লাউড আর সব ডিভাইস থেকেও মুছে যাবে।' : ''} (আগে ব্যাকআপ নিয়ে রাখুন)`)) return; USERLIB = []; await saveUserLib(); renderLib(); updateMyLibInfo(); fillLibFilters(); };
   // step 2
   $('btnAutoDirect').onclick = () => { if (!app.story) return; autoDirect(app.story); buildEditors(); rebuild(true); toast('দৃশ্য আবার অটো সাজানো হলো', 'ok'); };
   $('advEdit').addEventListener('toggle', () => { if ($('advEdit').open && app.story) buildDetailEditor(); });
@@ -6953,7 +7132,7 @@ async function init() {
   bindSetting('sCap', 'capSize', t => +t.value, 'input', v => $('sCapOut').textContent = v); bindSetting('sGap', 'gap', t => cl(+t.value || 0, 0, 1)); bindSetting('sWatermark', 'watermark', t => t.checked); bindSetting('sCaptions', 'captions', t => t.checked);
   $('btnForgetKey').onclick = () => { if (!confirm('সব সেভ করা API key মুছবেন?')) return; Object.entries(KEYS).forEach(([id, [rem, name]]) => { try { localStorage.removeItem(name); sessionStorage.removeItem(name); } catch (e) { } $(id).value = ''; $(rem).checked = false; }); updateKeyStatus(); toast('সব key মুছে ফেলা হয়েছে', 'ok'); };
   $('btnClearCache').onclick = async () => { if (!confirm('সব সেভ করা কণ্ঠ ও রেকর্ডিং মুছবেন?')) return; const d = await IDB.open(); d.transaction('audio', 'readwrite').objectStore('audio').clear(); app.audio.tts.clear(); app.audio.rec.clear(); rebuild(true); toast('ক্যাশ মুছে ফেলা হয়েছে', 'ok'); };
-  $('btnClearUsed').onclick = () => { if (confirm('ব্যবহৃত তালিকা মুছবেন?')) { localStorage.removeItem('tf_used'); updateUsedInfo(); renderLib(); } };
+  $('btnClearUsed').onclick = () => { if (confirm(Cloud.user ? 'ব্যবহৃত তালিকা মুছবেন? (ক্লাউড আর সব ডিভাইস থেকেও মুছে যাবে)' : 'ব্যবহৃত তালিকা মুছবেন?')) { localStorage.removeItem('tf_used'); Cloud.clearUsed(); updateUsedInfo(); renderLib(); } };
   // preview
   $('btnPlay').onclick = () => app.playing ? stopPlay() : startPlay(); $('btnBigPlay').onclick = e => { e.stopPropagation(); startPlay(); }; pv.addEventListener('click', () => app.story && (app.playing ? stopPlay() : startPlay()));
   $('seek').addEventListener('input', e => { if (!app.tl) return; if (app.playing) stopPlay(true); app.t = e.target.value / 1000 * app.tl.total; drawAt(app.t); updateTime(); });
