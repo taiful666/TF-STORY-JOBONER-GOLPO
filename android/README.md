@@ -12,6 +12,11 @@ A native Android shell (Kotlin + WebView) around the web app in `../index.html`.
 
 Two parts in one app:
 
+- Long videos (YouTube 16:9, 5–15 min) live inside the Story part: pick **লং ভিডিও** in step 1. Three styles —
+  জীবনের গল্প (warm family drama with numbered traps), সত্য ঘটনা থ্রিলার (dark grade, word-by-word kinetic text with
+  click/whoosh/ding sounds, date/document/source cards) and ধাপে ধাপে গাইড (roadmap chapters). Same characters, voice,
+  music, export and share as the short videos; the mix is rendered in 45-second windows and the MP4 is written as a
+  fragmented file in pieces, so a 15-minute video fits in a phone's memory.
 - `home.html` — start screen: pick **গল্প** (the Story part, `index.html`) or **ইসলামিক** (`index.html?part=islamic`).
 - The Islamic part reuses the Story engine (`islamic/story.js`): a library of real sources (Quran passages, Sahih al-Bukhari); the app downloads the exact text, the AI writes only the retelling, and the video shows the exact quote with its reference. No people on screen. Own settings, library and project (`tf_isl_*`, IndexedDB `tf_story_studio_isl`).
 - Cards and short reels for the Islamic page: `islamic/index.html` (TF Post Maker), opened from the Islamic part.

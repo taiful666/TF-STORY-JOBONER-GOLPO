@@ -341,6 +341,16 @@ summary{font-weight:700}
 #dlgSettings{max-width:780px}
 .fpick{min-width:0;width:100%}.fgrid{grid-template-columns:repeat(auto-fill,minmax(min(150px,100%),1fr))}@media (max-width:699px){.fgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}dialog{overflow-x:hidden}
 .platrow{flex-wrap:wrap;gap:8px}[data-plat].on{outline:3px solid #E9B04A;outline-offset:1px}.pubshare{margin:12px 0;padding:12px;border-radius:14px;background:rgba(233,176,74,.08)}#platBox label{display:block;margin-top:8px}#platBox textarea{width:100%}
+/* ===== v4.8 layer: long videos (YouTube 16:9) ===== */
+.fmtpick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 16px}
+.fmtpick button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:12px 14px;border:1.5px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;color:var(--ink);transition:border-color .15s,background .15s}
+.fmtpick button b{font-size:16.5px}.fmtpick button span{font-size:12.5px;color:var(--sub);line-height:1.35}
+.fmtpick button.on{border-color:var(--g);background:#eef3ef;box-shadow:inset 0 0 0 1px var(--g)}
+.fmtpick button:focus-visible{outline:3px solid var(--go);outline-offset:2px}
+.longbox{margin:4px 0 14px;padding:14px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,#fff,#f7f9f6)}
+.longbox .aiways{margin:10px 0 12px}
+.libtag{font-size:11.5px;color:#fff;background:#B3261E;border-radius:6px;padding:1px 7px;flex:none}
+@media (max-width:699px){body.longfmt .pv{width:100%}.longways{grid-template-columns:1fr}.fmtpick button{padding:10px 12px}}
 /* ===== v3.9 layer: start chooser, AI ways, share sheet ===== */
 .startpick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:6px 0 4px}
 .startpick button{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;padding:18px 16px;border:1px solid var(--line);border-radius:16px;background:#fff;cursor:pointer;color:var(--ink);box-shadow:var(--sh);transition:transform .15s ease-out,border-color .15s,box-shadow .15s;min-height:132px}
@@ -471,6 +481,10 @@ button.primary.gold:hover{filter:brightness(.96)}
 
     <!-- STEP 1 -->
     <div class="step" id="step1">
+      <nav class="fmtpick hidden" id="fmtPick" aria-label="ভিডিওর ধরন">
+        <button type="button" data-fmt="short" class="on"><b>শর্ট ভিডিও</b><span>রিলস · শর্টস · ১-৩ মিনিট · ৯:১৬</span></button>
+        <button type="button" data-fmt="long"><b>লং ভিডিও</b><span>ইউটিউব · ৫-১৫ মিনিট · ১৬:৯</span></button>
+      </nav>
       <div class="stephead"><h2 id="s1Head">নতুন গল্প কীভাবে শুরু করবেন?</h2><p class="muted" id="s1Sub">নিচের তিনটার যেকোনো একটা বেছে নিন।</p></div>
       <div class="startpick" id="srcPick">
         <button type="button" data-pick="lib"><i><svg><use href="#i-book"/></svg></i><b>লাইব্রেরি থেকে নিন</b><span>তৈরি গল্পের তালিকা থেকে বেছে নিন</span></button>
@@ -485,7 +499,7 @@ button.primary.gold:hover{filter:brightness(.96)}
         <div class="row">
           <input id="libSearch" placeholder="খুঁজুন: টাকা, মা, বেতন, 48 Laws..." class="grow" aria-label="গল্প খুঁজুন">
           <select id="libBook" aria-label="বই"></select>
-          <select id="libFilter" aria-label="ফিল্টার"><option value="all">সব</option><option value="new">শুধু অব্যবহৃত</option><option value="used">ব্যবহৃত</option><option value="mine">নিজের যোগ করা</option></select>
+          <select id="libFilter" aria-label="ফিল্টার"><option value="all">সব</option><option value="new">শুধু অব্যবহৃত</option><option value="used">ব্যবহৃত</option><option value="mine">নিজের যোগ করা</option><option value="long">শুধু লং ভিডিও</option></select>
         </div>
         <div class="row between"><span class="muted" id="libCount"></span><button class="link" id="libRandom">র‍্যান্ডম অব্যবহৃত গল্প</button></div>
         <ul class="list" id="libList"></ul>
@@ -494,6 +508,20 @@ button.primary.gold:hover{filter:brightness(.96)}
       <div class="pane hidden" id="src-ai">
         <label class="topiclbl">গল্পের বিষয় বা টাইটেল <small class="muted">(নিজে লিখুন, অথবা নিচ থেকে বাছুন)</small><input id="pTopic" placeholder="যেমন: প্রথম বেতন, মায়ের ত্যাগ, বন্ধুর ধার"></label>
         <div class="chips" id="topicChips" aria-label="বিষয় বাছুন"></div>
+        <div class="longbox hidden" id="longBox">
+          <h4 class="m0">লং ভিডিওর ধরন</h4>
+          <nav class="aiways longways" id="longStyles">
+            <button type="button" data-ls="life" class="on"><b>জীবনের গল্প</b><span>পরিবার, টাকা, অভ্যাস — ফাঁদ ধরে ধরে, শেষে লুকানো সত্য</span></button>
+            <button type="button" data-ls="thriller"><b>সত্য ঘটনা থ্রিলার</b><span>সাম্প্রতিক খবর — তারিখ, সূত্র, শব্দে শব্দে লেখা ও সাউন্ড</span></button>
+            <button type="button" data-ls="guide"><b>ধাপে ধাপে গাইড</b><span>"৩০ দিনে…" রোডম্যাপ — সপ্তাহ ধরে কাজ</span></button>
+          </nav>
+          <div class="grid2">
+            <label>ভিডিওর দৈর্ঘ্য<select id="longMin"><option value="5">প্রায় ৫ মিনিট</option><option value="8">প্রায় ৮ মিনিট</option><option value="10">প্রায় ১০ মিনিট</option><option value="12">প্রায় ১২ মিনিট</option><option value="15">প্রায় ১৫ মিনিট</option></select></label>
+            <label class="chk" id="longWebRow"><input type="checkbox" id="longWeb"> AI নিজে ইন্টারনেটে খবর খুঁজে লিখুক (অ্যাপেই লেখালে)</label>
+          </div>
+          <label id="longFactsRow">তথ্য, খবরের লিংক বা নোট <small class="muted">(ঐচ্ছিক — যা দেবেন তার বাইরে AI কিছু বানাবে না)</small><textarea id="longFacts" rows="4" placeholder="যেমন: কী ঘটেছে, কবে, কোন পত্রিকা কী বলেছে, কোন সংখ্যাগুলো জরুরি…"></textarea></label>
+          <p class="muted sm m0" id="longNote">ভিডিও হবে ১৬:৯ (ইউটিউব)। অ্যাপেই লেখালে ১-৩ মিনিট লাগতে পারে।</p>
+        </div>
         <div class="grid2">
           <label>জীবনের ক্ষেত্র<select id="pArea"></select></label>
           <label>গল্পের ধরন<select id="pStyle"><option value="twist">টুইস্ট গল্প (কঠিন সংলাপ → লুকানো সত্য → শেষে বই)</option><option value="classic">দুই অঙ্কের গল্প (আগের ধরন)</option></select></label>
@@ -623,7 +651,7 @@ button.primary.gold:hover{filter:brightness(.96)}
 
       <h3>ভিডিওর দৈর্ঘ্য</h3>
       <nav class="seg sub small" id="lenTabs"><button class="on" data-len="auto">অটো (গল্প অনুযায়ী)</button><button data-len="fixed">নির্দিষ্ট</button></nav>
-      <div class="row hidden" id="lenFixedRow"><input type="number" id="lenSec" min="15" max="600" step="1" value="90" class="num"> <span>সেকেন্ড</span><span class="muted" id="lenNote"></span></div>
+      <div class="row hidden" id="lenFixedRow"><input type="number" id="lenSec" min="15" max="1800" step="1" value="90" class="num"> <span>সেকেন্ড</span><span class="muted" id="lenNote"></span></div>
       <div class="nextbar" id="next3"><span><svg><use href="#i-check"/></svg> কণ্ঠ ও মিউজিক</span><button class="primary" data-go="4">পরের ধাপ: এক্সপোর্ট <svg><use href="#i-arrow"/></svg></button></div>
     </div>
 
@@ -2766,7 +2794,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
 /* two parts share this engine: the Story part (index.html) and the Islamic part (index.html?part=islamic, see islamic/story.js) — each keeps its own settings, logo, used list and library */
 const TF_ISL = /[?&]part=islamic\b/.test(location.search);
 const LK = k => TF_ISL ? String(k).replace(/^tf_(settings|logo|used)$/, 'tf_isl_$1') : k;
-const APP_VERSION = '4.1.0';
+const APP_VERSION = '4.8.0';
 const STORY_LIBRARY = [];
 const FORMAT_VERSION = 1;
 
@@ -2783,7 +2811,7 @@ const MOODS = ['normal','happy','sad','tense','regret'];
 const FEELS = ['neutral','happy','sad','worried','surprised','angry','crying','tired','proud','shy'];
 const ACTIONS = ['idle','talk','phone','raise_phone','give','cup','point','arms_crossed','wave','head_down','hold','pray_hands','hands_on_head'];
 const PROPS = ['phone','envelope','money','cup','book','paper','sweets','bag','gift','laptop','medicine','key','flower','ring','plate'];
-const CARD_TYPES = ['sms','price','counter','check','compare','big','calendar','progress','call','alert','chat','reveal'];
+const CARD_TYPES = ['sms','price','counter','check','compare','big','calendar','progress','call','alert','chat','reveal','doc','source','date'];
 const METAPHORS = ['scale','kite','plant','hourglass','ladder','bridge','candle','seed_tree','glass','road'];
 const ROLES = {
   hero:{g:'m',a:'young',bn:'নায়ক'}, heroine:{g:'f',a:'young',bn:'নায়িকা'}, mother:{g:'f',a:'old',bn:'মা'},
@@ -4552,6 +4580,9 @@ function drawResultCards(c, card, lt, k, t) {
 }
 function drawCard(c, card, lt, dur, t) {
   if (!card || !card.type) return;
+  if (card.type === 'date') card = Object.assign({}, card, { type: 'calendar' });
+  else if (card.type === 'doc') card = Object.assign({}, card, { type: 'reveal' });
+  else if (card.type === 'source') card = Object.assign({}, card, { type: 'sms', title: card.name, text: card.text });
   const k = back(lt, .25), out = cl((dur - lt) / .2);
   if (card.type === 'reveal' && lt < .35) withA(c, (1 - lt / .35) * .85, () => rect(c, 0, 0, W, H, '#FFF8EC'));
   if (k <= 0 || out <= 0) return;
@@ -5036,13 +5067,16 @@ function parseTFScript(text) {
     if ((m = ln.match(head('বর্ণনা|description')))) { raw.youtube.description = m[2]; continue; }
     if ((m = ln.match(head('হ্যাশট্যাগ|hashtags?')))) { raw.youtube.hashtags = m[2].split(/\s+/).filter(Boolean); continue; }
     if ((m = ln.match(head('ক্ষেত্র|area')))) { raw.area = m[2]; continue; }
+    if ((m = ln.match(head('ফরম্যাট|format')))) { const p = m[2].split(/[|,\s]+/).map(x => x.trim().toLowerCase()).filter(Boolean); if (p.includes('long') || p.includes('লং')) raw.fmt = 'long'; const ls = p.find(x => ['life', 'thriller', 'guide'].includes(x)); if (ls) raw.longStyle = ls; continue; }
+    if ((m = ln.match(head('ইউটিউব টাইটেল|youtube title|yt title')))) { raw.youtube.title = m[2].trim(); continue; }
     if ((m = ln.match(head('থাম্বনেল|thumbnail|cover')))) { const p = m[2].split('|').map(x => x.trim()); raw.cover = { ctx: p[0] || '', l1: p[1] || '', l2: p[2] || '', icon: (p[3] || '').toLowerCase(), sym: p[4] || '', who: p[5] || '' }; continue; }
     if ((m = ln.match(/^##\s*(.*)$/))) {
       const parts = m[1].split('|').map(s => s.trim()); const words = parts[0].split(/\s+/).filter(Boolean);
       const t0 = (words[0] || '').toLowerCase();
       sc = { lines: [] };
-      if (['rewind', 'book', 'takeaways', 'metaphor', 'cta'].includes(t0)) {
+      if (['rewind', 'book', 'takeaways', 'metaphor', 'cta', 'chapter'].includes(t0)) {
         sc.type = t0;
+        if (t0 === 'chapter') sc.chapter = { no: parts[1] || '', title: parts[2] || '' };
         if (t0 === 'metaphor') sc.metaphor = { icon: words[1] || parts[0].split(/\s+/)[1] || 'scale', left: parts[1] || '', right: parts[2] || '', winner: parts[3] || 'right' };
         if (t0 === 'cta') sc.cta = { question: parts[1] || '', options: (parts[2] || '').split(/[,،]/).map(s => s.trim()).filter(Boolean) };
       } else {
@@ -5079,12 +5113,17 @@ function cardFromShort(ty, body) {
     case 'check': return { type: 'check', items: p.filter(Boolean).map(x => ({ t: x.replace(/^[+\-✓✗x]\s*/, ''), ok: !/^[\-✗x]/.test(x) })) };
     case 'call': return { type: 'call', name: p[0] };
     case 'reveal': return { type: 'reveal', title: p.length > 1 ? p[0] : '', text: p.length > 1 ? p.slice(1).join(' / ') : p[0] };
+    case 'doc': return { type: 'doc', title: p.length > 1 ? p[0] : '', text: p.length > 1 ? p.slice(1).join(' / ') : p[0] };
+    case 'source': return { type: 'source', name: p[0], text: p.slice(1).join(' / ') };
+    case 'date': return { type: 'date', text: p.join(' / ') };
     default: return { type: ty, text: p.join(' / ') };
   }
 }
 /* story object → TF Script text (for copying / library export) */
 function toTFScript(st) {
   const o = []; o.push('=== ' + st.title);
+  if (st.fmt === 'long') o.push('ফরম্যাট: long | ' + (st.longStyle || 'life'));
+  if (st.youtube && st.youtube.title) o.push('ইউটিউব টাইটেল: ' + st.youtube.title);
   if (st.book && st.book.title) o.push(`বই: ${st.book.title} | ${st.book.author} | ${st.book.lesson} | ${st.book.lesson_bn}`);
   if (st.cover && st.cover.l1) o.push(`থাম্বনেল: ${st.cover.ctx} | ${st.cover.l1} | ${st.cover.l2} | ${st.cover.icon} | ${st.cover.sym}${st.cover.who ? ' | ' + st.cover.who : ''}`);
   o.push('চরিত্র: ' + st.characters.map(c => `${c.id}=${c.name}/${c.role}`).join(', '));
@@ -5092,6 +5131,7 @@ function toTFScript(st) {
     if (s.type === 'story') o.push(`## ${s.place} ${s.time} ${s.mood}${s.weather ? ' ' + s.weather : ''} | ${s.badge || ''} | ${s.cast.join(',')}`);
     else if (s.type === 'metaphor') o.push(`## metaphor ${s.metaphor.icon} | ${s.metaphor.left} | ${s.metaphor.right} | ${s.metaphor.winner}`);
     else if (s.type === 'cta') o.push(`## cta | ${s.cta.question} | ${s.cta.options.join(', ')}`);
+    else if (s.type === 'chapter') o.push(`## chapter | ${(s.chapter || {}).no || ''} | ${(s.chapter || {}).title || ''}`);
     else o.push('## ' + s.type);
     s.lines.forEach(l => { let m = ''; if (l.who) m = [l.who, l.feel, l.do, l.hold].join(':').replace(/:+$/, '') + ' '; let card = ''; if (l.card) { const c = l.card; const v = c.type === 'sms' ? `${c.title} / ${c.text}` : c.type === 'chat' ? `${c.name} / ${c.text}` : c.type === 'counter' ? `${c.label} / ${c.from} / ${c.to} / ${c.prefix || ''}` : c.type === 'compare' ? `${c.left} / ${c.lv} / ${c.right} / ${c.rv}` : c.type === 'progress' ? `${c.label} / ${c.value}` : c.type === 'check' ? (c.items || []).map(i => (i.ok === false ? '-' : '+') + i.t).join(' / ') : c.type === 'call' ? c.name : c.type === 'reveal' ? (c.title ? c.title + ' / ' : '') + c.text : c.text; card = `[${c.type}: ${v}] `; } o.push(m + card + (l.speak ? '> ' : '') + l.cap + (l.hl ? ` {${l.hl}}` : '') + (l.say && l.say !== spoken(l.cap) ? ` || ${l.say}` : '')); });
   });
@@ -5102,7 +5142,7 @@ function toTFScript(st) {
 
 /* ===================== TF Story Studio — story engine (parse, timeline, render) ===================== */
 'use strict';
-const SCENE_TYPES = ['story', 'rewind', 'book', 'takeaways', 'metaphor', 'cta'];
+const SCENE_TYPES = ['story', 'rewind', 'book', 'takeaways', 'metaphor', 'cta', 'chapter'];
 const GENDER_MAP = { male: 'male', m: 'male', man: 'male', boy: 'male', 'ছেলে': 'male', 'পুরুষ': 'male', female: 'female', f: 'female', woman: 'female', girl: 'female', 'মেয়ে': 'female', 'নারী': 'female' };
 
 /* ---------- parse Gemini / project text ---------- */
@@ -5125,6 +5165,7 @@ function normalizeStory(raw, hero) {
   const warn = [];
   const st = { title: str(raw.title) || 'নতুন গল্প', thumb: str(raw.thumb), area: str(raw.area), voiceMap: (raw.voiceMap && typeof raw.voiceMap === 'object') ? Object.fromEntries(Object.entries(raw.voiceMap).filter(([k, v]) => typeof v === 'string').map(([k, v]) => [String(k).slice(0, 40), v.slice(0, 80)])) : {}, cover: (raw.cover && typeof raw.cover === 'object') ? { ctx: str(raw.cover.ctx), l1: str(raw.cover.l1), l2: str(raw.cover.l2), icon: PROPS.includes(str(raw.cover.icon)) ? str(raw.cover.icon) : '', sym: str(raw.cover.sym).slice(0, 4), who: str(raw.cover.who) } : null, book: raw.book || {}, youtube: raw.youtube || {}, characters: [], scenes: [] };
   st.book = { title: str(st.book.title), author: str(st.book.author), lesson: str(st.book.lesson), lesson_bn: str(st.book.lesson_bn) };
+  if (str(raw.fmt) === 'long') { st.fmt = 'long'; st.longStyle = oneOf(raw.longStyle, ['life', 'thriller', 'guide'], 'life'); }
   const ids = new Set(); const roleCount = {};
   (Array.isArray(raw.characters) ? raw.characters : []).forEach((ch, i) => {
     let id = str(ch.id) || ('c' + (i + 1)); while (ids.has(id)) id += '_'; ids.add(id);
@@ -5144,6 +5185,7 @@ function normalizeStory(raw, hero) {
     if (type === 'story' && sc.place && !PLACES[str(sc.place).toLowerCase()]) warn.push(`দৃশ্য ${si + 1}: জায়গা "${sc.place}" → "${PLACES[s.place]}" ধরা হলো।`);
     if (sc.metaphor) s.metaphor = { icon: oneOf(sc.metaphor.icon, METAPHORS, 'scale'), left: str(sc.metaphor.left), right: str(sc.metaphor.right), winner: str(sc.metaphor.winner) === 'left' ? 'left' : 'right' };
     if (sc.cta) s.cta = { question: str(sc.cta.question), options: (sc.cta.options || []).map(str).filter(Boolean).slice(0, 4) };
+    if (type === 'chapter') s.chapter = { no: str((sc.chapter || {}).no), title: str((sc.chapter || {}).title) };
     (Array.isArray(sc.cast) ? sc.cast : []).forEach(c => { const id = findChar(c); if (id && !s.cast.includes(id)) s.cast.push(id); });
     const lines = Array.isArray(sc.lines) ? sc.lines : (sc.lines ? [sc.lines] : []);
     lines.forEach((ln, li) => {
@@ -5160,7 +5202,7 @@ function normalizeStory(raw, hero) {
   });
   if (!st.scenes.length) throw new Error('কোনো দৃশ্য (scenes) পাওয়া যায়নি।');
   if (!st.scenes.some(s => s.type === 'cta')) warn.push('শেষে CTA দৃশ্য নেই — চাইলে যোগ করুন।');
-  if (!st.scenes.some(s => s.type === 'book')) warn.push('বইয়ের রেফারেন্স দৃশ্য (book) নেই।');
+  if (!st.scenes.some(s => s.type === 'book') && st.fmt !== 'long') warn.push('বইয়ের রেফারেন্স দৃশ্য (book) নেই।');
   return { story: st, warnings: warn };
 }
 
@@ -5379,7 +5421,14 @@ class StoryRenderer {
     else if (sc.type === 'takeaways') this.drawTakeaways(c, si, t);
     else if (sc.type === 'metaphor') { drawMetaphor(c, sc.metaphor || { icon: 'scale' }, lt, t); }
     else if (sc.type === 'cta') this.drawCTA(c, si, t);
+    else if (sc.type === 'chapter') this.drawChapterP(c, si, t);
     c.restore();
+  }
+  drawChapterP(c, si, t) { // portrait fallback for a long-video chapter card
+    const sc = this.story.scenes[si], lt = t - sc.start, ch = sc.chapter || {};
+    const g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#101826'); g.addColorStop(1, '#1d2a44'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+    popAt(c, 540, 820, back(lt, .05), () => txt(c, ch.no || '', 540, 860, 120, C_GO2, 800, 'center', FONT_BN, 960));
+    withA(c, fin(lt, .3), () => wrapText(c, ch.title || '', 84, 940, 800).slice(0, 3).forEach((l, i) => txt(c, l, 540, 1020 + i * 100, 84, '#fff', 800, 'center', FONT_BN, 960)));
   }
   shotRangeOfScene(si) { const s = this.tl.shots; let a = -1, b = -1; for (let k = 0; k < s.length; k++) if (s[k].si === si) { if (a < 0) a = k; b = k; } return [a, b]; }
   drawStory(c, si, t) {
@@ -5439,7 +5488,7 @@ class StoryRenderer {
       c.save(); c.globalAlpha *= .5; for (let i = 0; i < 18; i++) { const y = (i * 113 + 40) % H, len = 200 + (i * 71) % 400, x = ((jmp === 'ff' ? 1 : -1) * jl * 2600 + i * 197) % (W + 600) - 300; rect(c, jmp === 'ff' ? x : W - x - len, y, len, 4, '#ffffff'); } c.restore();
       c.save(); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 16; txt(c, jmp === 'ff' ? '▶▶ FAST FORWARD' : '◀◀ REWIND', 60, 330, 44, '#ffffff', 700, 'left', FONT_EN); c.restore(); }); }
     // cards (screen space)
-    CARD_CINE = this.cine2; if (ln.card) drawCard(c, ln.card, lt, sh.dur + .2, t);
+    CARD_CINE = this.cine2; if (ln.card && !this._noCard) drawCard(c, ln.card, lt, sh.dur + .2, t);
   }
   drawRewind(c, si, t) {
     const sc = this.story.scenes[si], lt = t - sc.start;
@@ -5768,10 +5817,11 @@ const MUSIC_STYLES = { auto: 'অটো (দৃশ্য অনুযায়�
 function autoStyle(sc) { if (sc.type === 'rewind') return 'tension'; if (sc.type === 'book' || sc.type === 'metaphor') return 'cinematic'; if (sc.type === 'takeaways' || sc.type === 'cta') return 'hope'; return { happy: 'upbeat', sad: 'sadpiano', regret: 'sadpiano', tense: 'tension' }[sc.mood] || 'piano'; }
 function pluck(ctx, dest, f, t0, vol) { const o = ctx.createOscillator(), lp = ctx.createBiquadFilter(), g = ctx.createGain(); o.type = 'triangle'; o.frequency.value = f; lp.type = 'lowpass'; lp.frequency.setValueAtTime(4000, t0); lp.frequency.exponentialRampToValueAtTime(600, t0 + .4); g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(vol, t0 + .004); g.gain.exponentialRampToValueAtTime(.0001, t0 + .6); o.connect(lp); lp.connect(g); g.connect(dest); o.start(t0); o.stop(t0 + .65); }
 function pad(ctx, dest, freqs, t0, dur, vol) { const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; const g = ctx.createGain(); g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(vol, t0 + Math.min(1, dur / 3)); g.gain.setValueAtTime(vol, t0 + dur * .7); g.gain.linearRampToValueAtTime(0, t0 + dur); lp.connect(g); g.connect(dest); freqs.forEach(f => [-6, 6].forEach(dt => { const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; o.detune.value = dt; o.connect(lp); o.start(t0); o.stop(t0 + dur + .05); })); }
-function drum(ctx, dest, kind, t, noise) { if (kind === 'k') { const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.setValueAtTime(120, t); o.frequency.exponentialRampToValueAtTime(45, t + .22); g.gain.setValueAtTime(.55, t); g.gain.exponentialRampToValueAtTime(.001, t + .25); o.connect(g); g.connect(dest); o.start(t); o.stop(t + .3); } else { const s = ctx.createBufferSource(); s.buffer = noise; const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = kind === 's' ? 1800 : 7000; const g = ctx.createGain(); g.gain.setValueAtTime(kind === 's' ? .18 : .07, t); g.gain.exponentialRampToValueAtTime(.001, t + (kind === 's' ? .16 : .05)); s.connect(hp); hp.connect(g); g.connect(dest); s.start(t, (t * 7.3) % .5, .2); } }
+function drum(ctx, dest, kind, t, noise) { if (kind === 'k') { const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.setValueAtTime(120, t); o.frequency.exponentialRampToValueAtTime(45, t + .22); g.gain.setValueAtTime(.55, t); g.gain.exponentialRampToValueAtTime(.001, t + .25); o.connect(g); g.connect(dest); o.start(t); o.stop(t + .3); } else { const s = ctx.createBufferSource(); s.buffer = noise; const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = kind === 's' ? 1800 : 7000; const g = ctx.createGain(); g.gain.setValueAtTime(kind === 's' ? .18 : .07, t); g.gain.exponentialRampToValueAtTime(.001, t + (kind === 's' ? .16 : .05)); s.connect(hp); hp.connect(g); g.connect(dest); s.start(t, ((t + (ctx._w0 || 0)) * 7.3) % .5, .2); } }
 function sceneMusic(ctx, dest, st, prog, t0, t1, noise, seed) {
-  const bar = st === 'upbeat' ? 2 : 4; let bi = seed % 4;
+  const bar = st === 'upbeat' ? 2 : 4; let bi = seed % 4; const lim = ctx.length / ctx.sampleRate;
   for (let t = t0; t < t1 - .2; t += bar, bi++) {
+    if (t < 0) continue; if (t > lim) break;
     const ch = prog[bi % 4]; const n = k => NOTE(k);
     if (st === 'piano' || st === 'sadpiano' || st === 'lofi') {
       pianoNote(ctx, dest, n(ch[0] - 12), t, bar - .1, .16);
@@ -5793,7 +5843,8 @@ function pianoNote(ctx, dest, f, t0, dur, vol) {
   const g2 = ctx.createGain(); g2.gain.value = .25; g2.connect(g); const o2 = ctx.createOscillator(); o2.type = 'sine'; o2.frequency.value = f * 2; o2.connect(g2);
   o1.start(t0); o2.start(t0); o1.stop(t0 + dur + .05); o2.stop(t0 + dur + .05);
 }
-function sfx(ctx, dest, kind, t0, noise) {
+function sfx(ctx, dest, kind, t0, noise, abs) {
+  const ta = abs != null ? abs : t0; // the video time (for small variations that must not depend on the mix window)
   const g = ctx.createGain(); g.connect(dest); const o = ctx.createOscillator();
   switch (kind) {
     case 'pop': o.type = 'sine'; o.frequency.setValueAtTime(500, t0); o.frequency.exponentialRampToValueAtTime(1300, t0 + .07); g.gain.setValueAtTime(.12, t0); g.gain.exponentialRampToValueAtTime(.0001, t0 + .09); o.connect(g); o.start(t0); o.stop(t0 + .1); break;
@@ -5804,68 +5855,102 @@ function sfx(ctx, dest, kind, t0, noise) {
     case 'bell': pianoNote(ctx, dest, 1046.5, t0, 1.6, .16); pianoNote(ctx, dest, 1568, t0 + .15, 1.6, .1); return;
     case 'rewind': o.type = 'square'; o.frequency.setValueAtTime(1800, t0); o.frequency.exponentialRampToValueAtTime(300, t0 + 1.4); g.gain.setValueAtTime(.035, t0); g.gain.linearRampToValueAtTime(0, t0 + 1.5); o.connect(g); o.start(t0); o.stop(t0 + 1.5); break;
     case 'rise': o.type = 'sine'; o.frequency.setValueAtTime(220, t0); o.frequency.exponentialRampToValueAtTime(880, t0 + .8); g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(.1, t0 + .6); g.gain.linearRampToValueAtTime(0, t0 + .9); o.connect(g); o.start(t0); o.stop(t0 + 1); break;
+    case 'click': { const s = ctx.createBufferSource(); s.buffer = noise; const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 3200; s.connect(hp); hp.connect(g); g.gain.setValueAtTime(.07, t0); g.gain.exponentialRampToValueAtTime(.0001, t0 + .025); s.start(t0, (ta * 3.7) % .8, .04); return; }
+    case 'type': o.type = 'square'; o.frequency.setValueAtTime(1500 + (Math.floor(ta * 97) % 5) * 140, t0); g.gain.setValueAtTime(.035, t0); g.gain.exponentialRampToValueAtTime(.0001, t0 + .022); o.connect(g); o.start(t0); o.stop(t0 + .03); break;
+    case 'ding': [1567.98, 2349.3].forEach((f, i) => { const gg = ctx.createGain(); gg.connect(dest); gg.gain.setValueAtTime(0, t0 + i * .05); gg.gain.linearRampToValueAtTime(.075, t0 + i * .05 + .005); gg.gain.exponentialRampToValueAtTime(.0001, t0 + i * .05 + .55); const oo = ctx.createOscillator(); oo.frequency.value = f; oo.connect(gg); oo.start(t0 + i * .05); oo.stop(t0 + i * .05 + .6); }); return;
+    case 'whoosh': { const s = ctx.createBufferSource(); s.buffer = noise; const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = .9; bp.frequency.setValueAtTime(300, t0); bp.frequency.exponentialRampToValueAtTime(3200, t0 + .28); s.connect(bp); bp.connect(g); g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(.13, t0 + .1); g.gain.linearRampToValueAtTime(0, t0 + .3); s.start(t0, .3, .35); return; }
+    case 'boom': { o.type = 'sine'; o.frequency.setValueAtTime(70, t0); o.frequency.exponentialRampToValueAtTime(28, t0 + .9); g.gain.setValueAtTime(.0001, t0); g.gain.exponentialRampToValueAtTime(.7, t0 + .02); g.gain.exponentialRampToValueAtTime(.0001, t0 + 1.1); o.connect(g); o.start(t0); o.stop(t0 + 1.2);
+      const s = ctx.createBufferSource(); s.buffer = noise; const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 500; const g2 = ctx.createGain(); g2.gain.setValueAtTime(.25, t0); g2.gain.exponentialRampToValueAtTime(.0001, t0 + .5); s.connect(lp); lp.connect(g2); g2.connect(dest); s.start(t0, 0, .55); return; }
+    case 'riser': { const s = ctx.createBufferSource(); s.buffer = noise; s.loop = true; const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 2; bp.frequency.setValueAtTime(400, t0); bp.frequency.exponentialRampToValueAtTime(5000, t0 + 1.2); s.connect(bp); bp.connect(g); g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(.12, t0 + 1.15); g.gain.linearRampToValueAtTime(0, t0 + 1.25); s.start(t0); s.stop(t0 + 1.3);
+      o.type = 'sine'; o.frequency.setValueAtTime(180, t0); o.frequency.exponentialRampToValueAtTime(720, t0 + 1.2); const g3 = ctx.createGain(); g3.gain.setValueAtTime(0, t0); g3.gain.linearRampToValueAtTime(.05, t0 + 1.1); g3.gain.linearRampToValueAtTime(0, t0 + 1.25); o.connect(g3); g3.connect(dest); o.start(t0); o.stop(t0 + 1.3); return; }
+    case 'paper': { const s = ctx.createBufferSource(); s.buffer = noise; const lp = ctx.createBiquadFilter(); lp.type = 'bandpass'; lp.frequency.value = 1800; lp.Q.value = .6; s.connect(lp); lp.connect(g); g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(.12, t0 + .03); g.gain.exponentialRampToValueAtTime(.0001, t0 + .22); s.start(t0, .5, .25); return; }
     case 'swoosh': { const s = ctx.createBufferSource(); s.buffer = noise; const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.2; bp.frequency.setValueAtTime(400, t0); bp.frequency.exponentialRampToValueAtTime(2600, t0 + .3); s.connect(bp); bp.connect(g); g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(.22, t0 + .12); g.gain.linearRampToValueAtTime(0, t0 + .35); s.start(t0); s.stop(t0 + .4); return; }
   }
 }
-/* build the full mix (narration + music + sfx) */
+/* build the full mix (narration + music + sfx).
+   Short videos: one pass. Long videos: 45-second windows (each with 5 s of lead-in that is thrown away) — every
+   window is a small audio graph, so a 15-minute video mixes in about the time a short one used to take. */
 async function buildMix(story, tl, audio, S) {
-  const total = tl.total; const len = Math.ceil(total * SR);
-  const ctx = new OfflineAudioContext(2, len, SR);
+  const total = tl.total, LONG = story.fmt === 'long';
+  if (!LONG || total <= 150) { const out = await mixWindow(story, tl, audio, S, 0, total, 2); normalizeMix(out); return out; }
+  const CH = 45, PRE = 5, len = Math.ceil(total * SR);
+  const out = new AudioBuffer({ length: len, numberOfChannels: 1, sampleRate: SR }), d = out.getChannelData(0);
+  for (let c0 = 0; c0 < total; c0 += CH) {
+    const c1 = Math.min(total, c0 + CH), pre = Math.min(PRE, c0);
+    const part = await mixWindow(story, tl, audio, S, c0 - pre, c1 + .05, 1);
+    const src = part.getChannelData(0), off = Math.round(pre * SR), at = Math.round(c0 * SR), n = Math.max(0, Math.min(Math.round((c1 - c0) * SR), src.length - off, len - at));
+    d.set(src.subarray(off, off + n), at);
+  }
+  normalizeMix(out); return out;
+}
+function normalizeMix(out) {
+  let peak = 0; for (let ch = 0; ch < out.numberOfChannels; ch++) { const d = out.getChannelData(ch); for (let i = 0; i < d.length; i += 2) { const v = Math.abs(d[i]); if (v > peak) peak = v; } }
+  const g = peak > 0 ? Math.min(4, .89 / peak) : 1;
+  if (Math.abs(g - 1) > .02) for (let ch = 0; ch < out.numberOfChannels; ch++) { const d = out.getChannelData(ch); for (let i = 0; i < d.length; i++) d[i] *= g; }
+}
+/* render the part of the mix between w0 and w1 (seconds of the video) */
+async function mixWindow(story, tl, audio, S, w0, w1, nch) {
+  const total = tl.total, wl = w1 - w0, len = Math.ceil(wl * SR), T = x => x - w0, Tc = x => Math.max(0, x - w0);
+  const near = (a, b) => b > w0 - .25 && a < w1; // does [a,b] touch this window?
+  const ctx = new OfflineAudioContext(nch || 2, len, SR); ctx._w0 = w0;
   const master = ctx.createGain(); master.gain.value = .9; master.connect(ctx.destination);
   const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 3; comp.connect(master);
   const voiceBus = ctx.createGain(); voiceBus.gain.value = 1.0; voiceBus.connect(comp);
   const musicBus = ctx.createGain(); const mv = (S.musicVol != null ? S.musicVol : 55) / 100 * (S.music === 'upload' ? .8 : .55); musicBus.gain.value = mv; musicBus.connect(comp);
   const sfxBus = ctx.createGain(); sfxBus.gain.value = S.sfx === false ? 0 : 1; sfxBus.connect(comp);
   const noise = noiseBuffer(ctx, 1);
+  const play = (kind, at) => { if (at < w0 - 1.6 || at >= w1) return; sfx(ctx, sfxBus, kind, Tc(at), noise, Math.max(0, at)); };
   // narration
   const hasVoice = audio && audio.mode !== 'none';
   if (hasVoice) {
     for (const sh of tl.shots) {
-      const seg = sh.seg; if (!seg || !seg.buf) continue;
-      const s = ctx.createBufferSource(); s.buffer = seg.buf; s.connect(voiceBus); s.start(sh.start, seg.off || 0, seg.dur);
+      const seg = sh.seg; if (!seg || !seg.buf || !near(sh.start, sh.start + seg.dur)) continue;
+      const s = ctx.createBufferSource(); s.buffer = seg.buf; s.connect(voiceBus);
+      const cut = Math.max(0, w0 - sh.start); if (cut >= seg.dur) continue; s.start(T(sh.start + cut), (seg.off || 0) + cut, seg.dur - cut);
     }
     // ducking
     const duck = .42; musicBus.gain.setValueAtTime(mv, 0);
-    tl.shots.forEach(sh => { if (!sh.seg) return; musicBus.gain.setTargetAtTime(mv * duck, Math.max(0, sh.start - .08), .06); musicBus.gain.setTargetAtTime(mv, sh.end + .05, .25); });
+    tl.shots.forEach(sh => { if (!sh.seg || !near(sh.start - 1, sh.end + 1.5)) return; musicBus.gain.setTargetAtTime(mv * duck, Tc(sh.start - .08), .06); musicBus.gain.setTargetAtTime(mv, Tc(sh.end + .05), .25); });
   }
   // music
   const style = S.music || 'auto';
   if (style === 'upload' && S._musicBuf) {
-    const src = ctx.createBufferSource(); src.buffer = S._musicBuf; src.loop = true; const g = ctx.createGain(); g.gain.value = 1.1; src.connect(g); g.connect(musicBus); src.start(0); src.stop(total);
+    const src = ctx.createBufferSource(); src.buffer = S._musicBuf; src.loop = true; const g = ctx.createGain(); g.gain.value = 1.1; src.connect(g); g.connect(musicBus);
+    src.start(0, w0 > 0 ? w0 % Math.max(.1, S._musicBuf.duration) : 0); src.stop(Math.max(0, T(total)));
   } else if (style !== 'none' && style !== 'upload') {
     story.scenes.forEach((sc, si) => {
+      const t1a = Math.min(total, sc.end + .3); if (!near(sc.start - 5, t1a)) return;
       const st = style === 'auto' ? autoStyle(sc) : style;
-      const t0 = sc.start, t1 = Math.min(total, sc.end + .3);
-      const g = ctx.createGain(); g.gain.setValueAtTime(0, Math.max(0, t0 - .05)); g.gain.linearRampToValueAtTime(1, t0 + .35); g.gain.setValueAtTime(1, Math.max(t0 + .36, t1 - .4)); g.gain.linearRampToValueAtTime(0, t1); g.connect(musicBus);
+      const t0 = T(sc.start), t1 = T(t1a);
+      const g = ctx.createGain(); g.gain.setValueAtTime(t0 - .05 >= 0 ? 0 : 1, Math.max(0, t0 - .05)); if (t0 + .35 > 0) g.gain.linearRampToValueAtTime(1, t0 + .35); g.gain.setValueAtTime(1, Math.max(0, t0 + .36, t1 - .4)); g.gain.linearRampToValueAtTime(0, Math.max(.01, t1)); g.connect(musicBus);
       sceneMusic(ctx, g, st, progFor(sc), t0, t1, noise, si);
     });
   }
-  musicBus.gain.setValueAtTime(musicBus.gain.value, Math.max(0, total - 2.5)); musicBus.gain.linearRampToValueAtTime(0, total);
+  musicBus.gain.setValueAtTime(musicBus.gain.value, Tc(total - 2.5)); musicBus.gain.linearRampToValueAtTime(0, Math.max(.01, T(total)));
   // sfx
+  const LONG = story.fmt === 'long', KT = LONG && story.longStyle !== 'life';
+  if (LONG) longSfx(story, tl, S, play);
   story.scenes.forEach((sc, si) => {
-    if (si > 0) sfx(ctx, sfxBus, 'swoosh', Math.max(0, sc.start - .08), noise);
-    if (sc.type === 'rewind') sfx(ctx, sfxBus, 'rewind', sc.start + .02, noise);
-    if (sc.type === 'book') sfx(ctx, sfxBus, 'rise', sc.start, noise);
-    if (sc.type === 'cta') { sfx(ctx, sfxBus, 'bell', sc.start + 1.1, noise); for (let i = 0; i < 3; i++) sfx(ctx, sfxBus, 'pop', sc.start + 2.75 + i * .45, noise); }
+    if (si > 0) play('swoosh', Math.max(0, sc.start - .08));
+    if (sc.type === 'rewind') play('rewind', sc.start + .02);
+    if (sc.type === 'book') play('rise', sc.start);
+    if (sc.type === 'cta') { play('bell', sc.start + 1.1); for (let i = 0; i < 3; i++) play('pop', sc.start + 2.75 + i * .45); }
   });
   tl.shots.forEach(sh => {
+    if (!near(sh.start - 1, sh.end + 1)) return;
     const ln = story.scenes[sh.si].lines[sh.li];
-    if (S.pops !== false) sfx(ctx, sfxBus, 'pop', sh.start, noise);
+    if (S.pops !== false && !KT) play('pop', sh.start);
     if (ln.card) {
       const ty = ln.card.type, t0 = sh.start + .25;
-      if (ty === 'sms' || ty === 'chat' || ty === 'call') sfx(ctx, sfxBus, 'chime', t0, noise);
-      else if (ty === 'counter' || ty === 'progress') { for (let k = 0; k < 12; k++) { const tt = t0 + .1 + k * Math.max(.6, sh.dur - .9) / 12; if (tt < sh.end) sfx(ctx, sfxBus, 'tick', tt, noise); } }
-      else if (ty === 'price' || ty === 'compare') sfx(ctx, sfxBus, 'coin', t0, noise);
-      else if (ty === 'reveal') { sfx(ctx, sfxBus, 'thump', sh.start + .04, noise); sfx(ctx, sfxBus, 'thump', sh.start + .38, noise); sfx(ctx, sfxBus, 'rise', sh.start + .1, noise); }
-      else if (ty === 'check') (ln.card.items || []).slice(0, 5).forEach((_, i) => sfx(ctx, sfxBus, 'pop', sh.start + .4 + i * .35, noise));
-      else sfx(ctx, sfxBus, 'pop', t0, noise);
+      if (ty === 'sms' || ty === 'chat' || ty === 'call') play('chime', t0);
+      else if (ty === 'counter' || ty === 'progress') { for (let k = 0; k < 12; k++) { const tt = t0 + .1 + k * Math.max(.6, sh.dur - .9) / 12; if (tt < sh.end) play('tick', tt); } }
+      else if (ty === 'price' || ty === 'compare') play('coin', t0);
+      else if (ty === 'reveal') { play('thump', sh.start + .04); play('thump', sh.start + .38); play('rise', sh.start + .1); }
+      else if (ty === 'check') (ln.card.items || []).slice(0, 5).forEach((_, i) => play('pop', sh.start + .4 + i * .35));
+      else play('pop', t0);
     }
   });
-  const out = await ctx.startRendering();
-  let peak = 0; for (let ch = 0; ch < out.numberOfChannels; ch++) { const d = out.getChannelData(ch); for (let i = 0; i < d.length; i += 2) { const v = Math.abs(d[i]); if (v > peak) peak = v; } }
-  const g = peak > 0 ? Math.min(4, .89 / peak) : 1;
-  if (Math.abs(g - 1) > .02) for (let ch = 0; ch < out.numberOfChannels; ch++) { const d = out.getChannelData(ch); for (let i = 0; i < d.length; i++) d[i] *= g; }
-  return out;
+  return await ctx.startRendering();
 }
 function audioBufferToWav(buf) {
   const ch = buf.numberOfChannels, sr = buf.sampleRate, n = buf.length, bps = 2, block = ch * bps, size = n * block;
@@ -5885,14 +5970,18 @@ const RATIOS = { '9:16': [9, 16], '4:5': [4, 5], '1:1': [1, 1], '16:9': [16, 9] 
 function frameSize(ratio, res) { const [a, b] = RATIOS[ratio] || RATIOS['9:16']; const sh = +res || 1080; let w, h; if (a <= b) { w = sh; h = Math.round(sh * b / a); } else { h = sh; w = Math.round(sh * a / b); } return { w: w & ~1, h: h & ~1 }; }
 class FrameComposer {
   constructor(renderer, w, h) {
-    this.r = renderer; this.w = w; this.h = h; this.native = Math.abs(w / h - W / H) < .01;
-    if (!this.native) {
+    this.r = renderer; this.w = w; this.h = h; this.native = Math.abs(w / h - W / H) < .01; this.long = !!renderer.isLong;
+    if (!this.native && !this.long) {
       this.wc = document.createElement('canvas'); this.wc.width = Math.round(h * W / H) & ~1; this.wc.height = h; this.wx = this.wc.getContext('2d', { alpha: false });
       this.tc = document.createElement('canvas'); this.tc.width = 36; this.tc.height = 64; this.tx = this.tc.getContext('2d', { alpha: false });
     }
   }
   draw(c, t) {
     const r = this.r;
+    if (this.long) { // long video: the renderer draws a 1920×1080 frame; other sizes are letter-boxed
+      const k = Math.min(this.w / LW, this.h / LH), ox = (this.w - LW * k) / 2, oy = (this.h - LH * k) / 2;
+      if (ox > 1 || oy > 1) { c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = '#000'; c.fillRect(0, 0, this.w, this.h); }
+      c.setTransform(k, 0, 0, k, ox, oy); r.render(c, t); return; }
     if (this.native) { const k = this.w / W; c.setTransform(k, 0, 0, k, 0, 0); r.render(c, t); return; }
     const k = this.wc.height / H; this.wx.setTransform(k, 0, 0, k, 0, 0); this.wx.fillStyle = '#000'; this.wx.fillRect(0, 0, W, H); r.render(this.wx, t, { ui: false });
     c.setTransform(1, 0, 0, 1, 0, 0);
@@ -5904,10 +5993,10 @@ class FrameComposer {
     r.drawUI(c, t, r.sceneAt(t), this.w, this.h);
   }
 }
-async function pickVideoCodec(w, h) {
+async function pickVideoCodec(w, h, long) {
   if (!('VideoEncoder' in window)) return null;
   const mbs = Math.ceil(w / 16) * Math.ceil(h / 16), lvl = mbs <= 8192 ? '28' : mbs <= 8704 ? '2a' : mbs <= 22080 ? '32' : mbs <= 36864 ? '33' : '34';
-  const bitrate = Math.round(cl(w * h / (1080 * 1920) * 9e6, 4e6, 45e6));
+  const bitrate = long ? Math.round(cl(w * h / (1080 * 1920) * 4.5e6, 1.6e6, 22e6)) : Math.round(cl(w * h / (1080 * 1920) * 9e6, 4e6, 45e6)); // long videos: flat 2D art compresses well, keeps a 15-minute file small
   const cands = [['avc1.6400' + lvl, 'avc'], ['avc1.4d00' + lvl, 'avc'], ['avc1.4200' + lvl, 'avc'], ['avc1.640033', 'avc'], ['avc1.640034', 'avc'], ['vp09.00.50.08', 'vp9'], ['vp09.00.40.08', 'vp9'], ['av01.0.12M.08', 'av1'], ['av01.0.08M.08', 'av1']];
   for (const [codec, mux] of cands) {
     for (const hw of ['prefer-hardware', 'no-preference', 'prefer-software']) {
@@ -5970,12 +6059,14 @@ const ExportGuard = {
   }
 };
 async function exportMP4(renderer, mix, onProgress, abort, size) {
-  const w = (size && size.w) || W, h = (size && size.h) || H;
-  const vc = await pickVideoCodec(w, h);
+  const w = (size && size.w) || W, h = (size && size.h) || H, long = !!renderer.isLong;
+  const vc = await pickVideoCodec(w, h, long);
   if (!vc) throw new Error('NO_WEBCODECS');
   const ac = mix ? await pickAudioCodec() : null;
-  const target = new Mp4Muxer.ArrayBufferTarget();
-  const muxer = new Mp4Muxer.Muxer({ target, video: { codec: vc.mux, width: w, height: h, frameRate: FPS }, audio: ac ? { codec: ac.mux, numberOfChannels: 2, sampleRate: SR } : undefined, fastStart: 'in-memory', firstTimestampBehavior: 'offset' });
+  // long videos stream into small Blob pieces (fragmented MP4) instead of one huge in-memory buffer → 15 minutes fit on a phone
+  const sink = long ? new BlobSink() : null;
+  const target = long ? new Mp4Muxer.StreamTarget({ onData: (data, pos) => sink.write(data, pos), chunked: true, chunkSize: 4 * 1024 * 1024 }) : new Mp4Muxer.ArrayBufferTarget();
+  const muxer = new Mp4Muxer.Muxer({ target, video: { codec: vc.mux, width: w, height: h, frameRate: FPS }, audio: ac ? { codec: ac.mux, numberOfChannels: 2, sampleRate: SR } : undefined, fastStart: long ? 'fragmented' : 'in-memory', firstTimestampBehavior: 'offset' });
   let encErr = null;
   const venc = new VideoEncoder({ output: (chunk, meta) => muxer.addVideoChunk(chunk, meta), error: e => { encErr = e; } });
   venc.configure(vc.cfg);
@@ -6009,7 +6100,26 @@ async function exportMP4(renderer, mix, onProgress, abort, size) {
   await venc.flush(); venc.close(); if (encErr) throw encErr;
   muxer.finalize();
   onProgress && onProgress(1, 'finish');
-  return { blob: new Blob([target.buffer], { type: 'video/mp4' }), codec: vc.mux, audio: ac ? ac.mux : 'none', w, h };
+  const blob = sink ? await sink.blob('video/mp4') : new Blob([target.buffer], { type: 'video/mp4' });
+  return { blob, codec: vc.mux, audio: ac ? ac.mux : 'none', w, h };
+}
+/* collects the muxer's output in pieces (merged into Blobs every ~24 MB so the browser can keep them out of JS memory) */
+class BlobSink {
+  constructor() { this.parts = []; this.blobs = []; this.len = 0; this.pend = 0; this.patches = []; }
+  write(data, pos) {
+    const d = data.slice();
+    if (pos === this.len) { this.parts.push(d); this.len += d.length; this.pend += d.length; if (this.pend > 24 * 1024 * 1024) { this.blobs.push(new Blob(this.parts)); this.parts = []; this.pend = 0; } }
+    else this.patches.push([pos, d]);
+  }
+  async blob(type) {
+    if (this.parts.length) { this.blobs.push(new Blob(this.parts)); this.parts = []; }
+    let b = new Blob(this.blobs, { type });
+    if (this.patches.length) { // a write went back to an earlier byte (not expected for fragmented MP4) — apply it
+      let end = b.size; this.patches.forEach(([p, d]) => { end = Math.max(end, p + d.length); });
+      const u = new Uint8Array(end); u.set(new Uint8Array(await b.arrayBuffer()), 0); this.patches.forEach(([p, d]) => u.set(d, p)); b = new Blob([u], { type });
+    }
+    this.blobs = []; this.patches = []; return b;
+  }
 }
 /* fallback: real-time MediaRecorder (WebM) */
 async function exportRealtime(renderer, mix, onProgress, abort, size) {
@@ -6029,11 +6139,11 @@ async function exportRealtime(renderer, mix, onProgress, abort, size) {
 /* ---------- Save for Claude ---------- */
 function cleanStoryForSave(story) {
   return {
-    title: story.title, thumb: story.thumb || '', cover: story.cover || null, area: story.area || '', voiceMap: story.voiceMap || {}, book: story.book, youtube: story.youtube,
+    title: story.title, fmt: story.fmt || '', longStyle: story.longStyle || '', thumb: story.thumb || '', cover: story.cover || null, area: story.area || '', voiceMap: story.voiceMap || {}, book: story.book, youtube: story.youtube,
     characters: story.characters.map(c => ({ id: c.id, name: c.name, role: c.role, gender: c.gender, age: c.age })),
     scenes: story.scenes.map(s => {
       const o = { type: s.type }; if (s.type === 'story') Object.assign(o, { place: s.place, time: s.time, mood: s.mood, badge: s.badge, cast: s.cast });
-      if (s.metaphor) o.metaphor = s.metaphor; if (s.cta) o.cta = s.cta;
+      if (s.metaphor) o.metaphor = s.metaphor; if (s.cta) o.cta = s.cta; if (s.chapter) o.chapter = s.chapter;
       o.lines = s.lines.map(l => { const x = { say: l.say, cap: l.cap }; if (l.hl) x.hl = l.hl; if (l.who) x.who = l.who; if (l.focus) x.focus = l.focus; if (l.feel) x.feel = l.feel; if (l.do) x.do = l.do; if (l.hold) x.hold = l.hold; if (l.card) x.card = l.card; if (l.item) x.item = l.item; if (l.speak) x.speak = true; return x; });
       return o;
     })
@@ -6091,7 +6201,7 @@ const fmtT = t => { t = Math.max(0, t || 0); const m = Math.floor(t / 60), s = M
 const debounce = (fn, ms) => { let h; return (...a) => { clearTimeout(h); h = setTimeout(() => fn(...a), ms); }; };
 
 /* ---------- settings & secrets ---------- */
-const DEFAULTS = { series: 'জীবনপাঠ', tagline: 'এক বই · এক গল্প · এক শিক্ষা', coverTheme: 'golpo', animStyle: 'golpo', storyStyle: 'twist', logo: 'TF', hero: 'তানিম', capSize: 58, gap: .22, watermark: true, captions: true, model: 'sonic-3.6', voiceId: '', voiceName: '', speed: 1, emotion: 'none', music: 'auto', musicVol: 55, sfx: true, pops: true, lenMode: 'auto', lenSec: 90, gModel: 'gemini-2.5-flash', aModel: 'claude-sonnet-5-5', aiTab: 'gemini', outro: '', wm: 70, capStyle: 'karaoke', progress: true, cinema: true, expRatio: '9:16', expRes: 1080, capFont: 'solaiman', capLook: 'golpo', titleFont: 'atma', accFont: 'galada', ctxBg: true };
+const DEFAULTS = { series: 'জীবনপাঠ', tagline: 'এক বই · এক গল্প · এক শিক্ষা', coverTheme: 'golpo', animStyle: 'golpo', storyStyle: 'twist', logo: 'TF', hero: 'তানিম', capSize: 58, gap: .22, watermark: true, captions: true, model: 'sonic-3.6', voiceId: '', voiceName: '', speed: 1, emotion: 'none', music: 'auto', musicVol: 55, sfx: true, pops: true, lenMode: 'auto', lenSec: 90, gModel: 'gemini-2.5-flash', aModel: 'claude-sonnet-5-5', aiTab: 'gemini', outro: '', wm: 70, capStyle: 'karaoke', progress: true, cinema: true, expRatio: '9:16', expRes: 1080, capFont: 'solaiman', capLook: 'golpo', titleFont: 'atma', accFont: 'galada', ctxBg: true, vidFmt: 'short', longStyle: 'life', longMin: 10, longWeb: true };
 if (!localStorage.getItem(LK('tf_settings'))) DEFAULTS.emotion = 'auto';
 const S = Object.assign({}, DEFAULTS);
 try { Object.assign(S, JSON.parse(localStorage.getItem(LK('tf_settings')) || '{}')); } catch (e) { }
@@ -6181,8 +6291,15 @@ function segsFor() {
 }
 function rebuild(keepT) {
   if (!app.story) return;
+  const isLong = app.story.fmt === 'long' && !TF_ISL; let resize = false;
+  if (isLong !== !!app.renderer.isLong) { app.renderer = isLong ? new LongRenderer() : new StoryRenderer(); pvComp = null; resize = true; }
+  document.body.classList.toggle('longfmt', isLong);
+  if (isLong && S.expRatio !== '16:9') { S.ratioShort = S.expRatio; S.expRatio = '16:9'; resize = true; }
+  else if (!isLong && S.ratioShort) { S.expRatio = S.ratioShort; S.ratioShort = ''; resize = true; }
+  if (resize) { setSeg('ratioPick', 'r', S.expRatio); try { saveSettings(); } catch (e) { } }
   app.tl = buildTimeline(app.story, { segs: segsFor() }, { speed: S.speed, gap: S.gap, fixed: S.lenMode === 'fixed' ? +S.lenSec : 0, thumb: S.thumbFrame !== false });
   app.renderer.load(app.story, app.tl, S);
+  if (resize) sizeCanvas();
   app.mixDirty = true; if (app.playing) stopPlay(true);
   if (!keepT) app.t = Math.min(app.t, app.tl.total);
   $('pvEmpty').classList.add('hidden'); updateVoicedDots(); updateYT(); try { renderCharVoices(); } catch (e) { } drawAt(app.t); updateTime(); autosave(); updateRec();
@@ -6243,7 +6360,7 @@ function setSeg(navId, attr, val) { $(navId).querySelectorAll('button').forEach(
 function usedList() { try { return JSON.parse(localStorage.getItem(LK('tf_used')) || '[]'); } catch (e) { return []; } }
 function addUsed(s) { const u = usedList(); if (!u.includes(s)) { u.push(s); try { localStorage.setItem(LK('tf_used'), JSON.stringify(u.slice(-5000))); } catch (e) { } Cloud.addUsed(s); } updateUsedInfo(); }
 function updateUsedInfo() { const n = usedList().filter(x => !x.startsWith('LIB:')).length, total = BOOKS.reduce((a, b) => a + b[2].length, 0); $('usedInfo').textContent = `ব্যবহৃত শিক্ষা ${bn(n)} / ${bn(total)}`; }
-function libMeta(txt, id, n, mine) { const title = (txt.match(/^\s*===\s*(.*)$/m) || [, ''])[1].split('|')[0].trim(); const bk = (txt.match(/^\s*বই:\s*(.*)$/m) || [, ''])[1].split('|').map(s => s.trim()); const area = (txt.match(/^\s*ক্ষেত্র:\s*(.*)$/m) || [, ''])[1].trim(); const lines = txt.split('\n').filter(l => l.trim() && !/^(===|##|বই:|থাম্বনেল:|চরিত্র:|বর্ণনা:|হ্যাশট্যাগ:|ক্ষেত্র:|```)/.test(l.trim())).length; return { id, n, txt, title: title || 'শিরোনামহীন', book: bk[0] || '', author: bk[1] || '', lesson: bk[2] || '', area, lines, mine }; }
+function libMeta(txt, id, n, mine) { const title = (txt.match(/^\s*===\s*(.*)$/m) || [, ''])[1].split('|')[0].trim(); const bk = (txt.match(/^\s*বই:\s*(.*)$/m) || [, ''])[1].split('|').map(s => s.trim()); const area = (txt.match(/^\s*ক্ষেত্র:\s*(.*)$/m) || [, ''])[1].trim(); const lines = txt.split('\n').filter(l => l.trim() && !/^(===|##|বই:|থাম্বনেল:|চরিত্র:|বর্ণনা:|হ্যাশট্যাগ:|ক্ষেত্র:|```)/.test(l.trim())).length; return { id, n, txt, title: title || 'শিরোনামহীন', book: bk[0] || '', author: bk[1] || '', lesson: bk[2] || '', area, lines, mine, long: /^\s*(ফরম্যাট|format)\s*[:：]\s*(long|লং)/im.test(txt) }; }
 const BUILTIN = (typeof STORY_LIBRARY !== 'undefined' ? STORY_LIBRARY : []).map((txt, i) => libMeta(txt, 'lb3_' + (i + 1), i + 1, false));
 let USERLIB = []; let LIB = BUILTIN.slice();
 function rebuildLIB() { LIB = BUILTIN.concat(USERLIB.map((u, i) => libMeta(u.txt, u.id, BUILTIN.length + i + 1, true))); }
@@ -6269,11 +6386,11 @@ function updateMyLibInfo() { const el2 = $('myLibInfo'); if (el2) el2.textConten
 function libUsed(it) { return usedList().includes('LIB:' + it.id); }
 function renderLib() {
   const q = $('libSearch').value.trim().toLowerCase(), bk = $('libBook').value, f = $('libFilter').value; const ul = $('libList'); ul.innerHTML = '';
-  const items = LIB.filter(it => (!bk || it.book === bk) && (f === 'all' || (f === 'mine' ? it.mine : f === 'new' ? !libUsed(it) : libUsed(it))) && (!q || (it.title + ' ' + it.book + ' ' + it.lesson + ' ' + it.area + ' ' + it.txt).toLowerCase().includes(q)));
+  const items = LIB.filter(it => (!bk || it.book === bk) && (f === 'all' || (f === 'long' ? it.long : f === 'mine' ? it.mine : f === 'new' ? !libUsed(it) : libUsed(it))) && (!q || (it.title + ' ' + it.book + ' ' + it.lesson + ' ' + it.area + ' ' + it.txt).toLowerCase().includes(q)));
   $('libCount').textContent = `${bn(items.length)}টা গল্প (মোট ${bn(LIB.length)}, অব্যবহৃত ${bn(LIB.filter(x => !libUsed(x)).length)})`;
   const frag = document.createDocumentFragment();
   const list = f === 'mine' || f === 'all' ? items.filter(x => x.mine).reverse().concat(items.filter(x => !x.mine)) : items;
-  list.slice(0, 400).forEach(it => frag.append(el('li', { class: app.libId === it.id ? 'cur' : '', onclick: e => { if (e.target.closest('.del')) return; loadLib(it); } }, el('span', { class: 'no', text: bn(it.n) }), el('span', { class: 't' }, el('b', { text: it.title }), el('span', { text: `${it.book}${it.lesson ? ' · ' + it.lesson : ''} · ${bn(it.lines)} লাইন` })), it.mine ? el('span', { class: 'mine', text: 'নিজের' }) : null, libUsed(it) ? el('span', { class: 'u', text: '✓ ব্যবহৃত' }) : null, it.mine ? el('button', { class: 'del', type: 'button', title: 'লাইব্রেরি থেকে মুছুন', 'aria-label': 'মুছুন', text: '✕', onclick: async () => { if (!confirm(`"${it.title}" লাইব্রেরি থেকে মুছবেন?`)) return; USERLIB = USERLIB.filter(u => u.id !== it.id); await saveUserLib(); renderLib(); updateMyLibInfo(); fillLibFilters(); } }) : null)));
+  list.slice(0, 400).forEach(it => frag.append(el('li', { class: app.libId === it.id ? 'cur' : '', onclick: e => { if (e.target.closest('.del')) return; loadLib(it); } }, el('span', { class: 'no', text: bn(it.n) }), el('span', { class: 't' }, el('b', { text: it.title }), el('span', { text: `${it.book}${it.lesson ? ' · ' + it.lesson : ''} · ${bn(it.lines)} লাইন` })), it.long ? el('span', { class: 'libtag', text: 'লং ভিডিও' }) : null, it.mine ? el('span', { class: 'mine', text: 'নিজের' }) : null, libUsed(it) ? el('span', { class: 'u', text: '✓ ব্যবহৃত' }) : null, it.mine ? el('button', { class: 'del', type: 'button', title: 'লাইব্রেরি থেকে মুছুন', 'aria-label': 'মুছুন', text: '✕', onclick: async () => { if (!confirm(`"${it.title}" লাইব্রেরি থেকে মুছবেন?`)) return; USERLIB = USERLIB.filter(u => u.id !== it.id); await saveUserLib(); renderLib(); updateMyLibInfo(); fillLibFilters(); } }) : null)));
   if (list.length > 400) frag.append(el('li', { class: 'muted', text: `আরও ${bn(list.length - 400)}টা — খুঁজে নিন` }));
   ul.append(frag);
 }
@@ -6290,7 +6407,7 @@ function fillPromptSelects() {
 function fillLessons() { const i = $('pBook').value; const s = $('pLesson'); s.innerHTML = ''; s.append(el('option', { value: '', text: 'যেকোনো' })); if (i !== '') BOOKS[i][2].forEach(l => s.append(el('option', { value: l, text: l }))); }
 function takenLessons() { const t = new Set(usedList().filter(x => !x.startsWith('LIB:'))); LIB.forEach(it => { if (it.book) t.add(it.book + ' — ' + it.lesson); }); return t; }
 function promptOpts(over) { const bi = $('pBook').value; const lines = { s: '১৮-২৪', m: '২৪-৩০', l: '৩০-৪০' }[$('pLen').value]; return Object.assign({ series: S.series, topic: [$('pTopic').value.trim(), $('pArea').value].filter(Boolean).join(' — '), book: bi !== '' ? BOOKS[bi][0] : '', author: bi !== '' ? BOOKS[bi][1] : '', lesson: $('pLesson').value, hero: $('pHero').value.trim() || S.hero, lines, avoid: [...takenLessons()] }, over || {}); }
-function currentPrompt(over) { return buildStoryPrompt(promptOpts(over)); }
+function currentPrompt(over) { if (isLongMode() && !(over && over.count > 1)) return buildLongPrompt(longOpts()); return buildStoryPrompt(promptOpts(over)); }
 async function copySilent(s) { try { await navigator.clipboard.writeText(s); return true; } catch (e) { try { const ta = el('textarea', { value: s }); ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;opacity:0;left:-9999px'; document.body.append(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok; } catch (e2) { return false; } } }
 async function copyText(s, okMsg) { try { await navigator.clipboard.writeText(s); } catch (e) { const ta = el('textarea', { value: s }); document.body.append(ta); ta.select(); document.execCommand('copy'); ta.remove(); } toast(okMsg || 'কপি হয়েছে', 'ok'); }
 function lessonPool(bookSel) { const taken = takenLessons(); const bi = bookSel != null ? bookSel : $('pBook').value; const pool = []; BOOKS.forEach((b, i) => { if (bi !== '' && +bi !== i) return; b[2].forEach(l => { if (!taken.has(b[0] + ' — ' + l)) pool.push([i, l]); }); }); return pool; }
@@ -6298,20 +6415,22 @@ function pickRandom() { const pool = lessonPool(); if (!pool.length) { toast('�
 async function apiFetch(url, opt, who) { let r; try { r = await fetch(url, opt); } catch (e) { throw new Error(who + '-এ সংযোগ হলো না (ইন্টারনেট/ব্রাউজার বাধা)। "বাইরে লেখান" দিয়ে চেষ্টা করুন।'); } if (!r.ok) { const t = await r.text(); if (r.status === 401 || r.status === 403) throw new Error(who + ': API key ভুল বা অনুমতি নেই (' + r.status + ')'); if (r.status === 429) throw new Error(who + ': সীমা শেষ বা বেশি অনুরোধ (429) — একটু পরে চেষ্টা করুন'); throw new Error(who + ' ত্রুটি ' + r.status + ': ' + t.slice(0, 180)); } return r.json(); }
 async function geminiModels() { const k = getKey('gKey'); if (!k) throw new Error('Gemini API key দিন'); const j = await apiFetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200', { headers: { 'x-goog-api-key': k } }, 'Gemini'); return (j.models || []).filter(m => (m.supportedGenerationMethods || []).includes('generateContent') && /gemini/.test(m.name) && !/tts|embed|image|audio|live|vision|aqa/.test(m.name)).map(m => m.name.replace('models/', '')); }
 async function claudeModels() { const k = getKey('aKey'); if (!k) throw new Error('Claude API key দিন'); const j = await apiFetch('https://api.anthropic.com/v1/models?limit=100', { headers: { 'x-api-key': k, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' } }, 'Claude'); return (j.data || []).map(m => m.id); }
-async function aiComplete(prompt, which) {
-  const tab = which || S.aiTab;
+async function aiComplete(prompt, which, opts) {
+  const tab = which || S.aiTab; opts = opts || {}; const big = !!opts.long, web = !!opts.web;
   if (tab === 'gemini') { const k = getKey('gKey'); if (!k) throw new Error('সেটিংসে Gemini API key দিন'); storeKey('gKey'); const model = $('gModel').value || 'gemini-2.5-flash';
-    const j = await apiFetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, { method: 'POST', headers: { 'x-goog-api-key': k, 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature: .95, maxOutputTokens: 8192 } }) }, 'Gemini');
+    const body = { contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature: big ? .8 : .95, maxOutputTokens: big ? 32768 : 8192 } }; if (web) body.tools = [{ google_search: {} }];
+    const j = await apiFetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, { method: 'POST', headers: { 'x-goog-api-key': k, 'Content-Type': 'application/json' }, body: JSON.stringify(body) }, 'Gemini');
     return ((j.candidates || [])[0] || {}).content ? j.candidates[0].content.parts.map(p => p.text || '').join('') : ''; }
   const k = getKey('aKey'); if (!k) throw new Error('সেটিংসে Claude API key দিন'); storeKey('aKey'); const model = $('aModel').value || 'claude-sonnet-5-5';
-  const j = await apiFetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'x-api-key': k, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true', 'content-type': 'application/json' }, body: JSON.stringify({ model, max_tokens: 8000, messages: [{ role: 'user', content: prompt }] }) }, 'Claude');
+  const cbody = { model, max_tokens: big ? 32000 : 8000, messages: [{ role: 'user', content: prompt }] }; if (web) cbody.tools = [{ type: 'web_search_20250305', name: 'web_search', max_uses: 6 }];
+  const j = await apiFetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'x-api-key': k, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true', 'content-type': 'application/json' }, body: JSON.stringify(cbody) }, 'Claude');
   return (j.content || []).map(c => c.text || '').join('');
 }
 async function writeWithAI() {
   if (S.aiTab === 'chat') { copyText(currentPrompt(), 'প্রম্পট কপি হয়েছে — চ্যাটে পেস্ট করুন'); return; }
-  const btn = $('btnWrite'); btn.disabled = true; $('aiStatus').textContent = 'লেখা হচ্ছে… (২০-৬০ সেকেন্ড)';
+  const btn = $('btnWrite'), L = isLongMode(); btn.disabled = true; $('aiStatus').textContent = L ? 'লং ভিডিওর স্ক্রিপ্ট লেখা হচ্ছে… (১-৩ মিনিট, পেজটা খোলা রাখুন)' : 'লেখা হচ্ছে… (২০-৬০ সেকেন্ড)';
   try {
-    const text = await aiComplete(currentPrompt()); if (!text.trim()) throw new Error('খালি উত্তর এসেছে — আবার চেষ্টা করুন');
+    const text = await aiComplete(currentPrompt(), null, L ? { long: true, web: S.longWeb === true && S.longStyle !== 'life' } : null); if (!text.trim()) throw new Error('খালি উত্তর এসেছে — আবার চেষ্টা করুন');
     $('storyIn').value = text; $('aiStatus').textContent = '';
     const r = await addStoriesToLib(text); const id = r.ids[0] || null;
     if (await loadAny(text, { libId: id })) { app.libId = id; renderLib(); fillLibFilters(); toast('নতুন গল্প লেখা হয়েছে ও লাইব্রেরিতে রাখা হয়েছে', 'ok'); }
@@ -6356,6 +6475,7 @@ async function loadAny(text, o) {
   app.exported = false; app.lastExport = null; $('expDone').classList.add('hidden');
   const n = app.story.scenes.reduce((a, s) => a + s.lines.length, 0);
   showWarnings(app.warnings.filter(w => !/চেনা নেই|ধরা হলো/.test(w)), `${app.story.title} — ${bn(app.story.scenes.length)}টা দৃশ্য, ${bn(n)}টা লাইন${parts.length > 1 ? ` (আরও ${bn(parts.length - 1)}টা গল্প "+ লাইব্রেরিতে যোগ" দিয়ে রাখুন)` : ''}`);
+  if (!TF_ISL) { const want = app.story.fmt === 'long' ? 'long' : 'short'; if (S.vidFmt !== want) { S.vidFmt = want; if (app.story.longStyle) S.longStyle = app.story.longStyle; saveSettings(); try { syncLongUI(); } catch (e) { } } }
   app.t = 0; recIdx = 0; $('thumbText').value = app.story.thumb || ''; buildEditors(); rebuild(); renderMarkers(); $('aiNotes').value = app.notes || '';
   return true;
 }
@@ -6464,7 +6584,8 @@ function renderGallery() {
   g.append(frag);
   const step = () => { const it = queue.splice(0, 8); it.forEach(([cv, ch]) => { const a = avatarCanvas(ch, 96, true); cv.getContext('2d').drawImage(a, 0, 0); }); if (queue.length) requestAnimationFrame(step); }; requestAnimationFrame(step);
 }
-function sceneThumb(si) { const cv = el('canvas', { width: 192, height: 108 }); const r = app.renderer; if (!r.story) return cv; const sc = app.story.scenes[si]; const c = cv.getContext('2d'); const k = 192 / W, y0 = sc.type === 'story' ? 680 : sc.type === 'cta' ? 420 : 560; c.setTransform(k, 0, 0, k, 0, -y0 * k); const tt = sc.type === 'story' ? sc.start + Math.min(1.2, (sc.end - sc.start) * .5) : sc.end - .4; try { r.drawScene(c, si, tt); } catch (e) { } return cv; }
+function sceneThumb(si) { const cv = el('canvas', { width: 192, height: 108 }); const r = app.renderer; if (!r.story) return cv; const sc = app.story.scenes[si]; const c = cv.getContext('2d');
+  if (r.isLong) { c.setTransform(192 / LW, 0, 0, 108 / LH, 0, 0); const tt = sc.type === 'story' ? sc.start + Math.min(1.2, (sc.end - sc.start) * .5) : sc.end - .4; try { r.drawSceneL(c, si, tt); } catch (e) { } return cv; } const k = 192 / W, y0 = sc.type === 'story' ? 680 : sc.type === 'cta' ? 420 : 560; c.setTransform(k, 0, 0, k, 0, -y0 * k); const tt = sc.type === 'story' ? sc.start + Math.min(1.2, (sc.end - sc.start) * .5) : sc.end - .4; try { r.drawScene(c, si, tt); } catch (e) { } return cv; }
 function buildOverview() {
   const st = app.story, box = $('sceneOverview'); box.innerHTML = ''; const nm = Object.fromEntries(st.characters.map(c => [c.id, c.name])); const thumbs = [];
   st.scenes.forEach((sc, si) => { const holder = el('div', { style: 'width:96px;height:54px' }); thumbs.push([holder, si]);
@@ -6649,7 +6770,7 @@ async function uploadMusic(file) { if (!file) return; try { const bytes = await 
 
 /* ---------- step 4: export + share ---------- */
 let abortFlag = null;
-function updateExpInfo() { const { w, h } = frameSize(S.expRatio, S.expRes); const d = app.tl ? app.tl.total : 0; $('expInfo').textContent = `${w} × ${h} · ৩০fps · ${bn(Math.round(d))} সেকেন্ড` + (S.expRatio !== '9:16' ? ' · গল্প খাড়া (৯:১৬) ভাবে আঁকা, পাশে ঝাপসা ব্যাকগ্রাউন্ড থাকবে' : ''); }
+function updateExpInfo() { const { w, h } = frameSize(S.expRatio, S.expRes); const d = app.tl ? app.tl.total : 0; const L = app.renderer && app.renderer.isLong; $('expInfo').textContent = `${w} × ${h} · ৩০fps · ` + (d >= 90 ? `${fmtT(d)} মিনিট` : `${bn(Math.round(d))} সেকেন্ড`) + (L ? ` · লং ভিডিও (${LONG_STYLE_BN[app.renderer.style] || ''}) · আনুমানিক ফাইল ${bn(Math.max(1, Math.round(d * (w * h / (1080 * 1920) * 4.5 + .16) / 8)))} MB` + (S.expRes >= 1080 && d > 480 ? ' · ফোনে দ্রুত চাইলে 720p নিন' : '') : S.expRatio !== '9:16' ? ' · গল্প খাড়া (৯:১৬) ভাবে আঁকা, পাশে ঝাপসা ব্যাকগ্রাউন্ড থাকবে' : ''); }
 async function doExport() {
   if (!app.story) { toast('আগে গল্প বাছুন', 'err'); return; }
   stopPlay(true); if (IS_ANDROID) try { window.TFAndroid.keepAwake(true); } catch (e) { } ExportGuard.start(); const b = $('btnExport'); b.disabled = true; $('expDone').classList.add('hidden'); $('expProg').classList.remove('hidden'); abortFlag = { aborted: false };
@@ -6878,8 +6999,8 @@ function drawCoverGolpo(c, renderer) {
 }
 /* thumbnail / cover */
 const thumbSoon = debounce(drawThumbPv, 200);
-function drawThumbPv() { const cv = $('thumbPv'); if (!cv || !app.story || !app.tl) return; const [a, b] = RATIOS[S.expRatio] || RATIOS['9:16']; cv.width = 180; cv.height = Math.round(180 * b / a); const c = cv.getContext('2d'); c.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0); drawCover(c, app.renderer); c.setTransform(1, 0, 0, 1, 0, 0); }
-async function thumbBlob() { const { w, h } = frameSize(S.expRatio, 1080); const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const c = cv.getContext('2d', { alpha: false }); cv.width = W; cv.height = H; const c2 = cv.getContext('2d', { alpha: false }); drawCover(c2, app.renderer); return await new Promise(r => cv.toBlob(r, 'image/jpeg', .92)); }
+function drawThumbPv() { const cv = $('thumbPv'); if (!cv || !app.story || !app.tl) return; if (app.renderer.isLong) { cv.width = 180; cv.height = 102; const c = cv.getContext('2d'); c.setTransform(180 / LW, 0, 0, 102 / LH, 0, 0); app.renderer.drawThumb(c); c.setTransform(1, 0, 0, 1, 0, 0); return; } const [a, b] = RATIOS[S.expRatio] || RATIOS['9:16']; cv.width = 180; cv.height = Math.round(180 * b / a); const c = cv.getContext('2d'); c.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0); drawCover(c, app.renderer); c.setTransform(1, 0, 0, 1, 0, 0); }
+async function thumbBlob() { if (app.renderer.isLong) { const cv = document.createElement('canvas'); cv.width = LW; cv.height = LH; app.renderer.drawThumb(cv.getContext('2d', { alpha: false })); return await new Promise(r => cv.toBlob(r, 'image/jpeg', .92)); } const { w, h } = frameSize(S.expRatio, 1080); const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const c = cv.getContext('2d', { alpha: false }); cv.width = W; cv.height = H; const c2 = cv.getContext('2d', { alpha: false }); drawCover(c2, app.renderer); return await new Promise(r => cv.toBlob(r, 'image/jpeg', .92)); }
 function renderMarkers() { const ul = $('markerList'); ul.innerHTML = ''; app.markers.forEach((m, i) => ul.append(el('li', null, el('b', { text: `📍 ${fmtT(m.t)} · দৃশ্য ${bn(m.si + 1)}, লাইন ${bn(m.li + 1)}` }), el('input', { value: m.note, placeholder: 'কী ভুল?', oninput: e => { m.note = e.target.value; autosave(); } }), el('button', { class: 'link', type: 'button', text: 'যাও', onclick: () => { stopPlay(true); app.t = m.t; drawAt(app.t); updateTime(); } }), el('button', { class: 'link', type: 'button', text: '✕', onclick: () => { app.markers.splice(i, 1); renderMarkers(); autosave(); } })))); }
 function addMarker() { if (!app.story) return; const sh = app.tl.shots[app.renderer.shotAt(app.t)]; app.markers.push({ t: app.t, si: sh.si, li: sh.li, cap: app.story.scenes[sh.si].lines[sh.li].cap, note: '' }); renderMarkers(); autosave(); toast(`📍 ${fmtT(app.t)} মার্ক হয়েছে — এক্সপোর্ট পাতায় লিখুন কী ভুল`, 'ok'); }
 async function saveForClaude() { if (!app.story) return; app.notes = $('aiNotes').value; const pkg = buildAIPackage(app); pkg.lib_id = app.libId; pkg.tf_script = toTFScript(app.story); downloadBlob(new Blob([JSON.stringify(pkg, null, 1)], { type: 'application/json' }), safeName(app.story.title) + '.tfstory.json'); if ($('aiSheet').checked) { const jpg = await previewSheet(app.renderer); downloadBlob(jpg, safeName(app.story.title) + '_preview.jpg'); drawAt(app.t); } toast('ফাইল ডাউনলোড হয়েছে — Claude-কে দিন', 'ok', 5000); }
@@ -6901,6 +7022,7 @@ function seriesTitle(st) {
   return t.slice(0, 100);
 }
 function publishPack(st) {
+  if (st.fmt === 'long' && !TF_ISL) return publishPackLong(st);
   const y = st.youtube || {}, b = st.book || {}; const hook = (st.title || '').split('|')[0].trim();
   const cta = (st.scenes.find(x => x.type === 'cta') || {}).cta || {}; const q = cta.question || '';
   const ser = (typeof S !== 'undefined' && S.series) || 'জীবনপাঠ', tag = (typeof S !== 'undefined' && S.tagline) || 'এক বই · এক গল্প · এক শিক্ষা';
@@ -7151,12 +7273,12 @@ async function init() {
   document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => goStep(b.dataset.go)));
   $('btnNew').onclick = newStory; $('btnGallery').onclick = () => openGallery(null);
   segTabs('galFilter', 'gf', v => { galFilter = v; renderGallery(); });
-  segTabs('srcTabs', 'src', v => showSrc(v)); initStartPick();
+  segTabs('srcTabs', 'src', v => showSrc(v)); initStartPick(); initLongUI();
   segTabs('aiTabs', 'ai', v => { S.aiTab = v; saveSettings(); applySettingsToUI(); });
   segTabs('voiceTabs', 'v', chooseVoice); setVoiceTab(app.audio.mode);
   segTabs('lenTabs', 'len', v => { S.lenMode = v; saveSettings(); $('lenFixedRow').classList.toggle('hidden', v !== 'fixed'); rebuild(true); });
   segTabs('setTabs', 'st', v => ['ch', 'key', 'vid', 'data'].forEach(x => $('st-' + x).classList.toggle('hidden', x !== v)));
-  segTabs('ratioPick', 'r', v => { S.expRatio = v; saveSettings(); sizeCanvas(); thumbSoon(); updateExpInfo(); });
+  segTabs('ratioPick', 'r', v => { if (app.story && app.renderer.isLong && v !== '16:9') { toast('লং ভিডিও শুধু ১৬:৯ (ইউটিউব) — রিলস/শর্টসের জন্য শর্ট গল্প নিন'); setSeg('ratioPick', 'r', '16:9'); return; } S.expRatio = v; saveSettings(); sizeCanvas(); thumbSoon(); updateExpInfo(); });
   segTabs('resPick', 'res', v => { S.expRes = +v; saveSettings(); updateExpInfo(); });
   document.querySelectorAll('[data-eye]').forEach(b => b.addEventListener('click', e => { e.preventDefault(); const i = $(b.dataset.eye); i.type = i.type === 'password' ? 'text' : 'password'; }));
   ['gKey', 'aKey', 'cKey'].forEach(id => $(id).addEventListener('input', debounce(() => { storeKey(id); updateKeyStatus(); }, 300)));
@@ -7195,7 +7317,7 @@ async function init() {
   bindSetting('mStyle', 'music', null, 'change', v => { if (v === 'upload' && !S._musicBuf) { toast('নিচের বাটন দিয়ে মিউজিক ফাইল দিন'); } });
   bindSetting('mVol', 'musicVol', t => +t.value, 'input', v => $('mVolOut').textContent = v); bindSetting('mSfx', 'sfx', t => t.checked); bindSetting('mPops', 'pops', t => t.checked);
   $('musicUpload').onchange = e => { uploadMusic(e.target.files[0]).then(() => rebuild(true)); e.target.value = ''; };
-  bindSetting('lenSec', 'lenSec', t => cl(+t.value || 90, 15, 600));
+  bindSetting('lenSec', 'lenSec', t => cl(+t.value || 90, 15, 1800));
   // settings dialog
   bindSetting('sSeries', 'series', null, 'input'); bindSetting('sTagline', 'tagline', null, 'input'); bindSetting('sLogo', 'logo', t => t.value.trim() || 'TF', 'input', showLogoUI); bindSetting('sHero', 'hero', t => t.value.trim() || 'তানিম', 'input'); bindSetting('sOutro', 'outro', null, 'input');
   bindSetting('sWm', 'wm', t => +t.value, 'input', v => $('sWmOut').textContent = v); bindSetting('sCapStyle', 'capStyle'); bindSetting('sProgress', 'progress', t => t.checked); bindSetting('sCinema', 'cinema', t => t.checked); bindSetting('sAnimStyle', 'animStyle'); bindSetting('sHookCard', 'hookCard', t => t.checked); bindSetting('sMultiVoice', 'multiVoice', t => t.checked, 'change', () => renderCharVoices()); bindSetting('sThumb', 'thumbFrame', t => t.checked);
@@ -7241,10 +7363,533 @@ async function init() {
   await document.fonts.ready; sizeCanvas(); await restoreProject(); updateFlow();
   if (!localStorage.getItem('tf_seen_help3')) { $('dlgHelp').showModal(); localStorage.setItem('tf_seen_help3', '1'); }
 }
+/* ===================== TF Story Studio — LONG VIDEO (YouTube 16:9, 5–15 min) =====================
+   Three long styles, learned from popular Bangla channels (style only, never their content):
+   - life     : "জীবনের গল্প" — warm 2D family drama, 12-beat structure, numbered traps (chapters), wise contrast character,
+                hidden object revealed at the end, warm earthy grade, cream karaoke captions, number stamps.
+   - thriller : "সত্য ঘটনা থ্রিলার" — real/recent event told like a thriller: dark navy + amber grade, kinetic typography
+                (every line's words pop in one by one, key words in yellow), whoosh/click/ding sound on every text beat,
+                date / document / source cards, countdown chapters.
+   - guide    : "ধাপে ধাপে গাইড" — roadmap (week 1 … week 4), same kinetic text, step cards with progress dots.
+   The story engine (characters, places, voice, music, export, share) is the same as the short videos. */
+const LW = 1920, LH = 1080;
+const LONG_STYLE_BN = { life: 'জীবনের গল্প', thriller: 'সত্য ঘটনা থ্রিলার', guide: 'ধাপে ধাপে গাইড' };
+const KT_PUNCT = /[।,.!?“”"'‘’:;()]/g;
+/* per-word timing inside a line (shared by the picture and the sound, so every pop lands on its word) */
+function ktWords(ln, sh) {
+  const words = String(ln.cap || '').split(/\s+/).filter(Boolean);
+  const hl = new Set(); String(ln.hl || '').split('|').forEach(h => h.split(/\s+/).forEach(w => { w = w.replace(KT_PUNCT, ''); if (w) hl.add(w); }));
+  const tot = words.reduce((a, w) => a + w.length + 1, 0) || 1, span = Math.max(.3, sh.dur * .9); let acc = 0;
+  return words.map(w => { const t0 = sh.start + .04 + acc / tot * span; acc += w.length + 1; const clean = w.replace(KT_PUNCT, ''); return { w, t0, hl: hl.has(clean), num: /[০-৯\d৳%]/.test(w) }; });
+}
+/* life style: a number in the highlighted words becomes a paper "stamp" on screen */
+function ktStamp(ln) { if (!ln || ln.card || !ln.hl) return ''; const h = String(ln.hl).split('|')[0].trim(); return /[০-৯\d৳]/.test(h) && h.length <= 26 ? h : ''; }
+function longSfx(st, tl, S, play) {
+  const kt = st.longStyle !== 'life', pops = S.pops !== false;
+  st.scenes.forEach(sc => { if (sc.type !== 'chapter') return; if (sc.start > 1.4) play('riser', sc.start - 1.22); play(kt ? 'boom' : 'bell', sc.start + .02); play('whoosh', sc.start + .4); });
+  const first = st.scenes.findIndex(x => x.type === 'story');
+  tl.shots.forEach(sh => {
+    const sc = st.scenes[sh.si], ln = sc.lines[sh.li]; if (!ln) return;
+    if (sc.type === 'story') {
+      if (kt) {
+        if (sh.li === 0 || ln.speak || ln.card) play('whoosh', sh.start - .07);
+        if (sh.si === first && sh.li === 0) play('boom', sh.start);
+        if (pops) ktWords(ln, sh).forEach((w, i) => { if (w.num) play('ding', w.t0); else if (w.hl) play('pop', w.t0); else if (i % 2 === 0) play('click', w.t0); });
+      } else {
+        const sp = ktStamp(ln); if (sp && pops) { const w = ktWords(ln, sh).find(x => x.hl) || { t0: sh.start + .2 }; play('paper', w.t0); }
+      }
+    }
+    if (ln.card) { const ty = ln.card.type;
+      if (ty === 'doc') for (let i = 0; i < 16; i++) play('type', sh.start + .32 + i * .065);
+      else if (ty === 'date') play('ding', sh.start + .28);
+      else if (ty === 'source') play('paper', sh.start + .22);
+      else if (ty === 'reveal' && kt) play('boom', sh.start + .02); }
+  });
+}
+
+class LongRenderer extends StoryRenderer {
+  load(story, timeline, settings) {
+    super.load(story, timeline, settings);
+    this.isLong = true; this.style = story.longStyle || 'life'; this.kt = this.style !== 'life';
+    this.settings = Object.assign({}, settings, { capLook: this.kt ? (settings.capLook || 'news') : 'golpo' });
+    this.cine2 = true; this.golpo = false; this.jump = story.scenes.map(() => ''); this._bgL = new Map(); this._ktL = {}; this._lcov = null; this._ctaBgL = null;
+    this.P = this.kt
+      ? { box: 'rgba(8,14,28,.9)', ink: '#FFFFFF', hi: '#FFD23F', hi2: '#FF9F43', red: '#E5484D', edge: 'rgba(255,210,63,.85)', bg1: '#0B1322', bg2: '#16233D' }
+      : { box: 'rgba(248,241,229,.97)', ink: '#2A1C14', hi: '#B3261E', hi2: '#C0841A', red: '#B3261E', edge: 'rgba(179,38,30,.55)', bg1: '#3A2A20', bg2: '#5B4030' };
+    this.lc = []; this.side = []; this.words = [];
+    let prev = -1, idx = 0;
+    this.tl.shots.forEach((sh, k) => { const sc = story.scenes[sh.si], ln = sc.lines[sh.li]; if (sh.si !== prev) { idx = 0; prev = sh.si; } else idx++;
+      if (sc.type === 'story') { const r = this.longCam(sc, idx, ln); this.lc[k] = r.cam; this.side[k] = r.side; } this.words[k] = ktWords(ln, sh); });
+    this.chap = []; let cur = null; story.scenes.forEach((sc, i) => { if (sc.type === 'chapter') cur = sc; this.chap[i] = cur; });
+    this.chapList = story.scenes.filter(s => s.type === 'chapter');
+  }
+  /* 16:9 camera inside the 9:16 story world: wide group shots and chest-up close-ups;
+     in the kinetic styles the speaker sits on one third and the text panel takes the other side */
+  longCam(sc, idx, ln) {
+    const n = Math.min(3, sc.cast.length || 1), pos = CAST_POS[n] || CAST_POS[1];
+    const kidF = id => { const cr = this.chars[id]; return cr ? (cr.L.kid ? .74 : cr.L.teen ? .92 : 1) : 1; };
+    const head = i => { const P0 = pos[i] || pos[0]; return P0[1] - 418 * P0[2] * kidF(sc.cast[i]); };
+    const sp = ln.who ? sc.cast.indexOf(ln.who) : (ln.focus ? sc.cast.indexOf(ln.focus) : -1);
+    const HH = LH / 2 * 1080 / LW;
+    const group = sp < 0 || (idx === 0 && sc.lines.length > 2) || idx % 3 === 2 || (n === 1 && idx % 2 === 0 && !this.kt);
+    let z, x, y, side = 0;
+    if (group) {
+      z = this.kt ? 1.06 : 1; let top = 1e9; for (let i = 0; i < n; i++) top = Math.min(top, head(i));
+      x = 540; y = top - 48 + HH / z;
+    } else {
+      const P0 = pos[sp] || pos[0], vw = 1080 / (z = this.kt ? 1.5 : (n === 1 ? 1.42 : 1.58));
+      if (this.kt) { side = P0[0] <= 540 ? 1 : -1; x = P0[0] + side * vw * .21; }
+      else { const dir = n > 1 ? (P0[0] < 540 ? 1 : -1) : 0; x = P0[0] + dir * vw * .07; }
+      y = head(sp) - 36 + HH / z * .95;
+    }
+    const hw = 540 / z, hh = HH / z;
+    return { cam: { x: cl(x, hw, 1080 - hw), y: cl(y, hh, 1920 - hh), z }, side };
+  }
+  /* sharper background for the wide 16:9 frame (the short-video one is half size) */
+  bgFor(si) {
+    if (this._bgL.has(si)) return this._bgL.get(si);
+    const sc = this.story.scenes[si]; const raw = document.createElement('canvas'); raw.width = W; raw.height = H; const rc = raw.getContext('2d', { alpha: false });
+    try { drawPlace(rc, sc.place, sc.start, sc.time, 'bg'); } catch (e) { rect(rc, 0, 0, W, H, '#ddd'); }
+    const out = document.createElement('canvas'); out.width = W; out.height = H; const oc = out.getContext('2d', { alpha: false });
+    oc.filter = this.kt ? 'blur(3px) saturate(.8) brightness(.82)' : 'blur(2px) saturate(.9) sepia(.16)'; oc.drawImage(raw, -8, -8, W + 16, H + 16); oc.filter = 'none';
+    if (this._bgL.size > 3) this._bgL.delete(this._bgL.keys().next().value);
+    this._bgL.set(si, out); return out;
+  }
+  get frameW() { return LW; } get frameH() { return LH; }
+  /* scene look over the whole frame (cached overlay: vignette, grid, grain) */
+  overlay() {
+    if (this._ov) return this._ov; const cv = document.createElement('canvas'); cv.width = LW; cv.height = LH; const c = cv.getContext('2d');
+    const g = c.createRadialGradient(LW / 2, LH / 2, LH * .35, LW / 2, LH / 2, LW * .62); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, this.kt ? 'rgba(2,6,16,.62)' : 'rgba(40,20,8,.34)'); c.fillStyle = g; c.fillRect(0, 0, LW, LH);
+    if (this.kt) { c.strokeStyle = 'rgba(140,180,255,.05)'; c.lineWidth = 1; for (let x = 0; x <= LW; x += 80) { c.beginPath(); c.moveTo(x + .5, 0); c.lineTo(x + .5, LH); c.stroke(); } for (let y = 0; y <= LH; y += 80) { c.beginPath(); c.moveTo(0, y + .5); c.lineTo(LW, y + .5); c.stroke(); } }
+    else { let s = 7; for (let i = 0; i < 2600; i++) { s = (s * 1103515245 + 12345) & 0x7fffffff; const x = s % LW; s = (s * 1103515245 + 12345) & 0x7fffffff; const y = s % LH; c.fillStyle = i % 2 ? 'rgba(90,60,30,.05)' : 'rgba(255,240,210,.05)'; c.fillRect(x, y, 2, 2); } }
+    return (this._ov = cv);
+  }
+  grade(c) {
+    c.save();
+    if (this.kt) { c.globalCompositeOperation = 'multiply'; c.fillStyle = 'rgba(52,72,128,.68)'; c.fillRect(0, 0, LW, LH); c.globalCompositeOperation = 'soft-light'; const g = c.createRadialGradient(LW * .72, LH * .18, 40, LW * .72, LH * .18, LW * .6); g.addColorStop(0, 'rgba(255,170,70,.55)'); g.addColorStop(1, 'rgba(255,170,70,0)'); c.fillStyle = g; c.fillRect(0, 0, LW, LH); }
+    else { c.globalCompositeOperation = 'soft-light'; c.fillStyle = 'rgba(255,186,120,.26)'; c.fillRect(0, 0, LW, LH); }
+    c.restore(); c.drawImage(this.overlay(), 0, 0);
+  }
+  /* the story world (1080×1920) seen through a 16:9 window */
+  drawStoryL(c, si, t, camForce) {
+    const [a, b] = this.shotRangeOfScene(si); let k = this.shotAt(t); if (k < a) k = a; if (k > b) k = b;
+    const sh = this.tl.shots[k], lt = t - sh.start; let cam = camForce || this.lc[k];
+    if (!camForce && k > a && this.lc[k - 1]) { const pc = this.lc[k - 1], e = eio(lt / .6); cam = { x: pc.x + (cam.x - pc.x) * e, y: pc.y + (cam.y - pc.y) * e, z: pc.z + (cam.z - pc.z) * e }; }
+    const s = LW / W, y0 = H / 2 - LH / 2 / s;
+    c.save(); c.scale(s, s); c.translate(0, -y0);
+    this._camOverride = cam; this._noCard = true;
+    try { this.drawStory(c, si, t); } finally { this._camOverride = null; this._noCard = false; }
+    c.restore();
+    this.grade(c);
+    return { k, sh, cam };
+  }
+  shotIn(si, t) { const [a, b] = this.shotRangeOfScene(si); let k = this.shotAt(t); if (k < a) k = a; if (k > b) k = b; return k; }
+  blurBg(key, si) { // last story scene, blurred and darkened, 16:9
+    this._bb = this._bb || {}; if (this._bb[key]) return this._bb[key];
+    let ls = -1; for (let i = si; i >= 0; i--) if (this.story.scenes[i].type === 'story') { ls = i; break; } if (ls < 0) ls = this.story.scenes.findIndex(x => x.type === 'story');
+    const raw = document.createElement('canvas'); raw.width = LW / 2; raw.height = LH / 2; const rc = raw.getContext('2d', { alpha: false }); rc.scale(.5, .5);
+    try { if (ls >= 0) { const sc = this.story.scenes[ls]; this.drawStoryL(rc, ls, Math.max(sc.start, sc.end - .3), { x: 540, y: 1180, z: 1 }); } else { rect(rc, 0, 0, LW, LH, this.P.bg1); } } catch (e) { rect(rc, 0, 0, LW, LH, this.P.bg1); }
+    const out = document.createElement('canvas'); out.width = LW / 2; out.height = LH / 2; const oc = out.getContext('2d', { alpha: false });
+    oc.filter = 'blur(12px)'; oc.drawImage(raw, -20, -20, LW / 2 + 40, LH / 2 + 40); oc.filter = 'none'; oc.fillStyle = this.kt ? 'rgba(6,10,22,.7)' : 'rgba(30,16,8,.6)'; oc.fillRect(0, 0, LW / 2, LH / 2);
+    const ks = Object.keys(this._bb); if (ks.length > 6) delete this._bb[ks[0]];
+    return (this._bb[key] = out);
+  }
+  dust(c, t, n, col) { for (let i = 0; i < n; i++) { const x = (i * 263) % LW, y = (i * 331 + t * 14 * (1 + i % 3)) % LH; withA(c, .1 + (i % 4) * .05, () => circ(c, x, y, 2 + i % 3, col)); } }
+
+  render(c, t, opt) {
+    if (!this.story) return;
+    const th = this.tl.thumb || 0;
+    if (th > 0 && t < th) { this.drawThumb(c); return; }
+    const si = this.sceneAt(t), sc = this.story.scenes[si], lt = t - sc.start, TR = .45;
+    c.save();
+    if (si > 0 && lt < TR) {
+      const p = eio(lt / TR), pv = this.story.scenes[si - 1], tp = pv.end - .001;
+      if (sc.type === 'chapter' || pv.type === 'chapter' || sc.type === 'cta') { // wipe with a coloured bar
+        if (p < .5) this.drawSceneL(c, si - 1, tp); else this.drawSceneL(c, si, t);
+        const x = -LW * .3 + p * LW * 1.6; c.save(); c.fillStyle = this.kt ? this.P.hi : this.P.red; c.beginPath(); c.moveTo(x - 260, 0); c.lineTo(x + 160, 0); c.lineTo(x + 40, LH); c.lineTo(x - 380, LH); c.closePath(); c.fill(); c.restore();
+      } else { this.drawSceneL(c, si - 1, tp); c.save(); c.globalAlpha = p; c.translate(LW / 2, LH / 2); const z = 1.06 - .06 * p; c.scale(z, z); c.translate(-LW / 2, -LH / 2); this.drawSceneL(c, si, t); c.restore(); }
+    } else this.drawSceneL(c, si, t);
+    if (th > 0 && t < th + .3) withA(c, 1 - (t - th) / .3, () => this.drawThumb(c));
+    if (!opt || opt.ui !== false) this.drawUIL(c, t, si);
+    c.restore();
+  }
+  drawSceneL(c, si, t) {
+    const sc = this.story.scenes[si];
+    c.save();
+    if (sc.type === 'story') { const r = this.drawStoryL(c, si, t); const ln = sc.lines[r.sh.li]; if (ln.card) this.drawCardL(c, ln.card, t - r.sh.start, r.sh.dur + .2, t, r.k); }
+    else if (sc.type === 'chapter') this.drawChapterL(c, si, t);
+    else if (sc.type === 'book') this.drawBookL(c, si, t);
+    else if (sc.type === 'cta') this.drawCTAL(c, si, t);
+    else if (sc.type === 'rewind') this.drawRewindL(c, si, t);
+    else if (sc.type === 'takeaways') this.drawTakeawaysL(c, si, t);
+    else { const s = LH / H; rect(c, 0, 0, LW, LH, this.P.bg1); c.save(); c.translate((LW - W * s) / 2, 0); c.scale(s, s); this.drawScene(c, si, t); c.restore(); }
+    c.restore();
+  }
+  /* ---------- cards on the 16:9 frame ---------- */
+  drawCardL(c, card, lt, dur, t, k) {
+    const ty = card.type, side = this.side[k] || 0;
+    if (ty === 'reveal' && lt < .35) withA(c, (1 - lt / .35) * .8, () => rect(c, 0, 0, LW, LH, '#FFF8EC'));
+    if (ty === 'doc' || ty === 'source' || ty === 'date') return this.drawNewCard(c, card, lt, dur, t, side);
+    // the short-video cards, scaled onto the free side of the frame
+    const cx = this.kt ? (side >= 0 ? LW * .72 : LW * .28) : LW * .73, cy = this.kt ? LH * .4 : LH * .36, sc = this.kt ? .74 : .7;
+    c.save(); c.translate(cx, cy); c.scale(sc, sc); c.translate(-540, -640);
+    c.beginPath(); c.rect(40, 300, 1000, 760); c.clip(); CARD_CINE = true;
+    const lt2 = ty === 'reveal' ? Math.max(lt, .36) : lt; drawCard(c, card, lt2, dur, t);
+    c.restore();
+  }
+  drawNewCard(c, card, lt, dur, t, side) {
+    const k = back(lt, .05, .45), out = cl((dur - lt) / .2); if (k <= 0 || out <= 0) return;
+    const T = s => String(s == null ? '' : s), PL = this.P;
+    const cx = this.kt ? (side >= 0 ? LW * .7 : LW * .3) : LW * .72;
+    c.save(); c.globalAlpha *= out;
+    if (card.type === 'date') {
+      popAt(c, cx, 420, k, () => { const w = 560, h = 330, x = cx - w / 2, y = 255; c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 40; c.shadowOffsetY = 14; rr(c, x, y, w, h, 26, '#FFFFFF'); c.restore();
+        rr(c, x, y, w, 96, [26, 26, 0, 0], PL.red); circ(c, x + 120, y, 14, '#fff'); circ(c, x + w - 120, y, 14, '#fff');
+        txt(c, 'তারিখ', cx, y + 64, 40, '#fff', 700, 'center', FONT_BN);
+        const ls = wrapText(c, T(card.text), 78, w - 60, 800, 'TFDisp').slice(0, 2); ls.forEach((l, i) => txt(c, l, cx, y + 190 + i * 84 - (ls.length - 1) * 30, 78, '#141B2A', 800, 'center', 'TFDisp', w - 50)); });
+    } else if (card.type === 'doc') {
+      popAt(c, cx, 470, k, () => { const w = 700, body = T(card.text), x = cx - w / 2, y = 190; const ls = wrapText(c, body, 44, w - 110, 400, 'TFTiro').slice(0, 6); const h = 190 + ls.length * 62;
+        c.save(); c.translate(cx, y + h / 2); c.rotate(-.02); c.translate(-cx, -(y + h / 2)); c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 44; c.shadowOffsetY = 16; rr(c, x, y, w, h, 10, '#F4EFE3'); c.restore();
+        rr(c, x + 30, y + 26, 170, 44, 6, 'rgba(229,72,77,.9)'); txt(c, 'গোপন নথি', x + 115, y + 58, 28, '#fff', 700, 'center', FONT_BN);
+        txt(c, T(card.title), x + 230, y + 60, 36, '#3A2C20', 700, 'left', FONT_BN, w - 260);
+        line(c, x + 30, y + 96, x + w - 30, y + 96, 'rgba(60,40,20,.25)', 2);
+        const all = ls.join('\n'), shown = Math.floor(cl((lt - .3) / Math.max(.6, Math.min(2.4, dur * .6))) * all.length); let used = 0;
+        ls.forEach((l, i) => { const vis = l.slice(0, Math.max(0, shown - used)); used += l.length + 1; if (vis) txt(c, vis, x + 50, y + 160 + i * 62, 44, '#2A2018', 400, 'left', 'TFTiro'); });
+        if (shown < all.length && Math.floor(t * 3) % 2) { const li = Math.min(ls.length - 1, (all.slice(0, shown).match(/\n/g) || []).length); const pre = all.slice(0, shown).split('\n').pop(); rect(c, x + 52 + tw(c, pre, 44, 400, 'TFTiro'), y + 122 + li * 62, 4, 48, '#2A2018'); }
+        c.restore(); });
+    } else if (card.type === 'source') {
+      popAt(c, cx, 380, k, () => { const w = 720, ls = wrapText(c, T(card.text), 46, w - 90, 700).slice(0, 3), h = 150 + ls.length * 62, x = cx - w / 2, y = 240;
+        c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 36; c.shadowOffsetY = 12; rr(c, x, y, w, h, 20, this.kt ? 'rgba(12,20,38,.96)' : '#FFFDF7'); c.restore(); rect(c, x, y, 10, h, PL.hi);
+        txt(c, 'সূত্র: ' + T(card.name), x + 44, y + 64, 38, PL.hi, 800, 'left', FONT_BN, w - 80);
+        ls.forEach((l, i) => txt(c, l, x + 44, y + 130 + i * 62, 46, this.kt ? '#FFFFFF' : '#2A1C14', 700, 'left', FONT_BN, w - 80)); });
+    }
+    c.restore();
+  }
+  /* ---------- kinetic typography (thriller / guide): every word pops in on its beat ---------- */
+  ktLayout(c, k, sh, ln, side, hook, hasCard) {
+    const key = k + ':' + side; if (this._ktL[key]) return this._ktL[key];
+    const words = this.words[k]; const spk = ln.speak && ln.who ? this.chars[ln.who] : null;
+    let size = hook ? 92 : 66; const maxW = hook ? 1500 : side ? 740 : (hasCard ? 1100 : 1320); const fam = 'TFDisp';
+    const lay = sz => { c.font = `800 ${sz}px ${fam}, ${FONT_FALLBACK}`; const sp = c.measureText(' ').width; const rows = [[]]; let w0 = 0;
+      words.forEach((w, i) => { const ww = c.measureText(w.w).width * (w.num ? 1.12 : 1); if (rows[rows.length - 1].length && w0 + sp + ww > maxW) { rows.push([]); w0 = 0; } rows[rows.length - 1].push({ i, ww }); w0 += (w0 ? sp : 0) + ww; });
+      return { rows, sp }; };
+    let L = lay(size); while (L.rows.length > 3 && size > 44) { size -= 4; L = lay(size); }
+    const lh = size * 1.32, rw = L.rows.map(r => r.reduce((a, x) => a + x.ww, 0) + L.sp * (r.length - 1)), bw = Math.max(...rw) + 84, bh = L.rows.length * lh + 52 + (spk ? 52 : 0);
+    let bx, by;
+    if (hook) { bx = (LW - bw) / 2; by = LH * .5 - bh / 2; }
+    else if (side > 0) { bx = Math.min(LW - bw - 70, LW * .53); by = LH * .48 - bh / 2; }
+    else if (side < 0) { bx = Math.max(70, LW * .47 - bw); by = LH * .48 - bh / 2; }
+    else { bx = (LW - bw) / 2; by = LH - bh - 92; }
+    const pos = []; L.rows.forEach((r, ri) => { let x = bx + 42 + (side === 0 || hook ? (bw - 84 - rw[ri]) / 2 : 0); r.forEach(it => { pos[it.i] = { x, y: by + 26 + (spk ? 52 : 0) + lh * (ri + .78), ww: it.ww }; x += it.ww + L.sp; }); });
+    return (this._ktL[key] = { size, fam, bx, by, bw, bh, pos, spk, lh });
+  }
+  drawKT(c, t) {
+    const k = this.shotAt(t), sh = this.tl.shots[k]; if (!sh) return; const sc = this.story.scenes[sh.si]; if (sc.type !== 'story') return;
+    if (t < sh.start - .05 || t > sh.end + .2) return;
+    const ln = sc.lines[sh.li], words = this.words[k], PL = this.P, hook = sh.si === this.firstStory && sh.li === 0, hasCard = !!ln.card;
+    const side = hasCard && !hook ? 0 : (this.side[k] || 0);
+    const L = this.ktLayout(c, k, sh, ln, side, hook, hasCard); const lt = t - sh.start, out = cl((sh.end + .2 - t) / .2);
+    const mode = hook ? 'pop' : ln.speak ? 'type' : ['pop', 'slide', 'pop', 'rise'][k % 4];
+    const ent = eo((lt + .05) / .3), dx = side > 0 ? (1 - ent) * 120 : side < 0 ? -(1 - ent) * 120 : 0, dy = side === 0 ? (1 - ent) * 60 : 0;
+    c.save(); c.globalAlpha *= out * cl(ent * 1.4); c.translate(dx, dy);
+    if (hook) withA(c, .55 * ent, () => rect(c, 0, 0, LW, LH, '#050912'));
+    c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 30; c.shadowOffsetY = 10; rr(c, L.bx, L.by, L.bw, L.bh, 16, PL.box); c.restore();
+    rr(c, L.bx, L.by, 10, L.bh, [16, 0, 0, 16], PL.hi); { const g = c.createLinearGradient(L.bx, 0, L.bx + L.bw, 0); g.addColorStop(0, PL.edge); g.addColorStop(1, 'rgba(255,210,63,0)'); c.fillStyle = g; c.fillRect(L.bx + 16, L.by, L.bw - 32, 4); }
+    if (L.spk) { const r = 34, ax = L.bx + 40 + r, ay = L.by + 40; c.drawImage(this.faceOf(ln.who, 96), ax - r, ay - r, 2 * r, 2 * r); circ(c, ax, ay, r + 3, null, PL.hi, 4); txt(c, L.spk.ch.name + ' বলল', ax + r + 18, ay + 13, 34, PL.hi, 800, 'left', FONT_BN, L.bw - 140); }
+    c.textAlign = 'left';
+    words.forEach((w, i) => { const p = L.pos[i]; if (!p) return; const wl = t - w.t0; if (wl < 0) return;
+      const sz = L.size * (w.num ? 1.12 : 1), col = w.num || w.hl ? PL.hi : PL.ink;
+      let s = 1, a = 1, oy = 0, txtW = w.w;
+      if (mode === 'pop') { s = back(wl, 0, .26); a = cl(wl / .08); }
+      else if (mode === 'slide') { const e = eo(wl / .22); oy = 0; a = e; c.save(); c.translate((1 - e) * 46, 0); }
+      else if (mode === 'rise') { const e = eo(wl / .24); oy = (1 - e) * 34; a = e; }
+      else if (mode === 'type') { const n = Math.ceil(cl(wl / .16) * w.w.length); txtW = w.w.slice(0, n); }
+      if (w.hl || w.num) { const e = eo((wl - .05) / .25); if (e > 0) withA(c, .9, () => rr(c, p.x - 8, p.y - sz * .86 + oy, (p.ww + 16) * e, sz * 1.12, 10, this.kt ? 'rgba(255,210,63,.22)' : 'rgba(179,38,30,.15)')); }
+      c.save(); c.globalAlpha *= a; c.translate(p.x + p.ww / 2, p.y - sz * .3 + oy); c.scale(s, s); c.translate(-(p.x + p.ww / 2), -(p.y - sz * .3));
+      c.font = `800 ${sz}px ${L.fam}, ${FONT_FALLBACK}`; c.fillStyle = col; c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = 4; c.shadowOffsetY = 2; c.fillText(txtW, p.x, p.y); c.restore();
+      if (mode === 'slide') c.restore();
+    });
+    if (hook) { const e = eo((lt - .2) / .6); rect(c, L.bx + 40, L.by + L.bh - 18, (L.bw - 80) * e, 6, PL.red); }
+    c.restore();
+  }
+  /* life style: a number from the line is stamped on paper near the top */
+  drawStamp(c, t) {
+    const k = this.shotAt(t), sh = this.tl.shots[k]; if (!sh) return; const sc = this.story.scenes[sh.si]; if (sc.type !== 'story') return;
+    const ln = sc.lines[sh.li], s = ktStamp(ln); if (!s) return;
+    const w0 = this.words[k].find(x => x.hl) || { t0: sh.start + .2 }, lt = t - w0.t0, end = sh.end + .3; if (lt < 0 || t > end) return;
+    const k2 = back(lt, 0, .35), out = cl((end - t) / .25); const side = (this.lc[k] && this.lc[k].x > 540) ? -1 : 1, cx = side > 0 ? LW * .78 : LW * .22, cy = 230;
+    c.font = `800 74px ${FONT_BN}, ${FONT_FALLBACK}`; const w = c.measureText(s).width + 90;
+    withA(c, out, () => popAt(c, cx, cy, k2, () => { c.save(); c.translate(cx, cy); c.rotate(side * -.05); c.save(); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 22; c.shadowOffsetY = 8; rr(c, -w / 2, -64, w, 128, 12, '#F7EEDC'); c.restore();
+      rr(c, -w / 2 + 10, -54, w - 20, 108, 8, null, 'rgba(179,38,30,.75)', 4); txt(c, s, 0, 26, 74, '#B3261E', 800, 'center', FONT_BN, w - 40); c.restore(); }));
+  }
+  /* ---------- chapter card: "ফাঁদ ১ · মাত্র ছ টাকা তো" / "সপ্তাহ ২ · রিডিং" / "দ্বিতীয় দিন" ---------- */
+  drawChapterL(c, si, t) {
+    const sc = this.story.scenes[si], lt = t - sc.start, ch = sc.chapter || {}, PL = this.P;
+    c.drawImage(this.blurBg('ch' + si, si), 0, 0, LW, LH); this.dust(c, t, 30, this.kt ? '#9DB4FF' : '#F3E3C6');
+    const num = (String(ch.no).match(/[০-৯\d]+/) || [''])[0]; const idx = this.chapList.indexOf(sc);
+    if (num) withA(c, .16 * fin(lt, 0, .5), () => { c.save(); c.font = `800 620px TFDisp, ${FONT_FALLBACK}`; c.textAlign = 'center'; c.fillStyle = this.kt ? PL.hi : '#F3E3C6'; c.fillText(num, LW / 2 + (1 - eo(lt / .8)) * 300, LH * .8); c.restore(); });
+    if (!this.kt) { // torn paper card
+      popAt(c, LW / 2, LH / 2, back(lt, .05, .5), () => { const w = 1180, h = 420, x = (LW - w) / 2, y = (LH - h) / 2; c.save(); c.translate(LW / 2, LH / 2); c.rotate(-.015); c.translate(-LW / 2, -LH / 2); c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 50; c.shadowOffsetY = 18; rr(c, x, y, w, h, 18, '#F7F0E3'); c.restore();
+        rr(c, x + 18, y + 18, w - 36, h - 36, 12, null, 'rgba(179,38,30,.35)', 3);
+        if (ch.no) { c.font = `800 46px ${FONT_BN}, ${FONT_FALLBACK}`; const bw = c.measureText(ch.no).width + 70; rr(c, LW / 2 - bw / 2, y - 30, bw, 72, 10, '#B3261E'); txt(c, ch.no, LW / 2, y + 22, 46, '#FFF4E4', 800, 'center', FONT_BN); }
+        const ls = wrapText(c, ch.title || '', 92, w - 140, 700, 'TFSerif').slice(0, 2); ls.forEach((l, i) => withA(c, fin(lt, .25 + i * .2, .4), () => txt(c, l, LW / 2, y + 210 + i * 110 - (ls.length - 1) * 50, 92, '#2A1C14', 700, 'center', 'TFSerif', w - 120)));
+        const ul = eo((lt - .6) / .6); line(c, LW / 2 - 220 * ul, y + h - 70, LW / 2 + 220 * ul, y + h - 70, '#B3261E', 6); c.restore(); });
+      return;
+    }
+    // thriller / guide: label pill, title word by word, progress dots
+    const label = ch.no || ''; c.font = `800 52px ${FONT_BN}, ${FONT_FALLBACK}`; const lw = c.measureText(label).width + 80;
+    if (label) popAt(c, LW / 2, LH * .3, back(lt, .02, .4), () => { rr(c, LW / 2 - lw / 2, LH * .3 - 44, lw, 88, 44, PL.hi); txt(c, label, LW / 2, LH * .3 + 18, 52, '#0B1322', 800, 'center', FONT_BN); });
+    const ws = String(ch.title || '').split(/\s+/).filter(Boolean); const ls = wrapText(c, ch.title || '', 118, 1600, 800, 'TFDisp').slice(0, 2); let wi = 0;
+    ls.forEach((l, li) => { const lws = l.split(/\s+/); c.font = `800 118px TFDisp, ${FONT_FALLBACK}`; const sp = c.measureText(' ').width; const tot = lws.reduce((a, w) => a + c.measureText(w).width, 0) + sp * (lws.length - 1); let x = LW / 2 - tot / 2; const y = LH * .56 + li * 140 - (ls.length - 1) * 50;
+      lws.forEach(w => { const ww = c.measureText(w).width, kk = back(lt, .3 + wi * .12, .3); wi++; if (kk > 0) { c.save(); c.translate(x + ww / 2, y - 40); c.scale(kk, kk); c.translate(-(x + ww / 2), -(y - 40)); c.font = `800 118px TFDisp, ${FONT_FALLBACK}`; c.textAlign = 'left'; c.fillStyle = '#FFFFFF'; c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 18; c.fillText(w, x, y); c.restore(); } x += ww + sp; }); });
+    const ul = eo((lt - .5 - ws.length * .12) / .5); rect(c, LW / 2 - 260 * ul, LH * .56 + ls.length * 90 + 10, 520 * ul, 8, PL.red);
+    if (this.chapList.length > 1 && idx >= 0) { const n = this.chapList.length, gap = 54, x0 = LW / 2 - (n - 1) * gap / 2, y = LH * .86; for (let i = 0; i < n; i++) { const on = i <= idx; circ(c, x0 + i * gap, y, i === idx ? 16 : 11, on ? PL.hi : 'rgba(255,255,255,.25)'); if (i < n - 1) rect(c, x0 + i * gap + 16, y - 2, gap - 32, 4, i < idx ? PL.hi : 'rgba(255,255,255,.2)'); } }
+  }
+  drawBookL(c, si, t) {
+    const sc = this.story.scenes[si], lt = t - sc.start, bk = this.story.book || {};
+    c.drawImage(this.blurBg('bk' + si, si), 0, 0, LW, LH); this.dust(c, t, 26, '#F3E3C6');
+    const k = back(lt, .1, .55); if (k <= 0) return;
+    const w = 1240, x = (LW - w) / 2, tl = wrapText(c, bk.title || '', 64, w - 200, 700, FONT_EN).slice(0, 2), body = bk.lesson_bn || bk.lesson || '', bl = wrapText(c, '“' + body + '”', 62, w - 200, 700, 'TFSerif').slice(0, 2);
+    const h = 230 + tl.length * 74 + (bk.author ? 50 : 0) + bl.length * 80, y = (LH - h) / 2;
+    popAt(c, LW / 2, LH / 2, k, () => { c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 40; c.shadowOffsetY = 14; rr(c, x, y, w, h, 34, '#F7F0E3'); c.restore(); rr(c, x + 16, y + 16, w - 32, h - 32, 24, null, 'rgba(179,38,30,.35)', 3);
+      txt(c, 'বইয়ের পাতা থেকে', LW / 2, y + 80, 40, '#8E1D17', 700, 'center', FONT_BN, w - 120);
+      tl.forEach((l, i) => txt(c, l, LW / 2, y + 160 + i * 74, 64, '#2A1C14', 700, 'center', FONT_EN, w - 120));
+      let yy = y + 160 + (tl.length - 1) * 74; if (bk.author) { yy += 54; txt(c, '— ' + bk.author, LW / 2, yy, 36, '#7A6A5A', 400, 'center', FONT_EN, w - 140); }
+      line(c, LW / 2 - 110, yy + 34, LW / 2 + 110, yy + 34, '#B3261E', 4);
+      withA(c, fin(lt, .55, .6), () => bl.forEach((l, i) => txt(c, l, LW / 2, yy + 112 + i * 80, 62, '#B3261E', 700, 'center', 'TFSerif', w - 120))); });
+  }
+  drawRewindL(c, si, t) {
+    const sc = this.story.scenes[si], lt = t - sc.start; let ps = -1; for (let i = si - 1; i >= 0; i--) if (this.story.scenes[i].type === 'story') { ps = i; break; }
+    if (ps >= 0) { const s2 = this.story.scenes[ps]; c.save(); c.filter = 'saturate(.4) contrast(1.05)'; c.translate(Math.sin(t * 90) * 10, 0); this.drawStoryL(c, ps, Math.max(s2.start, s2.end - .01 - lt * 3)); c.restore(); } else rect(c, 0, 0, LW, LH, this.P.bg1);
+    c.fillStyle = 'rgba(0,0,0,.08)'; for (let y = 0; y < LH; y += 8) c.fillRect(0, y, LW, 2);
+    txt(c, '◀◀ REWIND', 90, 150, 64, '#fff', 700, 'left', FONT_EN);
+    const cap = sc.lines[0] ? sc.lines[0].cap : ''; popAt(c, LW / 2, LH / 2, back(lt, .15), () => { c.save(); c.font = `800 150px ${FONT_ACC}, ${FONT_FALLBACK}`; c.textAlign = 'center'; let sz = 150; while (sz > 70 && c.measureText(cap).width > 1600) { sz -= 8; c.font = `800 ${sz}px ${FONT_ACC}, ${FONT_FALLBACK}`; } c.lineJoin = 'round'; c.lineWidth = sz * .14; c.strokeStyle = '#0B1623'; c.strokeText(cap, LW / 2, LH / 2 + sz * .35); c.fillStyle = C_GO2; c.fillText(cap, LW / 2, LH / 2 + sz * .35); c.restore(); });
+  }
+  drawTakeawaysL(c, si, t) {
+    const sc = this.story.scenes[si], lt = t - sc.start, PL = this.P; c.drawImage(this.blurBg('tk' + si, si), 0, 0, LW, LH);
+    popAt(c, LW / 2, 120, back(lt, .05), () => { rr(c, LW / 2 - 300, 70, 600, 100, 50, PL.hi); txt(c, 'যা মনে রাখবে', LW / 2, 140, 56, this.kt ? '#0B1322' : '#FFF4E4', 800, 'center', FONT_BN); });
+    const [a, b] = this.shotRangeOfScene(si), n = b - a + 1, gap = Math.min(170, 780 / Math.max(1, n));
+    for (let k = a; k <= b; k++) { const sh = this.tl.shots[k], ln = sc.lines[sh.li], i = k - a, p = eo((t - sh.start + .1) / .45); if (p <= 0) continue; const y = 220 + i * gap; const item = ln.item || ln.cap;
+      c.save(); c.translate((1 - p) * 600, 0); c.globalAlpha *= p; rr(c, 260, y, 1400, gap - 26, 24, this.kt ? 'rgba(12,20,38,.94)' : '#F7F0E3'); circ(c, 340, y + (gap - 26) / 2, 46, PL.hi); txt(c, bn(i + 1), 340, y + (gap - 26) / 2 + 18, 52, this.kt ? '#0B1322' : '#fff', 800);
+      txt(c, item, 420, y + (gap - 26) / 2 + 18, 50, this.kt ? '#fff' : '#2A1C14', 700, 'left', FONT_BN, 1200); c.restore(); }
+  }
+  drawCTAL(c, si, t) {
+    const sc = this.story.scenes[si], lt = t - sc.start, S = this.settings, PL = this.P;
+    c.drawImage(this.blurBg('cta' + si, si), 0, 0, LW, LH); this.dust(c, t, 40, this.kt ? '#9DB4FF' : '#F3E3C6');
+    const q = (sc.cta && sc.cta.question) || (sc.lines[0] ? sc.lines[0].cap : '');
+    const ql = wrapText(c, q, 72, 900, 800).slice(0, 4), words = ql.join(' ').split(/\s+/), shown = Math.floor(cl(lt / 1.6) * words.length + .999); let wi = 0;
+    ql.forEach((l, i) => { const vis = l.split(/\s+/).filter(() => wi++ < shown).join(' '); if (vis) { c.save(); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 14; txt(c, vis, 120, 250 + i * 96, 72, i === ql.length - 1 ? PL.hi === '#B3261E' ? '#FFC857' : PL.hi : '#FFF6E6', 800, 'left', FONT_BN); c.restore(); } });
+    let y = 250 + ql.length * 96 + 20; const opts = ((sc.cta && sc.cta.options) || []).slice(0, 3);
+    opts.forEach((o, i) => popAt(c, 420, y + i * 96 + 40, back(lt, 1.2 + i * .2), () => { rr(c, 120, y + i * 96, 620, 80, 40, 'rgba(247,240,227,.95)'); txt(c, o, 430, y + i * 96 + 54, 40, '#2A1C14', 700, 'center', FONT_BN, 580); }));
+    if (opts.length) y += opts.length * 96;
+    popAt(c, 300, y + 50, back(lt, 1.9), () => { rr(c, 120, y + 10, 400, 76, 38, null, 'rgba(255,200,87,.85)', 3); txt(c, 'কমেন্টে লিখুন', 320, y + 62, 40, '#FFF4E4', 700, 'center', FONT_BN); });
+    const cx = LW * .74, cy = LH * .44;
+    popAt(c, cx, cy, back(lt, 1.6), () => { c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 34; c.shadowOffsetY = 12; rr(c, cx - 360, cy - 210, 720, 420, 36, '#F7F0E3'); c.restore(); rr(c, cx - 344, cy - 194, 688, 388, 26, null, 'rgba(179,38,30,.35)', 3);
+      drawLogo(c, cx, cy - 80, 150, S.logo || 'TF'); txt(c, S.series || 'জীবনপাঠ', cx, cy + 60, 60, '#2A1C14', 800, 'center', FONT_BN, 640); txt(c, S.tagline || '', cx, cy + 118, 34, '#8E1D17', 600, 'center', FONT_BN, 640); });
+    const pulse = 1 + .05 * Math.sin(t * 6) * cl(lt - 2.8);
+    popAt(c, cx, cy + 300, back(lt, 2.3) * pulse, () => { c.save(); c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = 20; rr(c, cx - 250, cy + 248, 500, 104, 52, '#E53935'); c.restore(); circ(c, cx - 180, cy + 300, 26, '#fff'); P(c, `M${cx - 188},${cy + 286} L${cx - 168},${cy + 300} L${cx - 188},${cy + 314}Z`, '#E53935'); txt(c, 'সাবস্ক্রাইব', cx + 30, cy + 318, 50, '#fff', 800, 'center', FONT_BN); });
+    const outro = S.outro || 'তোমার পরিচিত এমন একজন নিশ্চয়ই আছে — ভিডিওটা আজ তাকে একবার দেখিও';
+    withA(c, fin(lt, 3.2, .5), () => txt(c, outro, LW / 2, LH - 70, 40, '#FFF4E4', 600, 'center', FONT_BN, LW - 200));
+  }
+  /* ---------- on-screen UI: progress + chapter ticks, watermark, time badge, chapter pill, text ---------- */
+  drawUIL(c, t, si) {
+    const sc = this.story.scenes[si], S = this.settings, PL = this.P, lt = t - sc.start;
+    if (S.progress !== false) { const p = cl(t / Math.max(1, this.duration)); rect(c, 0, 0, LW, 7, 'rgba(0,0,0,.25)'); rect(c, 0, 0, LW * p, 7, this.kt ? PL.hi : C_GO2); this.chapList.forEach(ch => rect(c, LW * ch.start / this.duration - 2, 0, 4, 7, '#fff')); }
+    if (S.watermark !== false) { const name = S.series || 'TF Story', a = (S.wm != null ? S.wm : 70) / 100; c.save(); c.globalAlpha *= a; c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 12; drawLogo(c, 66, 66, 64, S.logo || 'TF'); c.font = `800 32px ${FONT_BN}, ${FONT_FALLBACK}`; c.lineJoin = 'round'; c.lineWidth = 6; c.strokeStyle = 'rgba(0,0,0,.55)'; c.textAlign = 'left'; c.strokeText(name, 112, 78); c.shadowColor = 'transparent'; c.fillStyle = '#fff'; c.fillText(name, 112, 78); c.restore(); }
+    if (sc.type === 'story') {
+      if (sc.badge) { const k = back(lt, .15), out = cl((4.5 - lt) / .4); if (out > 0) withA(c, out, () => { c.font = `800 44px ${FONT_BN}, ${FONT_FALLBACK}`; const w = c.measureText(sc.badge).width + 80; popAt(c, LW / 2, 86, k, () => { c.save(); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 14; rr(c, LW / 2 - w / 2, 50, w, 74, 37, this.kt ? PL.hi : 'rgba(122,31,26,.95)'); c.restore(); txt(c, sc.badge, LW / 2, 102, 44, this.kt ? '#0B1322' : '#FFF3E0', 800, 'center', FONT_BN); }); }); }
+      const ch = this.chap[si]; if (ch && ch.chapter) { const lab = [ch.chapter.no, ch.chapter.title].filter(Boolean).join(' · '); c.font = `700 30px ${FONT_BN}, ${FONT_FALLBACK}`; const w = Math.min(760, c.measureText(lab).width + 50); withA(c, .92, () => { rr(c, LW - w - 40, 40, w, 56, 28, this.kt ? 'rgba(8,14,28,.82)' : 'rgba(42,28,20,.75)', this.kt ? PL.hi : 'rgba(243,227,198,.6)', 2); txt(c, lab, LW - w / 2 - 40, 78, 30, this.kt ? PL.hi : '#FFF3E0', 700, 'center', FONT_BN, w - 30); }); }
+      if (S.captions !== false) { if (this.kt) this.drawKT(c, t); else { this.drawCaption(c, t, LW, LH, 1); this.drawStamp(c, t); } }
+    }
+  }
+  /* ---------- YouTube thumbnail 1920×1080 (also the first frame of the video) ---------- */
+  drawThumb(c) {
+    const st = this.story, key = JSON.stringify([st.title, st.cover, st.thumb, this.style, this.tl.total, (typeof S !== 'undefined' && S.series) || '']);
+    if (this._lcov && this._lcovKey === key) { c.drawImage(this._lcov, 0, 0, LW, LH); return; }
+    const cv = document.createElement('canvas'); cv.width = LW; cv.height = LH; const x = cv.getContext('2d', { alpha: false });
+    try { this.drawThumbInto(x); } catch (e) { console.warn(e); rect(x, 0, 0, LW, LH, this.P.bg1); }
+    this._lcov = cv; this._lcovKey = key; c.drawImage(cv, 0, 0, LW, LH);
+  }
+  drawThumbInto(c) {
+    const st = this.story, PL = this.P, pick = coverPickShot(st, this.tl), sc = st.scenes[pick.si];
+    // close-up on the most emotional person, pushed to the right half; the headline sits on the left
+    let focus = -1; const k = this.shotIn(pick.si, pick.t), ln = sc.lines[this.tl.shots[k].li] || {}; focus = sc.cast.indexOf(ln.who || ln.focus); if (focus < 0) focus = 0;
+    const n = Math.min(3, sc.cast.length || 1), pos = CAST_POS[n] || CAST_POS[1], P0 = pos[focus] || pos[0], cr = this.chars[sc.cast[focus]], kf = cr ? (cr.L.kid ? .74 : cr.L.teen ? .92 : 1) : 1, headY = P0[1] - 418 * P0[2] * kf;
+    const z = 1.55, vw = 1080 / z, HH = LH / 2 * 1080 / LW, cam = { x: cl(P0[0] - vw * .22, 540 / z, 1080 - 540 / z), y: cl(headY - 30 + HH / z * .95, HH / z, 1920 - HH / z), z };
+    this.drawStoryL(c, pick.si, pick.t, cam);
+    const g = c.createLinearGradient(0, 0, LW * .7, 0); g.addColorStop(0, this.kt ? 'rgba(5,9,20,.92)' : 'rgba(20,10,4,.78)'); g.addColorStop(.6, this.kt ? 'rgba(5,9,20,.55)' : 'rgba(20,10,4,.25)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, LW, LH);
+    // red ring around the face (life) / yellow bracket (thriller)
+    const s = LW / W, y0 = H / 2 - LH / 2 / s, sx = ((P0[0] - cam.x) * z + 540) * s, sy = ((headY + 120 * P0[2] * kf - cam.y) * z + 960 - y0) * s, rad = 175 * P0[2] * kf * z * s * .62;
+    c.save(); c.lineWidth = 14; c.strokeStyle = this.kt ? PL.hi : '#E5281E'; c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = 12; c.beginPath(); c.ellipse(sx, sy, rad * 1.05, rad * 1.2, -.1, 0, Math.PI * 2); c.stroke(); c.restore();
+    const d = coverData(st), raw1 = (st.thumb || '').trim() ? st.thumb.split('|')[0] : (st.cover && st.cover.l1) || d.l1, raw2 = (st.thumb || '').trim() ? (st.thumb.split('|')[1] || '') : (st.cover && st.cover.l2) || d.l2;
+    const red = new Set(); [raw1, raw2].forEach(r => (String(r).match(/\{([^}]*)\}/g) || []).forEach(m => m.slice(1, -1).split(/\s+/).forEach(w => red.add(w))));
+    const L1 = String(raw1).replace(/[{}]/g, '').trim(), L2 = String(raw2).replace(/[{}]/g, '').trim();
+    const maxW = LW * .56; let size = 150; const fitLines = (txt0, sz) => wrapText(c, txt0, sz, maxW, 800, FONT_BN);
+    while (size > 84 && (fitLines(L1, size).length + fitLines(L2, size).length > 4)) size -= 8;
+    let y = 120 + size;
+    if (d.ctx && this.kt) { c.font = `800 44px ${FONT_BN}, ${FONT_FALLBACK}`; const w = Math.min(maxW, c.measureText(d.ctx).width + 60); rr(c, 70, 64, w, 70, 10, PL.red); txt(c, d.ctx, 100, 113, 44, '#fff', 800, 'left', FONT_BN, w - 50); y += 60; }
+    c.textAlign = 'left'; c.lineJoin = 'round';
+    fitLines(L1, size).slice(0, 3).forEach(l => { let xx = 80; l.split(/\s+/).forEach(w => { const clean = w.replace(KT_PUNCT, ''); c.font = `800 ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; c.lineWidth = size * .16; c.strokeStyle = '#000'; c.strokeText(w, xx, y); c.fillStyle = red.has(clean) ? (this.kt ? PL.hi : '#FF3B30') : '#FFFFFF'; c.fillText(w, xx, y); xx += c.measureText(w + ' ').width; }); y += size * 1.12; });
+    if (L2) { const ls = fitLines(L2, size).slice(0, 2); c.font = `800 ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; ls.forEach(l => { const w = c.measureText(l).width + 60; c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 20; rr(c, 60, y - size * .92, w, size * 1.16, 14, this.kt ? PL.hi : '#E5281E'); c.restore(); c.fillStyle = this.kt ? '#0B1322' : '#FFFFFF'; c.fillText(l, 90, y); y += size * 1.24; }); }
+    const S2 = this.settings; c.save(); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 14; drawLogo(c, LW - 110, LH - 110, 120, S2.logo || 'TF'); c.restore();
+  }
+}
+/* the long-video story prompt (works in Gemini, Claude, ChatGPT) */
+function buildLongPrompt(o) {
+  const style = o.longStyle || 'life', mins = Math.max(4, Math.min(20, +o.minutes || 10)), lines = Math.round(mins * 16), lo = Math.round(lines * .9), hi = Math.round(lines * 1.1);
+  const chapN = style === 'guide' ? '৩-৫টা ধাপ (সপ্তাহ/ধাপ)' : style === 'thriller' ? '৩-৬টা অধ্যায় (যেমন দিন ধরে কাউন্টডাউন, বা ঘটনার পর্ব)' : '৩-৫টা "ফাঁদ" বা "ভুল" (প্রতিটা একটা চেনা বাক্যের পেছনে লুকানো)';
+  const placeList = (typeof PLACE_LIST_FOR_PROMPT === 'function') ? PLACE_LIST_FOR_PROMPT() : Object.keys(PLACES).join(', ');
+  const book = o.book ? `- বই/গবেষণা: "${o.book}"${o.author ? ` (${o.author})` : ''}${o.lesson ? `, ধারণা: "${o.lesson}"` : ''} — গল্পের মাঝখানে এক-দুই জায়গায় সহজ ভাষায় ব্যাখ্যা করবে।` : '- গল্পের মাঝে ২-৪ জায়গায় একটা করে বাস্তব বই, গবেষণা বা অর্থনীতি/মনস্তত্ত্বের ধারণা সহজ বাংলায় ব্যাখ্যা করো (লেখক ও বইয়ের নাম বাংলা হরফে), তারপর আবার গল্পে ফেরো।';
+  const facts = o.facts ? `\n\n## ব্যবহারকারীর দেওয়া তথ্য ও সূত্র (এগুলোর বাইরে নতুন তথ্য বানাবে না)\n${o.facts}` : '';
+  const head = `তুমি একজন দক্ষ বাংলা ইউটিউব স্ক্রিপ্ট লেখক। "${o.series}" চ্যানেলের জন্য প্রায় ${bn(mins)} মিনিটের একটা লং ভিডিওর (১৬:৯, ইউটিউব) সম্পূর্ণ মৌলিক স্ক্রিপ্ট লেখো, নিচের "TF Script" ফরম্যাটে। ভিডিওটা 2D অ্যানিমেশনে চরিত্র আর দৃশ্য দিয়ে বানানো হবে, এক কথকের কণ্ঠে (Cartesia AI) পড়া হবে, মাঝে মাঝে চরিত্রের নিজের কণ্ঠে সংলাপ।
+
+## কাজ
+- বিষয়: ${o.topic || 'তুমি বেছে নাও'}
+- মোট ${bn(lo)}-${bn(hi)}টা লাইন (প্রতিটা লাইন ৪-১৪ শব্দ, এক নিঃশ্বাসে বলা যায়)। দৃশ্য ২০-৪০টা। প্রতি দৃশ্যে ৩-১০ লাইন।
+- ভাষা: সহজ, মুখের বাংলা। দর্শককে "তুমি" বলে সম্বোধন।`;
+  let body = '';
+  if (style === 'life') body = `
+- ধরন: জীবন-ঘনিষ্ঠ, উপদেশমূলক পারিবারিক গল্প। মধ্যবিত্ত/নিম্নমধ্যবিত্ত পরিবার, চেনা জিনিস আর নির্দিষ্ট সংখ্যা (টাকা, বছর, মাইনে, কিস্তি)।
+${book}
+- মূল চরিত্রের নাম: ${o.hero || 'তুমি বেছে নাও'}
+
+## গল্পের কাঠামো (ঠিক এই ক্রমে)
+1. ঠান্ডা ওপেন (প্রথম ১৫ সেকেন্ড): গল্পের সবচেয়ে খারাপ মুহূর্ত থেকে শুরু। প্রথম লাইনেই একটা চরিত্রের চিৎকার বা কঠিন সংলাপ ("> " দিয়ে), যেটায় একটা বড় সংখ্যা আর বৈপরীত্য আছে (যেমন "এক কোটি জিতেছিলে, আজ ফর্মের ২০০০ টাকাও নেই!")।
+2. পরিস্থিতি দেখাও: ঘরের খুঁটিনাটি, দেয়ালে পুরোনো জিনিস, পরিবারের অবস্থা। একটা বড় প্রশ্ন: "কীভাবে?"
+3. উল্টো চরিত্র: একই রোজগারের একজন সাধারণ, বুদ্ধিমান মানুষ (প্রতিবেশী, চাচা, মাস্টার), যাকে সবাই কিপটে বা বোকা ভাবে।
+4. রহস্যের টোপ: সেই মানুষের কাছে একটা জিনিস আছে (কৌটো, খাম, পাসবই, ডায়েরি)। "কী ছিল ওই জিনিসে? সেটা শেষে বলবো।"
+5. "চলো শুরু থেকে দেখি।" তারপর ১০-২০ বছর আগে ফিরে যাও (দৃশ্যের ব্যাজে "১৮ বছর আগে")।
+6. ${chapN}: প্রতিটা "## chapter | ফাঁদ ১ | চেনা বাক্যটা" দিয়ে শুরু। প্রতিটায় ঘটনা, তারপর কথক গল্প থামিয়ে দর্শককে সরাসরি বোঝায় (হিসাব, গবেষণা, উপমা), তারপর আবার গল্প।
+7. সমান্তরাল দৃশ্য: "সেই একই সপ্তাহে…" উল্টো চরিত্রটা চুপচাপ ঠিক কাজটা করছে।
+8. চরম পতন: অসুখ, প্রতারণা, নিলাম, অপমান — গল্পের সবচেয়ে কষ্টের জায়গা।
+9. রহস্যের উত্তর: সেই জিনিস খোলা হয় [reveal: জিনিস / ভেতরের লেখা বা হিসাব] — ছোট ছোট সঞ্চয় বা সিদ্ধান্তের বড় ফল।
+10. আবেগী সমাধান ও নতুন শুরু। শুরুর একটা জিনিস বা সংলাপ ফিরে এসে বৃত্ত পূর্ণ করে।
+11. শেষ কথা: সব ভুল বাক্য একসাথে আবার বলো, তারপর এক লাইনের ছন্দময় শিক্ষা।
+12. "## cta | প্রশ্ন | বিকল্প": শেষ লাইন: "তোমার পরিচিত এমন একজনকে ভিডিওটা আজ দেখিও। এমন আরো গল্পের জন্য চ্যানেলটা সাবস্ক্রাইব করে রাখো।"`;
+  else if (style === 'thriller') body = `
+- ধরন: সত্য ঘটনা বা সাম্প্রতিক খবর, থ্রিলারের মতো করে সহজ ভাষায় ব্যাখ্যা।
+- সত্যতা সবচেয়ে জরুরি: শুধু যাচাই করা তথ্য দাও। যেটা দাবি বা রিপোর্ট, সেটা "অমুক পত্রিকার রিপোর্ট অনুযায়ী" বলে দাও। উক্তি বানাবে না। নিশ্চিত না হলে বাদ দাও। শেষে প্রমাণ কী আছে আর কী নেই সেটা পরিষ্কার করে বলো। বাস্তব মানুষকে অপমান করবে না, গ্রাফিক সহিংসতা নয়।
+- বাস্তব মানুষদের কার্টুন চরিত্র হিসেবে দেখানো হবে (চরিত্র লাইনে নাম ও কাছাকাছি role)।${facts}
+
+## কাঠামো
+1. হুক (প্রথম ২০ সেকেন্ড): নির্দিষ্ট তারিখ + বড় বৈপরীত্য ("৩৩ বছরে বানানো, ৪ দিনে শেষ"), কী হয়নি তার তালিকা ("কোনো প্রতিযোগী হারায়নি…"), একটা রহস্য। তারপর প্রতিশ্রুতি: "আজ পুরো গল্পটা একদম সহজ ভাষায় বলব… আর শেষে বলব সেই প্রশ্নটা…"। প্রথম লাইনে [date: তারিখ] কার্ড।
+2. পেছনের গল্প: মানুষটা/ঘটনাটা কোথা থেকে শুরু।
+3. কঠিন বিষয় দেশি উপমায় (বাবুর্চি, পরোটা, জেনারেটরের তার, চায়ের দোকান…)।
+4. ${chapN}: "## chapter | প্রথম দিন | ছোট শিরোনাম"। অধ্যায়ের মাঝে ক্লিফহ্যাঙ্গার: "কিন্তু সবচেয়ে বড় খবরটা তখনো বাকি ছিল।"
+5. সূত্রের কার্ড: [source: পত্রিকার নাম / কী বলেছে] (৩-৬ বার), নথির কার্ড: [doc: শিরোনাম / ভেতরের লেখা] (১-২ বার)।
+6. দুই পক্ষের মত, তারপর ন্যায্য লাইন: "এখন পর্যন্ত কোনো প্রমাণ পাওয়া যায়নি…"।
+7. শুরুর দৃশ্যে ফিরে যাও (বৃত্ত পূর্ণ), জীবনের শিক্ষা, তারপর খোলা প্রশ্ন।
+8. "## cta | প্রশ্ন | বিকল্প ১, বিকল্প ২": "কমেন্টে তোমার মতামত জানাও।"`;
+  else body = `
+- ধরন: ধাপে ধাপে গাইড/রোডম্যাপ (যেমন "৩০ দিনে …")। একজন শিক্ষার্থী চরিত্র আর একজন মেন্টর চরিত্র দিয়ে দেখাও।${facts}
+
+## কাঠামো
+1. সমস্যা দিয়ে হুক: দর্শকের কষ্টটা নির্দিষ্ট করে বলো। তারপর প্রতিশ্রুতি (কত দিন, দিনে কত সময়, কী পাবে)। সৎ প্রত্যাশা ("রাতারাতি হবে না, কিন্তু…")।
+2. রোডম্যাপের আগে ২টা ভুল ধারণা বা মানসিকতার সমস্যা, ছোট ঘটনা দিয়ে দেখাও।
+3. ${chapN}: "## chapter | সপ্তাহ ১ | শিরোনাম"। প্রতিটায় কেন, কী করবে, "প্রতিদিনের কাজ তিনটা" [check: + কাজ ১ / + কাজ ২ / + কাজ ৩] কার্ডসহ, বাস্তব উদাহরণ।
+4. অগ্রগতি মাপার উপায় (প্রথম দিন বনাম শেষ দিন)।
+5. সংক্ষেপে পুরো রোডম্যাপ আবার।
+6. "## cta | আজকের কাজ | ": "এখনই ভিডিওটা পজ দাও আর…" + "কমেন্টে লিখে যাও"।`;
+  const fmt = `
+
+## লেখার নিয়ম
+- ছোট ছোট বাক্য। এক লাইনে এক ছবি। নির্দিষ্ট সংখ্যা ও চেনা জিনিস। লেকচার নয়, দেখাও।
+- প্রতিটা লাইনের শেষে দাঁড়ি, প্রশ্ন বা বিস্ময় চিহ্ন। সংক্ষিপ্ত রূপ নয়, ইংরেজি শব্দ বাংলা হরফে। পড়তে ঝামেলার সংখ্যা হলে "||"-এর পরে কথায় লেখো।
+- প্রতিটা লাইনের শেষে {১-৩টা মূল শব্দ} — এগুলো পর্দায় হাইলাইট হবে (সংখ্যা থাকলে সংখ্যাটা)।
+- অন্য চ্যানেলের গল্প/স্ক্রিপ্ট নকল নয়। সম্পূর্ণ নিজের গল্প।
+
+## TF Script ফরম্যাট (হুবহু এভাবে, একটা কোড ব্লকে)
+\`\`\`
+=== ভিডিওর শিরোনাম (হুক + সংখ্যা + বৈপরীত্য!)
+ফরম্যাট: long | ${style}
+ইউটিউব টাইটেল: বাংলা হুক (সংখ্যা + বৈপরীত্য)! | English Topic In Bangla
+${style === 'life' ? 'বই: বইয়ের ইংরেজি নাম | লেখক | ধারণা | বাংলায় এক লাইনে\n' : ''}থাম্বনেল: টিজার... | উক্তির প্রথম অংশ | শেষ অংশ {লাল শব্দ} | আইকন | সংখ্যা | বক্তার id
+চরিত্র: id=নাম/role, id=নাম/role
+ক্ষেত্র: বিষয়ের ক্ষেত্র
+## জায়গা সময় মেজাজ | ব্যাজ | কারা পর্দায় (সর্বোচ্চ ৩)
+চরিত্র:মুখের_ভাব:কাজ:হাতে [কার্ড: ঘর / ঘর] কথকের লাইন {হাইলাইট}
+চরিত্র:মুখের_ভাব > চরিত্রের নিজের সংলাপ {হাইলাইট}
+- কথকের লাইন (চরিত্র ছাড়া) {হাইলাইট}
+## chapter | ${style === 'guide' ? 'সপ্তাহ ১' : style === 'thriller' ? 'প্রথম দিন' : 'ফাঁদ ১'} | ছোট শিরোনাম
+- অধ্যায় শুরুর ১-২টা কথকের লাইন {হাইলাইট}
+## cta | প্রশ্ন | বিকল্প ১, বিকল্প ২
+শেষ লাইন {সাবস্ক্রাইব}
+বর্ণনা: ইউটিউব ডিসক্রিপশনের ২-৩ লাইন
+হ্যাশট্যাগ: #বাংলা #… (৫-৮টা, #Shorts নয়)
+\`\`\`
+- জায়গা: ${placeList}
+- সময়: day, evening, night | মেজাজ: normal, happy, sad, tense, regret | আবহাওয়া: rain, fog, sunny
+- চরিত্রের role: ${Object.keys(ROLES).join(', ')}
+- মুখের ভাব: ${FEELS.join(', ')} | কাজ: ${ACTIONS.join(', ')} | হাতে: ${PROPS.join(', ')}
+- কার্ড (মোট ১২-২৫টা, ছড়িয়ে): [reveal: জিনিস / লেখা] [sms: শিরোনাম / লেখা] [chat: নাম / লেখা] [call: নাম] [alert: লেখা] [date: তারিখ] [doc: শিরোনাম / লেখা] [source: সূত্র / কী বলেছে] [counter: লেবেল / শুরু / শেষ / আগে-চিহ্ন] [compare: বাম / মান / ডান / মান] [check: + কাজ / + কাজ] [price: লেখা] [big: লেখা] [progress: লেবেল / শতাংশ]
+- থাম্বনেল: টিজার ৫-৯ শব্দের রহস্য; উক্তি মোট ৩-৯ শব্দ, দুই ভাগ, ১-৩টা শব্দ {} দিয়ে লাল।
+শুধু কোড ব্লকটা দাও, আগে-পরে কিছু লিখবে না।`;
+  return head + body + fmt;
+}
+
+/* ---------- long video: UI (format picker, style, length, facts) ---------- */
+const LONG_TOPICS = {
+  life: ['লটারির নেশা', 'লোক দেখানো বিয়ে', 'কিস্তির ফাঁদ', 'মধ্যবিত্তের টাকার ৫ ভুল', 'যৌতুকের দাম', 'প্রবাসীর পাঠানো টাকা', 'জমি নিয়ে ভাইয়ে ভাইয়ে', 'অনলাইন জুয়া', 'এমএলএম স্কিম', 'ক্রেডিট কার্ডের ফাঁদ', 'কাল থেকে পড়বো', 'সিগারেটের হিসাব'],
+  thriller: ['সাম্প্রতিক বড় খবর', 'বিখ্যাত কোম্পানির পতন', 'বড় একটা স্ক্যামের গল্প', 'রহস্যময় দুর্ঘটনা', 'বিখ্যাত মানুষের উত্থান-পতন', 'ব্যাংক জালিয়াতি', 'হ্যাকিংয়ের ঘটনা'],
+  guide: ['৩০ দিনে ইংরেজিতে কথা বলা', 'ফ্রিল্যান্সিং শুরু করা', 'প্রথম চাকরির প্রস্তুতি', 'মাসে সঞ্চয়ের অভ্যাস', 'পড়ায় মন বসানো', 'ফোনের নেশা কমানো', 'ছোট ব্যবসা শুরু']
+};
+function isLongMode() { return !TF_ISL && S.vidFmt === 'long'; }
+function longOpts() {
+  const bi = $('pBook').value, b = bi !== '' ? BOOKS[bi] : null, les = $('pLesson').value;
+  return { series: S.series, longStyle: S.longStyle || 'life', minutes: +S.longMin || 10, topic: [$('pTopic').value.trim(), $('pArea').value].filter(Boolean).join(' — '), facts: ($('longFacts').value || '').trim().slice(0, 6000), hero: $('pHero').value.trim(), book: b ? b[0] : '', author: b ? b[1] : '', lesson: les || '' };
+}
+function renderTopicChips(list) {
+  const box = $('topicChips'); box.innerHTML = '';
+  list.forEach(t => box.append(el('button', { type: 'button', text: t, onclick: e => { const b = e.currentTarget, on = !b.classList.contains('on'); box.querySelectorAll('button').forEach(x => x.classList.remove('on')); b.classList.toggle('on', on); $('pTopic').value = on ? t : ''; } })));
+}
+function syncLongUI() {
+  const L = isLongMode(), ls = S.longStyle || 'life';
+  document.querySelectorAll('#fmtPick button').forEach(b => b.classList.toggle('on', b.dataset.fmt === (L ? 'long' : 'short')));
+  document.querySelectorAll('#longStyles button').forEach(b => b.classList.toggle('on', b.dataset.ls === ls));
+  $('longBox').classList.toggle('hidden', !L);
+  [$('pStyle') && $('pStyle').closest('label'), $('pLen') && $('pLen').closest('label'), $('bulkN') && $('bulkN').closest('details'), $('bulkNChat') && $('bulkNChat').closest('details')].forEach(x => x && x.classList.toggle('hidden', L));
+  $('longFactsRow').classList.toggle('hidden', ls === 'life'); $('longWebRow').classList.toggle('hidden', ls === 'life');
+  $('longMin').value = String(S.longMin || 10); $('longWeb').checked = S.longWeb !== false;
+  $('pTopic').placeholder = !L ? 'যেমন: প্রথম বেতন, মায়ের ত্যাগ, বন্ধুর ধার' : ls === 'thriller' ? 'যেমন: কোন ঘটনা বা খবর (যত নির্দিষ্ট, তত ভালো)' : ls === 'guide' ? 'যেমন: ৩০ দিনে ইংরেজিতে কথা বলা' : 'যেমন: লটারির নেশা, লোক দেখানো বিয়ে, কিস্তির ফাঁদ';
+  const want = L ? 'L:' + ls : 'S'; if ($('topicChips').dataset.set !== want) { $('topicChips').dataset.set = want; renderTopicChips(L ? LONG_TOPICS[ls] : TOPIC_IDEAS); }
+  $('btnWrite').textContent = L ? 'লং ভিডিওর স্ক্রিপ্ট লিখে খুলুন' : 'একটা গল্প লিখে খুলুন';
+  $('s1Sub').textContent = L ? 'লং ভিডিও (ইউটিউব ১৬:৯) — নিচের যেকোনো একটা উপায় বেছে নিন।' : 'নিচের তিনটার যেকোনো একটা বেছে নিন।';
+}
+function initLongUI() {
+  if (TF_ISL) return;
+  $('fmtPick').classList.remove('hidden');
+  $('fmtPick').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.vidFmt = b.dataset.fmt; saveSettings(); syncLongUI(); if (S.vidFmt === 'long') toast('লং ভিডিও: "AI দিয়ে নতুন গল্প লিখুন" থেকে ধরন আর দৈর্ঘ্য বেছে নিন', '', 4500); });
+  $('longStyles').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.longStyle = b.dataset.ls; saveSettings(); syncLongUI(); });
+  $('longMin').addEventListener('change', e => { S.longMin = +e.target.value || 10; saveSettings(); });
+  $('longWeb').addEventListener('change', e => { S.longWeb = e.target.checked; saveSettings(); });
+  syncLongUI();
+}
+/* YouTube text for a long video: title, description with chapter timestamps (0:00 …), tags */
+function publishPackLong(st) {
+  const y = st.youtube || {}, b = st.book || {}, ser = S.series || 'জীবনপাঠ', tag = S.tagline || '';
+  const hook = (st.title || '').split('|')[0].trim(), ytTitle = (y.title || (hook + ' | ' + ser)).slice(0, 100);
+  const cta = (st.scenes.find(x => x.type === 'cta') || {}).cta || {}, q = cta.question || '';
+  const tl = app.tl, mmss = t => { t = Math.max(0, Math.floor(t)); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); };
+  let chap = [];
+  if (tl && st.scenes.some(s => s.type === 'chapter')) {
+    chap.push('0:00 শুরু'); st.scenes.forEach(s => { if (s.type === 'chapter' && s.start != null) { const lab = [s.chapter && s.chapter.no, s.chapter && s.chapter.title].filter(Boolean).join(' — '); chap.push(mmss(s.start) + ' ' + lab); } });
+    const end = st.scenes.find(s => s.type === 'cta'); if (end && end.start != null) chap.push(mmss(end.start) + ' শেষ কথা');
+    chap = chap.filter((x, i, a) => i === 0 || (parseInt(x) * 60 + +x.split(':')[1].split(' ')[0]) - (parseInt(a[i - 1]) * 60 + +a[i - 1].split(':')[1].split(' ')[0]) >= 10);
+    if (chap.length < 3) chap = [];
+  }
+  let hs = (y.hashtags || []).filter(h => !/^#shorts$/i.test(h)); ['#' + ser.replace(/\s+/g, '_'), '#বাংলা'].forEach(h => { if (!hs.includes(h)) hs.push(h); }); hs = hs.slice(0, 8);
+  const desc = [hook, '', y.description || '', '', chap.length ? '⏱ অধ্যায়:' : '', ...chap, chap.length ? '' : '', b.title ? `📚 বই: ${b.title}${b.author ? ' — ' + b.author : ''}` : '', q ? `💬 ${q} — কমেন্টে লিখুন।` : '', '', `▶ ${ser}${tag ? ' — ' + tag : ''}`, 'যার কথা মনে পড়ল, তাকে ভিডিওটা পাঠিয়ে দিন। চ্যানেলটা সাবস্ক্রাইব করে রাখুন।', '', hs.join(' ')].filter((x, i, a) => x || (a[i - 1] && i < a.length - 1)).join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  const en = (ytTitle.split('|')[1] || '').trim();
+  const tags = [en, en ? en + ' bangla' : '', hook, st.area, b.title, ser, 'বাংলা গল্প', 'জীবনের গল্প', 'bangla story', 'bangla explained'].filter(Boolean).map(x => String(x).replace(/,/g, ' ').trim()).filter((x, i, a) => x && a.indexOf(x) === i);
+  let tagStr = ''; for (const t of tags) { if ((tagStr + ', ' + t).length > 480) break; tagStr = tagStr ? tagStr + ', ' + t : t; }
+  const fb = [hook, '', y.description || '', '', q ? `💬 ${q}` : '', 'পুরো ভিডিও দেখুন 👇', '', `${ser}${tag ? ' | ' + tag : ''}`, '', hs.join(' ')].filter((x, i, a) => x || (a[i - 1] && i < a.length - 1)).join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  return { ytTitle, desc, tags: tagStr, fb };
+}
+
 /* headless helper (used by Claude to render fixes) */
 window.TFStudio = {
   async load(obj) { await loadAny(typeof obj === 'string' ? obj : JSON.stringify(obj)); return { duration: app.tl.total, shots: app.tl.shots.length }; },
-  frame(canvas, t) { const c = canvas.getContext('2d'); c.setTransform(canvas.width / W, 0, 0, canvas.width / W, 0, 0); app.renderer.render(c, t); },
+  frame(canvas, t) { const c = canvas.getContext('2d'); const fw = app.renderer.isLong ? LW : W; c.setTransform(canvas.width / fw, 0, 0, canvas.width / fw, 0, 0); app.renderer.render(c, t); },
   get duration() { return app.tl ? app.tl.total : 0; },
   async wav() { const m = await ensureMix(); const ab = await audioBufferToWav(m).arrayBuffer(); let s = ''; const u = new Uint8Array(ab); for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); },
   async exportTest() { const m = await ensureMix(); const r = await exportMP4(app.renderer, m, null, null); return { size: r.blob.size, codec: r.codec, audio: r.audio }; },
