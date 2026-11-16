@@ -45,6 +45,15 @@ adb logcat -d -s TFWeb:* | grep -q 'page=/assets/www/islamic/index.html' || { ec
 adb logcat -d -s TFWeb:* | grep -q "SELFTEST ok" || { echo "FAIL: saving from the Islamic part did not work"; OK=0; }
 adb exec-out screencap -p > screen-islamic.png
 
+echo "---- Islamic story videos (index.html?part=islamic) ----"
+adb logcat -c
+adb shell "am start -W -S -n com.taiful.tfstory/.MainActivity --es tf_page 'index.html?part=islamic'"
+sleep 15
+adb logcat -d -s TFWeb:* | tail -4
+adb logcat -d | grep -E "chromium.*(Uncaught|SyntaxError|TypeError|ReferenceError)" | head -10
+adb logcat -d -s TFWeb:* | grep -qE 'page=/assets/www/index.html\?part=islamic lib=[1-9]' || { echo "FAIL: Islamic story part did not start"; OK=0; }
+adb exec-out screencap -p > screen-islamic-story.png
+
 echo "---- start screen (home.html) ----"
 adb logcat -c
 adb shell am start -W -S -n com.taiful.tfstory/.MainActivity

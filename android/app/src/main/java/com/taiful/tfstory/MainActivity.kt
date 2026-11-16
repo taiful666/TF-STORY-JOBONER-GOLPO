@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
     /** which page to open first: the start screen, or (automatic tests only) a page given with --es tf_page */
     private fun firstUrl(): String {
         val page = intent?.getStringExtra("tf_page")
-        if (page != null && Regex("^[a-z0-9_-]+(/[a-z0-9_-]+)?\\.html$").matches(page)) return "$origin/assets/www/$page"
+        if (page != null && Regex("^[a-z0-9_-]+(/[a-z0-9_-]+)?\\.html(\\?part=islamic)?$").matches(page)) return "$origin/assets/www/$page"
         return if (intent?.getBooleanExtra("tf_selftest", false) == true) storyUrl else startUrl
     }
 
@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity() {
             override fun onPageFinished(view: WebView, url: String) {
                 // health check written to the log (used by the automatic emulator test)
                 view.postDelayed({
-                    view.evaluateJavascript("(function(){try{return 'title=' + document.title + ' page=' + location.pathname + ' lib=' + document.querySelectorAll('#libList li').length + ' android=' + (typeof IS_ANDROID!=='undefined' && IS_ANDROID) + ' webcodecs=' + ('VideoEncoder' in window)}catch(e){return 'err ' + e}})()") { r -> Log.i("TFWeb", "health $r") }
+                    view.evaluateJavascript("(function(){try{return 'title=' + document.title + ' page=' + location.pathname + location.search + ' lib=' + document.querySelectorAll('#libList li').length + ' android=' + (typeof IS_ANDROID!=='undefined' && IS_ANDROID) + ' webcodecs=' + ('VideoEncoder' in window)}catch(e){return 'err ' + e}})()") { r -> Log.i("TFWeb", "health $r") }
                     // automatic test only (adb … --ez tf_selftest true): save a tiny file through the bridge
                     if (intent?.getBooleanExtra("tf_selftest", false) == true)
                         view.evaluateJavascript("androidSendFile(new Blob(['TF self-test ' + Date.now()], {type:'text/plain'}), 'tf_selftest.txt', 'save').then(r => console.error('SELFTEST ' + r)).catch(e => console.error('SELFTEST err ' + e))", null)

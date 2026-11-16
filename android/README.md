@@ -12,7 +12,9 @@ A native Android shell (Kotlin + WebView) around the web app in `../index.html`.
 
 Two parts in one app:
 
-- `home.html` — start screen: pick **গল্প** (the Story part, `index.html`) or **ইসলামিক** (`islamic/index.html`, TF Post Maker in Islamic mode: Quran/Hadith stories, ayah and sayings as cards and reels).
+- `home.html` — start screen: pick **গল্প** (the Story part, `index.html`) or **ইসলামিক** (`index.html?part=islamic`).
+- The Islamic part reuses the Story engine (`islamic/story.js`): a library of real sources (Quran passages, Sahih al-Bukhari); the app downloads the exact text, the AI writes only the retelling, and the video shows the exact quote with its reference. No people on screen. Own settings, library and project (`tf_isl_*`, IndexedDB `tf_story_studio_isl`).
+- Cards and short reels for the Islamic page: `islamic/index.html` (TF Post Maker), opened from the Islamic part.
 - Each part has a button at the top to jump to the other one; Back on the first screen of either part returns to the start screen.
 - Both parts use the same share sheet (Facebook · YouTube · WhatsApp · Drive · other apps) with separate text per platform, and the same Gemini/Claude keys (`tf_gkey`, `tf_akey`).
 

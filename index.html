@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://apis.google.com; style-src 'unsafe-inline'; font-src data:; img-src 'self' data: blob: https://lh3.googleusercontent.com; media-src data: blob: https:; connect-src https://api.cartesia.ai https://generativelanguage.googleapis.com https://api.anthropic.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://apis.google.com data: blob:; frame-src https://*.firebaseapp.com https://accounts.google.com https://apis.google.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://apis.google.com; style-src 'unsafe-inline'; font-src data:; img-src 'self' data: blob: https://lh3.googleusercontent.com; media-src data: blob: https:; connect-src https://api.cartesia.ai https://api.alquran.cloud https://cdn.jsdelivr.net https://generativelanguage.googleapis.com https://api.anthropic.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://apis.google.com data: blob:; frame-src https://*.firebaseapp.com https://accounts.google.com https://apis.google.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#1E3A2F">
 <meta name="mobile-web-app-capable" content="yes">
@@ -2760,8 +2760,12 @@ If you want to offset all timestamps of a track such that the first one is zero,
 })();
 if (typeof module === "object" && typeof module.exports === "object") Object.assign(module.exports, Mp4Muxer)
 </script>
+<script>if (/[?&]part=islamic\b/.test(location.search)) document.write('<script src="islamic/story.js"><\/script>');</script>
 <script>/* ===================== TF Story Studio — data ===================== */
 'use strict';
+/* two parts share this engine: the Story part (index.html) and the Islamic part (index.html?part=islamic, see islamic/story.js) — each keeps its own settings, logo, used list and library */
+const TF_ISL = /[?&]part=islamic\b/.test(location.search);
+const LK = k => TF_ISL ? String(k).replace(/^tf_(settings|logo|used)$/, 'tf_isl_$1') : k;
 const APP_VERSION = '4.1.0';
 const STORY_LIBRARY = [];
 const FORMAT_VERSION = 1;
@@ -5661,7 +5665,7 @@ const SR = 48000;
 /* ---------- IndexedDB (audio cache + project autosave) ---------- */
 const IDB = {
   db: null,
-  open() { if (this.db) return Promise.resolve(this.db); return new Promise((res, rej) => { const r = indexedDB.open('tf_story_studio', 1); r.onupgradeneeded = () => { const d = r.result; if (!d.objectStoreNames.contains('audio')) d.createObjectStore('audio'); if (!d.objectStoreNames.contains('kv')) d.createObjectStore('kv'); }; r.onsuccess = () => { this.db = r.result; res(this.db); }; r.onerror = () => rej(r.error); }); },
+  open() { if (this.db) return Promise.resolve(this.db); return new Promise((res, rej) => { const r = indexedDB.open(TF_ISL ? 'tf_story_studio_isl' : 'tf_story_studio', 1); r.onupgradeneeded = () => { const d = r.result; if (!d.objectStoreNames.contains('audio')) d.createObjectStore('audio'); if (!d.objectStoreNames.contains('kv')) d.createObjectStore('kv'); }; r.onsuccess = () => { this.db = r.result; res(this.db); }; r.onerror = () => rej(r.error); }); },
   async get(store, key) { try { const d = await this.open(); return await new Promise((res, rej) => { const q = d.transaction(store).objectStore(store).get(key); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); } catch (e) { return undefined; } },
   async set(store, key, val) { try { const d = await this.open(); return await new Promise((res, rej) => { const tx = d.transaction(store, 'readwrite'); tx.objectStore(store).put(val, key); tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); }); } catch (e) { console.warn('IDB set failed', e); } },
   async del(store, key) { try { const d = await this.open(); return await new Promise(res => { const tx = d.transaction(store, 'readwrite'); tx.objectStore(store).delete(key); tx.oncomplete = () => res(); }); } catch (e) { } }
@@ -6088,13 +6092,13 @@ const debounce = (fn, ms) => { let h; return (...a) => { clearTimeout(h); h = se
 
 /* ---------- settings & secrets ---------- */
 const DEFAULTS = { series: 'জীবনপাঠ', tagline: 'এক বই · এক গল্প · এক শিক্ষা', coverTheme: 'golpo', animStyle: 'golpo', storyStyle: 'twist', logo: 'TF', hero: 'তানিম', capSize: 58, gap: .22, watermark: true, captions: true, model: 'sonic-3.6', voiceId: '', voiceName: '', speed: 1, emotion: 'none', music: 'auto', musicVol: 55, sfx: true, pops: true, lenMode: 'auto', lenSec: 90, gModel: 'gemini-2.5-flash', aModel: 'claude-sonnet-5-5', aiTab: 'gemini', outro: '', wm: 70, capStyle: 'karaoke', progress: true, cinema: true, expRatio: '9:16', expRes: 1080, capFont: 'solaiman', capLook: 'golpo', titleFont: 'atma', accFont: 'galada', ctxBg: true };
-if (!localStorage.getItem('tf_settings')) DEFAULTS.emotion = 'auto';
+if (!localStorage.getItem(LK('tf_settings'))) DEFAULTS.emotion = 'auto';
 const S = Object.assign({}, DEFAULTS);
-try { Object.assign(S, JSON.parse(localStorage.getItem('tf_settings') || '{}')); } catch (e) { }
+try { Object.assign(S, JSON.parse(localStorage.getItem(LK('tf_settings')) || '{}')); } catch (e) { }
 if (S.music === 'piano' && !localStorage.getItem('tf_v2')) S.music = 'auto';
 try { if (!localStorage.getItem('tf_v35')) { if (S.series === 'TF বইয়ের গল্প') S.series = 'জীবনপাঠ'; if (S.tagline === 'একটা বই, একটা গল্প, একটা শিক্ষা') S.tagline = 'এক বই · এক গল্প · এক শিক্ষা'; if (!S.coverTheme) S.coverTheme = 'jibonpath'; localStorage.setItem('tf_v35', '1'); } } catch (e) { }
 try { if (!localStorage.getItem('tf_v33')) { Object.assign(S, { capFont: 'solaiman', titleFont: 'atma', accFont: 'galada' }); localStorage.setItem('tf_v33', '1'); } } catch (e) { }
-const saveSettings = () => { try { localStorage.setItem('tf_settings', JSON.stringify(S, (k, v) => k.startsWith('_') ? undefined : v)); localStorage.setItem('tf_v2', '1'); } catch (e) { } };
+const saveSettings = () => { try { localStorage.setItem(LK('tf_settings'), JSON.stringify(S, (k, v) => k.startsWith('_') ? undefined : v)); localStorage.setItem('tf_v2', '1'); } catch (e) { } };
 try { if (!localStorage.getItem('tf_v40')) { Object.assign(S, { coverTheme: 'golpo', animStyle: 'golpo', capLook: 'golpo', storyStyle: 'twist' }); localStorage.setItem('tf_v40', '1'); saveSettings(); } } catch (e) { }
 const KEYS = { cKey: ['cRemember', 'tf_ckey'], gKey: ['gRemember', 'tf_gkey'], aKey: ['aRemember', 'tf_akey'] };
 const getKey = id => ($(id).value || '').trim();
@@ -6228,8 +6232,8 @@ function segTabs(navId, attr, onPick) { const nav = $(navId); nav.addEventListen
 function setSeg(navId, attr, val) { $(navId).querySelectorAll('button').forEach(x => x.classList.toggle('on', x.dataset[attr] === String(val))); }
 
 /* ---------- library (built-in + your own stories) ---------- */
-function usedList() { try { return JSON.parse(localStorage.getItem('tf_used') || '[]'); } catch (e) { return []; } }
-function addUsed(s) { const u = usedList(); if (!u.includes(s)) { u.push(s); try { localStorage.setItem('tf_used', JSON.stringify(u.slice(-5000))); } catch (e) { } Cloud.addUsed(s); } updateUsedInfo(); }
+function usedList() { try { return JSON.parse(localStorage.getItem(LK('tf_used')) || '[]'); } catch (e) { return []; } }
+function addUsed(s) { const u = usedList(); if (!u.includes(s)) { u.push(s); try { localStorage.setItem(LK('tf_used'), JSON.stringify(u.slice(-5000))); } catch (e) { } Cloud.addUsed(s); } updateUsedInfo(); }
 function updateUsedInfo() { const n = usedList().filter(x => !x.startsWith('LIB:')).length, total = BOOKS.reduce((a, b) => a + b[2].length, 0); $('usedInfo').textContent = `ব্যবহৃত শিক্ষা ${bn(n)} / ${bn(total)}`; }
 function libMeta(txt, id, n, mine) { const title = (txt.match(/^\s*===\s*(.*)$/m) || [, ''])[1].split('|')[0].trim(); const bk = (txt.match(/^\s*বই:\s*(.*)$/m) || [, ''])[1].split('|').map(s => s.trim()); const area = (txt.match(/^\s*ক্ষেত্র:\s*(.*)$/m) || [, ''])[1].trim(); const lines = txt.split('\n').filter(l => l.trim() && !/^(===|##|বই:|থাম্বনেল:|চরিত্র:|বর্ণনা:|হ্যাশট্যাগ:|ক্ষেত্র:|```)/.test(l.trim())).length; return { id, n, txt, title: title || 'শিরোনামহীন', book: bk[0] || '', author: bk[1] || '', lesson: bk[2] || '', area, lines, mine }; }
 const BUILTIN = (typeof STORY_LIBRARY !== 'undefined' ? STORY_LIBRARY : []).map((txt, i) => libMeta(txt, 'lb3_' + (i + 1), i + 1, false));
@@ -6932,11 +6936,11 @@ async function restoreProject() {
 function setLogoFromDataURL(url) {
   return new Promise(res => { if (!url) { LOGO_IMG = null; res(); return; } const im = new Image(); im.onload = () => { const cv = document.createElement('canvas'); cv.width = cv.height = 256; const c = cv.getContext('2d'); const s2 = Math.max(256 / im.width, 256 / im.height); c.drawImage(im, (256 - im.width * s2) / 2, (256 - im.height * s2) / 2, im.width * s2, im.height * s2); LOGO_IMG = cv; res(); }; im.onerror = () => { LOGO_IMG = null; res(); }; im.src = url; });
 }
-function showLogoUI() { const url = (() => { try { return localStorage.getItem('tf_logo') || ''; } catch (e) { return ''; } })(); [$('logoPrev'), $('pvLogo')].forEach(b => { b.innerHTML = ''; if (url) b.append(el('img', { src: url, alt: 'লোগো' })); else if (b.id === 'pvLogo') b.append(el('img', { src: $('appLogo').src, alt: 'TF Story Studio' })); else b.textContent = S.logo || 'TF'; }); }
+function showLogoUI() { const url = (() => { try { return localStorage.getItem(LK('tf_logo')) || ''; } catch (e) { return ''; } })(); [$('logoPrev'), $('pvLogo')].forEach(b => { b.innerHTML = ''; if (url) b.append(el('img', { src: url, alt: 'লোগো' })); else if (b.id === 'pvLogo') b.append(el('img', { src: $('appLogo').src, alt: 'TF Story Studio' })); else b.textContent = S.logo || 'TF'; }); }
 async function onLogoFile(file) {
   if (!file) return; if (!/^image\/(png|jpeg|webp)$/.test(file.type)) { toast('শুধু PNG/JPG/WebP ছবি দিন', 'err'); return; } if (file.size > 8 * 1024 * 1024) { toast('ছবি অনেক বড় (৮ MB-এর কম দিন)', 'err'); return; }
   try { const bmp = await createImageBitmap(file); const cv = document.createElement('canvas'); cv.width = cv.height = 256; const c = cv.getContext('2d'); const s2 = Math.max(256 / bmp.width, 256 / bmp.height); c.drawImage(bmp, (256 - bmp.width * s2) / 2, (256 - bmp.height * s2) / 2, bmp.width * s2, bmp.height * s2); const url = cv.toDataURL('image/png');
-    try { localStorage.setItem('tf_logo', url); } catch (e) { toast('লোগো সেভ করা গেল না (জায়গা নেই)', 'err'); } LOGO_IMG = cv; showLogoUI(); drawAt(app.t); thumbSoon(); toast('লোগো বসানো হয়েছে — সব ভিডিওতে থাকবে', 'ok'); }
+    try { localStorage.setItem(LK('tf_logo'), url); } catch (e) { toast('লোগো সেভ করা গেল না (জায়গা নেই)', 'err'); } LOGO_IMG = cv; showLogoUI(); drawAt(app.t); thumbSoon(); toast('লোগো বসানো হয়েছে — সব ভিডিওতে থাকবে', 'ok'); }
   catch (e) { toast('ছবি পড়া গেল না', 'err'); }
 }
 function updateKeyStatus() {
@@ -7039,7 +7043,7 @@ const Cloud = {
     try { await this.auth.signOut(); } catch (e) { }
     if (this.native()) try { window.TFAndroid.googleSignOut(); } catch (e) { }
     USERLIB = []; await IDB.set('kv', 'userLib', []);
-    try { localStorage.removeItem('tf_used'); localStorage.removeItem('tf_cloud_merged_' + uid); } catch (e) { }
+    try { localStorage.removeItem(LK('tf_used')); localStorage.removeItem('tf_cloud_merged_' + uid); } catch (e) { }
     try { await this.db.terminate(); await this.db.clearPersistence(); } catch (e) { }
     location.reload();
   },
@@ -7073,7 +7077,7 @@ const Cloud = {
     this.meta.used = d.metadata; if (!d.metadata.fromCache) this.seen.used = true;
     if (this.seen.used) {
       const remote = (d.exists && Array.isArray(d.get('used'))) ? d.get('used').filter(x => typeof x === 'string') : [];
-      if (JSON.stringify(remote) !== JSON.stringify(usedList())) { try { localStorage.setItem('tf_used', JSON.stringify(remote)); } catch (e) { } updateUsedInfo(); renderLib(); }
+      if (JSON.stringify(remote) !== JSON.stringify(usedList())) { try { localStorage.setItem(LK('tf_used'), JSON.stringify(remote)); } catch (e) { } updateUsedInfo(); renderLib(); }
     }
     this.render();
   },
@@ -7132,7 +7136,7 @@ const Cloud = {
 /* ---------- init ---------- */
 async function init() {
   Object.entries(MUSIC_STYLES).forEach(([k, v]) => $('mStyle').append(el('option', { value: k, text: v })));
-  try { await setLogoFromDataURL(localStorage.getItem('tf_logo') || ''); } catch (e) { }
+  try { await setLogoFromDataURL(localStorage.getItem(LK('tf_logo')) || ''); } catch (e) { }
   await loadUserLib();
   fillPromptSelects(); fillLibFilters(); renderLib(); updateUsedInfo(); updateMyLibInfo(); loadKeys(); applySettingsToUI();
   Cloud.init();
@@ -7195,11 +7199,11 @@ async function init() {
   $('btnGen').onclick = () => bulkWrite({ n: $('genN').value, ai: $('genAI').value, topic: $('genTopic').value.trim(), area: $('genArea').value, book: $('genBook').value, len: $('genLen').value, ui: { bar: 'genBar', info: 'genInfo', btn: 'btnGen', stop: 'btnGenStop' } });
   $('btnGenStop').onclick = () => { if (bulkStop) { bulkStop.stop = true; toast('এখনকার গল্পগুলো শেষ হলে থামবে'); } };
   $('sLogoFile').onchange = e => { onLogoFile(e.target.files[0]); e.target.value = ''; };
-  $('btnLogoClear').onclick = () => { try { localStorage.removeItem('tf_logo'); } catch (e) { } LOGO_IMG = null; showLogoUI(); drawAt(app.t); thumbSoon(); };
+  $('btnLogoClear').onclick = () => { try { localStorage.removeItem(LK('tf_logo')); } catch (e) { } LOGO_IMG = null; showLogoUI(); drawAt(app.t); thumbSoon(); };
   bindSetting('sCap', 'capSize', t => +t.value, 'input', v => $('sCapOut').textContent = v); bindSetting('sGap', 'gap', t => cl(+t.value || 0, 0, 1)); bindSetting('sWatermark', 'watermark', t => t.checked); bindSetting('sCaptions', 'captions', t => t.checked);
   $('btnForgetKey').onclick = () => { if (!confirm('সব সেভ করা API key মুছবেন?')) return; Object.entries(KEYS).forEach(([id, [rem, name]]) => { try { localStorage.removeItem(name); sessionStorage.removeItem(name); } catch (e) { } $(id).value = ''; $(rem).checked = false; }); updateKeyStatus(); toast('সব key মুছে ফেলা হয়েছে', 'ok'); };
   $('btnClearCache').onclick = async () => { if (!confirm('সব সেভ করা কণ্ঠ ও রেকর্ডিং মুছবেন?')) return; const d = await IDB.open(); d.transaction('audio', 'readwrite').objectStore('audio').clear(); app.audio.tts.clear(); app.audio.rec.clear(); rebuild(true); toast('ক্যাশ মুছে ফেলা হয়েছে', 'ok'); };
-  $('btnClearUsed').onclick = () => { if (confirm(Cloud.user ? 'ব্যবহৃত তালিকা মুছবেন? (ক্লাউড আর সব ডিভাইস থেকেও মুছে যাবে)' : 'ব্যবহৃত তালিকা মুছবেন?')) { localStorage.removeItem('tf_used'); Cloud.clearUsed(); updateUsedInfo(); renderLib(); } };
+  $('btnClearUsed').onclick = () => { if (confirm(Cloud.user ? 'ব্যবহৃত তালিকা মুছবেন? (ক্লাউড আর সব ডিভাইস থেকেও মুছে যাবে)' : 'ব্যবহৃত তালিকা মুছবেন?')) { localStorage.removeItem(LK('tf_used')); Cloud.clearUsed(); updateUsedInfo(); renderLib(); } };
   // preview
   $('btnPlay').onclick = () => app.playing ? stopPlay() : startPlay(); $('btnBigPlay').onclick = e => { e.stopPropagation(); startPlay(); }; pv.addEventListener('click', () => app.story && (app.playing ? stopPlay() : startPlay()));
   $('seek').addEventListener('input', e => { if (!app.tl) return; if (app.playing) stopPlay(true); app.t = e.target.value / 1000 * app.tl.total; drawAt(app.t); updateTime(); });
@@ -7222,7 +7226,7 @@ async function init() {
   // installable app (PWA) when served from https (GitHub Pages); later wrapped as an Android APK
   if (!IS_ANDROID && 'serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => { });
   // Android Back button: close dialog → previous step → (app asks to press again to exit)
-  try { localStorage.setItem('tf_suite_last', 'story'); } catch (e) { }
+  try { localStorage.setItem('tf_suite_last', TF_ISL ? 'islamic' : 'story'); } catch (e) { }
   window.TFBack = () => { const d = document.querySelector('dialog[open]'); if (d) { d.close(); return true; } if (curStep > 1) { goStep(curStep - 1); return true; } if (IS_ANDROID) { location.href = 'home.html'; return true; } return false; };
   if (IS_ANDROID) { document.body.classList.add('in-app'); const v = (() => { try { return window.TFAndroid.appVersion(); } catch (e) { return ''; } })(); $('appInfo').classList.remove('hidden'); $('appVer').textContent = 'অ্যাপ ভার্সন: ' + v; $('btnCheckUpdate').onclick = () => window.TFAndroid.checkUpdate(); $('shareHint').textContent = 'ভিডিও ফোনের গ্যালারিতে (Movies › TF Story Studio) সেভ হয়েছে। "শেয়ার" চাপলে Drive, Facebook Reels/পোস্ট, WhatsApp — যেকোনোটা বেছে নিন।'; }
   try { await Promise.all(['400 40px TFBody', '700 40px TFBody', '400 40px TFKalp', '400 40px TFAdorsho', '400 40px TFBensen', '700 40px TFCap', '700 40px TFDisp', '800 40px TFDisp', '700 40px TFAtma', '700 40px TFMina', '400 40px TFTiro', '700 40px TFSerif', '400 40px TFGalada', '700 40px TFPlay'].map(f => document.fonts.load(f, 'অআকখ২৫ Ab'))); } catch (e) { }
@@ -7239,6 +7243,7 @@ window.TFStudio = {
   async exportTest() { const m = await ensureMix(); const r = await exportMP4(app.renderer, m, null, null); return { size: r.blob.size, codec: r.codec, audio: r.audio }; },
   app, LIB
 };
+if (TF_ISL && window.ISL_PATCH) window.ISL_PATCH();
 init();
 /* ===================== v3.9 — start chooser, AI write flow, clean share sheet ===================== */
 const SRC_TITLES = { lib: 'লাইব্রেরি থেকে গল্প বাছুন', paste: 'নিজের গল্প পেস্ট করুন', ai: 'AI দিয়ে নতুন গল্প লিখুন', add: 'অনেক গল্প একসাথে লাইব্রেরিতে যোগ' };
