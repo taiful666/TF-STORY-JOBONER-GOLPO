@@ -18,6 +18,13 @@
     }
   } catch (e) { }
 
+  /* the narrator voice stays fixed: if this part has none yet, take the one chosen in the Story part */
+  try {
+    const o = JSON.parse(localStorage.getItem('tf_isl_settings') || '{}') || {}, st = JSON.parse(localStorage.getItem('tf_settings') || '{}') || {};
+    let ch = false; if (!o.voiceId && st.voiceId) { o.voiceId = st.voiceId; o.voiceName = st.voiceName || ''; ch = true; }
+    if (!(o.voiceList && o.voiceList.length) && st.voiceList && st.voiceList.length) { o.voiceList = st.voiceList; ch = true; }
+    if (ch) localStorage.setItem('tf_isl_settings', JSON.stringify(o));
+  } catch (e) { }
   const GOLD = '#A87A26', GREEN = '#123D26', CREAM = '#F8F1DF';
 
   /* ---------- people in salah (faceless, simple) ---------- */
@@ -166,15 +173,15 @@
     const cum = []; let cc = 0; pg.forEach(w => { cum.push(cc); cc += w.length + 1; });
     const prog = (t + .05 - pageStart) / pageDur * cc, kk = eo(cl((t - pageStart) / .3)), out = cl((end - t) / .15);
     c.save(); c.globalAlpha *= Math.min(kk, out); c.translate(0, (1 - kk) * 24 * u);
-    c.save(); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 28 * u; c.shadowOffsetY = 10 * u; rr(c, bx, y0, boxW, boxH, 30 * u, 'rgba(248,241,223,.97)'); c.restore();
-    rr(c, bx + 9 * u, y0 + 9 * u, boxW - 18 * u, boxH - 18 * u, 23 * u, null, 'rgba(168,122,38,.55)', 2.2 * u);
-    const dm = 9 * u; c.save(); c.fillStyle = GOLD; c.beginPath(); c.moveTo(cx, y0 - dm); c.lineTo(cx + dm, y0); c.lineTo(cx, y0 + dm); c.lineTo(cx - dm, y0); c.closePath(); c.fill(); c.restore();
+    c.save(); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 28 * u; c.shadowOffsetY = 10 * u; rr(c, bx, y0, boxW, boxH, 30 * u, VAR.cap.box); c.restore();
+    rr(c, bx + 9 * u, y0 + 9 * u, boxW - 18 * u, boxH - 18 * u, 23 * u, null, VAR.cap.line, 2.2 * u);
+    const dm = 9 * u; c.save(); c.fillStyle = VAR.cap.hl; c.beginPath(); c.moveTo(cx, y0 - dm); c.lineTo(cx + dm, y0); c.lineTo(cx, y0 + dm); c.lineTo(cx - dm, y0); c.closePath(); c.fill(); c.restore();
     c.textAlign = 'left';
     lines.forEach((l, li) => { let x = cx - lw[li] / 2; const y = y0 + 26 * u + lh * (li + .72);
       l.forEach(i => { const w = pg[i], wd = ww[i], hl = hlSet.has(w.replace(/[।,.!?“”]/g, ''));
         const st = cum[i], q = cl((prog - st) / 3.5); const a = .18 + .82 * eo(q), rise = (1 - eo(q)) * 14 * u;
-        c.save(); c.globalAlpha *= a; c.fillStyle = hl ? GOLD : GREEN; c.fillText(w, x, y + rise);
-        if (hl && q > .3) { c.globalAlpha *= eo(cl((q - .3) / .7)); swash(c, x, x + wd * eo(cl((q - .3) / .7)), y + size * .3, size, GOLD); }
+        c.save(); c.globalAlpha *= a; c.fillStyle = hl ? VAR.cap.hl : VAR.cap.text; c.fillText(w, x, y + rise);
+        if (hl && q > .3) { c.globalAlpha *= eo(cl((q - .3) / .7)); swash(c, x, x + wd * eo(cl((q - .3) / .7)), y + size * .3, size, VAR.cap.hl); }
         c.restore(); x += wd + sp; }); });
     c.restore();
   }
@@ -233,7 +240,7 @@
   function hookLine(c, s, y, size, base, hi, maxW) {
     const parts = []; String(s || '').split(/(\{[^}]*\})/).forEach(p => { if (!p) return; const h = p[0] === '{'; p.replace(/[{}]/g, '').split(/\s+/).filter(Boolean).forEach(w => parts.push({ w, h })); });
     if (!parts.length) return 0; let sz = size, sp = 0, tw = 0;
-    const meas = () => { c.font = `700 ${sz}px TFAtma, ${FONT_FALLBACK}`; sp = c.measureText(' ').width; tw = parts.reduce((a, p) => a + c.measureText(p.w).width, 0) + sp * (parts.length - 1); };
+    const meas = () => { c.font = `700 ${sz}px ${VAR.font}, ${FONT_FALLBACK}`; sp = c.measureText(' ').width; tw = parts.reduce((a, p) => a + c.measureText(p.w).width, 0) + sp * (parts.length - 1); };
     meas(); while (tw > maxW && sz > 56) { sz -= 4; meas(); }
     let x = 540 - tw / 2; c.textAlign = 'left'; c.lineJoin = 'round';
     parts.forEach(p => { const w = c.measureText(p.w).width;
@@ -250,7 +257,7 @@
     R._camOverride = clampCam({ x: 540, y: people ? 1180 : 1000, z: people ? 1.34 : 1.12 }); try { R.drawScene(oc, si, t); } catch (e) { rect(oc, 0, 0, W, H, '#1E3A2F'); } R._camOverride = null;
     c.drawImage(off, 0, 0, W, H);
     // cinematic grade: warm light, dark edges, darker bottom for the text
-    c.save(); c.globalCompositeOperation = 'soft-light'; c.fillStyle = 'rgba(255,180,90,.35)'; c.fillRect(0, 0, W, H); c.restore();
+    c.save(); c.globalCompositeOperation = 'soft-light'; c.fillStyle = VAR.grade; c.fillRect(0, 0, W, H); c.restore();
     const vg = c.createRadialGradient(540, 760, 200, 540, 900, 1250); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.62)'); c.fillStyle = vg; c.fillRect(0, 0, W, H);
     const g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(4,14,10,.55)'); g.addColorStop(.16, 'rgba(4,14,10,0)'); g.addColorStop(.46, 'rgba(4,14,10,.05)'); g.addColorStop(.7, 'rgba(4,14,10,.82)'); g.addColorStop(1, 'rgba(4,14,10,.94)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
     // light from above (noor)
@@ -260,23 +267,108 @@
     // source badge
     const ay = st.scenes.find(x => x.type === 'ayah'); const isQ = ay ? !/বুখারি|হাদিস|মুসলিম|তিরমিজি|মাজাহ|মুফরাদ/.test(ay.ref || '') : true;
     const badge = isQ ? 'কুরআনের আলোয়' : 'হাদিসের আলোয়'; c.font = `400 44px TFGalada, ${FONT_FALLBACK}`; const bw = c.measureText(badge).width + 70;
-    c.save(); c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = 16; rr(c, 80, 96, bw, 74, 37, '#0F3D24'); c.restore(); rr(c, 86, 102, bw - 12, 62, 31, null, '#E9C46A', 3); txt(c, badge, 80 + bw / 2, 146, 44, '#F3DFA2', 400, 'center', 'TFGalada');
+    c.save(); c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = 16; rr(c, 80, 96, bw, 74, 37, VAR.badge); c.restore(); rr(c, 86, 102, bw - 12, 62, 31, null, '#E9C46A', 3); txt(c, badge, 80 + bw / 2, 146, 44, '#F3DFA2', 400, 'center', 'TFGalada');
     if (Sx.watermark !== false) { c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 12; drawLogo(c, W - 130, 134, 92, Sx.logo || 'প্র'); c.restore(); }
     // teaser ribbon + the hook
     let y = 1130;
-    if (d.ctx) { drawTeaserBanner(c, d.ctx, y - 210, 1, W); }
+    if (d.ctx) { const h = 112, m = 34, yy = y - 210; c.save(); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 18; c.shadowOffsetY = 6; rr(c, m, yy, W - 2 * m, h, 18, VAR.ribbon); c.restore(); rr(c, m + 8, yy + 8, W - 2 * m - 16, h - 16, 12, null, 'rgba(255,214,170,.35)', 2); richLine(c, d.ctx, W / 2, yy + h / 2 + 16, 46, W - 2 * m - 60, '#FFF3E0', '#FFC857', FONT_CAP, 700); }
     let l1 = d.l1 || '', l2 = d.l2 || ''; if (!/\{/.test(l1 + l2) && l2) { const w = l2.split(/\s+/); l2 = (w.length > 1 ? w.slice(0, -1).join(' ') + ' ' : '') + '{' + w[w.length - 1] + '}'; }
-    const s1 = hookLine(c, l1, y + 40, 112, '#FFFFFF', '#FFD15C', 940);
-    if (l2) hookLine(c, l2, y + 40 + s1 * 1.22 + 10, 138, '#FFFFFF', '#FFD15C', 960);
+    const s1 = hookLine(c, l1, y + 40, 112, '#FFFFFF', VAR.hookHi, 940);
+    if (l2) hookLine(c, l2, y + 40 + s1 * 1.22 + 10, 138, '#FFFFFF', VAR.hookHi, 960);
     // nudge to watch
     const ny = 1600; c.font = `700 40px ${FONT_CAP}, ${FONT_FALLBACK}`; const nt = 'শেষ পর্যন্ত দেখুন', nw = c.measureText(nt).width + 110;
-    c.save(); c.globalAlpha = .92; rr(c, 540 - nw / 2, ny - 50, nw, 76, 38, 'rgba(122,31,26,.92)'); c.restore(); txt(c, nt, 540 - 22, ny + 2, 40, '#FFF3E0', 700, 'center', FONT_CAP);
+    c.save(); c.globalAlpha = .92; rr(c, 540 - nw / 2, ny - 50, nw, 76, 38, VAR.ribbon); c.restore(); txt(c, nt, 540 - 22, ny + 2, 40, '#FFF3E0', 700, 'center', FONT_CAP);
     P(c, `M${540 + nw / 2 - 66},${ny - 16} l20,0 l-10,14Z`, '#FFC857');
     c.restore();
   }
+
+  /* ---------- style variants: every new video looks a little different (captions, cover, light) ---------- */
+  const VARIANTS = [
+    { name: 'সবুজ-সোনালি', cap: { box: 'rgba(248,241,223,.97)', line: 'rgba(168,122,38,.55)', text: '#123D26', hl: '#A87A26' }, grade: 'rgba(255,180,90,.35)', ribbon: '#7A1F1A', badge: '#0F3D24', hookHi: '#FFD15C', font: 'TFAtma' },
+    { name: 'রাতের নীল', cap: { box: 'rgba(14,26,48,.90)', line: 'rgba(170,200,255,.45)', text: '#F2F5FF', hl: '#9FD3FF' }, grade: 'rgba(90,140,255,.30)', ribbon: '#1E3A6E', badge: '#13284A', hookHi: '#9FD3FF', font: 'TFAtma' },
+    { name: 'পুরোনো পার্চমেন্ট', cap: { box: 'rgba(241,228,198,.97)', line: 'rgba(120,80,40,.5)', text: '#4A2E14', hl: '#9C3D1E' }, grade: 'rgba(200,140,70,.38)', ribbon: '#6B3A1E', badge: '#4A2E14', hookHi: '#FFC46B', font: 'TFGalada' },
+    { name: 'কাচের কালো', cap: { box: 'rgba(10,12,12,.78)', line: 'rgba(233,196,106,.6)', text: '#FFFFFF', hl: '#F2C14E' }, grade: 'rgba(255,200,120,.22)', ribbon: '#8A1C1C', badge: '#111', hookHi: '#F2C14E', font: 'TFMina' },
+    { name: 'ভোরের আলো', cap: { box: 'rgba(255,250,240,.97)', line: 'rgba(214,120,80,.5)', text: '#3B2A22', hl: '#C2502A' }, grade: 'rgba(255,150,120,.32)', ribbon: '#B5462A', badge: '#3B2A22', hookHi: '#FFB38A', font: 'TFAtma' },
+    { name: 'পান্না', cap: { box: 'rgba(6,46,36,.90)', line: 'rgba(233,196,106,.6)', text: '#F4EFE1', hl: '#E9C46A' }, grade: 'rgba(60,200,150,.22)', ribbon: '#0B5A44', badge: '#063226', hookHi: '#E9C46A', font: 'TFGalada' }
+  ];
+  let VAR = VARIANTS[0];
+  function pickVariant(adv) {
+    let n = 0; try { n = +(localStorage.getItem('tf_isl_var') || 0); } catch (e) { }
+    if (adv) { n = (n + 1) % VARIANTS.length; try { localStorage.setItem('tf_isl_var', String(n)); } catch (e) { } }
+    VAR = VARIANTS[n % VARIANTS.length]; return VAR;
+  }
+  pickVariant(false);
+
+  /* ---------- more places for everyday Islamic life ---------- */
+  function addMoreArt() {
+    Object.assign(E, {
+      rainwin(c, t) { rr(c, 600, 260, 360, 460, 14, '#1b2738'); for (let i = 0; i < 40; i++) { const x = 610 + (i * 37) % 340, y = 270 + ((t * 300 + i * 53) % 440); line(c, x, y, x - 6, y + 26, 'rgba(190,215,255,.55)', 2); } for (let i = 0; i < 8; i++) withA(c, .5, () => circ(c, 640 + (i * 41) % 300, 320 + (i * 67) % 360, 6, 'rgba(200,225,255,.6)')); rr(c, 600, 260, 360, 460, 14, null, '#5D4037', 14); line(c, 780, 260, 780, 720, '#5D4037', 8); line(c, 600, 490, 960, 490, '#5D4037', 8); },
+      taps(c) { rect(c, 0, 1100, W, 280, '#D9E3E6'); for (let i = 0; i < 6; i++) { const x = 120 + i * 170; rr(c, x - 10, 1120, 20, 50, 6, '#9AA6AD'); rr(c, x - 40, 1160, 80, 18, 8, '#B9C4CA'); for (let k = 0; k < 4; k++) withA(c, .6, () => line(c, x, 1180 + k * 20, x, 1192 + k * 20, '#8EC9E8', 4)); } rect(c, 0, 1300, W, 80, '#A9B6BC'); },
+      letter(c, t) { rr(c, 330, 1180, 420, 300, 8, '#F6EEDC'); for (let i = 0; i < 7; i++) line(c, 360, 1220 + i * 34, 700 - (i % 3) * 40, 1220 + i * 34, 'rgba(60,40,20,.35)', 3); P(c, 'M720,1170 L780,1110 L792,1122 L732,1182Z', '#2B2B2B'); },
+      dates(c) { ell(c, 400, 1300, 140, 40, '#C9A24A'); for (let i = 0; i < 9; i++) ell(c, 320 + (i % 5) * 38, 1282 - Math.floor(i / 5) * 18, 20, 12, '#6B2E14'); rr(c, 600, 1180, 70, 120, 10, 'rgba(200,230,255,.6)'); rect(c, 606, 1230, 58, 66, 'rgba(140,200,240,.7)'); },
+      clock(c, t) { circ(c, 860, 360, 90, '#F4EFE6', '#5D4037', 8); for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; line(c, 860 + Math.cos(a) * 70, 360 + Math.sin(a) * 70, 860 + Math.cos(a) * 80, 360 + Math.sin(a) * 80, '#5D4037', 4); } const m = t * .6, h = 3 * Math.PI / 2 + Math.PI * 2 * (3 / 12); line(c, 860, 360, 860 + Math.cos(h) * 44, 360 + Math.sin(h) * 44, '#2B2B2B', 8); line(c, 860, 360, 860 + Math.cos(m) * 66, 360 + Math.sin(m) * 66, '#2B2B2B', 5); },
+      tinmosque(c, t, tm) { rect(c, 230, GY - 330, 620, 340, '#EDE6D6'); P(c, `M200,${GY - 330} L540,${GY - 470} L880,${GY - 330}Z`, '#7E8C8F'); for (let i = 0; i < 3; i++) rr(c, 300 + i * 170, GY - 250, 90, 150, [45, 45, 0, 0], tm === 'night' ? '#FFD36B' : '#2F6B4F'); rr(c, 480, GY - 170, 120, 180, [60, 60, 0, 0], '#5D4037'); line(c, 540, GY - 470, 540, GY - 540, '#5D4037', 6); P(c, `M520,${GY - 560} q20,-30 40,0 q-20,-12 -40,0Z`, '#C9A24A'); },
+      rooftop(c) { rect(c, 0, 1150, W, 770, '#5E5A55'); rect(c, 0, 1130, W, 30, '#77716A'); for (let i = 0; i < 8; i++) line(c, 40 + i * 140, 1130, 40 + i * 140, 1040, '#77716A', 8); line(c, 0, 1040, W, 1040, '#77716A', 8); },
+      citylights(c, t, tm) { for (let i = 0; i < 9; i++) { const x = i * 125, h = 260 + (i * 97) % 300; rect(c, x, 1050 - h, 110, h + 100, tm === 'night' ? '#1E2433' : '#9AA5B1'); for (let k = 0; k < 12; k++) if ((i + k) % 3) withA(c, tm === 'night' ? .85 : .25, () => rect(c, x + 14 + (k % 3) * 32, 1070 - h + Math.floor(k / 3) * 50, 18, 26, '#FFD36B')); } }
+    });
+    const DEFS = [
+      ['rain_window', 'বৃষ্টির রাতের জানালা', 'wall:#2F3A4A rainwin floor:wood clock'],
+      ['wudu_area', 'ওজুখানা', 'wall:#E8EEF0 taps'],
+      ['letter_desk', 'চিঠি আর টেবিল ল্যাম্প', 'wall:#E3DCCB oillamp:820 floor:wood >letter'],
+      ['iftar_table', 'ইফতারের সময়', 'wall:#F1E6CE lantern floor:carpet >dates'],
+      ['sehri_kitchen', 'সেহরির রান্নাঘর', 'wall:#3A3F52 crescentwin floor:tile oillamp:300 clock'],
+      ['village_mosque', 'গ্রামের মসজিদ', 'sky moon trees tinmosque ground:grass'],
+      ['rooftop_night', 'রাতের ছাদ', 'sky stars moon citylights rooftop'],
+      ['hospital_prayer', 'হাসপাতালের নামাজের কোণ', 'wall:#E6EEF0 floor:tile clock >musalli:540/dua']
+    ];
+    DEFS.forEach(([k, b, r]) => {
+      PLACE_DEFS.push([k, b, 'ইসলামিক জীবন', r]);
+      const toks = r.split(/\s+/).filter(Boolean).map(x => { const fg = x[0] === '>'; const [n, ...a] = (fg ? x.slice(1) : x).split(':'); return { fg, n, a: a.join(':') }; });
+      PLACE_INDEX[k] = { bn: b, group: 'ইসলামিক জীবন', toks, outdoor: toks.some(x => x.n === 'sky') }; PLACES[k] = b;
+    });
+    ['letter', 'dates'].forEach(k => { FGE[k] = E[k]; });
+  }
+
+  /* ---------- bottom bar: previous / next step ---------- */
+  const STEP_BN = { 1: 'গল্প', 2: 'দৃশ্য', 3: 'কণ্ঠ ও মিউজিক', 4: 'এক্সপোর্ট' };
+  function stepNav() {
+    if ($('islStepNav')) return;
+    const css = document.createElement('style'); css.textContent = `
+      #islStepNav{position:fixed;left:10px;right:10px;bottom:calc(80px + env(safe-area-inset-bottom,0px));z-index:31;display:flex;align-items:center;gap:8px;padding:8px;border-radius:16px;background:rgba(255,255,255,.96);box-shadow:0 8px 28px rgba(0,0,0,.16);border:1px solid #e3e6df;max-width:620px;margin:0 auto}
+      #islStepNav button{flex:none;min-height:46px;padding:0 16px;border-radius:12px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;border:1px solid #d9ded6;background:#fff;color:#1E3A2F}
+      #islStepNav button.go{flex:1;background:#1E3A2F;color:#fff;border-color:#1E3A2F}
+      #islStepNav button:disabled{opacity:.35}
+      #islStepNav span{flex:none;font-size:12.5px;color:#6b7470;min-width:46px;text-align:center}
+      @media (min-width:1100px){#islStepNav{bottom:18px}}
+      body.isl main, body.isl .wrap{padding-bottom:150px}`;
+    document.head.append(css);
+    const prev = el('button', { type: 'button', id: 'islPrev', 'aria-label': 'আগের ধাপ', onclick: () => goStep(Math.max(1, curStep - 1)) }, '‹ আগের');
+    const lab = el('span', { id: 'islStepLab' });
+    const next = el('button', { type: 'button', class: 'go', id: 'islNext', onclick: () => goStep(Math.min(4, curStep + 1)) });
+    document.body.append(el('div', { id: 'islStepNav', role: 'navigation', 'aria-label': 'ধাপে ধাপে' }, prev, lab, next));
+    upd();
+  }
+  function upd() { const p = $('islPrev'), n = $('islNext'), l = $('islStepLab'); if (!p) return; p.disabled = curStep <= 1; l.textContent = `ধাপ ${bn(curStep)}/৪`; n.disabled = curStep >= 4 || !app.story; n.textContent = curStep >= 4 ? 'শেষ ধাপ' : `পরের: ${STEP_BN[curStep + 1]} ›`; }
+
+  /* ---------- voice: one fixed narrator, clearly shown; voices are made by themselves on the voice step ---------- */
+  function voiceCard() {
+    const box = $('v-tts'); if (!box || $('islVoiceCard')) return;
+    const name = el('b', { id: 'islVName' }), play = el('button', { type: 'button', class: 'ghost sm', text: '▶ শুনুন', onclick: () => { try { previewVoice(); } catch (e) { } } });
+    const change = el('button', { type: 'button', class: 'ghost sm', text: 'বদলান', onclick: () => { const s = $('cVoice'); if (s) { s.focus(); s.scrollIntoView({ block: 'center' }); if (!(S.voiceList || []).length) { try { loadVoices(); } catch (e) { } } } } });
+    const auto = el('label', { class: 'chk' }, el('input', { type: 'checkbox', id: 'islAutoTTS', checked: S.islAutoTTS !== false ? 'checked' : null, onchange: e => { S.islAutoTTS = e.target.checked; saveSettings(); } }), ' এই ধাপে এলে নিজে থেকেই পুরো গল্পের কণ্ঠ বানাও');
+    const card = el('div', { id: 'islVoiceCard', class: 'islvc' }, el('div', { class: 'row between' }, el('span', null, '🎙 কথক — সব গল্পে এই কণ্ঠই থাকবে'), el('span', null, play, ' ', change)), name, el('p', { class: 'muted sm', text: 'একবার তালিকা থেকে বাছলে আর বদলাবে না, যতক্ষণ না আপনি নিজে বদলান।' }), auto);
+    box.prepend(card);
+    const css = document.createElement('style'); css.textContent = '.islvc{border:1px solid #d7e4da;background:#f3f8f4;border-radius:14px;padding:12px 14px;margin:0 0 12px;display:grid;gap:6px}.islvc b{font-size:18px;color:#1E3A2F}';
+    document.head.append(css);
+    // advanced voice options tucked away
+    const mv = $('sMultiVoice'), cv = $('charVoices'), vid = $('cVoiceId');
+    if (mv && cv) { const det = el('details', { class: 'more' }, el('summary', { text: 'আরও (চরিত্রের আলাদা কণ্ঠ, Voice ID)' })); cv.parentNode.insertBefore(det, cv); det.append(mv.closest('label'), cv); if (vid) det.append(vid.closest('label')); }
+    showVName(); $('cVoice') && $('cVoice').addEventListener('change', () => setTimeout(showVName, 50));
+  }
+  function showVName() { const n = $('islVName'); if (!n) return; n.textContent = S.voiceId ? (S.voiceName || 'নির্বাচিত ভয়েস') : 'এখনো বাছা হয়নি — নিচের তালিকা থেকে একটা বাছুন (↻ চাপলে তালিকা আসবে)'; }
   window.ISL_ART_PATCH = function () {
     try { if (!localStorage.getItem('tf_isl_v2b')) { Object.assign(S, { capLook: 'islamic', capFont: 'serif', titleFont: 'galada', accFont: 'galada' }); if (!S.music || S.music === 'none' || S.music === 'auto') S.music = 'isl_auto'; saveSettings(); localStorage.setItem('tf_isl_v2b', '1'); } } catch (e) { }
-    addArt();
+    addArt(); addMoreArt();
     // thumbnail theme (also the first frame of the video, which Facebook/YouTube take as the cover)
     COVER_THEMES.islamic = { name: 'ইসলামিক আকর্ষণীয়', islamic: true };
     try { if (!localStorage.getItem('tf_isl_v3')) { S.coverTheme = 'islamic'; S.coverFirstFrame = true; saveSettings(); localStorage.setItem('tf_isl_v3', '1'); } } catch (e) { }
@@ -294,6 +386,11 @@
     E.animalIn = function (c, t, tm, a) { const [n, x] = String(a || '').split(':'); drawAnimal(n, c, t, x, false); };
     // foreground (drawn every frame, sharp and moving): animals, people in salah, a musalli, the Quran stand
     ['salah', 'musalli', 'rehalq'].forEach(k => { FGE[k] = E[k]; });
+    const _gs = goStep;
+    goStep = function (n) { _gs(n); upd(); if (+n === 3) { showVName();
+        try { if (S.islAutoTTS !== false && app.story && app.tl && getKey('cKey') && S.voiceId && app.tl.shots.some(sh => !sh.seg) && !$('btnTTS').disabled) setTimeout(() => { if (curStep === 3) $('btnTTS').click(); }, 400); } catch (e) { } } };
+    const _la = loadAny;
+    loadAny = async function (text, o) { pickVariant(true); const r = await _la(text, o); upd(); try { app.renderer._cov = null; thumbSoon(); } catch (e) { } return r; };
     // faceless people
     drawFace = function (c, L) { noFace(c, L); };
     // captions
@@ -309,6 +406,9 @@
     const _pf = progFor; progFor = function (sc) { try { SC_NOW = (window.TFStudio && TFStudio.app && TFStudio.app.story) ? TFStudio.app.story.scenes : SC_NOW; } catch (e) { } return _pf(sc); };
   };
   window.ISL_ART_DOM = function () {
+    stepNav(); voiceCard();
+    // "change style" button next to the thumbnail
+    const tdl = $('btnThumbDl'); if (tdl && !$('islStyleBtn')) { const b = el('button', { type: 'button', class: 'ghost sm', id: 'islStyleBtn', onclick: () => { pickVariant(true); try { app.renderer._cov = null; thumbSoon(); drawAt(app.t); } catch (e) { } toast('নতুন স্টাইল: ' + VAR.name, 'ok'); } }, '🎨 স্টাইল বদলান'); tdl.after(b); }
     const sel = $('sCapLook'); if (sel && !sel.querySelector('option[value="islamic"]')) { sel.prepend(el('option', { value: 'islamic', text: 'ইসলামিক ক্লাসিক (পোস্ট মেকারের মতো)' })); sel.value = S.capLook || 'islamic'; }
     const ct = $('coverTheme'); if (ct && !ct.querySelector('option[value="islamic"]')) { ct.prepend(el('option', { value: 'islamic', text: 'ইসলামিক আকর্ষণীয় (আবেগের মুহূর্ত + বড় শিরোনাম)' })); ct.value = S.coverTheme || 'islamic'; }
     const ms = $('mStyle'); if (ms) { ms.innerHTML = ''; Object.entries(MUSIC_STYLES).forEach(([k, v]) => ms.append(el('option', { value: k, text: v }))); ms.value = MUSIC_STYLES[S.music] ? S.music : 'isl_auto'; }

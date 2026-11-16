@@ -6111,7 +6111,15 @@ const voiceSig = () => [S.model, S.voiceId, S.speed, S.emotion].join('|');
 /* voices: one fixed narrator (S.voiceId) + one fixed voice per character role (S.roleVoices: father → id, mother → id …).
    A role's voice is picked automatically the first time it is needed, saved, and then kept for every story until the user changes it.
    A character's own spoken lines ("> ") use that voice; everything else is the narrator. */
-function setVoiceList(vs) { S.voiceList = (vs || []).map(v => ({ id: v.id, name: v.name, gender: v.gender || '', desc: v.desc || '' })); saveSettings(); }
+function setVoiceList(vs) { S.voiceList = (vs || []).map(v => ({ id: v.id, name: v.name, gender: v.gender || '', desc: v.desc || '', preview: v.preview || '' })); saveSettings(); }
+/* the voice dropdown always shows the saved list and the chosen voice (no need to reload voices after reopening the app) */
+function fillVoiceSelect(vs) {
+  const s = $('cVoice'); if (!s) return; vs = vs || S.voiceList || []; s.innerHTML = '';
+  s.append(el('option', { value: '', text: vs.length ? `— ${bn(vs.length)}টা বাংলা ভয়েস —` : '— ভয়েস লোড করুন (↻) —' }));
+  vs.forEach(v => s.append(el('option', { value: v.id, 'data-prev': v.preview || '', text: `${v.name}${v.gender ? ' · ' + ({ masculine: 'পুরুষ', feminine: 'নারী' }[v.gender] || v.gender) : ''}` })));
+  if (S.voiceId && !vs.some(v => v.id === S.voiceId)) s.append(el('option', { value: S.voiceId, text: (S.voiceName || 'নির্বাচিত ভয়েস') + ' (সেভ করা)' }));
+  if (S.voiceId) s.value = S.voiceId;
+}
 function speakersOf(st) { const out = []; if (st) st.scenes.forEach(sc => sc.lines.forEach(l => { if (l.speak && l.who && !out.includes(l.who)) out.push(l.who); })); return out; }
 function roleSlots() { // character id → voice slot (its role; a second character with the same role gets "role#2")
   const st = app.story, out = {}, seen = {}; if (!st) return out;
@@ -6542,8 +6550,7 @@ function chooseVoice(m) { app.visited3 = true; setVoiceTab(m); if (m === 'none' 
 async function loadVoices() {
   const key = getKey('cKey'); if (!key) { toast('আগে Cartesia API key দিন', 'err'); return; } storeKey('cKey');
   const b = $('btnVoices'); b.disabled = true;
-  try { const vs = await cartesiaVoices({ key }); setVoiceList(vs); autoNarrator(); renderCharVoices(); const s = $('cVoice'); s.innerHTML = ''; s.append(el('option', { value: '', text: `— ${bn(vs.length)}টা বাংলা ভয়েস —` }));
-    vs.forEach(v => s.append(el('option', { value: v.id, 'data-prev': v.preview || '', text: `${v.name}${v.gender ? ' · ' + ({ masculine: 'পুরুষ', feminine: 'নারী' }[v.gender] || v.gender) : ''}` }))); if (S.voiceId) s.value = S.voiceId; }
+  try { const vs = await cartesiaVoices({ key }); setVoiceList(vs); autoNarrator(); renderCharVoices(); fillVoiceSelect(vs); }
   catch (e) { toast(e.message, 'err', 7000); } finally { b.disabled = false; }
 }
 let prevAudio = null;
@@ -6964,7 +6971,7 @@ function buildFontPickers() {
 }
 function applySettingsToUI() {
   applyFonts(); buildFontPickers(); $('sCapLook').value = S.capLook || 'news'; $('sCtxBg').checked = S.ctxBg !== false;
-  $('cModel').value = S.model; $('cVoiceId').value = S.voiceId || ''; $('cSpeed').value = S.speed; $('cSpeedOut').textContent = (+S.speed).toFixed(2); $('cEmotion').value = S.emotion || 'none';
+  $('cModel').value = S.model; $('cVoiceId').value = S.voiceId || ''; fillVoiceSelect(); $('cSpeed').value = S.speed; $('cSpeedOut').textContent = (+S.speed).toFixed(2); $('cEmotion').value = S.emotion || 'none';
   $('mStyle').value = S.music; $('mVol').value = S.musicVol; $('mVolOut').textContent = S.musicVol; $('mSfx').checked = S.sfx !== false; $('mPops').checked = S.pops !== false;
   $('sSeries').value = S.series; $('sTagline').value = S.tagline; $('sLogo').value = S.logo; $('sHero').value = S.hero; $('sOutro').value = S.outro || ''; $('sWm').value = S.wm; $('sWmOut').textContent = S.wm;
   $('sCap').value = S.capSize; $('sCapOut').textContent = S.capSize; $('sGap').value = S.gap; $('sWatermark').checked = S.watermark !== false; $('sCaptions').checked = S.captions !== false; $('sCapStyle').value = S.capStyle || 'karaoke'; $('sProgress').checked = S.progress !== false; $('sCinema').checked = S.cinema !== false; $('sAnimStyle').value = S.animStyle === 'classic' ? 'classic' : S.animStyle === 'golpo' ? 'golpo' : 'jibonpath'; $('sHookCard').checked = S.hookCard !== false; $('sMultiVoice').checked = S.multiVoice !== false; $('sThumb').checked = S.thumbFrame !== false;

@@ -14,7 +14,7 @@
     if (!localStorage.getItem('tf_isl_seeded')) {
       if (!localStorage.getItem('tf_isl_settings')) {
         let o = {}; try { o = JSON.parse(localStorage.getItem('tf_settings') || '{}') || {}; } catch (e) { }
-        ['voiceList', 'roleVoices'].forEach(k => delete o[k]);
+        delete o.roleVoices;
         Object.assign(o, { series: 'প্রশান্তির বার্তা', tagline: 'কুরআন ও হাদিসের আলোয়', logo: 'প্র', music: 'none', sfx: false, pops: false, storyStyle: 'islamic', ctxBg: true, hookCard: true });
         localStorage.setItem('tf_isl_settings', JSON.stringify(o));
       }
@@ -177,13 +177,15 @@ ${segList}
 - পর্দায় কোনো মানুষ বা চরিত্র দেখানো হবে না: "চরিত্র:" লাইন দেবে না, লাইনের শুরুতে কোনো চরিত্র-কোড দেবে না, দৃশ্যের লাইনে "কারা পর্দায়" ঘর খালি রাখবে।
 - ভাষা কোমল, সম্মানজনক, আশা জাগানো। ভয় দেখানো, কঠোরতা, মাযহাবি বিতর্ক, ফতোয়া, রাজনীতি নয়। "আমিন না লিখে যাবেন না" ধরনের চাপ দেওয়া লাইন নয়।
 
-## গল্পের কাঠামো (এই ক্রমে)
-1. হুক দৃশ্য (১-২ লাইন): ঘটনার সবচেয়ে টানটান মুহূর্ত বা দর্শককে একটা প্রশ্ন — যেন স্ক্রল থেমে যায়।
-2. ২-৪টা গল্পের দৃশ্য: ঘটনাটা ধাপে ধাপে, সহজ ভাষায়, ছোট ছোট বাক্যে। প্রতিটা দৃশ্যের জায়গা নিচের তালিকা থেকে, ঘটনার সাথে মিলিয়ে।
+## গল্পের কাঠামো (এই ক্রমে) — সিনেমার মতো
+${CINEMA_RULES}
+${styleRule()}
+1. হুক দৃশ্য (২-৩ লাইন): ঘটনার সবচেয়ে টানটান মুহূর্ত দিয়ে শুরু — যেন স্ক্রল থেমে যায়।
+2. ৪-৬টা গল্পের দৃশ্য: পটভূমি → চাপ বাড়ে → সবচেয়ে অন্ধকার মুহূর্ত → আল্লাহর দিকে ফেরা। ছোট ছোট বাক্যে, চোখে দেখার মতো খুঁটিনাটি (তবে উৎসে নেই এমন ঘটনা নয়)। প্রতিটা দৃশ্যের জায়গা নিচের তালিকা থেকে।
 3. "## ayah | নম্বর" — উপরের যে ১-৩টা ${src.label} গল্পের মূল কথা (মোট ৭০ শব্দের মধ্যে হলে ভালো), শুধু তাদের নম্বর দাও, যেমন "## ayah | ${bnN(src.segs[0].n)}" বা "## ayah | ${bnN(src.segs[0].n)}-${bnN(src.segs[Math.min(1, src.segs.length - 1)].n)}"। এই দৃশ্যে শুধু একটা ভূমিকা-লাইন দাও (যেমন "${who}")। আসল লেখা অ্যাপ নিজে বসাবে — তুমি উদ্ধৃতি লিখবে না।
 4. "## takeaways": "আমাদের জীবনে" — ২-৩টা ছোট শিক্ষা, আজকের জীবনের সাথে মিলিয়ে। প্রতিটা লাইনে <মূল কথা> দাও।
 5. "## cta | প্রশ্ন | বিকল্প": দর্শককে একটা নরম প্রশ্ন, শেষে "কমেন্টে লিখুন।"
-- মোট ১৬-২৬টা লাইন (ayah দৃশ্যের লাইন বাদে)।
+- মোট ৩০-৪০টা লাইন (ayah দৃশ্যের লাইন বাদে)।
 
 ## কণ্ঠ যেন একদম স্বাভাবিক শোনায়
 - প্রতিটা লাইন এক নিঃশ্বাসে বলা যায় এমন: ৫-১৪ শব্দ। লম্বা বাক্য ভেঙে দুই লাইন করো। প্রতিটা লাইনের শেষে দাঁড়ি/প্রশ্নবোধক/বিস্ময় চিহ্ন।
@@ -421,6 +423,93 @@ ${who.split(' / ')[0]}
 
   // places that already show people in prayer: no extra characters there
   const CROWD = /^(mosque_salah|eid_salah|tahajjud_room|night_dua|kaaba_view)\b/;
+
+  /* ---------- how every story should feel (ready-made, AI or pasted from Gemini/ChatGPT) ---------- */
+  const CINEMA_RULES = `- গল্পটা একটা ছোট আবেগময় নাটকের মতো: আগে মানুষের কষ্ট, টানাপোড়েন, নীরবতা — তারপর ধীরে ধীরে আল্লাহর দিকে ফেরা, তারপর আয়াত/হাদিস, তারপর বদলে যাওয়া।
+- প্রতিটা বাক্যে দর্শক যেন আটকে থাকে: ছোট বাক্য, বর্তমান কাল, চোখে দেখা যায় এমন খুঁটিনাটি (ঘড়ির টিকটিক, ঠান্ডা মেঝে, বৃষ্টির শব্দ, কাঁপা হাত, পুরোনো জায়নামাজ)।
+- মাঝে মাঝে এক লাইনের নীরব মুহূর্ত ("ঘরটা চুপ।"), মনের ভেতরের কথা, আর একটা প্রতীকী জিনিস (মায়ের চিঠি, পুরোনো তাসবিহ, বাবার ছাতা) যা শেষে আবার ফিরে আসে।
+- কান্না আসবে সত্যিকারের অনুভূতি থেকে, অতিরঞ্জন থেকে নয়। শেষটা আশা আর আল্লাহর রহমতের দিকে।
+- দোয়া করলেই দুনিয়াবি জিনিস নিশ্চিত পাওয়া যায় — এমন দাবি নয়; ফল আল্লাহর ইচ্ছায়, আর শান্তি আসে ভরসায়।`;
+  const STYLES = [
+    'বর্ণনার ধরন: ফ্ল্যাশব্যাক — শেষের কাছাকাছি একটা মুহূর্ত দিয়ে শুরু করো, তারপর "কয়েক মাস আগে..." বলে পেছনে যাও।',
+    'বর্ণনার ধরন: চিঠি/ডায়েরি — গল্পের একটা অংশ কোনো চরিত্রের চিঠি বা ডায়েরির ভাষায় বলা হবে।',
+    'বর্ণনার ধরন: "আপনি" — শুরুতে দর্শককে সরাসরি "আপনি" বলে গল্পের ভেতরে টেনে নাও, তারপর চরিত্রের গল্প।',
+    'বর্ণনার ধরন: একটা জিনিসের চোখে — পুরোনো জায়নামাজ, তাসবিহ বা ঘড়ি নিজে গল্পটা বলছে, শেষে মানুষের কণ্ঠে ফেরা।',
+    'বর্ণনার ধরন: দুই সময় — "তখন" আর "এখন" পাশাপাশি কাটাকাটি করে দেখাও।',
+    'বর্ণনার ধরন: রহস্য — শুরুতে একটা প্রশ্ন রেখে দাও, উত্তরটা শেষে একটা নরম টুইস্টে খুলবে।',
+    'বর্ণনার ধরন: সময় গুনে — রাত ২:৪৭, ২:৫৩, ৩:০০... এভাবে সময় ধরে উত্তেজনা বাড়াও।',
+    'বর্ণনার ধরন: সংলাপ-নির্ভর — দুই চরিত্রের ছোট ছোট কথোপকথনে গল্প এগোবে, মাঝে কথকের বর্ণনা।'
+  ];
+  function styleRule() { let n = 0; try { n = +(localStorage.getItem('tf_isl_style') || 0); localStorage.setItem('tf_isl_style', String((n + 1) % STYLES.length)); } catch (e) { } return '- ' + STYLES[n % STYLES.length] + ' (প্রতিবার ভিন্ন ধরন, যাতে ভিডিওগুলো একঘেয়ে না হয়)'; }
+  const LIFE_TOPICS = ['তাহাজ্জুদ ও শেষ রাতের দোয়া', 'ধৈর্য ও আশা', 'বাবা-মায়ের খেদমত', 'হালাল রুজি ও সততা', 'তাওবা ও ফিরে আসা', 'ক্ষমা ও রাগ নিয়ন্ত্রণ', 'দান ও মানবতা', 'শুকরিয়া', 'মৃত্যু ও আখিরাতের স্মরণ', 'নামাজে ফেরা', 'প্রবাস জীবন', 'অসুস্থতা ও ধৈর্য', 'দাম্পত্য ও পরিবার', 'সন্তান হারানো মা'];
+  function buildLifePrompt(topic, idea) {
+    const places = Object.entries(PLACE_INDEX).filter(([k, v]) => !v.legacy).map(([k, v]) => `${k} (${v.bn})`).slice(0, 400).join(', ');
+    return `তুমি একজন দক্ষ বাংলা চিত্রনাট্যকার ও ইসলামিক গল্পকার। "${S.series || 'প্রশান্তির বার্তা'}" চ্যানেলের জন্য বাস্তব জীবনের একটা আবেগময়, সিনেমাটিক ইসলামিক গল্প লেখো — নিচের "TF Script" ফরম্যাটে। এক কথকের কণ্ঠে পড়া হবে (Cartesia AI)।
+
+## বিষয়
+${topic}${idea ? '\nগল্পের ভাবনা: ' + idea : ''}
+
+## কীভাবে লিখবে
+${CINEMA_RULES}
+${styleRule()}
+- কাঠামো: হুক → পটভূমি → চাপ বাড়ে (২-৩ ধাপে) → সবচেয়ে ভাঙা মুহূর্ত → আল্লাহর দিকে ফেরা (ওজু, সিজদা, মনে পড়া একটা কথা) → "## ayah" দৃশ্য → বাস্তবসম্মত বদল → "## takeaways" → "## cta"।
+- মোট ৩০-৪০ লাইন (ayah দৃশ্যের লাইন বাদে), ৫-৭টা গল্পের দৃশ্য।
+- চরিত্র শুধু সাধারণ মানুষ (নবী, সাহাবি বা ফেরেশতাকে কখনো চরিত্র বানাবে না)। পর্দায় মুখ দেখা যায় না, তাই মুখের বর্ণনা নয়, শরীরের ভাষা ও পরিবেশ দিয়ে আবেগ বোঝাও।
+- নবীদের নামের পরে (আ.), রাসূলুল্লাহর পরে ﷺ, সাহাবির পরে (রা.)।
+
+## আয়াত/হাদিস (খুব সাবধানে)
+- গল্পের মূল কথার সাথে মেলে এমন একটা সুপরিচিত আয়াত দাও, যার সূরা ও আয়াত নম্বর তুমি নিশ্চিত জানো। অথবা সহিহ বুখারি/সহিহ মুসলিমের একটা সুপরিচিত হাদিস, নম্বরসহ — নিশ্চিত না হলে হাদিস নয়, আয়াত দাও।
+- ayah দৃশ্যের লেখা হুবহু এই ফরম্যাটে (কুরআনের ক্ষেত্রে "উৎস: q সূরা:আয়াত" লাইনটা অবশ্যই দেবে — অ্যাপ ইন্টারনেট থাকলে মূল অনুবাদ বসিয়ে নেবে):
+## ayah | সূরা আল-বাকারা, আয়াত ১৫৩
+উৎস: q 2:153
+- আল্লাহ তাআলা বলেন,
+- (আয়াতের বাংলা অর্থ, ছোট ছোট লাইনে)
+- হাদিস হলে: "## ayah | সহিহ বুখারি, হাদিস ৬১১৪", "উৎস: h bukhari 6114", "- রাসূলুল্লাহ ﷺ বলেছেন," তারপর অর্থ।
+
+## কণ্ঠ যেন স্বাভাবিক শোনায়
+- প্রতিটা লাইন ৫-১৪ শব্দ, শেষে দাঁড়ি/প্রশ্নবোধক/বিস্ময়। ইমোজি, বন্ধনীতে নির্দেশনা, "..." দেবে না।
+- প্রতিটা লাইনের শেষে {১-২টা মূল শব্দ} সোনালি করার জন্য।
+
+## TF Script ফরম্যাট (হুবহু, একটা কোড ব্লকে)
+\`\`\`
+=== শিরোনাম (কৌতূহল জাগানো, আবেগের, ৫-১০ শব্দ)
+থাম্বনেল: লাল ফিতার কৌতূহল-লাইন (৪-৭ শব্দ) | বড় লাইন ১ (২-৪ শব্দ) | বড় লাইন ২-এর {মূল শব্দ} | book | ১
+চরিত্র: rafiq=রফিক/pious_young/m, ma=মা/hijabi_mother/f
+## tahajjud_room night sad | রাত ৩টা |
+একটা লাইন। {মূল শব্দ}
+rafiq:crying:pray_hands চরিত্রের ভাব দেখাতে লাইনের শুরুতে কোড:ভাব:কাজ। {শব্দ}
+## ayah | ...
+...
+## takeaways
+<মূল শব্দ> একটা শিক্ষা। {শব্দ}
+## cta | দর্শকের জন্য নরম প্রশ্ন? | বিকল্প ১, বিকল্প ২, বিকল্প ৩
+প্রশ্নটা আবার, শেষে কমেন্টে লিখুন। {কমেন্টে লিখুন}
+বর্ণনা: ২ লাইনের বর্ণনা
+হ্যাশট্যাগ: #Shorts #ইসলামিক_গল্প #...
+\`\`\`
+- দৃশ্যের লাইন: "## জায়গা সময় মেজাজ [rain/fog] | ব্যাজ | চরিত্র-কোড,চরিত্র-কোড" (কেউ না থাকলে শেষ ঘর খালি)।
+- জায়গা: ${places}
+- প্রাণী দেখাতে: জায়গা+প্রাণী:x, যেমন village_yard+goat:300+cow:760 (goat, sheep, dumba, cow, camel, horse, donkey, doves, cat)।
+- চরিত্রের ধরন: pious_young, imam, hujur, hajji, muezzin, talib, madrasa_boy, muslimah, hijabi_mother, hijabi_girl, alima, nani_hijab, father, mother, son, daughter, husband, wife, uncle, doctor_m, teacher_m, shopkeeper, rickshaw_puller, student_m, boss_m, little_boy, little_girl (নারী চরিত্রে muslimah/hijabi_* ভালো)।
+- ভাব: neutral, happy, sad, worried, surprised, angry, crying, tired, proud, shy | কাজ: idle, talk, phone, hold, pray_hands, head_down, hands_on_head, wave
+- সময়: day, evening, night | মেজাজ: normal, happy, sad, tense, regret
+শুধু কোড ব্লকটা দাও।`;
+  }
+  async function lifeGenerate(topic, idea) {
+    if (BUSY) { toast('একটা গল্প লেখা হচ্ছে — একটু অপেক্ষা করুন'); return; }
+    const prompt = buildLifePrompt(topic, idea), ai = whichAI();
+    if (ai === 'chat') { PENDING = { life: true, prompt }; const box = $('islChat'); showSrc('lib'); box.classList.remove('hidden'); $('islChatTitle').textContent = 'নতুন জীবনের গল্প — ' + topic; $('islChatIn').value = ''; box.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+    BUSY = 'life'; showSrc('lib'); islRenderLib();
+    try { setStat(`${ai === 'claude' ? 'Claude' : 'Gemini'} নতুন গল্প লিখছে… (৩০-৯০ সেকেন্ড)`); const tx = await aiComplete(prompt, ai); await saveLife(tx); }
+    catch (e) { setStat(e.message, 'err'); toast(e.message, 'err', 8000); } finally { BUSY = false; islRenderLib(); }
+  }
+  async function saveLife(tx) {
+    let t = (splitStories(tx)[0] || tx).replace(/```[a-z]*/gi, '').trim(); validateStory(t);
+    const id = 'isl_life_' + Date.now().toString(36); t = await verifyQuran(t, null);
+    USERLIB.push({ id, txt: t, at: Date.now() }); await saveUserLib(); updateMyLibInfo();
+    setStat('✓ নতুন গল্প লাইব্রেরিতে রাখা হয়েছে (নিজের যোগ করা)', 'ok');
+    if (await loadAny(t, { libId: id })) { app.libId = id; autosave(); toast('গল্প তৈরি — দৃশ্য দেখে কণ্ঠ দিন', 'ok', 6000); }
+  }
   /* ---------- library UI ---------- */
   let BUSY = false, PENDING = null;
   const genOf = id => USERLIB.slice().reverse().find(u => u.src === id) || null;
@@ -616,7 +705,7 @@ ${who.split(' / ')[0]}
         el('p', { class: 'muted sm', text: '১) প্রম্পট কপি করে ChatGPT / Gemini / Claude-এ দিন। ২) উত্তরটা পুরো কপি করে নিচে পেস্ট করুন। ৩) "গল্প বানান" চাপুন — আসল আয়াত/হাদিস অ্যাপ নিজে বসাবে।' }),
         el('div', { class: 'row' }, el('button', { type: 'button', class: 'primary', text: 'প্রম্পট কপি করুন', onclick: () => PENDING && copyText(PENDING.prompt, 'প্রম্পট কপি হয়েছে — চ্যাটে পেস্ট করুন') }), el('button', { type: 'button', class: 'ghost', text: 'বন্ধ', onclick: () => { $('islChat').classList.add('hidden'); PENDING = null; } })),
         el('textarea', { id: 'islChatIn', placeholder: 'AI-এর উত্তর এখানে পেস্ট করুন' }),
-        el('button', { type: 'button', class: 'primary wide', text: 'গল্প বানান', onclick: async () => { if (!PENDING) return; const tx = $('islChatIn').value.trim(); if (!tx) { toast('আগে উত্তর পেস্ট করুন', 'err'); return; } try { await saveAndOpen(PENDING.item, PENDING.src, tx, {}); $('islChat').classList.add('hidden'); PENDING = null; } catch (e) { toast('পড়া গেল না: ' + e.message, 'err', 7000); } } }));
+        el('button', { type: 'button', class: 'primary wide', text: 'গল্প বানান', onclick: async () => { if (!PENDING) return; const tx = $('islChatIn').value.trim(); if (!tx) { toast('আগে উত্তর পেস্ট করুন', 'err'); return; } try { if (PENDING.life) await saveLife(tx); else await saveAndOpen(PENDING.item, PENDING.src, tx, {}); $('islChat').classList.add('hidden'); PENDING = null; } catch (e) { toast('পড়া গেল না: ' + e.message, 'err', 7000); } } }));
       const firstRow = lib.querySelector('.row');
       lib.insertBefore(el('div', null, how, bar, note, stat, chat), firstRow);
       $('libRandom').textContent = 'র‍্যান্ডম একটা গল্প';
@@ -635,7 +724,18 @@ ${who.split(' / ')[0]}
         el('p', { class: 'muted sm', text: 'যে আয়াত বা হাদিস নিয়ে গল্প চান, তার নম্বর দিন। অ্যাপ আসল লেখা ডাউনলোড করবে, AI গল্প সাজাবে।' }),
         el('label', null, 'উৎস', kind), qb, hb,
         el('label', null, 'শিরোনাম (ঐচ্ছিক)', el('input', { id: 'islTitle', placeholder: 'যেমন: ক্ষমার শক্তি' })),
-        el('button', { type: 'button', class: 'primary wide', text: 'গল্প বানান', onclick: () => { try { const it = customItem(); showSrc('lib'); islGenerate(it); } catch (e) { toast(e.message, 'err', 6000); } } })));
+        el('button', { type: 'button', class: 'primary wide', text: 'আয়াত/হাদিস থেকে গল্প বানান', onclick: () => { try { const it = customItem(); showSrc('lib'); islGenerate(it); } catch (e) { toast(e.message, 'err', 6000); } } })));
+    }
+    if (ai) {
+      const topic = el('select', { id: 'islLifeTopic' }, ...LIFE_TOPICS.map(x => el('option', { value: x, text: x })));
+      const idea = el('textarea', { id: 'islLifeIdea', rows: 3, placeholder: 'ঐচ্ছিক: গল্পের ভাবনা — যেমন "প্রবাসী ছেলে ঈদের রাতে মাকে ফোন করতে পারছে না"' });
+      ai.append(el('div', { class: 'isl-form', style: 'margin-top:22px;border-top:1px solid var(--line);padding-top:16px' },
+        el('b', { text: 'নতুন জীবনের গল্প লেখান (একই সিনেমাটিক ধাঁচে)' }),
+        el('p', { class: 'muted sm', text: 'বিষয় বাছুন, চাইলে ভাবনা লিখুন। Claude/Gemini key থাকলে অ্যাপেই লেখা হবে; না থাকলে প্রম্পট কপি করে Gemini/ChatGPT-এ দিন, উত্তর পেস্ট করুন। প্রতিবার লেখার ধরন বদলে যায়।' }),
+        el('label', null, 'বিষয়', topic), el('label', null, 'ভাবনা (ঐচ্ছিক)', idea),
+        el('div', { class: 'row' },
+          el('button', { type: 'button', class: 'primary', text: 'গল্প লেখান', onclick: () => lifeGenerate(topic.value, idea.value.trim()) }),
+          el('button', { type: 'button', class: 'ghost', text: 'শুধু প্রম্পট কপি', onclick: () => copyText(buildLifePrompt(topic.value, idea.value.trim()), 'প্রম্পট কপি হয়েছে — Gemini/ChatGPT-এ দিন, উত্তর "পেস্ট" অংশে দিন') }))));
     }
     keyNote();
     if (window.ISL_ART_DOM) window.ISL_ART_DOM();
@@ -690,6 +790,7 @@ ${who.split(' / ')[0]}
     publishPack = islPublishPack;
     if (window.ISL_ART_PATCH) window.ISL_ART_PATCH();
     renderLib = islRenderLib; fillLibFilters = islFillFilters; updateUsedInfo = function () { };
+    const _loadQ = loadAny; loadAny = async function (t, o) { try { if (typeof t === 'string') t = await verifyQuran(t, o && o.libId); } catch (e) { } return _loadQ(t, o); };
     const _addUsed = addUsed; addUsed = function (x) { _addUsed(x); if (/^LIB:/.test(x)) { const h = hist(), id = String(x).slice(4); if (!h[id]) { h[id] = Date.now(); setHist(h); } } };
     try { Cloud.usable = () => false; Cloud.pushLib = () => { }; Cloud.addUsed = () => { }; } catch (e) { }
     const _init = init;
