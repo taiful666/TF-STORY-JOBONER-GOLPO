@@ -349,6 +349,13 @@ summary{font-weight:700}
 .fmtpick button:focus-visible{outline:3px solid var(--go);outline-offset:2px}
 .longbox{margin:4px 0 14px;padding:14px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,#fff,#f7f9f6)}
 .longbox .aiways{margin:10px 0 12px}
+.ratioquick{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:-6px 0 14px}
+.ratioquick button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;min-height:34px;font-weight:700;cursor:pointer;color:var(--ink)}
+.ratioquick button.on{background:var(--g);color:#fff;border-color:var(--g)}
+.ratioquick .rqnote{margin-left:4px}
+body.widepv .pv{aspect-ratio:auto}
+@media (max-width:699px){body.widepv .pv{width:100%}}
+.longonly{display:none}body.longfmt .longonly{display:block}body.longfmt #lenTabs,body.longfmt #lenFixedRow{display:none!important}
 .libtag{font-size:11.5px;color:#fff;background:#B3261E;border-radius:6px;padding:1px 7px;flex:none}
 @media (max-width:699px){body.longfmt .pv{width:100%}.longways{grid-template-columns:1fr}.fmtpick button{padding:10px 12px}}
 /* ===== v3.9 layer: start chooser, AI ways, share sheet ===== */
@@ -482,9 +489,10 @@ button.primary.gold:hover{filter:brightness(.96)}
     <!-- STEP 1 -->
     <div class="step" id="step1">
       <nav class="fmtpick hidden" id="fmtPick" aria-label="ভিডিওর ধরন">
-        <button type="button" data-fmt="short" class="on"><b>শর্ট ভিডিও</b><span>রিলস · শর্টস · ১-৩ মিনিট · ৯:১৬</span></button>
-        <button type="button" data-fmt="long"><b>লং ভিডিও</b><span>ইউটিউব · ৫-১৫ মিনিট · ১৬:৯</span></button>
+        <button type="button" data-fmt="short" class="on"><b>শর্ট ভিডিও</b><span>রিলস · শর্টস · ১-৩ মিনিট</span></button>
+        <button type="button" data-fmt="long"><b>লং ভিডিও</b><span>ইউটিউব · ৫-১৫ মিনিট</span></button>
       </nav>
+      <div class="ratioquick hidden" id="ratioQuick" aria-label="ভিডিওর মাপ"><span class="muted sm">মাপ:</span><button type="button" data-r="9:16">৯:১৬</button><button type="button" data-r="4:5">৪:৫</button><button type="button" data-r="1:1">১:১</button><button type="button" data-r="16:9">১৬:৯</button><span class="muted sm rqnote">পরে এক্সপোর্টেও বদলানো যাবে</span></div>
       <div class="stephead"><h2 id="s1Head">নতুন গল্প কীভাবে শুরু করবেন?</h2><p class="muted" id="s1Sub">নিচের তিনটার যেকোনো একটা বেছে নিন।</p></div>
       <div class="startpick" id="srcPick">
         <button type="button" data-pick="lib"><i><svg><use href="#i-book"/></svg></i><b>লাইব্রেরি থেকে নিন</b><span>তৈরি গল্পের তালিকা থেকে বেছে নিন</span></button>
@@ -499,7 +507,7 @@ button.primary.gold:hover{filter:brightness(.96)}
         <div class="row">
           <input id="libSearch" placeholder="খুঁজুন: টাকা, মা, বেতন, 48 Laws..." class="grow" aria-label="গল্প খুঁজুন">
           <select id="libBook" aria-label="বই"></select>
-          <select id="libFilter" aria-label="ফিল্টার"><option value="all">সব</option><option value="new">শুধু অব্যবহৃত</option><option value="used">ব্যবহৃত</option><option value="mine">নিজের যোগ করা</option><option value="long">শুধু লং ভিডিও</option></select>
+          <select id="libFilter" aria-label="ফিল্টার"><option value="all">সব</option><option value="new">শুধু অব্যবহৃত</option><option value="used">ব্যবহৃত</option><option value="mine">নিজের যোগ করা</option></select>
         </div>
         <div class="row between"><span class="muted" id="libCount"></span><button class="link" id="libRandom">র‍্যান্ডম অব্যবহৃত গল্প</button></div>
         <ul class="list" id="libList"></ul>
@@ -519,6 +527,7 @@ button.primary.gold:hover{filter:brightness(.96)}
             <label>ভিডিওর দৈর্ঘ্য<select id="longMin"><option value="5">প্রায় ৫ মিনিট</option><option value="8">প্রায় ৮ মিনিট</option><option value="10">প্রায় ১০ মিনিট</option><option value="12">প্রায় ১২ মিনিট</option><option value="15">প্রায় ১৫ মিনিট</option></select></label>
             <label class="chk" id="longWebRow"><input type="checkbox" id="longWeb"> AI নিজে ইন্টারনেটে খবর খুঁজে লিখুক (অ্যাপেই লেখালে)</label>
           </div>
+          <label>ইউটিউব ভিডিওর লিংক বা চলমান ঘটনা <small class="muted">(ঐচ্ছিক — দিলে পুরো স্ক্রিপ্ট এটাকে কেন্দ্র করে লেখা হবে)</small><input id="longLink" placeholder="https://youtu.be/… অথবা ঘটনার এক লাইনের বিবরণ"></label>
           <label id="longFactsRow">তথ্য, খবরের লিংক বা নোট <small class="muted">(ঐচ্ছিক — যা দেবেন তার বাইরে AI কিছু বানাবে না)</small><textarea id="longFacts" rows="4" placeholder="যেমন: কী ঘটেছে, কবে, কোন পত্রিকা কী বলেছে, কোন সংখ্যাগুলো জরুরি…"></textarea></label>
           <p class="muted sm m0" id="longNote">ভিডিও হবে ১৬:৯ (ইউটিউব)। অ্যাপেই লেখালে ১-৩ মিনিট লাগতে পারে।</p>
         </div>
@@ -651,6 +660,7 @@ button.primary.gold:hover{filter:brightness(.96)}
 
       <h3>ভিডিওর দৈর্ঘ্য</h3>
       <nav class="seg sub small" id="lenTabs"><button class="on" data-len="auto">অটো (গল্প অনুযায়ী)</button><button data-len="fixed">নির্দিষ্ট</button></nav>
+      <p class="muted sm longonly">লং ভিডিওর দৈর্ঘ্য অটো: গল্প আর কণ্ঠ যতটা লম্বা, ভিডিও ঠিক ততটাই হবে — কিছু কাটা বা তাড়াহুড়ো হবে না।</p>
       <div class="row hidden" id="lenFixedRow"><input type="number" id="lenSec" min="15" max="1800" step="1" value="90" class="num"> <span>সেকেন্ড</span><span class="muted" id="lenNote"></span></div>
       <div class="nextbar" id="next3"><span><svg><use href="#i-check"/></svg> কণ্ঠ ও মিউজিক</span><button class="primary" data-go="4">পরের ধাপ: এক্সপোর্ট <svg><use href="#i-arrow"/></svg></button></div>
     </div>
@@ -2789,12 +2799,13 @@ If you want to offset all timestamps of a track such that the first one is zero,
 if (typeof module === "object" && typeof module.exports === "object") Object.assign(module.exports, Mp4Muxer)
 </script>
 <script>if (/[?&]part=islamic\b/.test(location.search)) document.write('<script src="islamic/story.js"><\/script><script src="islamic/art.js"><\/script><script src="islamic/stories-1.js"><\/script><script src="islamic/stories-2.js"><\/script><script src="islamic/stories-3.js"><\/script>');</script>
+<script src="long-library.js"></script>
 <script>/* ===================== TF Story Studio — data ===================== */
 'use strict';
 /* two parts share this engine: the Story part (index.html) and the Islamic part (index.html?part=islamic, see islamic/story.js) — each keeps its own settings, logo, used list and library */
 const TF_ISL = /[?&]part=islamic\b/.test(location.search);
 const LK = k => TF_ISL ? String(k).replace(/^tf_(settings|logo|used)$/, 'tf_isl_$1') : k;
-const APP_VERSION = '4.8.0';
+const APP_VERSION = '4.9.0';
 const STORY_LIBRARY = [];
 const FORMAT_VERSION = 1;
 
@@ -5930,8 +5941,10 @@ async function mixWindow(story, tl, audio, S, w0, w1, nch) {
   // sfx
   const LONG = story.fmt === 'long', KT = LONG && story.longStyle !== 'life';
   if (LONG) longSfx(story, tl, S, play);
+  const tr = (typeof app !== 'undefined' && app.renderer && app.renderer.isLong && app.renderer.story === story) ? app.renderer.trans : null;
+  const TR_SND = { whip: 'whoosh', wipe: 'whoosh', zoomin: 'rise', flash: 'chime', paper: 'paper' };
   story.scenes.forEach((sc, si) => {
-    if (si > 0) play('swoosh', Math.max(0, sc.start - .08));
+    if (si > 0) play((tr && TR_SND[tr[si]]) || 'swoosh', Math.max(0, sc.start - .08));
     if (sc.type === 'rewind') play('rewind', sc.start + .02);
     if (sc.type === 'book') play('rise', sc.start);
     if (sc.type === 'cta') { play('bell', sc.start + 1.1); for (let i = 0; i < 3; i++) play('pop', sc.start + 2.75 + i * .45); }
@@ -5970,7 +5983,7 @@ const RATIOS = { '9:16': [9, 16], '4:5': [4, 5], '1:1': [1, 1], '16:9': [16, 9] 
 function frameSize(ratio, res) { const [a, b] = RATIOS[ratio] || RATIOS['9:16']; const sh = +res || 1080; let w, h; if (a <= b) { w = sh; h = Math.round(sh * b / a); } else { h = sh; w = Math.round(sh * a / b); } return { w: w & ~1, h: h & ~1 }; }
 class FrameComposer {
   constructor(renderer, w, h) {
-    this.r = renderer; this.w = w; this.h = h; this.native = Math.abs(w / h - W / H) < .01; this.long = !!renderer.isLong;
+    this.r = renderer; this.w = w; this.h = h; this.native = Math.abs(w / h - W / H) < .01; this.long = !!renderer.isLong; if (this.long) renderer.setFrame(frameKeyFor(w, h));
     if (!this.native && !this.long) {
       this.wc = document.createElement('canvas'); this.wc.width = Math.round(h * W / H) & ~1; this.wc.height = h; this.wx = this.wc.getContext('2d', { alpha: false });
       this.tc = document.createElement('canvas'); this.tc.width = 36; this.tc.height = 64; this.tx = this.tc.getContext('2d', { alpha: false });
@@ -5979,7 +5992,7 @@ class FrameComposer {
   draw(c, t) {
     const r = this.r;
     if (this.long) { // long video: the renderer draws a 1920×1080 frame; other sizes are letter-boxed
-      const k = Math.min(this.w / LW, this.h / LH), ox = (this.w - LW * k) / 2, oy = (this.h - LH * k) / 2;
+      const FW = r.FW, FH = r.FH, k = Math.min(this.w / FW, this.h / FH), ox = (this.w - FW * k) / 2, oy = (this.h - FH * k) / 2;
       if (ox > 1 || oy > 1) { c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = '#000'; c.fillRect(0, 0, this.w, this.h); }
       c.setTransform(k, 0, 0, k, ox, oy); r.render(c, t); return; }
     if (this.native) { const k = this.w / W; c.setTransform(k, 0, 0, k, 0, 0); r.render(c, t); return; }
@@ -6201,10 +6214,10 @@ const fmtT = t => { t = Math.max(0, t || 0); const m = Math.floor(t / 60), s = M
 const debounce = (fn, ms) => { let h; return (...a) => { clearTimeout(h); h = setTimeout(() => fn(...a), ms); }; };
 
 /* ---------- settings & secrets ---------- */
-const DEFAULTS = { series: 'জীবনপাঠ', tagline: 'এক বই · এক গল্প · এক শিক্ষা', coverTheme: 'golpo', animStyle: 'golpo', storyStyle: 'twist', logo: 'TF', hero: 'তানিম', capSize: 58, gap: .22, watermark: true, captions: true, model: 'sonic-3.6', voiceId: '', voiceName: '', speed: 1, emotion: 'none', music: 'auto', musicVol: 55, sfx: true, pops: true, lenMode: 'auto', lenSec: 90, gModel: 'gemini-2.5-flash', aModel: 'claude-sonnet-5-5', aiTab: 'gemini', outro: '', wm: 70, capStyle: 'karaoke', progress: true, cinema: true, expRatio: '9:16', expRes: 1080, capFont: 'solaiman', capLook: 'golpo', titleFont: 'atma', accFont: 'galada', ctxBg: true, vidFmt: 'short', longStyle: 'life', longMin: 10, longWeb: true };
+const DEFAULTS = { series: 'জীবনপাঠ', tagline: 'এক বই · এক গল্প · এক শিক্ষা', coverTheme: 'golpo', animStyle: 'golpo', storyStyle: 'twist', logo: 'TF', hero: 'তানিম', capSize: 58, gap: .22, watermark: true, captions: true, model: 'sonic-3.6', voiceId: '', voiceName: '', speed: 1, emotion: 'none', music: 'auto', musicVol: 55, sfx: true, pops: true, lenMode: 'auto', lenSec: 90, gModel: 'gemini-2.5-flash', aModel: 'claude-sonnet-5-5', aiTab: 'gemini', outro: '', wm: 70, capStyle: 'karaoke', progress: true, cinema: true, expRatio: '9:16', expRes: 1080, capFont: 'solaiman', capLook: 'golpo', titleFont: 'atma', accFont: 'galada', ctxBg: true, vidFmt: 'short', longStyle: 'life', longMin: 10, longWeb: true, ratioShort: '9:16', ratioLong: '16:9' };
 if (!localStorage.getItem(LK('tf_settings'))) DEFAULTS.emotion = 'auto';
 const S = Object.assign({}, DEFAULTS);
-try { Object.assign(S, JSON.parse(localStorage.getItem(LK('tf_settings')) || '{}')); } catch (e) { }
+try { const sv = JSON.parse(localStorage.getItem(LK('tf_settings')) || '{}'); Object.assign(S, sv); if (!sv.ratioShort) S.ratioShort = sv.expRatio && sv.expRatio !== '16:9' ? sv.expRatio : '9:16'; } catch (e) { }
 if (S.music === 'piano' && !localStorage.getItem('tf_v2')) S.music = 'auto';
 try { if (!localStorage.getItem('tf_v35')) { if (S.series === 'TF বইয়ের গল্প') S.series = 'জীবনপাঠ'; if (S.tagline === 'একটা বই, একটা গল্প, একটা শিক্ষা') S.tagline = 'এক বই · এক গল্প · এক শিক্ষা'; if (!S.coverTheme) S.coverTheme = 'jibonpath'; localStorage.setItem('tf_v35', '1'); } } catch (e) { }
 try { if (!localStorage.getItem('tf_v33')) { Object.assign(S, { capFont: 'solaiman', titleFont: 'atma', accFont: 'galada' }); localStorage.setItem('tf_v33', '1'); } } catch (e) { }
@@ -6292,12 +6305,13 @@ function segsFor() {
 function rebuild(keepT) {
   if (!app.story) return;
   const isLong = app.story.fmt === 'long' && !TF_ISL; let resize = false;
-  if (isLong !== !!app.renderer.isLong) { app.renderer = isLong ? new LongRenderer() : new StoryRenderer(); pvComp = null; resize = true; }
-  document.body.classList.toggle('longfmt', isLong);
-  if (isLong && S.expRatio !== '16:9') { S.ratioShort = S.expRatio; S.expRatio = '16:9'; resize = true; }
-  else if (!isLong && S.ratioShort) { S.expRatio = S.ratioShort; S.ratioShort = ''; resize = true; }
-  if (resize) { setSeg('ratioPick', 'r', S.expRatio); try { saveSettings(); } catch (e) { } }
-  app.tl = buildTimeline(app.story, { segs: segsFor() }, { speed: S.speed, gap: S.gap, fixed: S.lenMode === 'fixed' ? +S.lenSec : 0, thumb: S.thumbFrame !== false });
+  const want = TF_ISL ? S.expRatio : isLong ? (S.ratioLong || '16:9') : (S.ratioShort || '9:16');
+  if (S.expRatio !== want) { S.expRatio = want; resize = true; setSeg('ratioPick', 'r', want); syncRatioQuick(); try { saveSettings(); } catch (e) { } }
+  const wide = isLong || (!TF_ISL && S.expRatio !== '9:16');
+  if (wide !== !!app.renderer.isLong) { app.renderer = wide ? new LongRenderer() : new StoryRenderer(); pvComp = null; resize = true; }
+  if (wide) app.renderer.setFrame(S.expRatio);
+  document.body.classList.toggle('longfmt', isLong); document.body.classList.toggle('widepv', FRAME_SIZES[S.expRatio] && FRAME_SIZES[S.expRatio][0] > FRAME_SIZES[S.expRatio][1]);
+  app.tl = buildTimeline(app.story, { segs: segsFor() }, { speed: S.speed, gap: S.gap, fixed: S.lenMode === 'fixed' && !isLong ? +S.lenSec : 0, thumb: S.thumbFrame !== false });
   app.renderer.load(app.story, app.tl, S);
   if (resize) sizeCanvas();
   app.mixDirty = true; if (app.playing) stopPlay(true);
@@ -6325,7 +6339,13 @@ async function startPlay() {
   if (!app.story) { toast('আগে একটা গল্প বাছুন', 'err'); return; }
   if (playBusy || app.playing) return; playBusy = true;
   try {
-    $('btnPlay').textContent = '…'; await ensureVoices(false); await ensureMix();
+    $('btnPlay').textContent = '…'; await ensureVoices(false);
+    if (app.story.fmt === 'long' && (app.mixDirty || !app.mix)) { // long video: start at once, mix the sound a little ahead while it plays
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)({ sampleRate: SR }); await actx.resume();
+      if (app.t >= app.tl.total - .05) app.t = 0;
+      await startStream(); app.playing = true; $('btnPlay').textContent = '❚❚'; $('btnBigPlay').classList.add('hidden'); requestAnimationFrame(loop); return;
+    }
+    await ensureMix();
     if (src) { try { src.stop(); } catch (e) { } try { src.disconnect(); } catch (e) { } src = null; }
     actx = actx || new (window.AudioContext || window.webkitAudioContext)({ sampleRate: SR }); await actx.resume();
     if (app.t >= app.tl.total - .05) app.t = 0;
@@ -6335,7 +6355,19 @@ async function startPlay() {
   } catch (e) { console.error(e); toast('চালানো গেল না: ' + e.message, 'err'); $('btnPlay').textContent = '▶'; }
   finally { playBusy = false; }
 }
-function stopPlay(silent) { if (src) { try { src.stop(); } catch (e) { } try { src.disconnect(); } catch (e) { } src = null; } if (app.playing && actx) app.t = actx.currentTime - startAt; app.playing = false; $('btnPlay').textContent = '▶'; $('btnBigPlay').classList.remove('hidden'); if (!silent) drawAt(app.t); }
+let streamSrcs = [], streamGen = 0;
+async function startStream() {
+  const gen = ++streamGen, st = app.story, tl = app.tl, total = tl.total, t0 = app.t, CH = 20, PRE = 4;
+  const win = async c0 => { const pre = Math.min(PRE, c0), c1 = Math.min(total, c0 + CH); return { buf: await mixWindow(st, tl, app.audio, S, c0 - pre, c1 + .05, 1), pre, c0, c1 }; };
+  const play = w => { if (gen !== streamGen) return; const s2 = actx.createBufferSource(), g = actx.createGain(); g.gain.value = 1.15; s2.buffer = w.buf; s2.connect(g); g.connect(actx.destination);
+    const when = startAt + w.c0, late = Math.max(0, actx.currentTime - when); if (late < w.c1 - w.c0) s2.start(Math.max(actx.currentTime, when), w.pre + late, w.c1 - w.c0 - late); streamSrcs.push(s2); };
+  const first = await win(t0); startAt = actx.currentTime + .05 - t0; play(first);
+  (async () => { let next = first.c1; while (gen === streamGen && next < total - .01) {
+    while (gen === streamGen && actx.currentTime < startAt + next - 10) await new Promise(r => setTimeout(r, 250));
+    if (gen !== streamGen) return; const w = await win(next); play(w); next = w.c1; } })().catch(e => console.warn(e));
+}
+function stopStream() { streamGen++; streamSrcs.forEach(x => { try { x.stop(); } catch (e) { } try { x.disconnect(); } catch (e) { } }); streamSrcs = []; }
+function stopPlay(silent) { stopStream(); if (src) { try { src.stop(); } catch (e) { } try { src.disconnect(); } catch (e) { } src = null; } if (app.playing && actx) app.t = actx.currentTime - startAt; app.playing = false; $('btnPlay').textContent = '▶'; $('btnBigPlay').classList.remove('hidden'); if (!silent) drawAt(app.t); }
 let lastUI = 0;
 function loop(now) { if (!app.playing) return; app.t = actx.currentTime - startAt; if (app.t >= app.tl.total) { app.t = app.tl.total; stopPlay(); updateTime(); return; } drawAt(app.t); if (!lastUI || now - lastUI > 200) { updateTime(); lastUI = now; } requestAnimationFrame(loop); }
 
@@ -6360,10 +6392,15 @@ function setSeg(navId, attr, val) { $(navId).querySelectorAll('button').forEach(
 function usedList() { try { return JSON.parse(localStorage.getItem(LK('tf_used')) || '[]'); } catch (e) { return []; } }
 function addUsed(s) { const u = usedList(); if (!u.includes(s)) { u.push(s); try { localStorage.setItem(LK('tf_used'), JSON.stringify(u.slice(-5000))); } catch (e) { } Cloud.addUsed(s); } updateUsedInfo(); }
 function updateUsedInfo() { const n = usedList().filter(x => !x.startsWith('LIB:')).length, total = BOOKS.reduce((a, b) => a + b[2].length, 0); $('usedInfo').textContent = `ব্যবহৃত শিক্ষা ${bn(n)} / ${bn(total)}`; }
-function libMeta(txt, id, n, mine) { const title = (txt.match(/^\s*===\s*(.*)$/m) || [, ''])[1].split('|')[0].trim(); const bk = (txt.match(/^\s*বই:\s*(.*)$/m) || [, ''])[1].split('|').map(s => s.trim()); const area = (txt.match(/^\s*ক্ষেত্র:\s*(.*)$/m) || [, ''])[1].trim(); const lines = txt.split('\n').filter(l => l.trim() && !/^(===|##|বই:|থাম্বনেল:|চরিত্র:|বর্ণনা:|হ্যাশট্যাগ:|ক্ষেত্র:|```)/.test(l.trim())).length; return { id, n, txt, title: title || 'শিরোনামহীন', book: bk[0] || '', author: bk[1] || '', lesson: bk[2] || '', area, lines, mine, long: /^\s*(ফরম্যাট|format)\s*[:：]\s*(long|লং)/im.test(txt) }; }
+function libMeta(txt, id, n, mine) { const title = (txt.match(/^\s*===\s*(.*)$/m) || [, ''])[1].split('|')[0].trim(); const bk = (txt.match(/^\s*বই:\s*(.*)$/m) || [, ''])[1].split('|').map(s => s.trim()); const area = (txt.match(/^\s*ক্ষেত্র:\s*(.*)$/m) || [, ''])[1].trim(); const lines = txt.split('\n').filter(l => l.trim() && !/^(===|##|বই:|থাম্বনেল:|চরিত্র:|বর্ণনা:|হ্যাশট্যাগ:|ক্ষেত্র:|```)/.test(l.trim())).length; return { id, n, txt, title: title || 'শিরোনামহীন', book: bk[0] || '', author: bk[1] || '', lesson: bk[2] || '', area, lines, mine, long: /^\s*(ফরম্যাট|format)\s*[:：]\s*(long|লং)/im.test(txt), lstyle: ((txt.match(/^\s*(?:ফরম্যাট|format)\s*[:：].*?\b(life|thriller|guide)\b/im) || [])[1] || 'life') }; }
 const BUILTIN = (typeof STORY_LIBRARY !== 'undefined' ? STORY_LIBRARY : []).map((txt, i) => libMeta(txt, 'lb3_' + (i + 1), i + 1, false));
 let USERLIB = []; let LIB = BUILTIN.slice();
-function rebuildLIB() { LIB = BUILTIN.concat(USERLIB.map((u, i) => libMeta(u.txt, u.id, BUILTIN.length + i + 1, true))); }
+const BUILTIN_LONG = (typeof LONG_LIBRARY !== 'undefined' && !TF_ISL ? LONG_LIBRARY : []).map((txt, i) => libMeta(txt, 'll_' + (i + 1), i + 1, false));
+function rebuildLIB() { // short and long libraries are numbered on their own
+  const mine = USERLIB.map(u => libMeta(u.txt, u.id, 0, true)); let ns = BUILTIN.length, nl = BUILTIN_LONG.length;
+  mine.forEach(m => { m.n = m.long ? ++nl : ++ns; }); LIB = BUILTIN.concat(BUILTIN_LONG, mine); }
+function libKind() { return isLongMode(); } // which library is on screen: the long one or the short one
+function libItems() { const L = libKind(); return LIB.filter(x => !!x.long === L); }
 async function loadUserLib() { const u = await IDB.get('kv', 'userLib'); USERLIB = Array.isArray(u) ? u : []; rebuildLIB(); }
 async function saveUserLib() { await IDB.set('kv', 'userLib', USERLIB); rebuildLIB(); Cloud.pushLib(); }
 const storySig = txt => { const m = libMeta(txt, '', 0); const first = (txt.split('\n').find(l => l.trim() && !/^\s*(===|বই:|চরিত্র:|ক্ষেত্র:|##)/.test(l)) || '').trim(); return hashStr((m.title + '|' + first).replace(/\s+/g, '')).toString(36); };
@@ -6386,16 +6423,17 @@ function updateMyLibInfo() { const el2 = $('myLibInfo'); if (el2) el2.textConten
 function libUsed(it) { return usedList().includes('LIB:' + it.id); }
 function renderLib() {
   const q = $('libSearch').value.trim().toLowerCase(), bk = $('libBook').value, f = $('libFilter').value; const ul = $('libList'); ul.innerHTML = '';
-  const items = LIB.filter(it => (!bk || it.book === bk) && (f === 'all' || (f === 'long' ? it.long : f === 'mine' ? it.mine : f === 'new' ? !libUsed(it) : libUsed(it))) && (!q || (it.title + ' ' + it.book + ' ' + it.lesson + ' ' + it.area + ' ' + it.txt).toLowerCase().includes(q)));
-  $('libCount').textContent = `${bn(items.length)}টা গল্প (মোট ${bn(LIB.length)}, অব্যবহৃত ${bn(LIB.filter(x => !libUsed(x)).length)})`;
+  const all = libItems(), L = libKind();
+  const items = all.filter(it => (!bk || it.book === bk) && (f === 'all' || (f === 'mine' ? it.mine : f === 'new' ? !libUsed(it) : libUsed(it))) && (!q || (it.title + ' ' + it.book + ' ' + it.lesson + ' ' + it.area + ' ' + it.txt).toLowerCase().includes(q)));
+  $('libCount').textContent = `${L ? 'লং ভিডিওর লাইব্রেরি' : 'শর্ট ভিডিওর লাইব্রেরি'} · ${bn(items.length)}টা গল্প (মোট ${bn(all.length)}, অব্যবহৃত ${bn(all.filter(x => !libUsed(x)).length)}, ব্যবহৃত ${bn(all.filter(x => libUsed(x)).length)})`;
   const frag = document.createDocumentFragment();
   const list = f === 'mine' || f === 'all' ? items.filter(x => x.mine).reverse().concat(items.filter(x => !x.mine)) : items;
-  list.slice(0, 400).forEach(it => frag.append(el('li', { class: app.libId === it.id ? 'cur' : '', onclick: e => { if (e.target.closest('.del')) return; loadLib(it); } }, el('span', { class: 'no', text: bn(it.n) }), el('span', { class: 't' }, el('b', { text: it.title }), el('span', { text: `${it.book}${it.lesson ? ' · ' + it.lesson : ''} · ${bn(it.lines)} লাইন` })), it.long ? el('span', { class: 'libtag', text: 'লং ভিডিও' }) : null, it.mine ? el('span', { class: 'mine', text: 'নিজের' }) : null, libUsed(it) ? el('span', { class: 'u', text: '✓ ব্যবহৃত' }) : null, it.mine ? el('button', { class: 'del', type: 'button', title: 'লাইব্রেরি থেকে মুছুন', 'aria-label': 'মুছুন', text: '✕', onclick: async () => { if (!confirm(`"${it.title}" লাইব্রেরি থেকে মুছবেন?`)) return; USERLIB = USERLIB.filter(u => u.id !== it.id); await saveUserLib(); renderLib(); updateMyLibInfo(); fillLibFilters(); } }) : null)));
+  list.slice(0, 400).forEach(it => frag.append(el('li', { class: app.libId === it.id ? 'cur' : '', onclick: e => { if (e.target.closest('.del')) return; loadLib(it); } }, el('span', { class: 'no', text: bn(it.n) }), el('span', { class: 't' }, el('b', { text: it.title }), el('span', { text: `${it.long ? (LONG_STYLE_BN[it.lstyle] || 'লং ভিডিও') + ' · ' : ''}${it.book}${it.lesson ? ' · ' + it.lesson : ''} · ${bn(it.lines)} লাইন` })), it.mine ? el('span', { class: 'mine', text: 'নিজের' }) : null, libUsed(it) ? el('span', { class: 'u', text: '✓ ব্যবহৃত' }) : null, it.mine ? el('button', { class: 'del', type: 'button', title: 'লাইব্রেরি থেকে মুছুন', 'aria-label': 'মুছুন', text: '✕', onclick: async () => { if (!confirm(`"${it.title}" লাইব্রেরি থেকে মুছবেন?`)) return; USERLIB = USERLIB.filter(u => u.id !== it.id); await saveUserLib(); renderLib(); updateMyLibInfo(); fillLibFilters(); } }) : null)));
   if (list.length > 400) frag.append(el('li', { class: 'muted', text: `আরও ${bn(list.length - 400)}টা — খুঁজে নিন` }));
   ul.append(frag);
 }
 async function loadLib(it) { if (await loadAny(it.txt, { libId: it.id })) { app.libId = it.id; renderLib(); autosave(); } }
-function fillLibFilters() { const cur = $('libBook').value; const books = [...new Set(LIB.map(x => x.book).filter(Boolean))].sort(); $('libBook').innerHTML = ''; $('libBook').append(el('option', { value: '', text: 'সব বই' }), ...books.map(b => el('option', { value: b, text: b }))); $('libBook').value = books.includes(cur) ? cur : ''; }
+function fillLibFilters() { const cur = $('libBook').value; const books = [...new Set(libItems().map(x => x.book).filter(Boolean))].sort(); $('libBook').innerHTML = ''; $('libBook').append(el('option', { value: '', text: 'সব বই' }), ...books.map(b => el('option', { value: b, text: b }))); $('libBook').value = books.includes(cur) ? cur : ''; }
 
 /* ---------- AI writing (single + bulk into library) ---------- */
 function fillPromptSelects() {
@@ -6419,6 +6457,7 @@ async function aiComplete(prompt, which, opts) {
   const tab = which || S.aiTab; opts = opts || {}; const big = !!opts.long, web = !!opts.web;
   if (tab === 'gemini') { const k = getKey('gKey'); if (!k) throw new Error('সেটিংসে Gemini API key দিন'); storeKey('gKey'); const model = $('gModel').value || 'gemini-2.5-flash';
     const body = { contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature: big ? .8 : .95, maxOutputTokens: big ? 32768 : 8192 } }; if (web) body.tools = [{ google_search: {} }];
+    if (opts.yt) { body.contents[0].parts.unshift({ file_data: { file_uri: opts.yt } }); body.generationConfig.mediaResolution = 'MEDIA_RESOLUTION_LOW'; }
     const j = await apiFetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, { method: 'POST', headers: { 'x-goog-api-key': k, 'Content-Type': 'application/json' }, body: JSON.stringify(body) }, 'Gemini');
     return ((j.candidates || [])[0] || {}).content ? j.candidates[0].content.parts.map(p => p.text || '').join('') : ''; }
   const k = getKey('aKey'); if (!k) throw new Error('সেটিংসে Claude API key দিন'); storeKey('aKey'); const model = $('aModel').value || 'claude-sonnet-5-5';
@@ -6430,7 +6469,7 @@ async function writeWithAI() {
   if (S.aiTab === 'chat') { copyText(currentPrompt(), 'প্রম্পট কপি হয়েছে — চ্যাটে পেস্ট করুন'); return; }
   const btn = $('btnWrite'), L = isLongMode(); btn.disabled = true; $('aiStatus').textContent = L ? 'লং ভিডিওর স্ক্রিপ্ট লেখা হচ্ছে… (১-৩ মিনিট, পেজটা খোলা রাখুন)' : 'লেখা হচ্ছে… (২০-৬০ সেকেন্ড)';
   try {
-    const text = await aiComplete(currentPrompt(), null, L ? { long: true, web: S.longWeb === true && S.longStyle !== 'life' } : null); if (!text.trim()) throw new Error('খালি উত্তর এসেছে — আবার চেষ্টা করুন');
+    const text = L ? await aiLong(currentPrompt(), null, { web: S.longWeb !== false && S.longStyle !== 'life', link: longOpts().link }, st => { $('aiStatus').textContent = st; }) : await aiComplete(currentPrompt()); if (!text.trim()) throw new Error('খালি উত্তর এসেছে — আবার চেষ্টা করুন');
     $('storyIn').value = text; $('aiStatus').textContent = '';
     const r = await addStoriesToLib(text); const id = r.ids[0] || null;
     if (await loadAny(text, { libId: id })) { app.libId = id; renderLib(); fillLibFilters(); toast('নতুন গল্প লেখা হয়েছে ও লাইব্রেরিতে রাখা হয়েছে', 'ok'); }
@@ -6441,6 +6480,7 @@ let bulkStop = null;
 /* write many stories with the API and add them to the library. o = { n, ai, topic, area, book, len, ui:{bar,info,btn,stop} } */
 async function bulkWrite(o) {
   if (bulkStop) { toast('আগের লেখা এখনো চলছে — শেষ হওয়া পর্যন্ত অপেক্ষা করুন'); return; }
+  if (isLongMode() && o) return bulkWriteLong(o);
   o = o || { n: +$('bulkN').value, ai: S.aiTab, topic: $('pTopic').value.trim(), area: $('pArea').value, book: $('pBook').value, len: $('pLen').value, ui: { bar: 'bulkBar', info: 'bulkInfo', btn: 'btnBulkWrite', stop: 'btnBulkStop' } };
   const n = cl(Math.round(+o.n || 1), 1, 100), ui = o.ui;
   const keyId = o.ai === 'claude' ? 'aKey' : 'gKey'; if (!getKey(keyId)) { toast(`আগে সেটিংসে ${o.ai === 'claude' ? 'Claude' : 'Gemini'} API key দিন`, 'err'); openSettings('key'); return; }
@@ -6562,7 +6602,7 @@ const FEEL_BN = { neutral: 'স্বাভাবিক', happy: 'খুশি',
 const DO_BN = { idle: 'দাঁড়িয়ে', talk: 'কথা বলছে', phone: 'ফোন দেখছে', raise_phone: 'ফোন তুলে দেখাচ্ছে', give: 'কিছু দিচ্ছে', cup: 'চা হাতে', point: 'আঙুল দেখাচ্ছে', arms_crossed: 'হাত ভাঁজ', wave: 'হাত নাড়ছে', head_down: 'মাথা নিচু', hold: 'কিছু ধরে আছে', pray_hands: 'দুই হাত জোড়', hands_on_head: 'মাথায় হাত' };
 const PROP_BN = { phone: 'ফোন', envelope: 'খাম', money: 'টাকা', cup: 'কাপ', book: 'বই', paper: 'কাগজ', sweets: 'মিষ্টির বাক্স', bag: 'ব্যাগ', gift: 'উপহার', laptop: 'ল্যাপটপ', medicine: 'ওষুধ', key: 'চাবি', flower: 'ফুল', ring: 'আংটি', plate: 'প্লেট' };
 const TIME_BN = { day: 'দিন', evening: 'সন্ধ্যা', night: 'রাত' }, MOOD_BN = { normal: 'স্বাভাবিক', happy: 'আনন্দ', sad: 'দুঃখ', tense: 'টেনশন', regret: 'আফসোস (সাদাকালো)' }, WEATHER_BN = { '': 'স্বাভাবিক', rain: 'বৃষ্টি', fog: 'কুয়াশা', sunny: 'রোদ' };
-const TYPE_BN = { story: 'গল্প', rewind: 'রিওয়াইন্ড', book: 'বই', takeaways: 'শিক্ষা', metaphor: 'উপমা', cta: 'শেষ' };
+const TYPE_BN = { story: 'গল্প', rewind: 'রিওয়াইন্ড', book: 'বই', takeaways: 'শিক্ষা', metaphor: 'উপমা', cta: 'শেষ', chapter: 'অধ্যায়' };
 const ROLE_BN = Object.fromEntries(Object.entries(ROLES).map(([k, v]) => [k, v.bn]));
 const CARD_BN = { sms: 'মেসেজ', price: 'দামের ট্যাগ', counter: 'সংখ্যা গণনা', check: 'চেকলিস্ট', compare: 'তুলনা', big: 'বড় লেখা', calendar: 'ক্যালেন্ডার', progress: 'প্রগ্রেস বার', call: 'ফোন কল', alert: 'লাল সতর্কতা', chat: 'চ্যাট', reveal: 'টুইস্ট (পুরোনো কাগজ)' };
 const CARD_TEMPLATES = { sms: { title: 'ব্যাংক এসএমএস', text: 'বেতন জমা: ৳ ৩৫,০০০' }, price: { text: '৳ ৪২,০০০' }, counter: { label: 'মোট', from: 0, to: 5000, prefix: '৳ ' }, check: { items: [{ t: 'কাজ ১', ok: true }, { t: 'কাজ ২', ok: false }] }, compare: { left: 'আগে', lv: '৩৫ হাজার', right: 'এখন', rv: '৪৫ হাজার' }, big: { text: '৫০০ জন' }, calendar: { text: '২০ তারিখ' }, progress: { label: 'সঞ্চয়', value: 60 }, call: { name: 'মা' }, alert: { text: 'টাকা নেই!' }, chat: { name: 'রাশেদ', text: 'দোস্ত, কই তুই?' }, reveal: { title: 'পুরোনো চিঠি', text: 'তোকে কোনোদিন বলা হয়নি...' } };
@@ -6585,7 +6625,7 @@ function renderGallery() {
   const step = () => { const it = queue.splice(0, 8); it.forEach(([cv, ch]) => { const a = avatarCanvas(ch, 96, true); cv.getContext('2d').drawImage(a, 0, 0); }); if (queue.length) requestAnimationFrame(step); }; requestAnimationFrame(step);
 }
 function sceneThumb(si) { const cv = el('canvas', { width: 192, height: 108 }); const r = app.renderer; if (!r.story) return cv; const sc = app.story.scenes[si]; const c = cv.getContext('2d');
-  if (r.isLong) { c.setTransform(192 / LW, 0, 0, 108 / LH, 0, 0); const tt = sc.type === 'story' ? sc.start + Math.min(1.2, (sc.end - sc.start) * .5) : sc.end - .4; try { r.drawSceneL(c, si, tt); } catch (e) { } return cv; } const k = 192 / W, y0 = sc.type === 'story' ? 680 : sc.type === 'cta' ? 420 : 560; c.setTransform(k, 0, 0, k, 0, -y0 * k); const tt = sc.type === 'story' ? sc.start + Math.min(1.2, (sc.end - sc.start) * .5) : sc.end - .4; try { r.drawScene(c, si, tt); } catch (e) { } return cv; }
+  if (r.isLong) { const th = Math.round(192 * r.FH / r.FW); cv.height = th; cv.style.height = Math.round(96 * r.FH / r.FW) + 'px'; c.setTransform(192 / r.FW, 0, 0, th / r.FH, 0, 0); const tt = sc.type === 'story' ? sc.start + Math.min(1.2, (sc.end - sc.start) * .5) : sc.end - .4; try { r.drawSceneL(c, si, tt); } catch (e) { } return cv; } const k = 192 / W, y0 = sc.type === 'story' ? 680 : sc.type === 'cta' ? 420 : 560; c.setTransform(k, 0, 0, k, 0, -y0 * k); const tt = sc.type === 'story' ? sc.start + Math.min(1.2, (sc.end - sc.start) * .5) : sc.end - .4; try { r.drawScene(c, si, tt); } catch (e) { } return cv; }
 function buildOverview() {
   const st = app.story, box = $('sceneOverview'); box.innerHTML = ''; const nm = Object.fromEntries(st.characters.map(c => [c.id, c.name])); const thumbs = [];
   st.scenes.forEach((sc, si) => { const holder = el('div', { style: 'width:96px;height:54px' }); thumbs.push([holder, si]);
@@ -6770,7 +6810,7 @@ async function uploadMusic(file) { if (!file) return; try { const bytes = await 
 
 /* ---------- step 4: export + share ---------- */
 let abortFlag = null;
-function updateExpInfo() { const { w, h } = frameSize(S.expRatio, S.expRes); const d = app.tl ? app.tl.total : 0; const L = app.renderer && app.renderer.isLong; $('expInfo').textContent = `${w} × ${h} · ৩০fps · ` + (d >= 90 ? `${fmtT(d)} মিনিট` : `${bn(Math.round(d))} সেকেন্ড`) + (L ? ` · লং ভিডিও (${LONG_STYLE_BN[app.renderer.style] || ''}) · আনুমানিক ফাইল ${bn(Math.max(1, Math.round(d * (w * h / (1080 * 1920) * 4.5 + .16) / 8)))} MB` + (S.expRes >= 1080 && d > 480 ? ' · ফোনে দ্রুত চাইলে 720p নিন' : '') : S.expRatio !== '9:16' ? ' · গল্প খাড়া (৯:১৬) ভাবে আঁকা, পাশে ঝাপসা ব্যাকগ্রাউন্ড থাকবে' : ''); }
+function updateExpInfo() { const { w, h } = frameSize(S.expRatio, S.expRes); const d = app.tl ? app.tl.total : 0; const L = app.renderer && app.renderer.isLong; $('expInfo').textContent = `${w} × ${h} · ৩০fps · ` + (d >= 90 ? `${fmtT(d)} মিনিট` : `${bn(Math.round(d))} সেকেন্ড`) + (L ? ` · ${app.story && app.story.fmt === 'long' ? 'লং ভিডিও (' + (LONG_STYLE_BN[app.renderer.style] || '') + ')' : 'শর্ট ভিডিও'} — চরিত্র ও লেখা এই মাপে নতুন করে সাজানো · আনুমানিক ফাইল ${bn(Math.max(1, Math.round(d * (w * h / (1080 * 1920) * 4.5 + .16) / 8)))} MB` + (S.expRes >= 1080 && d > 480 ? ' · ফোনে দ্রুত চাইলে 720p নিন' : '') : ''); }
 async function doExport() {
   if (!app.story) { toast('আগে গল্প বাছুন', 'err'); return; }
   stopPlay(true); if (IS_ANDROID) try { window.TFAndroid.keepAwake(true); } catch (e) { } ExportGuard.start(); const b = $('btnExport'); b.disabled = true; $('expDone').classList.add('hidden'); $('expProg').classList.remove('hidden'); abortFlag = { aborted: false };
@@ -6999,8 +7039,8 @@ function drawCoverGolpo(c, renderer) {
 }
 /* thumbnail / cover */
 const thumbSoon = debounce(drawThumbPv, 200);
-function drawThumbPv() { const cv = $('thumbPv'); if (!cv || !app.story || !app.tl) return; if (app.renderer.isLong) { cv.width = 180; cv.height = 102; const c = cv.getContext('2d'); c.setTransform(180 / LW, 0, 0, 102 / LH, 0, 0); app.renderer.drawThumb(c); c.setTransform(1, 0, 0, 1, 0, 0); return; } const [a, b] = RATIOS[S.expRatio] || RATIOS['9:16']; cv.width = 180; cv.height = Math.round(180 * b / a); const c = cv.getContext('2d'); c.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0); drawCover(c, app.renderer); c.setTransform(1, 0, 0, 1, 0, 0); }
-async function thumbBlob() { if (app.renderer.isLong) { const cv = document.createElement('canvas'); cv.width = LW; cv.height = LH; app.renderer.drawThumb(cv.getContext('2d', { alpha: false })); return await new Promise(r => cv.toBlob(r, 'image/jpeg', .92)); } const { w, h } = frameSize(S.expRatio, 1080); const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const c = cv.getContext('2d', { alpha: false }); cv.width = W; cv.height = H; const c2 = cv.getContext('2d', { alpha: false }); drawCover(c2, app.renderer); return await new Promise(r => cv.toBlob(r, 'image/jpeg', .92)); }
+function drawThumbPv() { const cv = $('thumbPv'); if (!cv || !app.story || !app.tl) return; if (app.renderer.isLong) { const r = app.renderer; r.setFrame(S.expRatio); cv.width = 180; cv.height = Math.round(180 * r.FH / r.FW); const c = cv.getContext('2d'); c.setTransform(180 / r.FW, 0, 0, cv.height / r.FH, 0, 0); app.renderer.drawThumb(c); c.setTransform(1, 0, 0, 1, 0, 0); return; } const [a, b] = RATIOS[S.expRatio] || RATIOS['9:16']; cv.width = 180; cv.height = Math.round(180 * b / a); const c = cv.getContext('2d'); c.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0); drawCover(c, app.renderer); c.setTransform(1, 0, 0, 1, 0, 0); }
+async function thumbBlob() { if (app.renderer.isLong) { const r = app.renderer; r.setFrame(S.expRatio); const cv = document.createElement('canvas'); cv.width = r.FW; cv.height = r.FH; app.renderer.drawThumb(cv.getContext('2d', { alpha: false })); return await new Promise(r => cv.toBlob(r, 'image/jpeg', .92)); } const { w, h } = frameSize(S.expRatio, 1080); const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const c = cv.getContext('2d', { alpha: false }); cv.width = W; cv.height = H; const c2 = cv.getContext('2d', { alpha: false }); drawCover(c2, app.renderer); return await new Promise(r => cv.toBlob(r, 'image/jpeg', .92)); }
 function renderMarkers() { const ul = $('markerList'); ul.innerHTML = ''; app.markers.forEach((m, i) => ul.append(el('li', null, el('b', { text: `📍 ${fmtT(m.t)} · দৃশ্য ${bn(m.si + 1)}, লাইন ${bn(m.li + 1)}` }), el('input', { value: m.note, placeholder: 'কী ভুল?', oninput: e => { m.note = e.target.value; autosave(); } }), el('button', { class: 'link', type: 'button', text: 'যাও', onclick: () => { stopPlay(true); app.t = m.t; drawAt(app.t); updateTime(); } }), el('button', { class: 'link', type: 'button', text: '✕', onclick: () => { app.markers.splice(i, 1); renderMarkers(); autosave(); } })))); }
 function addMarker() { if (!app.story) return; const sh = app.tl.shots[app.renderer.shotAt(app.t)]; app.markers.push({ t: app.t, si: sh.si, li: sh.li, cap: app.story.scenes[sh.si].lines[sh.li].cap, note: '' }); renderMarkers(); autosave(); toast(`📍 ${fmtT(app.t)} মার্ক হয়েছে — এক্সপোর্ট পাতায় লিখুন কী ভুল`, 'ok'); }
 async function saveForClaude() { if (!app.story) return; app.notes = $('aiNotes').value; const pkg = buildAIPackage(app); pkg.lib_id = app.libId; pkg.tf_script = toTFScript(app.story); downloadBlob(new Blob([JSON.stringify(pkg, null, 1)], { type: 'application/json' }), safeName(app.story.title) + '.tfstory.json'); if ($('aiSheet').checked) { const jpg = await previewSheet(app.renderer); downloadBlob(jpg, safeName(app.story.title) + '_preview.jpg'); drawAt(app.t); } toast('ফাইল ডাউনলোড হয়েছে — Claude-কে দিন', 'ok', 5000); }
@@ -7278,7 +7318,7 @@ async function init() {
   segTabs('voiceTabs', 'v', chooseVoice); setVoiceTab(app.audio.mode);
   segTabs('lenTabs', 'len', v => { S.lenMode = v; saveSettings(); $('lenFixedRow').classList.toggle('hidden', v !== 'fixed'); rebuild(true); });
   segTabs('setTabs', 'st', v => ['ch', 'key', 'vid', 'data'].forEach(x => $('st-' + x).classList.toggle('hidden', x !== v)));
-  segTabs('ratioPick', 'r', v => { if (app.story && app.renderer.isLong && v !== '16:9') { toast('লং ভিডিও শুধু ১৬:৯ (ইউটিউব) — রিলস/শর্টসের জন্য শর্ট গল্প নিন'); setSeg('ratioPick', 'r', '16:9'); return; } S.expRatio = v; saveSettings(); sizeCanvas(); thumbSoon(); updateExpInfo(); });
+  segTabs('ratioPick', 'r', v => setRatio(v));
   segTabs('resPick', 'res', v => { S.expRes = +v; saveSettings(); updateExpInfo(); });
   document.querySelectorAll('[data-eye]').forEach(b => b.addEventListener('click', e => { e.preventDefault(); const i = $(b.dataset.eye); i.type = i.type === 'password' ? 'text' : 'password'; }));
   ['gKey', 'aKey', 'cKey'].forEach(id => $(id).addEventListener('input', debounce(() => { storeKey(id); updateKeyStatus(); }, 300)));
@@ -7286,7 +7326,7 @@ async function init() {
   [$('dlgSettings'), $('dlgChars'), $('dlgHelp')].forEach(d => d.addEventListener('click', e => { if (e.target === d) d.close(); }));
   $('btnHelp').onclick = () => $('dlgHelp').showModal(); $('btnSettings').onclick = () => openSettings();
   ['libSearch', 'libBook', 'libFilter'].forEach(id => $(id).addEventListener('input', debounce(renderLib, 150)));
-  $('libRandom').onclick = () => { const pool = LIB.filter(x => !libUsed(x)); if (!pool.length) { toast('লাইব্রেরির সব গল্প ব্যবহার হয়েছে'); return; } loadLib(pool[Math.floor(Math.random() * pool.length)]); };
+  $('libRandom').onclick = () => { const pool = libItems().filter(x => !libUsed(x)); if (!pool.length) { toast('লাইব্রেরির সব গল্প ব্যবহার হয়েছে'); return; } loadLib(pool[Math.floor(Math.random() * pool.length)]); };
   $('btnRandom').onclick = pickRandom; $('btnWrite').onclick = writeWithAI; $('btnBulkWrite').onclick = () => bulkWrite(); $('btnBulkStop').onclick = () => { if (bulkStop) { bulkStop.stop = true; toast('এখনকার গল্পগুলো শেষ হলে থামবে'); } };
   $('btnCopyPrompt').onclick = () => copyText(currentPrompt(), 'প্রম্পট কপি হয়েছে — ChatGPT/Gemini/Claude-এ পেস্ট করুন');
   $('btnCopyBulkPrompt').onclick = () => { const n = cl(Math.round(+$('bulkNChat').value || 10), 2, 30); copyText(currentPrompt({ count: n, lesson: '', book: $('pBook').value !== '' ? BOOKS[$('pBook').value][0] : '' }), `${bn(n)}টা গল্পের প্রম্পট কপি হয়েছে — উত্তরটা "+ লাইব্রেরিতে যোগ"-এ পেস্ট করুন`); };
@@ -7407,45 +7447,76 @@ function longSfx(st, tl, S, play) {
   });
 }
 
+/* Frame-adaptive renderer: the same story world (1080×1920) seen through a window of ANY aspect ratio
+   (16:9, 9:16, 4:5, 1:1). Long videos always use it; short videos use it for every ratio except 9:16.
+   The camera frames the characters for the chosen frame, so nobody is cut off and the scene is never squeezed
+   into a narrow column; text, cards and end cards have their own layout for wide, tall and square frames. */
+const FRAME_SIZES = { '16:9': [1920, 1080], '9:16': [1080, 1920], '4:5': [1080, 1350], '1:1': [1080, 1080] };
+function frameKeyFor(w, h) { const a = w / h; return a > 1.4 ? '16:9' : a > .9 ? '1:1' : a > .7 ? '4:5' : '9:16'; }
+const TRANS_KT = ['whip', 'push', 'zoomin', 'flash', 'pushR', 'iris', 'slideUp'];
+const TRANS_LIFE = ['fadezoom', 'push', 'slideUp', 'iris', 'pushR', 'paper', 'fadezoom'];
+const KT_MODES = ['pop', 'slide', 'rise', 'zoom', 'drop', 'wave', 'pop', 'slide'];
 class LongRenderer extends StoryRenderer {
+  constructor() { super(); this.isLong = true; this.setFrame('16:9'); }
+  setFrame(key) {
+    key = FRAME_SIZES[key] ? key : '16:9'; if (this.fkey === key && this.FW) return;
+    this.fkey = key; [this.FW, this.FH] = FRAME_SIZES[key];
+    this.land = this.FW / this.FH > 1.2; this.port = this.FH / this.FW > 1.2;
+    this.u = this.land ? this.FW / 1920 : this.FW / 1320; this.uc = Math.sqrt(this.FW * this.FH / (W * H));
+    this.s = this.FW / W; this.y0 = H / 2 - this.FH / 2 / this.s; this.HH = this.FH / 2 / this.s;
+    this._ov = null; this._ktL = {}; this._lcov = null; this._bb = {};
+    if (this.story) this.computeCams();
+  }
+  get frameW() { return this.FW; } get frameH() { return this.FH; }
   load(story, timeline, settings) {
     super.load(story, timeline, settings);
-    this.isLong = true; this.style = story.longStyle || 'life'; this.kt = this.style !== 'life';
+    this.isLong = true; this.longFmt = story.fmt === 'long'; this.style = this.longFmt ? (story.longStyle || 'life') : 'life'; this.kt = this.style !== 'life';
     this.settings = Object.assign({}, settings, { capLook: this.kt ? (settings.capLook || 'news') : 'golpo' });
-    this.cine2 = true; this.golpo = false; this.jump = story.scenes.map(() => ''); this._bgL = new Map(); this._ktL = {}; this._lcov = null; this._ctaBgL = null;
+    this.cine2 = true; this.golpo = false; this.jump = story.scenes.map(() => ''); this._bgL = new Map(); this._ktL = {}; this._lcov = null; this._bb = {};
     this.P = this.kt
       ? { box: 'rgba(8,14,28,.9)', ink: '#FFFFFF', hi: '#FFD23F', hi2: '#FF9F43', red: '#E5484D', edge: 'rgba(255,210,63,.85)', bg1: '#0B1322', bg2: '#16233D' }
       : { box: 'rgba(248,241,229,.97)', ink: '#2A1C14', hi: '#B3261E', hi2: '#C0841A', red: '#B3261E', edge: 'rgba(179,38,30,.55)', bg1: '#3A2A20', bg2: '#5B4030' };
-    this.lc = []; this.side = []; this.words = [];
-    let prev = -1, idx = 0;
-    this.tl.shots.forEach((sh, k) => { const sc = story.scenes[sh.si], ln = sc.lines[sh.li]; if (sh.si !== prev) { idx = 0; prev = sh.si; } else idx++;
-      if (sc.type === 'story') { const r = this.longCam(sc, idx, ln); this.lc[k] = r.cam; this.side[k] = r.side; } this.words[k] = ktWords(ln, sh); });
+    this.words = this.tl.shots.map(sh => { const ln = story.scenes[sh.si].lines[sh.li]; return ktWords(ln, sh); });
     this.chap = []; let cur = null; story.scenes.forEach((sc, i) => { if (sc.type === 'chapter') cur = sc; this.chap[i] = cur; });
     this.chapList = story.scenes.filter(s => s.type === 'chapter');
+    // variety: no transition, text animation or camera move repeats back to back
+    const seed = hashStr(story.title || ''), pool = this.kt ? TRANS_KT : TRANS_LIFE; let prevT = '';
+    this.trans = story.scenes.map((sc, i) => { if (i === 0) return 'none'; const pv = story.scenes[i - 1]; if (sc.type === 'chapter') { prevT = 'wipe'; return 'wipe'; } if (pv.type === 'chapter') { prevT = this.kt ? 'zoomin' : 'iris'; return prevT; } if (sc.type === 'cta') return 'iris'; if (sc.type === 'rewind' || pv.type === 'rewind') return 'dip';
+      let k = pool[(seed + i * 5) % pool.length]; if (k === prevT) k = pool[(pool.indexOf(k) + 1) % pool.length]; prevT = k; return k; });
+    let pm = ''; this.mode = this.tl.shots.map((sh, k) => { let m = KT_MODES[(hashStr(story.title + k) >> 4) % KT_MODES.length]; if (m === pm) m = KT_MODES[(KT_MODES.indexOf(m) + 3) % KT_MODES.length]; pm = m; return m; });
+    // how many times each place was already seen → a new camera angle each time
+    const seen = {}; this.angle = story.scenes.map(sc => { if (sc.type !== 'story') return 0; const a = seen[sc.place] || 0; seen[sc.place] = a + 1; return a; });
+    this.computeCams();
   }
-  /* 16:9 camera inside the 9:16 story world: wide group shots and chest-up close-ups;
-     in the kinetic styles the speaker sits on one third and the text panel takes the other side */
-  longCam(sc, idx, ln) {
-    const n = Math.min(3, sc.cast.length || 1), pos = CAST_POS[n] || CAST_POS[1];
+  computeCams() {
+    if (!this.story || !this.tl) return; this.lc = []; this.side = []; this.kb = []; let prev = -1, idx = 0;
+    this.tl.shots.forEach((sh, k) => { const sc = this.story.scenes[sh.si], ln = sc.lines[sh.li]; if (sh.si !== prev) { idx = 0; prev = sh.si; } else idx++;
+      if (sc.type === 'story') { const r = this.longCam(sc, idx, ln, sh.si); this.lc[k] = r.cam; this.side[k] = r.side; }
+      const h = hashStr(this.story.title + ':' + k); this.kb[k] = { dx: [-1, 0, 1, 1, -1][h % 5], dz: [1, -1, 1, 0][(h >> 3) % 4] }; });
+    this._ktL = {};
+  }
+  /* camera inside the 9:16 story world for the current frame: wide shots and chest-up close-ups */
+  longCam(sc, idx, ln, si) {
+    const n = Math.min(3, sc.cast.length || 1), pos = CAST_POS[n] || CAST_POS[1], HH = this.HH, land = this.land, port = this.port;
     const kidF = id => { const cr = this.chars[id]; return cr ? (cr.L.kid ? .74 : cr.L.teen ? .92 : 1) : 1; };
     const head = i => { const P0 = pos[i] || pos[0]; return P0[1] - 418 * P0[2] * kidF(sc.cast[i]); };
     const sp = ln.who ? sc.cast.indexOf(ln.who) : (ln.focus ? sc.cast.indexOf(ln.focus) : -1);
-    const HH = LH / 2 * 1080 / LW;
+    const ang = this.angle ? this.angle[si] || 0 : 0, av = [1, 1.12, .94, 1.22][ang % 4], ax = [0, 1, -1, .5][ang % 4];
     const group = sp < 0 || (idx === 0 && sc.lines.length > 2) || idx % 3 === 2 || (n === 1 && idx % 2 === 0 && !this.kt);
     let z, x, y, side = 0;
     if (group) {
-      z = this.kt ? 1.06 : 1; let top = 1e9; for (let i = 0; i < n; i++) top = Math.min(top, head(i));
-      x = 540; y = top - 48 + HH / z;
+      z = (land ? (this.kt ? 1.06 : 1) : port ? (n === 2 ? 1.34 : n === 1 ? 1.25 : 1.2) : 1.12) * av; let top = 1e9; for (let i = 0; i < n; i++) top = Math.min(top, head(i));
+      const vw = W / z; x = 540 + ax * vw * .07; y = top - 48 + HH / z * (land ? 1 : port ? .62 : .8);
     } else {
-      const P0 = pos[sp] || pos[0], vw = 1080 / (z = this.kt ? 1.5 : (n === 1 ? 1.42 : 1.58));
-      if (this.kt) { side = P0[0] <= 540 ? 1 : -1; x = P0[0] + side * vw * .21; }
-      else { const dir = n > 1 ? (P0[0] < 540 ? 1 : -1) : 0; x = P0[0] + dir * vw * .07; }
-      y = head(sp) - 36 + HH / z * .95;
+      const P0 = pos[sp] || pos[0]; z = (land ? (this.kt ? 1.5 : (n === 1 ? 1.42 : 1.58)) : port ? (n === 1 ? (idx % 2 ? 1.95 : 1.7) : 1.85) : 1.65) * (ang % 2 ? 1.08 : 1);
+      const vw = W / z;
+      if (this.kt && land) { side = P0[0] <= 540 ? 1 : -1; x = P0[0] + side * vw * .21; }
+      else { const dir = n > 1 ? (P0[0] < 540 ? 1 : -1) : 0; x = P0[0] + dir * vw * (port ? .2 : .08); }
+      y = head(sp) - 36 + HH / z * (land ? .95 : port ? .62 : .78);
     }
     const hw = 540 / z, hh = HH / z;
-    return { cam: { x: cl(x, hw, 1080 - hw), y: cl(y, hh, 1920 - hh), z }, side };
+    return { cam: { x: cl(x, hw, W - hw), y: cl(y, hh, H - hh), z }, side };
   }
-  /* sharper background for the wide 16:9 frame (the short-video one is half size) */
   bgFor(si) {
     if (this._bgL.has(si)) return this._bgL.get(si);
     const sc = this.story.scenes[si]; const raw = document.createElement('canvas'); raw.width = W; raw.height = H; const rc = raw.getContext('2d', { alpha: false });
@@ -7455,28 +7526,30 @@ class LongRenderer extends StoryRenderer {
     if (this._bgL.size > 3) this._bgL.delete(this._bgL.keys().next().value);
     this._bgL.set(si, out); return out;
   }
-  get frameW() { return LW; } get frameH() { return LH; }
-  /* scene look over the whole frame (cached overlay: vignette, grid, grain) */
   overlay() {
-    if (this._ov) return this._ov; const cv = document.createElement('canvas'); cv.width = LW; cv.height = LH; const c = cv.getContext('2d');
-    const g = c.createRadialGradient(LW / 2, LH / 2, LH * .35, LW / 2, LH / 2, LW * .62); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, this.kt ? 'rgba(2,6,16,.62)' : 'rgba(40,20,8,.34)'); c.fillStyle = g; c.fillRect(0, 0, LW, LH);
-    if (this.kt) { c.strokeStyle = 'rgba(140,180,255,.05)'; c.lineWidth = 1; for (let x = 0; x <= LW; x += 80) { c.beginPath(); c.moveTo(x + .5, 0); c.lineTo(x + .5, LH); c.stroke(); } for (let y = 0; y <= LH; y += 80) { c.beginPath(); c.moveTo(0, y + .5); c.lineTo(LW, y + .5); c.stroke(); } }
-    else { let s = 7; for (let i = 0; i < 2600; i++) { s = (s * 1103515245 + 12345) & 0x7fffffff; const x = s % LW; s = (s * 1103515245 + 12345) & 0x7fffffff; const y = s % LH; c.fillStyle = i % 2 ? 'rgba(90,60,30,.05)' : 'rgba(255,240,210,.05)'; c.fillRect(x, y, 2, 2); } }
+    if (this._ov) return this._ov; const FW = this.FW, FH = this.FH; const cv = document.createElement('canvas'); cv.width = FW; cv.height = FH; const c = cv.getContext('2d');
+    const g = c.createRadialGradient(FW / 2, FH / 2, Math.min(FW, FH) * .35, FW / 2, FH / 2, Math.max(FW, FH) * .62); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, this.kt ? 'rgba(2,6,16,.62)' : 'rgba(40,20,8,.3)'); c.fillStyle = g; c.fillRect(0, 0, FW, FH);
+    if (this.kt) { c.strokeStyle = 'rgba(140,180,255,.05)'; c.lineWidth = 1; for (let x = 0; x <= FW; x += 80) { c.beginPath(); c.moveTo(x + .5, 0); c.lineTo(x + .5, FH); c.stroke(); } for (let y = 0; y <= FH; y += 80) { c.beginPath(); c.moveTo(0, y + .5); c.lineTo(FW, y + .5); c.stroke(); } }
+    else { let s = 7; for (let i = 0; i < 2400; i++) { s = (s * 1103515245 + 12345) & 0x7fffffff; const x = s % FW; s = (s * 1103515245 + 12345) & 0x7fffffff; const y = s % FH; c.fillStyle = i % 2 ? 'rgba(90,60,30,.05)' : 'rgba(255,240,210,.05)'; c.fillRect(x, y, 2, 2); } }
     return (this._ov = cv);
   }
   grade(c) {
-    c.save();
-    if (this.kt) { c.globalCompositeOperation = 'multiply'; c.fillStyle = 'rgba(52,72,128,.68)'; c.fillRect(0, 0, LW, LH); c.globalCompositeOperation = 'soft-light'; const g = c.createRadialGradient(LW * .72, LH * .18, 40, LW * .72, LH * .18, LW * .6); g.addColorStop(0, 'rgba(255,170,70,.55)'); g.addColorStop(1, 'rgba(255,170,70,0)'); c.fillStyle = g; c.fillRect(0, 0, LW, LH); }
-    else { c.globalCompositeOperation = 'soft-light'; c.fillStyle = 'rgba(255,186,120,.26)'; c.fillRect(0, 0, LW, LH); }
+    const FW = this.FW, FH = this.FH; c.save();
+    if (this.kt) { c.globalCompositeOperation = 'multiply'; c.fillStyle = 'rgba(52,72,128,.68)'; c.fillRect(0, 0, FW, FH); c.globalCompositeOperation = 'soft-light'; const g = c.createRadialGradient(FW * .72, FH * .18, 40, FW * .72, FH * .18, Math.max(FW, FH) * .6); g.addColorStop(0, 'rgba(255,170,70,.55)'); g.addColorStop(1, 'rgba(255,170,70,0)'); c.fillStyle = g; c.fillRect(0, 0, FW, FH); }
+    else { c.globalCompositeOperation = 'soft-light'; c.fillStyle = 'rgba(255,186,120,.22)'; c.fillRect(0, 0, FW, FH); }
     c.restore(); c.drawImage(this.overlay(), 0, 0);
   }
-  /* the story world (1080×1920) seen through a 16:9 window */
+  /* the story world seen through the frame window; slow pan/zoom per shot (direction changes shot to shot) */
   drawStoryL(c, si, t, camForce) {
     const [a, b] = this.shotRangeOfScene(si); let k = this.shotAt(t); if (k < a) k = a; if (k > b) k = b;
     const sh = this.tl.shots[k], lt = t - sh.start; let cam = camForce || this.lc[k];
-    if (!camForce && k > a && this.lc[k - 1]) { const pc = this.lc[k - 1], e = eio(lt / .6); cam = { x: pc.x + (cam.x - pc.x) * e, y: pc.y + (cam.y - pc.y) * e, z: pc.z + (cam.z - pc.z) * e }; }
-    const s = LW / W, y0 = H / 2 - LH / 2 / s;
-    c.save(); c.scale(s, s); c.translate(0, -y0);
+    if (!cam) cam = { x: 540, y: 960, z: 1 };
+    if (!camForce) {
+      if (k > a && this.lc[k - 1]) { const pc = this.lc[k - 1], e = eio(lt / .6); cam = { x: pc.x + (cam.x - pc.x) * e, y: pc.y + (cam.y - pc.y) * e, z: pc.z + (cam.z - pc.z) * e }; }
+      const kb = this.kb[k] || { dx: 0, dz: 0 }, p = cl(lt / Math.max(1, sh.dur)), vw = W / cam.z;
+      cam = { x: cl(cam.x + kb.dx * vw * .035 * p, 540 / cam.z, W - 540 / cam.z), y: cam.y, z: cam.z * (1 + kb.dz * .035 * p) };
+    }
+    c.save(); c.scale(this.s, this.s); c.translate(0, -this.y0);
     this._camOverride = cam; this._noCard = true;
     try { this.drawStory(c, si, t); } finally { this._camOverride = null; this._noCard = false; }
     c.restore();
@@ -7484,30 +7557,37 @@ class LongRenderer extends StoryRenderer {
     return { k, sh, cam };
   }
   shotIn(si, t) { const [a, b] = this.shotRangeOfScene(si); let k = this.shotAt(t); if (k < a) k = a; if (k > b) k = b; return k; }
-  blurBg(key, si) { // last story scene, blurred and darkened, 16:9
-    this._bb = this._bb || {}; if (this._bb[key]) return this._bb[key];
+  blurBg(key, si) {
+    if (this._bb[key]) return this._bb[key]; const FW = this.FW, FH = this.FH;
     let ls = -1; for (let i = si; i >= 0; i--) if (this.story.scenes[i].type === 'story') { ls = i; break; } if (ls < 0) ls = this.story.scenes.findIndex(x => x.type === 'story');
-    const raw = document.createElement('canvas'); raw.width = LW / 2; raw.height = LH / 2; const rc = raw.getContext('2d', { alpha: false }); rc.scale(.5, .5);
-    try { if (ls >= 0) { const sc = this.story.scenes[ls]; this.drawStoryL(rc, ls, Math.max(sc.start, sc.end - .3), { x: 540, y: 1180, z: 1 }); } else { rect(rc, 0, 0, LW, LH, this.P.bg1); } } catch (e) { rect(rc, 0, 0, LW, LH, this.P.bg1); }
-    const out = document.createElement('canvas'); out.width = LW / 2; out.height = LH / 2; const oc = out.getContext('2d', { alpha: false });
-    oc.filter = 'blur(12px)'; oc.drawImage(raw, -20, -20, LW / 2 + 40, LH / 2 + 40); oc.filter = 'none'; oc.fillStyle = this.kt ? 'rgba(6,10,22,.7)' : 'rgba(30,16,8,.6)'; oc.fillRect(0, 0, LW / 2, LH / 2);
+    const raw = document.createElement('canvas'); raw.width = FW / 2; raw.height = FH / 2; const rc = raw.getContext('2d', { alpha: false }); rc.scale(.5, .5);
+    try { if (ls >= 0) { const sc = this.story.scenes[ls]; this.drawStoryL(rc, ls, Math.max(sc.start, sc.end - .3), { x: 540, y: cl(1180, this.HH, H - this.HH), z: 1 }); } else rect(rc, 0, 0, FW, FH, this.P.bg1); } catch (e) { rect(rc, 0, 0, FW, FH, this.P.bg1); }
+    const out = document.createElement('canvas'); out.width = FW / 2; out.height = FH / 2; const oc = out.getContext('2d', { alpha: false });
+    oc.filter = 'blur(12px)'; oc.drawImage(raw, -20, -20, FW / 2 + 40, FH / 2 + 40); oc.filter = 'none'; oc.fillStyle = this.kt ? 'rgba(6,10,22,.7)' : 'rgba(30,16,8,.6)'; oc.fillRect(0, 0, FW / 2, FH / 2);
     const ks = Object.keys(this._bb); if (ks.length > 6) delete this._bb[ks[0]];
     return (this._bb[key] = out);
   }
-  dust(c, t, n, col) { for (let i = 0; i < n; i++) { const x = (i * 263) % LW, y = (i * 331 + t * 14 * (1 + i % 3)) % LH; withA(c, .1 + (i % 4) * .05, () => circ(c, x, y, 2 + i % 3, col)); } }
+  dust(c, t, n, col) { const FW = this.FW, FH = this.FH; for (let i = 0; i < n; i++) { const x = (i * 263) % FW, y = (i * 331 + t * 14 * (1 + i % 3)) % FH; withA(c, .1 + (i % 4) * .05, () => circ(c, x, y, 2 + i % 3, col)); } }
 
   render(c, t, opt) {
     if (!this.story) return;
-    const th = this.tl.thumb || 0;
+    const FW = this.FW, FH = this.FH, th = this.tl.thumb || 0;
     if (th > 0 && t < th) { this.drawThumb(c); return; }
-    const si = this.sceneAt(t), sc = this.story.scenes[si], lt = t - sc.start, TR = .45;
+    const si = this.sceneAt(t), sc = this.story.scenes[si], lt = t - sc.start, kind = this.trans[si] || 'fadezoom', TR = kind === 'whip' ? .32 : kind === 'dip' ? .5 : .45;
     c.save();
-    if (si > 0 && lt < TR) {
+    if (si > 0 && lt < TR && kind !== 'none') {
       const p = eio(lt / TR), pv = this.story.scenes[si - 1], tp = pv.end - .001;
-      if (sc.type === 'chapter' || pv.type === 'chapter' || sc.type === 'cta') { // wipe with a coloured bar
-        if (p < .5) this.drawSceneL(c, si - 1, tp); else this.drawSceneL(c, si, t);
-        const x = -LW * .3 + p * LW * 1.6; c.save(); c.fillStyle = this.kt ? this.P.hi : this.P.red; c.beginPath(); c.moveTo(x - 260, 0); c.lineTo(x + 160, 0); c.lineTo(x + 40, LH); c.lineTo(x - 380, LH); c.closePath(); c.fill(); c.restore();
-      } else { this.drawSceneL(c, si - 1, tp); c.save(); c.globalAlpha = p; c.translate(LW / 2, LH / 2); const z = 1.06 - .06 * p; c.scale(z, z); c.translate(-LW / 2, -LH / 2); this.drawSceneL(c, si, t); c.restore(); }
+      const both = (fa, fb) => { c.save(); fa(); this.drawSceneL(c, si - 1, tp); c.restore(); c.save(); fb(); this.drawSceneL(c, si, t); c.restore(); };
+      if (kind === 'push' || kind === 'pushR' || kind === 'whip') { const d = kind === 'pushR' ? -1 : 1, pp = kind === 'whip' ? eio(lt / TR) : p; both(() => c.translate(-d * FW * pp, 0), () => c.translate(d * FW * (1 - pp), 0));
+        if (kind === 'whip') withA(c, Math.sin(Math.PI * pp) * .5, () => { for (let i = 0; i < 26; i++) rect(c, 0, (i * 97 + 13) % FH, FW, 3 + i % 4, i % 2 ? '#ffffff' : (this.kt ? this.P.hi : '#F3E3C6')); }); }
+      else if (kind === 'slideUp') { this.drawSceneL(c, si - 1, tp); c.save(); c.translate(0, FH * (1 - p)); this.drawSceneL(c, si, t); c.restore(); withA(c, .25 * (1 - p), () => rect(c, 0, 0, FW, FH * (1 - p), '#000')); }
+      else if (kind === 'iris') { this.drawSceneL(c, si - 1, tp); c.save(); c.beginPath(); c.arc(FW / 2, FH / 2, 20 + Math.hypot(FW, FH) * .55 * p, 0, Math.PI * 2); c.clip(); this.drawSceneL(c, si, t); c.restore(); }
+      else if (kind === 'flash') { if (p < .5) this.drawSceneL(c, si - 1, tp); else this.drawSceneL(c, si, t); withA(c, 1 - Math.abs(p - .5) * 2, () => rect(c, 0, 0, FW, FH, '#FFF6E8')); }
+      else if (kind === 'dip') { if (p < .5) { this.drawSceneL(c, si - 1, tp); withA(c, p * 2, () => rect(c, 0, 0, FW, FH, '#05080a')); } else { this.drawSceneL(c, si, t); withA(c, (1 - p) * 2, () => rect(c, 0, 0, FW, FH, '#05080a')); } }
+      else if (kind === 'paper') { this.drawSceneL(c, si - 1, tp); c.save(); c.beginPath(); const xx = FW * (1.1 - 1.2 * p); c.moveTo(xx, 0); for (let y = 0; y <= FH; y += 40) c.lineTo(xx + ((y / 40) % 2 ? 18 : -18), y); c.lineTo(FW + 40, FH); c.lineTo(FW + 40, 0); c.closePath(); c.clip(); this.drawSceneL(c, si, t); c.restore(); }
+      else if (kind === 'wipe') { if (p < .5) this.drawSceneL(c, si - 1, tp); else this.drawSceneL(c, si, t); const x = -FW * .3 + p * FW * 1.6, sk = FH * .35; c.save(); c.fillStyle = this.kt ? this.P.hi : this.P.red; c.beginPath(); c.moveTo(x - FW * .14, 0); c.lineTo(x + FW * .08, 0); c.lineTo(x + FW * .08 - sk, FH); c.lineTo(x - FW * .14 - sk, FH); c.closePath(); c.fill(); c.restore(); }
+      else if (kind === 'zoomin') { c.save(); const z = 1 + .25 * p; c.translate(FW / 2, FH / 2); c.scale(z, z); c.translate(-FW / 2, -FH / 2); this.drawSceneL(c, si - 1, tp); c.restore(); c.save(); c.globalAlpha = p; this.drawSceneL(c, si, t); c.restore(); }
+      else { this.drawSceneL(c, si - 1, tp); c.save(); c.globalAlpha = p; c.translate(FW / 2, FH / 2); const z = 1.06 - .06 * p; c.scale(z, z); c.translate(-FW / 2, -FH / 2); this.drawSceneL(c, si, t); c.restore(); }
     } else this.drawSceneL(c, si, t);
     if (th > 0 && t < th + .3) withA(c, 1 - (t - th) / .3, () => this.drawThumb(c));
     if (!opt || opt.ui !== false) this.drawUIL(c, t, si);
@@ -7522,216 +7602,211 @@ class LongRenderer extends StoryRenderer {
     else if (sc.type === 'cta') this.drawCTAL(c, si, t);
     else if (sc.type === 'rewind') this.drawRewindL(c, si, t);
     else if (sc.type === 'takeaways') this.drawTakeawaysL(c, si, t);
-    else { const s = LH / H; rect(c, 0, 0, LW, LH, this.P.bg1); c.save(); c.translate((LW - W * s) / 2, 0); c.scale(s, s); this.drawScene(c, si, t); c.restore(); }
+    else { const s = Math.min(this.FH / H, this.FW / W); rect(c, 0, 0, this.FW, this.FH, this.P.bg1); c.save(); c.translate((this.FW - W * s) / 2, (this.FH - H * s) / 2); c.scale(s, s); this.drawScene(c, si, t); c.restore(); }
     c.restore();
   }
-  /* ---------- cards on the 16:9 frame ---------- */
+  /* where cards sit: the free side on wide frames, the upper middle on tall/square frames */
+  cardSpot(side) { const FW = this.FW, FH = this.FH; if (this.land) return { x: this.kt ? (side >= 0 ? FW * .72 : FW * .28) : FW * .73, y: this.kt ? FH * .4 : FH * .36, s: .74 * FW / 1920 }; return { x: FW / 2, y: this.port ? FH * .3 : FH * .34, s: this.port ? .94 : .72 }; }
   drawCardL(c, card, lt, dur, t, k) {
-    const ty = card.type, side = this.side[k] || 0;
-    if (ty === 'reveal' && lt < .35) withA(c, (1 - lt / .35) * .8, () => rect(c, 0, 0, LW, LH, '#FFF8EC'));
-    if (ty === 'doc' || ty === 'source' || ty === 'date') return this.drawNewCard(c, card, lt, dur, t, side);
-    // the short-video cards, scaled onto the free side of the frame
-    const cx = this.kt ? (side >= 0 ? LW * .72 : LW * .28) : LW * .73, cy = this.kt ? LH * .4 : LH * .36, sc = this.kt ? .74 : .7;
-    c.save(); c.translate(cx, cy); c.scale(sc, sc); c.translate(-540, -640);
+    const ty = card.type, side = this.side[k] || 0, sp = this.cardSpot(side);
+    if (ty === 'reveal' && lt < .35) withA(c, (1 - lt / .35) * .8, () => rect(c, 0, 0, this.FW, this.FH, '#FFF8EC'));
+    if (ty === 'doc' || ty === 'source' || ty === 'date') { c.save(); c.translate(sp.x, sp.y); const s2 = this.land ? this.FW / 1920 : this.FW / 1080 * (this.port ? 1.12 : .9); c.scale(s2, s2); this.drawNewCard(c, card, lt, dur, t); c.restore(); return; }
+    c.save(); c.translate(sp.x, sp.y); c.scale(sp.s, sp.s); c.translate(-540, -640);
     c.beginPath(); c.rect(40, 300, 1000, 760); c.clip(); CARD_CINE = true;
-    const lt2 = ty === 'reveal' ? Math.max(lt, .36) : lt; drawCard(c, card, lt2, dur, t);
+    drawCard(c, card, ty === 'reveal' ? Math.max(lt, .36) : lt, dur, t);
     c.restore();
   }
-  drawNewCard(c, card, lt, dur, t, side) {
+  /* new cards, drawn around (0,0) */
+  drawNewCard(c, card, lt, dur, t) {
     const k = back(lt, .05, .45), out = cl((dur - lt) / .2); if (k <= 0 || out <= 0) return;
     const T = s => String(s == null ? '' : s), PL = this.P;
-    const cx = this.kt ? (side >= 0 ? LW * .7 : LW * .3) : LW * .72;
     c.save(); c.globalAlpha *= out;
-    if (card.type === 'date') {
-      popAt(c, cx, 420, k, () => { const w = 560, h = 330, x = cx - w / 2, y = 255; c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 40; c.shadowOffsetY = 14; rr(c, x, y, w, h, 26, '#FFFFFF'); c.restore();
-        rr(c, x, y, w, 96, [26, 26, 0, 0], PL.red); circ(c, x + 120, y, 14, '#fff'); circ(c, x + w - 120, y, 14, '#fff');
-        txt(c, 'তারিখ', cx, y + 64, 40, '#fff', 700, 'center', FONT_BN);
-        const ls = wrapText(c, T(card.text), 78, w - 60, 800, 'TFDisp').slice(0, 2); ls.forEach((l, i) => txt(c, l, cx, y + 190 + i * 84 - (ls.length - 1) * 30, 78, '#141B2A', 800, 'center', 'TFDisp', w - 50)); });
-    } else if (card.type === 'doc') {
-      popAt(c, cx, 470, k, () => { const w = 700, body = T(card.text), x = cx - w / 2, y = 190; const ls = wrapText(c, body, 44, w - 110, 400, 'TFTiro').slice(0, 6); const h = 190 + ls.length * 62;
-        c.save(); c.translate(cx, y + h / 2); c.rotate(-.02); c.translate(-cx, -(y + h / 2)); c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 44; c.shadowOffsetY = 16; rr(c, x, y, w, h, 10, '#F4EFE3'); c.restore();
-        rr(c, x + 30, y + 26, 170, 44, 6, 'rgba(229,72,77,.9)'); txt(c, 'গোপন নথি', x + 115, y + 58, 28, '#fff', 700, 'center', FONT_BN);
-        txt(c, T(card.title), x + 230, y + 60, 36, '#3A2C20', 700, 'left', FONT_BN, w - 260);
-        line(c, x + 30, y + 96, x + w - 30, y + 96, 'rgba(60,40,20,.25)', 2);
-        const all = ls.join('\n'), shown = Math.floor(cl((lt - .3) / Math.max(.6, Math.min(2.4, dur * .6))) * all.length); let used = 0;
-        ls.forEach((l, i) => { const vis = l.slice(0, Math.max(0, shown - used)); used += l.length + 1; if (vis) txt(c, vis, x + 50, y + 160 + i * 62, 44, '#2A2018', 400, 'left', 'TFTiro'); });
-        if (shown < all.length && Math.floor(t * 3) % 2) { const li = Math.min(ls.length - 1, (all.slice(0, shown).match(/\n/g) || []).length); const pre = all.slice(0, shown).split('\n').pop(); rect(c, x + 52 + tw(c, pre, 44, 400, 'TFTiro'), y + 122 + li * 62, 4, 48, '#2A2018'); }
-        c.restore(); });
-    } else if (card.type === 'source') {
-      popAt(c, cx, 380, k, () => { const w = 720, ls = wrapText(c, T(card.text), 46, w - 90, 700).slice(0, 3), h = 150 + ls.length * 62, x = cx - w / 2, y = 240;
-        c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 36; c.shadowOffsetY = 12; rr(c, x, y, w, h, 20, this.kt ? 'rgba(12,20,38,.96)' : '#FFFDF7'); c.restore(); rect(c, x, y, 10, h, PL.hi);
-        txt(c, 'সূত্র: ' + T(card.name), x + 44, y + 64, 38, PL.hi, 800, 'left', FONT_BN, w - 80);
-        ls.forEach((l, i) => txt(c, l, x + 44, y + 130 + i * 62, 46, this.kt ? '#FFFFFF' : '#2A1C14', 700, 'left', FONT_BN, w - 80)); });
-    }
+    if (card.type === 'date') popAt(c, 0, 0, k, () => { const w = 560, h = 330, x = -w / 2, y = -h / 2; c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 40; c.shadowOffsetY = 14; rr(c, x, y, w, h, 26, '#FFFFFF'); c.restore();
+      rr(c, x, y, w, 96, [26, 26, 0, 0], PL.red); circ(c, x + 120, y, 14, '#fff'); circ(c, x + w - 120, y, 14, '#fff'); txt(c, 'তারিখ', 0, y + 64, 40, '#fff', 700, 'center', FONT_BN);
+      const ls = wrapText(c, T(card.text), 78, w - 60, 800, 'TFDisp').slice(0, 2); ls.forEach((l, i) => txt(c, l, 0, y + 190 + i * 84 - (ls.length - 1) * 30, 78, '#141B2A', 800, 'center', 'TFDisp', w - 50)); });
+    else if (card.type === 'doc') popAt(c, 0, 0, k, () => { const w = 700, ls = wrapText(c, T(card.text), 44, w - 110, 400, 'TFTiro').slice(0, 6), h = 190 + ls.length * 62, x = -w / 2, y = -h / 2;
+      c.save(); c.rotate(-.02); c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 44; c.shadowOffsetY = 16; rr(c, x, y, w, h, 10, '#F4EFE3'); c.restore();
+      rr(c, x + 30, y + 26, 170, 44, 6, 'rgba(229,72,77,.9)'); txt(c, 'গোপন নথি', x + 115, y + 58, 28, '#fff', 700, 'center', FONT_BN); txt(c, T(card.title), x + 230, y + 60, 36, '#3A2C20', 700, 'left', FONT_BN, w - 260); line(c, x + 30, y + 96, x + w - 30, y + 96, 'rgba(60,40,20,.25)', 2);
+      const all = ls.join('\n'), shown = Math.floor(cl((lt - .3) / Math.max(.6, Math.min(2.4, dur * .6))) * all.length); let used = 0;
+      ls.forEach((l, i) => { const vis = l.slice(0, Math.max(0, shown - used)); used += l.length + 1; if (vis) txt(c, vis, x + 50, y + 160 + i * 62, 44, '#2A2018', 400, 'left', 'TFTiro'); });
+      if (shown < all.length && Math.floor(t * 3) % 2) { const li = Math.min(ls.length - 1, (all.slice(0, shown).match(/\n/g) || []).length); const pre = all.slice(0, shown).split('\n').pop(); rect(c, x + 52 + tw(c, pre, 44, 400, 'TFTiro'), y + 122 + li * 62, 4, 48, '#2A2018'); }
+      c.restore(); });
+    else if (card.type === 'source') popAt(c, 0, 0, k, () => { const w = 720, ls = wrapText(c, T(card.text), 46, w - 90, 700).slice(0, 3), h = 150 + ls.length * 62, x = -w / 2, y = -h / 2;
+      c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 36; c.shadowOffsetY = 12; rr(c, x, y, w, h, 20, this.kt ? 'rgba(12,20,38,.96)' : '#FFFDF7'); c.restore(); rect(c, x, y, 10, h, PL.hi);
+      txt(c, 'সূত্র: ' + T(card.name), x + 44, y + 64, 38, PL.hi, 800, 'left', FONT_BN, w - 80); ls.forEach((l, i) => txt(c, l, x + 44, y + 130 + i * 62, 46, this.kt ? '#FFFFFF' : '#2A1C14', 700, 'left', FONT_BN, w - 80)); });
     c.restore();
   }
-  /* ---------- kinetic typography (thriller / guide): every word pops in on its beat ---------- */
+  /* ---------- kinetic typography: every word lands on its beat; the animation changes line to line ---------- */
   ktLayout(c, k, sh, ln, side, hook, hasCard) {
-    const key = k + ':' + side; if (this._ktL[key]) return this._ktL[key];
-    const words = this.words[k]; const spk = ln.speak && ln.who ? this.chars[ln.who] : null;
-    let size = hook ? 92 : 66; const maxW = hook ? 1500 : side ? 740 : (hasCard ? 1100 : 1320); const fam = 'TFDisp';
+    const key = k + ':' + side + ':' + this.fkey; if (this._ktL[key]) return this._ktL[key];
+    const FW = this.FW, FH = this.FH, u = this.u, words = this.words[k], spk = ln.speak && ln.who ? this.chars[ln.who] : null;
+    let size = (hook ? 92 : 66) * u * (this.land ? 1 : 1.12); const maxW = hook ? FW * .8 : side ? FW * .4 : (hasCard && this.land ? FW * .58 : FW * (this.land ? .7 : .88)); const fam = 'TFDisp';
     const lay = sz => { c.font = `800 ${sz}px ${fam}, ${FONT_FALLBACK}`; const sp = c.measureText(' ').width; const rows = [[]]; let w0 = 0;
       words.forEach((w, i) => { const ww = c.measureText(w.w).width * (w.num ? 1.12 : 1); if (rows[rows.length - 1].length && w0 + sp + ww > maxW) { rows.push([]); w0 = 0; } rows[rows.length - 1].push({ i, ww }); w0 += (w0 ? sp : 0) + ww; });
       return { rows, sp }; };
-    let L = lay(size); while (L.rows.length > 3 && size > 44) { size -= 4; L = lay(size); }
-    const lh = size * 1.32, rw = L.rows.map(r => r.reduce((a, x) => a + x.ww, 0) + L.sp * (r.length - 1)), bw = Math.max(...rw) + 84, bh = L.rows.length * lh + 52 + (spk ? 52 : 0);
+    let L = lay(size); while (L.rows.length > (this.land ? 3 : 4) && size > 38 * u) { size -= 4 * u; L = lay(size); }
+    const pad = 42 * u, lh = size * 1.32, rw = L.rows.map(r => r.reduce((a, x) => a + x.ww, 0) + L.sp * (r.length - 1)), bw = Math.max(...rw) + pad * 2, bh = L.rows.length * lh + 52 * u + (spk ? 52 * u : 0);
     let bx, by;
-    if (hook) { bx = (LW - bw) / 2; by = LH * .5 - bh / 2; }
-    else if (side > 0) { bx = Math.min(LW - bw - 70, LW * .53); by = LH * .48 - bh / 2; }
-    else if (side < 0) { bx = Math.max(70, LW * .47 - bw); by = LH * .48 - bh / 2; }
-    else { bx = (LW - bw) / 2; by = LH - bh - 92; }
-    const pos = []; L.rows.forEach((r, ri) => { let x = bx + 42 + (side === 0 || hook ? (bw - 84 - rw[ri]) / 2 : 0); r.forEach(it => { pos[it.i] = { x, y: by + 26 + (spk ? 52 : 0) + lh * (ri + .78), ww: it.ww }; x += it.ww + L.sp; }); });
+    if (hook) { bx = (FW - bw) / 2; by = FH * .5 - bh / 2; }
+    else if (side > 0) { bx = Math.min(FW - bw - 70 * u, FW * .53); by = FH * .48 - bh / 2; }
+    else if (side < 0) { bx = Math.max(70 * u, FW * .47 - bw); by = FH * .48 - bh / 2; }
+    else { bx = (FW - bw) / 2; by = FH - bh - (this.land ? 92 : this.port ? 300 : 120) * u; }
+    const pos = []; L.rows.forEach((r, ri) => { let x = bx + pad + (side === 0 || hook ? (bw - pad * 2 - rw[ri]) / 2 : 0); r.forEach(it => { pos[it.i] = { x, y: by + 26 * u + (spk ? 52 * u : 0) + lh * (ri + .78), ww: it.ww }; x += it.ww + L.sp; }); });
     return (this._ktL[key] = { size, fam, bx, by, bw, bh, pos, spk, lh });
   }
   drawKT(c, t) {
     const k = this.shotAt(t), sh = this.tl.shots[k]; if (!sh) return; const sc = this.story.scenes[sh.si]; if (sc.type !== 'story') return;
     if (t < sh.start - .05 || t > sh.end + .2) return;
-    const ln = sc.lines[sh.li], words = this.words[k], PL = this.P, hook = sh.si === this.firstStory && sh.li === 0, hasCard = !!ln.card;
-    const side = hasCard && !hook ? 0 : (this.side[k] || 0);
+    const ln = sc.lines[sh.li], words = this.words[k], PL = this.P, u = this.u, hook = sh.si === this.firstStory && sh.li === 0, hasCard = !!ln.card;
+    const side = (hasCard && !hook) || !this.land ? 0 : (this.side[k] || 0);
     const L = this.ktLayout(c, k, sh, ln, side, hook, hasCard); const lt = t - sh.start, out = cl((sh.end + .2 - t) / .2);
-    const mode = hook ? 'pop' : ln.speak ? 'type' : ['pop', 'slide', 'pop', 'rise'][k % 4];
-    const ent = eo((lt + .05) / .3), dx = side > 0 ? (1 - ent) * 120 : side < 0 ? -(1 - ent) * 120 : 0, dy = side === 0 ? (1 - ent) * 60 : 0;
+    const mode = hook ? 'zoom' : ln.speak ? 'type' : this.mode[k];
+    const shake = /angry|surprised/.test(ln.feel || '');
+    const ent = eo((lt + .05) / .3), dx = side > 0 ? (1 - ent) * 120 * u : side < 0 ? -(1 - ent) * 120 * u : 0, dy = side === 0 ? (1 - ent) * 60 * u : 0;
     c.save(); c.globalAlpha *= out * cl(ent * 1.4); c.translate(dx, dy);
-    if (hook) withA(c, .55 * ent, () => rect(c, 0, 0, LW, LH, '#050912'));
-    c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 30; c.shadowOffsetY = 10; rr(c, L.bx, L.by, L.bw, L.bh, 16, PL.box); c.restore();
-    rr(c, L.bx, L.by, 10, L.bh, [16, 0, 0, 16], PL.hi); { const g = c.createLinearGradient(L.bx, 0, L.bx + L.bw, 0); g.addColorStop(0, PL.edge); g.addColorStop(1, 'rgba(255,210,63,0)'); c.fillStyle = g; c.fillRect(L.bx + 16, L.by, L.bw - 32, 4); }
-    if (L.spk) { const r = 34, ax = L.bx + 40 + r, ay = L.by + 40; c.drawImage(this.faceOf(ln.who, 96), ax - r, ay - r, 2 * r, 2 * r); circ(c, ax, ay, r + 3, null, PL.hi, 4); txt(c, L.spk.ch.name + ' বলল', ax + r + 18, ay + 13, 34, PL.hi, 800, 'left', FONT_BN, L.bw - 140); }
+    if (hook) withA(c, .55 * ent, () => rect(c, 0, 0, this.FW, this.FH, '#050912'));
+    c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 30 * u; c.shadowOffsetY = 10 * u; rr(c, L.bx, L.by, L.bw, L.bh, 16 * u, PL.box); c.restore();
+    const accent = k % 3 === 1 ? PL.red : PL.hi;
+    rr(c, L.bx, L.by, 10 * u, L.bh, [16 * u, 0, 0, 16 * u], accent); { const g = c.createLinearGradient(L.bx, 0, L.bx + L.bw, 0); g.addColorStop(0, PL.edge); g.addColorStop(1, 'rgba(255,210,63,0)'); c.fillStyle = g; c.fillRect(L.bx + 16 * u, L.by, L.bw - 32 * u, 4 * u); }
+    if (L.spk) { const r = 34 * u, ax = L.bx + 40 * u + r, ay = L.by + 40 * u; c.drawImage(this.faceOf(ln.who, 96), ax - r, ay - r, 2 * r, 2 * r); circ(c, ax, ay, r + 3 * u, null, PL.hi, 4 * u); txt(c, L.spk.ch.name + ' বলল', ax + r + 18 * u, ay + 13 * u, 34 * u, PL.hi, 800, 'left', FONT_BN, L.bw - 140 * u); }
     c.textAlign = 'left';
     words.forEach((w, i) => { const p = L.pos[i]; if (!p) return; const wl = t - w.t0; if (wl < 0) return;
-      const sz = L.size * (w.num ? 1.12 : 1), col = w.num || w.hl ? PL.hi : PL.ink;
-      let s = 1, a = 1, oy = 0, txtW = w.w;
+      const sz = L.size * (w.num ? 1.12 : 1), col = w.num || w.hl ? PL.hi : PL.ink; let s = 1, a = 1, ox = 0, oy = 0, txtW = w.w;
       if (mode === 'pop') { s = back(wl, 0, .26); a = cl(wl / .08); }
-      else if (mode === 'slide') { const e = eo(wl / .22); oy = 0; a = e; c.save(); c.translate((1 - e) * 46, 0); }
-      else if (mode === 'rise') { const e = eo(wl / .24); oy = (1 - e) * 34; a = e; }
+      else if (mode === 'slide') { const e = eo(wl / .22); ox = (1 - e) * 46 * u; a = e; }
+      else if (mode === 'rise') { const e = eo(wl / .24); oy = (1 - e) * 34 * u; a = e; }
+      else if (mode === 'drop') { const e = back(wl, 0, .3); oy = -(1 - cl(e)) * 40 * u; a = cl(wl / .1); }
+      else if (mode === 'zoom') { const e = eo(wl / .28); s = 1.7 - .7 * e; a = e; }
+      else if (mode === 'wave') { const e = eo(wl / .2); a = e; oy = Math.sin(wl * 14) * 8 * u * cl(1 - wl / .6); }
       else if (mode === 'type') { const n = Math.ceil(cl(wl / .16) * w.w.length); txtW = w.w.slice(0, n); }
-      if (w.hl || w.num) { const e = eo((wl - .05) / .25); if (e > 0) withA(c, .9, () => rr(c, p.x - 8, p.y - sz * .86 + oy, (p.ww + 16) * e, sz * 1.12, 10, this.kt ? 'rgba(255,210,63,.22)' : 'rgba(179,38,30,.15)')); }
-      c.save(); c.globalAlpha *= a; c.translate(p.x + p.ww / 2, p.y - sz * .3 + oy); c.scale(s, s); c.translate(-(p.x + p.ww / 2), -(p.y - sz * .3));
+      if ((w.hl || w.num) && shake && wl < .4) ox += Math.sin(wl * 60) * 5 * u * (1 - wl / .4);
+      if (w.hl || w.num) { const e = eo((wl - .05) / .25); if (e > 0) { if (i % 2) withA(c, .9, () => rr(c, p.x - 8 * u, p.y - sz * .86 + oy, (p.ww + 16 * u) * e, sz * 1.12, 10 * u, this.kt ? 'rgba(255,210,63,.22)' : 'rgba(179,38,30,.15)')); else rect(c, p.x, p.y + sz * .18, p.ww * e, 5 * u, accent); } }
+      c.save(); c.globalAlpha *= a; c.translate(p.x + p.ww / 2 + ox, p.y - sz * .3 + oy); c.scale(s, s); c.translate(-(p.x + p.ww / 2), -(p.y - sz * .3));
       c.font = `800 ${sz}px ${L.fam}, ${FONT_FALLBACK}`; c.fillStyle = col; c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = 4; c.shadowOffsetY = 2; c.fillText(txtW, p.x, p.y); c.restore();
-      if (mode === 'slide') c.restore();
     });
-    if (hook) { const e = eo((lt - .2) / .6); rect(c, L.bx + 40, L.by + L.bh - 18, (L.bw - 80) * e, 6, PL.red); }
+    if (hook) { const e = eo((lt - .2) / .6); rect(c, L.bx + 40 * u, L.by + L.bh - 18 * u, (L.bw - 80 * u) * e, 6 * u, PL.red); }
     c.restore();
   }
-  /* life style: a number from the line is stamped on paper near the top */
   drawStamp(c, t) {
     const k = this.shotAt(t), sh = this.tl.shots[k]; if (!sh) return; const sc = this.story.scenes[sh.si]; if (sc.type !== 'story') return;
     const ln = sc.lines[sh.li], s = ktStamp(ln); if (!s) return;
     const w0 = this.words[k].find(x => x.hl) || { t0: sh.start + .2 }, lt = t - w0.t0, end = sh.end + .3; if (lt < 0 || t > end) return;
-    const k2 = back(lt, 0, .35), out = cl((end - t) / .25); const side = (this.lc[k] && this.lc[k].x > 540) ? -1 : 1, cx = side > 0 ? LW * .78 : LW * .22, cy = 230;
-    c.font = `800 74px ${FONT_BN}, ${FONT_FALLBACK}`; const w = c.measureText(s).width + 90;
-    withA(c, out, () => popAt(c, cx, cy, k2, () => { c.save(); c.translate(cx, cy); c.rotate(side * -.05); c.save(); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 22; c.shadowOffsetY = 8; rr(c, -w / 2, -64, w, 128, 12, '#F7EEDC'); c.restore();
-      rr(c, -w / 2 + 10, -54, w - 20, 108, 8, null, 'rgba(179,38,30,.75)', 4); txt(c, s, 0, 26, 74, '#B3261E', 800, 'center', FONT_BN, w - 40); c.restore(); }));
+    const u = this.u, k2 = back(lt, 0, .35), out = cl((end - t) / .25), cam = this.lc[k], side = (cam && cam.x > 540) ? -1 : 1;
+    const cx = this.land ? (side > 0 ? this.FW * .78 : this.FW * .22) : this.FW / 2, cy = this.land ? 230 * u : this.FH * (this.port ? .16 : .2), rot = [-.05, .04, -.02, .06][k % 4];
+    c.font = `800 ${74 * u}px ${FONT_BN}, ${FONT_FALLBACK}`; const w = c.measureText(s).width + 90 * u;
+    withA(c, out, () => popAt(c, cx, cy, k2, () => { c.save(); c.translate(cx, cy); c.rotate(rot); c.save(); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 22 * u; c.shadowOffsetY = 8 * u; rr(c, -w / 2, -64 * u, w, 128 * u, 12 * u, '#F7EEDC'); c.restore();
+      rr(c, -w / 2 + 10 * u, -54 * u, w - 20 * u, 108 * u, 8 * u, null, 'rgba(179,38,30,.75)', 4 * u); txt(c, s, 0, 26 * u, 74 * u, '#B3261E', 800, 'center', FONT_BN, w - 40 * u); c.restore(); }));
   }
-  /* ---------- chapter card: "ফাঁদ ১ · মাত্র ছ টাকা তো" / "সপ্তাহ ২ · রিডিং" / "দ্বিতীয় দিন" ---------- */
   drawChapterL(c, si, t) {
-    const sc = this.story.scenes[si], lt = t - sc.start, ch = sc.chapter || {}, PL = this.P;
-    c.drawImage(this.blurBg('ch' + si, si), 0, 0, LW, LH); this.dust(c, t, 30, this.kt ? '#9DB4FF' : '#F3E3C6');
-    const num = (String(ch.no).match(/[০-৯\d]+/) || [''])[0]; const idx = this.chapList.indexOf(sc);
-    if (num) withA(c, .16 * fin(lt, 0, .5), () => { c.save(); c.font = `800 620px TFDisp, ${FONT_FALLBACK}`; c.textAlign = 'center'; c.fillStyle = this.kt ? PL.hi : '#F3E3C6'; c.fillText(num, LW / 2 + (1 - eo(lt / .8)) * 300, LH * .8); c.restore(); });
-    if (!this.kt) { // torn paper card
-      popAt(c, LW / 2, LH / 2, back(lt, .05, .5), () => { const w = 1180, h = 420, x = (LW - w) / 2, y = (LH - h) / 2; c.save(); c.translate(LW / 2, LH / 2); c.rotate(-.015); c.translate(-LW / 2, -LH / 2); c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 50; c.shadowOffsetY = 18; rr(c, x, y, w, h, 18, '#F7F0E3'); c.restore();
-        rr(c, x + 18, y + 18, w - 36, h - 36, 12, null, 'rgba(179,38,30,.35)', 3);
-        if (ch.no) { c.font = `800 46px ${FONT_BN}, ${FONT_FALLBACK}`; const bw = c.measureText(ch.no).width + 70; rr(c, LW / 2 - bw / 2, y - 30, bw, 72, 10, '#B3261E'); txt(c, ch.no, LW / 2, y + 22, 46, '#FFF4E4', 800, 'center', FONT_BN); }
-        const ls = wrapText(c, ch.title || '', 92, w - 140, 700, 'TFSerif').slice(0, 2); ls.forEach((l, i) => withA(c, fin(lt, .25 + i * .2, .4), () => txt(c, l, LW / 2, y + 210 + i * 110 - (ls.length - 1) * 50, 92, '#2A1C14', 700, 'center', 'TFSerif', w - 120)));
-        const ul = eo((lt - .6) / .6); line(c, LW / 2 - 220 * ul, y + h - 70, LW / 2 + 220 * ul, y + h - 70, '#B3261E', 6); c.restore(); });
+    const sc = this.story.scenes[si], lt = t - sc.start, ch = sc.chapter || {}, PL = this.P, FW = this.FW, FH = this.FH, u = this.u;
+    c.drawImage(this.blurBg('ch' + si, si), 0, 0, FW, FH); this.dust(c, t, 30, this.kt ? '#9DB4FF' : '#F3E3C6');
+    const num = (String(ch.no).match(/[০-৯\d]+/) || [''])[0], idx = this.chapList.indexOf(sc);
+    if (num) withA(c, .16 * fin(lt, 0, .5), () => { c.save(); c.font = `800 ${620 * u}px TFDisp, ${FONT_FALLBACK}`; c.textAlign = 'center'; c.fillStyle = this.kt ? PL.hi : '#F3E3C6'; c.fillText(num, FW / 2 + (1 - eo(lt / .8)) * 300 * u, FH * .5 + 230 * u); c.restore(); });
+    if (!this.kt) {
+      popAt(c, FW / 2, FH / 2, back(lt, .05, .5), () => { const w = Math.min(1180 * u, FW * .9), h = 420 * u, x = (FW - w) / 2, y = (FH - h) / 2; c.save(); c.translate(FW / 2, FH / 2); c.rotate(-.015); c.translate(-FW / 2, -FH / 2); c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 50 * u; c.shadowOffsetY = 18 * u; rr(c, x, y, w, h, 18 * u, '#F7F0E3'); c.restore();
+        rr(c, x + 18 * u, y + 18 * u, w - 36 * u, h - 36 * u, 12 * u, null, 'rgba(179,38,30,.35)', 3 * u);
+        if (ch.no) { c.font = `800 ${46 * u}px ${FONT_BN}, ${FONT_FALLBACK}`; const bw = c.measureText(ch.no).width + 70 * u; rr(c, FW / 2 - bw / 2, y - 30 * u, bw, 72 * u, 10 * u, '#B3261E'); txt(c, ch.no, FW / 2, y + 22 * u, 46 * u, '#FFF4E4', 800, 'center', FONT_BN); }
+        const ls = wrapText(c, ch.title || '', 92 * u, w - 140 * u, 700, 'TFSerif').slice(0, 2); ls.forEach((l, i) => withA(c, fin(lt, .25 + i * .2, .4), () => txt(c, l, FW / 2, y + 210 * u + i * 110 * u - (ls.length - 1) * 50 * u, 92 * u, '#2A1C14', 700, 'center', 'TFSerif', w - 120 * u)));
+        const ul = eo((lt - .6) / .6); line(c, FW / 2 - 220 * u * ul, y + h - 70 * u, FW / 2 + 220 * u * ul, y + h - 70 * u, '#B3261E', 6 * u); c.restore(); });
       return;
     }
-    // thriller / guide: label pill, title word by word, progress dots
-    const label = ch.no || ''; c.font = `800 52px ${FONT_BN}, ${FONT_FALLBACK}`; const lw = c.measureText(label).width + 80;
-    if (label) popAt(c, LW / 2, LH * .3, back(lt, .02, .4), () => { rr(c, LW / 2 - lw / 2, LH * .3 - 44, lw, 88, 44, PL.hi); txt(c, label, LW / 2, LH * .3 + 18, 52, '#0B1322', 800, 'center', FONT_BN); });
-    const ws = String(ch.title || '').split(/\s+/).filter(Boolean); const ls = wrapText(c, ch.title || '', 118, 1600, 800, 'TFDisp').slice(0, 2); let wi = 0;
-    ls.forEach((l, li) => { const lws = l.split(/\s+/); c.font = `800 118px TFDisp, ${FONT_FALLBACK}`; const sp = c.measureText(' ').width; const tot = lws.reduce((a, w) => a + c.measureText(w).width, 0) + sp * (lws.length - 1); let x = LW / 2 - tot / 2; const y = LH * .56 + li * 140 - (ls.length - 1) * 50;
-      lws.forEach(w => { const ww = c.measureText(w).width, kk = back(lt, .3 + wi * .12, .3); wi++; if (kk > 0) { c.save(); c.translate(x + ww / 2, y - 40); c.scale(kk, kk); c.translate(-(x + ww / 2), -(y - 40)); c.font = `800 118px TFDisp, ${FONT_FALLBACK}`; c.textAlign = 'left'; c.fillStyle = '#FFFFFF'; c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 18; c.fillText(w, x, y); c.restore(); } x += ww + sp; }); });
-    const ul = eo((lt - .5 - ws.length * .12) / .5); rect(c, LW / 2 - 260 * ul, LH * .56 + ls.length * 90 + 10, 520 * ul, 8, PL.red);
-    if (this.chapList.length > 1 && idx >= 0) { const n = this.chapList.length, gap = 54, x0 = LW / 2 - (n - 1) * gap / 2, y = LH * .86; for (let i = 0; i < n; i++) { const on = i <= idx; circ(c, x0 + i * gap, y, i === idx ? 16 : 11, on ? PL.hi : 'rgba(255,255,255,.25)'); if (i < n - 1) rect(c, x0 + i * gap + 16, y - 2, gap - 32, 4, i < idx ? PL.hi : 'rgba(255,255,255,.2)'); } }
+    const label = ch.no || '', ly = FH * (this.land ? .3 : .36); c.font = `800 ${52 * u}px ${FONT_BN}, ${FONT_FALLBACK}`; const lw = c.measureText(label).width + 80 * u;
+    if (label) popAt(c, FW / 2, ly, back(lt, .02, .4), () => { rr(c, FW / 2 - lw / 2, ly - 44 * u, lw, 88 * u, 44 * u, PL.hi); txt(c, label, FW / 2, ly + 18 * u, 52 * u, '#0B1322', 800, 'center', FONT_BN); });
+    const ts = 118 * u, ls = wrapText(c, ch.title || '', ts, FW * .86, 800, 'TFDisp').slice(0, 3); let wi = 0;
+    ls.forEach((l, li) => { const lws = l.split(/\s+/); c.font = `800 ${ts}px TFDisp, ${FONT_FALLBACK}`; const sp = c.measureText(' ').width; const tot = lws.reduce((a, w) => a + c.measureText(w).width, 0) + sp * (lws.length - 1); let x = FW / 2 - tot / 2; const y = ly + 200 * u + li * ts * 1.18;
+      lws.forEach(w => { const ww = c.measureText(w).width, kk = back(lt, .3 + wi * .12, .3); wi++; if (kk > 0) { c.save(); c.translate(x + ww / 2, y - 40 * u); c.scale(kk, kk); c.translate(-(x + ww / 2), -(y - 40 * u)); c.font = `800 ${ts}px TFDisp, ${FONT_FALLBACK}`; c.textAlign = 'left'; c.fillStyle = '#FFFFFF'; c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 18; c.fillText(w, x, y); c.restore(); } x += ww + sp; }); });
+    const ul = eo((lt - .5 - wi * .12) / .5); rect(c, FW / 2 - 260 * u * ul, ly + 200 * u + ls.length * ts * 1.18 - ts * .6, 520 * u * ul, 8 * u, PL.red);
+    if (this.chapList.length > 1 && idx >= 0) { const n = this.chapList.length, gap = 54 * u, x0 = FW / 2 - (n - 1) * gap / 2, y = FH * .86; for (let i = 0; i < n; i++) { const on = i <= idx; circ(c, x0 + i * gap, y, (i === idx ? 16 : 11) * u, on ? PL.hi : 'rgba(255,255,255,.25)'); if (i < n - 1) rect(c, x0 + i * gap + 16 * u, y - 2 * u, gap - 32 * u, 4 * u, i < idx ? PL.hi : 'rgba(255,255,255,.2)'); } }
   }
   drawBookL(c, si, t) {
-    const sc = this.story.scenes[si], lt = t - sc.start, bk = this.story.book || {};
-    c.drawImage(this.blurBg('bk' + si, si), 0, 0, LW, LH); this.dust(c, t, 26, '#F3E3C6');
+    const sc = this.story.scenes[si], lt = t - sc.start, bk = this.story.book || {}, FW = this.FW, FH = this.FH, u = this.u;
+    c.drawImage(this.blurBg('bk' + si, si), 0, 0, FW, FH); this.dust(c, t, 26, '#F3E3C6');
     const k = back(lt, .1, .55); if (k <= 0) return;
-    const w = 1240, x = (LW - w) / 2, tl = wrapText(c, bk.title || '', 64, w - 200, 700, FONT_EN).slice(0, 2), body = bk.lesson_bn || bk.lesson || '', bl = wrapText(c, '“' + body + '”', 62, w - 200, 700, 'TFSerif').slice(0, 2);
-    const h = 230 + tl.length * 74 + (bk.author ? 50 : 0) + bl.length * 80, y = (LH - h) / 2;
-    popAt(c, LW / 2, LH / 2, k, () => { c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 40; c.shadowOffsetY = 14; rr(c, x, y, w, h, 34, '#F7F0E3'); c.restore(); rr(c, x + 16, y + 16, w - 32, h - 32, 24, null, 'rgba(179,38,30,.35)', 3);
-      txt(c, 'বইয়ের পাতা থেকে', LW / 2, y + 80, 40, '#8E1D17', 700, 'center', FONT_BN, w - 120);
-      tl.forEach((l, i) => txt(c, l, LW / 2, y + 160 + i * 74, 64, '#2A1C14', 700, 'center', FONT_EN, w - 120));
-      let yy = y + 160 + (tl.length - 1) * 74; if (bk.author) { yy += 54; txt(c, '— ' + bk.author, LW / 2, yy, 36, '#7A6A5A', 400, 'center', FONT_EN, w - 140); }
-      line(c, LW / 2 - 110, yy + 34, LW / 2 + 110, yy + 34, '#B3261E', 4);
-      withA(c, fin(lt, .55, .6), () => bl.forEach((l, i) => txt(c, l, LW / 2, yy + 112 + i * 80, 62, '#B3261E', 700, 'center', 'TFSerif', w - 120))); });
+    const w = Math.min(1240 * u, FW * .92), x = (FW - w) / 2, tl = wrapText(c, bk.title || '', 64 * u, w - 140 * u, 700, FONT_EN).slice(0, 2), body = bk.lesson_bn || bk.lesson || '', bl = wrapText(c, '“' + body + '”', 62 * u, w - 140 * u, 700, 'TFSerif').slice(0, 3);
+    const h = (230 + tl.length * 74 + (bk.author ? 50 : 0) + bl.length * 80) * u, y = (FH - h) / 2;
+    popAt(c, FW / 2, FH / 2, k, () => { c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 40 * u; c.shadowOffsetY = 14 * u; rr(c, x, y, w, h, 34 * u, '#F7F0E3'); c.restore(); rr(c, x + 16 * u, y + 16 * u, w - 32 * u, h - 32 * u, 24 * u, null, 'rgba(179,38,30,.35)', 3 * u);
+      txt(c, 'বইয়ের পাতা থেকে', FW / 2, y + 80 * u, 40 * u, '#8E1D17', 700, 'center', FONT_BN, w - 120 * u);
+      tl.forEach((l, i) => txt(c, l, FW / 2, y + (160 + i * 74) * u, 64 * u, '#2A1C14', 700, 'center', FONT_EN, w - 100 * u));
+      let yy = y + (160 + (tl.length - 1) * 74) * u; if (bk.author) { yy += 54 * u; txt(c, '— ' + bk.author, FW / 2, yy, 36 * u, '#7A6A5A', 400, 'center', FONT_EN, w - 140 * u); }
+      line(c, FW / 2 - 110 * u, yy + 34 * u, FW / 2 + 110 * u, yy + 34 * u, '#B3261E', 4 * u);
+      withA(c, fin(lt, .55, .6), () => bl.forEach((l, i) => txt(c, l, FW / 2, yy + (112 + i * 80) * u, 62 * u, '#B3261E', 700, 'center', 'TFSerif', w - 100 * u))); });
   }
   drawRewindL(c, si, t) {
-    const sc = this.story.scenes[si], lt = t - sc.start; let ps = -1; for (let i = si - 1; i >= 0; i--) if (this.story.scenes[i].type === 'story') { ps = i; break; }
-    if (ps >= 0) { const s2 = this.story.scenes[ps]; c.save(); c.filter = 'saturate(.4) contrast(1.05)'; c.translate(Math.sin(t * 90) * 10, 0); this.drawStoryL(c, ps, Math.max(s2.start, s2.end - .01 - lt * 3)); c.restore(); } else rect(c, 0, 0, LW, LH, this.P.bg1);
-    c.fillStyle = 'rgba(0,0,0,.08)'; for (let y = 0; y < LH; y += 8) c.fillRect(0, y, LW, 2);
-    txt(c, '◀◀ REWIND', 90, 150, 64, '#fff', 700, 'left', FONT_EN);
-    const cap = sc.lines[0] ? sc.lines[0].cap : ''; popAt(c, LW / 2, LH / 2, back(lt, .15), () => { c.save(); c.font = `800 150px ${FONT_ACC}, ${FONT_FALLBACK}`; c.textAlign = 'center'; let sz = 150; while (sz > 70 && c.measureText(cap).width > 1600) { sz -= 8; c.font = `800 ${sz}px ${FONT_ACC}, ${FONT_FALLBACK}`; } c.lineJoin = 'round'; c.lineWidth = sz * .14; c.strokeStyle = '#0B1623'; c.strokeText(cap, LW / 2, LH / 2 + sz * .35); c.fillStyle = C_GO2; c.fillText(cap, LW / 2, LH / 2 + sz * .35); c.restore(); });
+    const sc = this.story.scenes[si], lt = t - sc.start, FW = this.FW, FH = this.FH, u = this.u; let ps = -1; for (let i = si - 1; i >= 0; i--) if (this.story.scenes[i].type === 'story') { ps = i; break; }
+    if (ps >= 0) { const s2 = this.story.scenes[ps]; c.save(); c.filter = 'saturate(.4) contrast(1.05)'; c.translate(Math.sin(t * 90) * 10 * u, 0); this.drawStoryL(c, ps, Math.max(s2.start, s2.end - .01 - lt * 3)); c.restore(); } else rect(c, 0, 0, FW, FH, this.P.bg1);
+    c.fillStyle = 'rgba(0,0,0,.08)'; for (let y = 0; y < FH; y += 8) c.fillRect(0, y, FW, 2);
+    txt(c, '◀◀ REWIND', 90 * u, 150 * u, 64 * u, '#fff', 700, 'left', FONT_EN);
+    const cap = sc.lines[0] ? sc.lines[0].cap : ''; popAt(c, FW / 2, FH / 2, back(lt, .15), () => { c.save(); let sz = 150 * u; c.font = `800 ${sz}px ${FONT_ACC}, ${FONT_FALLBACK}`; c.textAlign = 'center'; while (sz > 60 * u && c.measureText(cap).width > FW * .86) { sz -= 8 * u; c.font = `800 ${sz}px ${FONT_ACC}, ${FONT_FALLBACK}`; } c.lineJoin = 'round'; c.lineWidth = sz * .14; c.strokeStyle = '#0B1623'; c.strokeText(cap, FW / 2, FH / 2 + sz * .35); c.fillStyle = C_GO2; c.fillText(cap, FW / 2, FH / 2 + sz * .35); c.restore(); });
   }
   drawTakeawaysL(c, si, t) {
-    const sc = this.story.scenes[si], lt = t - sc.start, PL = this.P; c.drawImage(this.blurBg('tk' + si, si), 0, 0, LW, LH);
-    popAt(c, LW / 2, 120, back(lt, .05), () => { rr(c, LW / 2 - 300, 70, 600, 100, 50, PL.hi); txt(c, 'যা মনে রাখবে', LW / 2, 140, 56, this.kt ? '#0B1322' : '#FFF4E4', 800, 'center', FONT_BN); });
-    const [a, b] = this.shotRangeOfScene(si), n = b - a + 1, gap = Math.min(170, 780 / Math.max(1, n));
-    for (let k = a; k <= b; k++) { const sh = this.tl.shots[k], ln = sc.lines[sh.li], i = k - a, p = eo((t - sh.start + .1) / .45); if (p <= 0) continue; const y = 220 + i * gap; const item = ln.item || ln.cap;
-      c.save(); c.translate((1 - p) * 600, 0); c.globalAlpha *= p; rr(c, 260, y, 1400, gap - 26, 24, this.kt ? 'rgba(12,20,38,.94)' : '#F7F0E3'); circ(c, 340, y + (gap - 26) / 2, 46, PL.hi); txt(c, bn(i + 1), 340, y + (gap - 26) / 2 + 18, 52, this.kt ? '#0B1322' : '#fff', 800);
-      txt(c, item, 420, y + (gap - 26) / 2 + 18, 50, this.kt ? '#fff' : '#2A1C14', 700, 'left', FONT_BN, 1200); c.restore(); }
+    const sc = this.story.scenes[si], lt = t - sc.start, PL = this.P, FW = this.FW, FH = this.FH, u = this.u; c.drawImage(this.blurBg('tk' + si, si), 0, 0, FW, FH);
+    popAt(c, FW / 2, 120 * u, back(lt, .05), () => { rr(c, FW / 2 - 300 * u, 70 * u, 600 * u, 100 * u, 50 * u, PL.hi); txt(c, 'যা মনে রাখবে', FW / 2, 140 * u, 56 * u, this.kt ? '#0B1322' : '#FFF4E4', 800, 'center', FONT_BN); });
+    const [a, b] = this.shotRangeOfScene(si), n = b - a + 1, top = 220 * u, gap = Math.min(170 * u, (FH - top - 80 * u) / Math.max(1, n)), bw = FW * .84, bx = (FW - bw) / 2;
+    for (let k = a; k <= b; k++) { const sh = this.tl.shots[k], ln = sc.lines[sh.li], i = k - a, p = eo((t - sh.start + .1) / .45); if (p <= 0) continue; const y = top + i * gap, h = gap - 26 * u; const item = ln.item || ln.cap;
+      c.save(); c.translate((1 - p) * 600 * u * (i % 2 ? -1 : 1), 0); c.globalAlpha *= p; rr(c, bx, y, bw, h, 24 * u, this.kt ? 'rgba(12,20,38,.94)' : '#F7F0E3'); circ(c, bx + 80 * u, y + h / 2, 46 * u, PL.hi); txt(c, bn(i + 1), bx + 80 * u, y + h / 2 + 18 * u, 52 * u, this.kt ? '#0B1322' : '#fff', 800);
+      txt(c, item, bx + 160 * u, y + h / 2 + 18 * u, 50 * u, this.kt ? '#fff' : '#2A1C14', 700, 'left', FONT_BN, bw - 200 * u); c.restore(); }
   }
   drawCTAL(c, si, t) {
-    const sc = this.story.scenes[si], lt = t - sc.start, S = this.settings, PL = this.P;
-    c.drawImage(this.blurBg('cta' + si, si), 0, 0, LW, LH); this.dust(c, t, 40, this.kt ? '#9DB4FF' : '#F3E3C6');
-    const q = (sc.cta && sc.cta.question) || (sc.lines[0] ? sc.lines[0].cap : '');
-    const ql = wrapText(c, q, 72, 900, 800).slice(0, 4), words = ql.join(' ').split(/\s+/), shown = Math.floor(cl(lt / 1.6) * words.length + .999); let wi = 0;
-    ql.forEach((l, i) => { const vis = l.split(/\s+/).filter(() => wi++ < shown).join(' '); if (vis) { c.save(); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 14; txt(c, vis, 120, 250 + i * 96, 72, i === ql.length - 1 ? PL.hi === '#B3261E' ? '#FFC857' : PL.hi : '#FFF6E6', 800, 'left', FONT_BN); c.restore(); } });
-    let y = 250 + ql.length * 96 + 20; const opts = ((sc.cta && sc.cta.options) || []).slice(0, 3);
-    opts.forEach((o, i) => popAt(c, 420, y + i * 96 + 40, back(lt, 1.2 + i * .2), () => { rr(c, 120, y + i * 96, 620, 80, 40, 'rgba(247,240,227,.95)'); txt(c, o, 430, y + i * 96 + 54, 40, '#2A1C14', 700, 'center', FONT_BN, 580); }));
-    if (opts.length) y += opts.length * 96;
-    popAt(c, 300, y + 50, back(lt, 1.9), () => { rr(c, 120, y + 10, 400, 76, 38, null, 'rgba(255,200,87,.85)', 3); txt(c, 'কমেন্টে লিখুন', 320, y + 62, 40, '#FFF4E4', 700, 'center', FONT_BN); });
-    const cx = LW * .74, cy = LH * .44;
-    popAt(c, cx, cy, back(lt, 1.6), () => { c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 34; c.shadowOffsetY = 12; rr(c, cx - 360, cy - 210, 720, 420, 36, '#F7F0E3'); c.restore(); rr(c, cx - 344, cy - 194, 688, 388, 26, null, 'rgba(179,38,30,.35)', 3);
-      drawLogo(c, cx, cy - 80, 150, S.logo || 'TF'); txt(c, S.series || 'জীবনপাঠ', cx, cy + 60, 60, '#2A1C14', 800, 'center', FONT_BN, 640); txt(c, S.tagline || '', cx, cy + 118, 34, '#8E1D17', 600, 'center', FONT_BN, 640); });
-    const pulse = 1 + .05 * Math.sin(t * 6) * cl(lt - 2.8);
-    popAt(c, cx, cy + 300, back(lt, 2.3) * pulse, () => { c.save(); c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = 20; rr(c, cx - 250, cy + 248, 500, 104, 52, '#E53935'); c.restore(); circ(c, cx - 180, cy + 300, 26, '#fff'); P(c, `M${cx - 188},${cy + 286} L${cx - 168},${cy + 300} L${cx - 188},${cy + 314}Z`, '#E53935'); txt(c, 'সাবস্ক্রাইব', cx + 30, cy + 318, 50, '#fff', 800, 'center', FONT_BN); });
+    const sc = this.story.scenes[si], lt = t - sc.start, S = this.settings, PL = this.P, FW = this.FW, FH = this.FH, u = this.u, land = this.land;
+    c.drawImage(this.blurBg('cta' + si, si), 0, 0, FW, FH); this.dust(c, t, 40, this.kt ? '#9DB4FF' : '#F3E3C6');
+    const q = (sc.cta && sc.cta.question) || (sc.lines[0] ? sc.lines[0].cap : ''), qs = 72 * u * (land ? 1 : 1.1), qx = land ? 120 * u : FW / 2, qal = land ? 'left' : 'center', qw = land ? 900 * u : FW * .86;
+    const ql = wrapText(c, q, qs, qw, 800).slice(0, 4), words = ql.join(' ').split(/\s+/), shown = Math.floor(cl(lt / 1.6) * words.length + .999); let wi = 0, y = land ? 250 * u : FH * .12;
+    ql.forEach((l, i) => { const vis = l.split(/\s+/).filter(() => wi++ < shown).join(' '); if (vis) { c.save(); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 14; const full = tw(c, l, qs, 800); txt(c, vis, land ? qx : qx - full / 2, y + i * qs * 1.33, qs, i === ql.length - 1 ? (this.kt ? PL.hi : '#FFC857') : '#FFF6E6', 800, 'left', FONT_BN); c.restore(); } });
+    y += ql.length * qs * 1.33 + 20 * u; const opts = ((sc.cta && sc.cta.options) || []).slice(0, 3), ow = 620 * u, ox = land ? 120 * u : FW / 2 - ow / 2;
+    opts.forEach((o, i) => popAt(c, ox + ow / 2, y + i * 96 * u + 40 * u, back(lt, 1.2 + i * .2), () => { rr(c, ox, y + i * 96 * u, ow, 80 * u, 40 * u, 'rgba(247,240,227,.95)'); txt(c, o, ox + ow / 2, y + i * 96 * u + 54 * u, 40 * u, '#2A1C14', 700, 'center', FONT_BN, ow - 40 * u); }));
+    if (opts.length) y += opts.length * 96 * u;
+    { const pcx = land ? ox + 200 * u : FW / 2; popAt(c, pcx, y + 50 * u, back(lt, 1.9), () => { rr(c, pcx - 200 * u, y + 10 * u, 400 * u, 76 * u, 38 * u, null, 'rgba(255,200,87,.85)', 3 * u); txt(c, 'কমেন্টে লিখুন', pcx, y + 62 * u, 40 * u, '#FFF4E4', 700, 'center', FONT_BN); }); }
+    // channel card + subscribe: beside the question on wide frames, below it (scaled to fit) on tall/square frames
+    const cs = land ? 1 : cl((FH - 130 * u - (y + 96 * u)) / (600 * u), .55, 1), U = u * cs;
+    const cx = land ? FW * .74 : FW / 2, cy = land ? FH * .44 : y + 96 * u + 210 * U, cw = Math.min(720 * U, FW * .86);
+    popAt(c, cx, cy, back(lt, 1.6), () => { c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 34 * U; c.shadowOffsetY = 12 * U; rr(c, cx - cw / 2, cy - 210 * U, cw, 420 * U, 36 * U, '#F7F0E3'); c.restore(); rr(c, cx - cw / 2 + 16 * U, cy - 194 * U, cw - 32 * U, 388 * U, 26 * U, null, 'rgba(179,38,30,.35)', 3 * U);
+      drawLogo(c, cx, cy - 80 * U, 150 * U, S.logo || 'TF'); txt(c, S.series || 'জীবনপাঠ', cx, cy + 60 * U, 60 * U, '#2A1C14', 800, 'center', FONT_BN, cw - 60 * U); txt(c, S.tagline || '', cx, cy + 118 * U, 34 * U, '#8E1D17', 600, 'center', FONT_BN, cw - 60 * U); });
+    const pulse = 1 + .05 * Math.sin(t * 6) * cl(lt - 2.8), by = cy + 300 * U;
+    popAt(c, cx, by, back(lt, 2.3) * pulse, () => { c.save(); c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = 20 * U; rr(c, cx - 250 * U, by - 52 * U, 500 * U, 104 * U, 52 * U, '#E53935'); c.restore(); circ(c, cx - 180 * U, by, 26 * U, '#fff'); P(c, `M${cx - 188 * U},${by - 14 * U} L${cx - 168 * U},${by} L${cx - 188 * U},${by + 14 * U}Z`, '#E53935'); txt(c, this.longFmt ? 'সাবস্ক্রাইব' : 'ফলো করুন', cx + 30 * U, by + 18 * U, 50 * U, '#fff', 800, 'center', FONT_BN); });
     const outro = S.outro || 'তোমার পরিচিত এমন একজন নিশ্চয়ই আছে — ভিডিওটা আজ তাকে একবার দেখিও';
-    withA(c, fin(lt, 3.2, .5), () => txt(c, outro, LW / 2, LH - 70, 40, '#FFF4E4', 600, 'center', FONT_BN, LW - 200));
+    withA(c, fin(lt, 3.2, .5), () => wrapText(c, outro, 40 * u, FW * .9, 600).slice(0, 2).reverse().forEach((l, i) => txt(c, l, FW / 2, FH - 70 * u - i * 54 * u, 40 * u, '#FFF4E4', 600, 'center', FONT_BN, FW * .92)));
   }
-  /* ---------- on-screen UI: progress + chapter ticks, watermark, time badge, chapter pill, text ---------- */
   drawUIL(c, t, si) {
-    const sc = this.story.scenes[si], S = this.settings, PL = this.P, lt = t - sc.start;
-    if (S.progress !== false) { const p = cl(t / Math.max(1, this.duration)); rect(c, 0, 0, LW, 7, 'rgba(0,0,0,.25)'); rect(c, 0, 0, LW * p, 7, this.kt ? PL.hi : C_GO2); this.chapList.forEach(ch => rect(c, LW * ch.start / this.duration - 2, 0, 4, 7, '#fff')); }
-    if (S.watermark !== false) { const name = S.series || 'TF Story', a = (S.wm != null ? S.wm : 70) / 100; c.save(); c.globalAlpha *= a; c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 12; drawLogo(c, 66, 66, 64, S.logo || 'TF'); c.font = `800 32px ${FONT_BN}, ${FONT_FALLBACK}`; c.lineJoin = 'round'; c.lineWidth = 6; c.strokeStyle = 'rgba(0,0,0,.55)'; c.textAlign = 'left'; c.strokeText(name, 112, 78); c.shadowColor = 'transparent'; c.fillStyle = '#fff'; c.fillText(name, 112, 78); c.restore(); }
+    const sc = this.story.scenes[si], S = this.settings, PL = this.P, lt = t - sc.start, FW = this.FW, FH = this.FH, u = this.u;
+    if (S.progress !== false) { const p = cl(t / Math.max(1, this.duration)); rect(c, 0, 0, FW, 7 * u, 'rgba(0,0,0,.25)'); rect(c, 0, 0, FW * p, 7 * u, this.kt ? PL.hi : C_GO2); this.chapList.forEach(ch => rect(c, FW * ch.start / this.duration - 2, 0, 4, 7 * u, '#fff')); }
+    if (S.watermark !== false) { const name = S.series || 'TF Story', a = (S.wm != null ? S.wm : 70) / 100; c.save(); c.globalAlpha *= a; c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 12 * u; drawLogo(c, 66 * u, 66 * u, 64 * u, S.logo || 'TF'); c.font = `800 ${32 * u}px ${FONT_BN}, ${FONT_FALLBACK}`; c.lineJoin = 'round'; c.lineWidth = 6 * u; c.strokeStyle = 'rgba(0,0,0,.55)'; c.textAlign = 'left'; c.strokeText(name, 112 * u, 78 * u); c.shadowColor = 'transparent'; c.fillStyle = '#fff'; c.fillText(name, 112 * u, 78 * u); c.restore(); }
     if (sc.type === 'story') {
-      if (sc.badge) { const k = back(lt, .15), out = cl((4.5 - lt) / .4); if (out > 0) withA(c, out, () => { c.font = `800 44px ${FONT_BN}, ${FONT_FALLBACK}`; const w = c.measureText(sc.badge).width + 80; popAt(c, LW / 2, 86, k, () => { c.save(); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 14; rr(c, LW / 2 - w / 2, 50, w, 74, 37, this.kt ? PL.hi : 'rgba(122,31,26,.95)'); c.restore(); txt(c, sc.badge, LW / 2, 102, 44, this.kt ? '#0B1322' : '#FFF3E0', 800, 'center', FONT_BN); }); }); }
-      const ch = this.chap[si]; if (ch && ch.chapter) { const lab = [ch.chapter.no, ch.chapter.title].filter(Boolean).join(' · '); c.font = `700 30px ${FONT_BN}, ${FONT_FALLBACK}`; const w = Math.min(760, c.measureText(lab).width + 50); withA(c, .92, () => { rr(c, LW - w - 40, 40, w, 56, 28, this.kt ? 'rgba(8,14,28,.82)' : 'rgba(42,28,20,.75)', this.kt ? PL.hi : 'rgba(243,227,198,.6)', 2); txt(c, lab, LW - w / 2 - 40, 78, 30, this.kt ? PL.hi : '#FFF3E0', 700, 'center', FONT_BN, w - 30); }); }
-      if (S.captions !== false) { if (this.kt) this.drawKT(c, t); else { this.drawCaption(c, t, LW, LH, 1); this.drawStamp(c, t); } }
+      const by = this.land ? 86 * u : 170 * u;
+      if (sc.badge) { const k = back(lt, .15), out = cl((4.5 - lt) / .4); if (out > 0) withA(c, out, () => { c.font = `800 ${44 * u}px ${FONT_BN}, ${FONT_FALLBACK}`; const w = c.measureText(sc.badge).width + 80 * u; popAt(c, FW / 2, by, k, () => { c.save(); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 14 * u; rr(c, FW / 2 - w / 2, by - 36 * u, w, 74 * u, 37 * u, this.kt ? PL.hi : 'rgba(122,31,26,.95)'); c.restore(); txt(c, sc.badge, FW / 2, by + 16 * u, 44 * u, this.kt ? '#0B1322' : '#FFF3E0', 800, 'center', FONT_BN); }); }); }
+      const ch = this.chap[si]; if (ch && ch.chapter) { const lab = [ch.chapter.no, ch.chapter.title].filter(Boolean).join(' · '); c.font = `700 ${30 * u}px ${FONT_BN}, ${FONT_FALLBACK}`; const w = Math.min(FW * (this.land ? .4 : .52), c.measureText(lab).width + 50 * u); withA(c, .92, () => { rr(c, FW - w - 40 * u, 40 * u, w, 56 * u, 28 * u, this.kt ? 'rgba(8,14,28,.82)' : 'rgba(42,28,20,.75)', this.kt ? PL.hi : 'rgba(243,227,198,.6)', 2); txt(c, lab, FW - w / 2 - 40 * u, 78 * u, 30 * u, this.kt ? PL.hi : '#FFF3E0', 700, 'center', FONT_BN, w - 30 * u); }); }
+      if (S.captions !== false) { if (this.kt) this.drawKT(c, t); else { this.drawCaption(c, t, FW, FH, this.uc); this.drawStamp(c, t); } }
     }
   }
-  /* ---------- YouTube thumbnail 1920×1080 (also the first frame of the video) ---------- */
+  /* thumbnail for the current frame (also the first frame of the video) */
   drawThumb(c) {
-    const st = this.story, key = JSON.stringify([st.title, st.cover, st.thumb, this.style, this.tl.total, (typeof S !== 'undefined' && S.series) || '']);
-    if (this._lcov && this._lcovKey === key) { c.drawImage(this._lcov, 0, 0, LW, LH); return; }
-    const cv = document.createElement('canvas'); cv.width = LW; cv.height = LH; const x = cv.getContext('2d', { alpha: false });
-    try { this.drawThumbInto(x); } catch (e) { console.warn(e); rect(x, 0, 0, LW, LH, this.P.bg1); }
-    this._lcov = cv; this._lcovKey = key; c.drawImage(cv, 0, 0, LW, LH);
+    const st = this.story, key = JSON.stringify([st.title, st.cover, st.thumb, this.style, this.fkey, this.tl.total, (typeof S !== 'undefined' && S.series) || '']);
+    if (this._lcov && this._lcovKey === key) { c.drawImage(this._lcov, 0, 0, this.FW, this.FH); return; }
+    const cv = document.createElement('canvas'); cv.width = this.FW; cv.height = this.FH; const x = cv.getContext('2d', { alpha: false });
+    try { this.drawThumbInto(x); } catch (e) { console.warn(e); rect(x, 0, 0, this.FW, this.FH, this.P.bg1); }
+    this._lcov = cv; this._lcovKey = key; c.drawImage(cv, 0, 0, this.FW, this.FH);
   }
   drawThumbInto(c) {
-    const st = this.story, PL = this.P, pick = coverPickShot(st, this.tl), sc = st.scenes[pick.si];
-    // close-up on the most emotional person, pushed to the right half; the headline sits on the left
-    let focus = -1; const k = this.shotIn(pick.si, pick.t), ln = sc.lines[this.tl.shots[k].li] || {}; focus = sc.cast.indexOf(ln.who || ln.focus); if (focus < 0) focus = 0;
+    const st = this.story, PL = this.P, FW = this.FW, FH = this.FH, u = this.u, land = this.land, pick = coverPickShot(st, this.tl), sc = st.scenes[pick.si];
+    const k = this.shotIn(pick.si, pick.t), ln = sc.lines[this.tl.shots[k].li] || {}; let focus = sc.cast.indexOf(ln.who || ln.focus); if (focus < 0) focus = 0;
     const n = Math.min(3, sc.cast.length || 1), pos = CAST_POS[n] || CAST_POS[1], P0 = pos[focus] || pos[0], cr = this.chars[sc.cast[focus]], kf = cr ? (cr.L.kid ? .74 : cr.L.teen ? .92 : 1) : 1, headY = P0[1] - 418 * P0[2] * kf;
-    const z = 1.55, vw = 1080 / z, HH = LH / 2 * 1080 / LW, cam = { x: cl(P0[0] - vw * .22, 540 / z, 1080 - 540 / z), y: cl(headY - 30 + HH / z * .95, HH / z, 1920 - HH / z), z };
+    const z = land ? 1.55 : 1.6, vw = W / z, HH = this.HH, fy = headY + 120 * P0[2] * kf;
+    const cam = land ? { x: cl(P0[0] - vw * .22, 540 / z, W - 540 / z), y: cl(headY - 30 + HH / z * .95, HH / z, H - HH / z), z }
+      : { x: cl(P0[0], 540 / z, W - 540 / z), y: cl(fy - (.64 * FH / this.s - HH) / z, HH / z, H - HH / z), z };
     this.drawStoryL(c, pick.si, pick.t, cam);
-    const g = c.createLinearGradient(0, 0, LW * .7, 0); g.addColorStop(0, this.kt ? 'rgba(5,9,20,.92)' : 'rgba(20,10,4,.78)'); g.addColorStop(.6, this.kt ? 'rgba(5,9,20,.55)' : 'rgba(20,10,4,.25)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, LW, LH);
-    // red ring around the face (life) / yellow bracket (thriller)
-    const s = LW / W, y0 = H / 2 - LH / 2 / s, sx = ((P0[0] - cam.x) * z + 540) * s, sy = ((headY + 120 * P0[2] * kf - cam.y) * z + 960 - y0) * s, rad = 175 * P0[2] * kf * z * s * .62;
-    c.save(); c.lineWidth = 14; c.strokeStyle = this.kt ? PL.hi : '#E5281E'; c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = 12; c.beginPath(); c.ellipse(sx, sy, rad * 1.05, rad * 1.2, -.1, 0, Math.PI * 2); c.stroke(); c.restore();
+    const g = land ? c.createLinearGradient(0, 0, FW * .7, 0) : c.createLinearGradient(0, 0, 0, FH * .62); g.addColorStop(0, this.kt ? 'rgba(5,9,20,.92)' : 'rgba(20,10,4,.8)'); g.addColorStop(.6, this.kt ? 'rgba(5,9,20,.55)' : 'rgba(20,10,4,.25)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, FW, FH);
+    const s = this.s, sx = ((P0[0] - cam.x) * z + 540) * s, sy = ((headY + 120 * P0[2] * kf - cam.y) * z + 960 - this.y0) * s, rad = 175 * P0[2] * kf * z * s * .62;
+    c.save(); c.lineWidth = 14 * u; c.strokeStyle = this.kt ? PL.hi : '#E5281E'; c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = 12; c.beginPath(); c.ellipse(sx, sy, rad * 1.05, rad * 1.2, -.1, 0, Math.PI * 2); c.stroke(); c.restore();
     const d = coverData(st), raw1 = (st.thumb || '').trim() ? st.thumb.split('|')[0] : (st.cover && st.cover.l1) || d.l1, raw2 = (st.thumb || '').trim() ? (st.thumb.split('|')[1] || '') : (st.cover && st.cover.l2) || d.l2;
     const red = new Set(); [raw1, raw2].forEach(r => (String(r).match(/\{([^}]*)\}/g) || []).forEach(m => m.slice(1, -1).split(/\s+/).forEach(w => red.add(w))));
     const L1 = String(raw1).replace(/[{}]/g, '').trim(), L2 = String(raw2).replace(/[{}]/g, '').trim();
-    const maxW = LW * .56; let size = 150; const fitLines = (txt0, sz) => wrapText(c, txt0, sz, maxW, 800, FONT_BN);
-    while (size > 84 && (fitLines(L1, size).length + fitLines(L2, size).length > 4)) size -= 8;
-    let y = 120 + size;
-    if (d.ctx && this.kt) { c.font = `800 44px ${FONT_BN}, ${FONT_FALLBACK}`; const w = Math.min(maxW, c.measureText(d.ctx).width + 60); rr(c, 70, 64, w, 70, 10, PL.red); txt(c, d.ctx, 100, 113, 44, '#fff', 800, 'left', FONT_BN, w - 50); y += 60; }
+    const maxW = land ? FW * .56 : FW * .9, x0 = land ? 80 * u : FW * .05; let size = 150 * u * (land ? 1 : 1.15); const fitLines = (t0, sz) => wrapText(c, t0, sz, maxW, 800, FONT_BN);
+    while (size > 70 * u && (fitLines(L1, size).length + fitLines(L2, size).length > (land ? 4 : 4))) size -= 8 * u;
+    let y = 120 * u + size;
+    if (d.ctx && this.kt) { c.font = `800 ${44 * u}px ${FONT_BN}, ${FONT_FALLBACK}`; const w = Math.min(maxW, c.measureText(d.ctx).width + 60 * u); rr(c, x0 - 10 * u, 64 * u, w, 70 * u, 10 * u, PL.red); txt(c, d.ctx, x0 + 20 * u, 113 * u, 44 * u, '#fff', 800, 'left', FONT_BN, w - 50 * u); y += 60 * u; }
     c.textAlign = 'left'; c.lineJoin = 'round';
-    fitLines(L1, size).slice(0, 3).forEach(l => { let xx = 80; l.split(/\s+/).forEach(w => { const clean = w.replace(KT_PUNCT, ''); c.font = `800 ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; c.lineWidth = size * .16; c.strokeStyle = '#000'; c.strokeText(w, xx, y); c.fillStyle = red.has(clean) ? (this.kt ? PL.hi : '#FF3B30') : '#FFFFFF'; c.fillText(w, xx, y); xx += c.measureText(w + ' ').width; }); y += size * 1.12; });
-    if (L2) { const ls = fitLines(L2, size).slice(0, 2); c.font = `800 ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; ls.forEach(l => { const w = c.measureText(l).width + 60; c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 20; rr(c, 60, y - size * .92, w, size * 1.16, 14, this.kt ? PL.hi : '#E5281E'); c.restore(); c.fillStyle = this.kt ? '#0B1322' : '#FFFFFF'; c.fillText(l, 90, y); y += size * 1.24; }); }
-    const S2 = this.settings; c.save(); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 14; drawLogo(c, LW - 110, LH - 110, 120, S2.logo || 'TF'); c.restore();
+    fitLines(L1, size).slice(0, 3).forEach(l => { let xx = x0; l.split(/\s+/).forEach(w => { const clean = w.replace(KT_PUNCT, ''); c.font = `800 ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; c.lineWidth = size * .16; c.strokeStyle = '#000'; c.strokeText(w, xx, y); c.fillStyle = red.has(clean) ? (this.kt ? PL.hi : '#FF3B30') : '#FFFFFF'; c.fillText(w, xx, y); xx += c.measureText(w + ' ').width; }); y += size * 1.12; });
+    if (L2) { const ls = fitLines(L2, size).slice(0, 2); c.font = `800 ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; ls.forEach(l => { const w = c.measureText(l).width + 60 * u; c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 20; rr(c, x0 - 20 * u, y - size * .92, w, size * 1.16, 14 * u, this.kt ? PL.hi : '#E5281E'); c.restore(); c.fillStyle = this.kt ? '#0B1322' : '#FFFFFF'; c.fillText(l, x0 + 10 * u, y); y += size * 1.24; }); }
+    c.save(); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 14; drawLogo(c, FW - 110 * u, FH - 110 * u, 120 * u, (this.settings || {}).logo || 'TF'); c.restore();
   }
 }
 /* the long-video story prompt (works in Gemini, Claude, ChatGPT) */
@@ -7741,11 +7816,13 @@ function buildLongPrompt(o) {
   const placeList = (typeof PLACE_LIST_FOR_PROMPT === 'function') ? PLACE_LIST_FOR_PROMPT() : Object.keys(PLACES).join(', ');
   const book = o.book ? `- বই/গবেষণা: "${o.book}"${o.author ? ` (${o.author})` : ''}${o.lesson ? `, ধারণা: "${o.lesson}"` : ''} — গল্পের মাঝখানে এক-দুই জায়গায় সহজ ভাষায় ব্যাখ্যা করবে।` : '- গল্পের মাঝে ২-৪ জায়গায় একটা করে বাস্তব বই, গবেষণা বা অর্থনীতি/মনস্তত্ত্বের ধারণা সহজ বাংলায় ব্যাখ্যা করো (লেখক ও বইয়ের নাম বাংলা হরফে), তারপর আবার গল্পে ফেরো।';
   const facts = o.facts ? `\n\n## ব্যবহারকারীর দেওয়া তথ্য ও সূত্র (এগুলোর বাইরে নতুন তথ্য বানাবে না)\n${o.facts}` : '';
-  const head = `তুমি একজন দক্ষ বাংলা ইউটিউব স্ক্রিপ্ট লেখক। "${o.series}" চ্যানেলের জন্য প্রায় ${bn(mins)} মিনিটের একটা লং ভিডিওর (১৬:৯, ইউটিউব) সম্পূর্ণ মৌলিক স্ক্রিপ্ট লেখো, নিচের "TF Script" ফরম্যাটে। ভিডিওটা 2D অ্যানিমেশনে চরিত্র আর দৃশ্য দিয়ে বানানো হবে, এক কথকের কণ্ঠে (Cartesia AI) পড়া হবে, মাঝে মাঝে চরিত্রের নিজের কণ্ঠে সংলাপ।
+  const link = o.link ? `\n\n## যে ভিডিও বা ঘটনাকে কেন্দ্র করে লিখবে\nলিংক/ঘটনা: ${o.link}\n- লিংকটা খুলে (ভিডিও দেখে বা ট্রান্সক্রিপ্ট পড়ে) মূল ঘটনা, তথ্য, সংখ্যা আর শিক্ষা বুঝে নাও। তারপর পুরো স্ক্রিপ্ট এই বিষয়বস্তুকে কেন্দ্র করে লেখো, কিন্তু সম্পূর্ণ নিজের ভাষায় ও নিজের গল্প-কাঠামোয় — ভিডিওর বাক্য, চরিত্রের নাম বা দৃশ্য হুবহু নকল করবে না।\n- লিংক খুলতে না পারলে অনুমান করবে না: শুধু শিরোনাম আর এখানে দেওয়া তথ্য থেকে লেখো।` : '';
+  const head = `তুমি একজন দক্ষ বাংলা ইউটিউব স্ক্রিপ্ট লেখক। "${o.series}" চ্যানেলের জন্য প্রায় ${bn(mins)} মিনিটের একটা লং ভিডিওর (ইউটিউব) সম্পূর্ণ মৌলিক স্ক্রিপ্ট লেখো, নিচের "TF Script" ফরম্যাটে। ভিডিওটা 2D অ্যানিমেশনে চরিত্র আর দৃশ্য দিয়ে বানানো হবে, এক কথকের কণ্ঠে (Cartesia AI) পড়া হবে, মাঝে মাঝে চরিত্রের নিজের কণ্ঠে সংলাপ।
 
 ## কাজ
 - বিষয়: ${o.topic || 'তুমি বেছে নাও'}
-- মোট ${bn(lo)}-${bn(hi)}টা লাইন (প্রতিটা লাইন ৪-১৪ শব্দ, এক নিঃশ্বাসে বলা যায়)। দৃশ্য ২০-৪০টা। প্রতি দৃশ্যে ৩-১০ লাইন।
+- দৈর্ঘ্য প্রায় ${bn(mins)} মিনিট — এটা শুধু আন্দাজ, ধরাবাঁধা নয়। মোটামুটি ${bn(lo)}-${bn(hi)}টা লাইন, তবে গল্পের প্রয়োজনে বেশি হলে বেশি লেখো। কখনো তাড়াহুড়ো করে শেষ করবে না: প্রতিটা অধ্যায়ে ঘটনা, সংলাপ, অনুভূতি আর ব্যাখ্যা পুরোটা দেখিয়ে তারপর পরেরটায় যাও। শেষ দৃশ্য ("## cta") পর্যন্ত পুরো স্ক্রিপ্ট দেবে।
+- প্রতিটা লাইন ৪-১৪ শব্দ, এক নিঃশ্বাসে বলা যায়। দৃশ্য ২০-৪৫টা, প্রতি দৃশ্যে ৩-১০ লাইন। একই জায়গা পরপর দুই দৃশ্যে নয় — জায়গা, সময় (দিন/সন্ধ্যা/রাত) আর মেজাজ বদলাতে থাকো, যাতে দর্শক একঘেয়ে না হয়।
 - ভাষা: সহজ, মুখের বাংলা। দর্শককে "তুমি" বলে সম্বোধন।`;
   let body = '';
   if (style === 'life') body = `
@@ -7824,7 +7901,7 @@ ${style === 'life' ? 'বই: বইয়ের ইংরেজি নাম | 
 - কার্ড (মোট ১২-২৫টা, ছড়িয়ে): [reveal: জিনিস / লেখা] [sms: শিরোনাম / লেখা] [chat: নাম / লেখা] [call: নাম] [alert: লেখা] [date: তারিখ] [doc: শিরোনাম / লেখা] [source: সূত্র / কী বলেছে] [counter: লেবেল / শুরু / শেষ / আগে-চিহ্ন] [compare: বাম / মান / ডান / মান] [check: + কাজ / + কাজ] [price: লেখা] [big: লেখা] [progress: লেবেল / শতাংশ]
 - থাম্বনেল: টিজার ৫-৯ শব্দের রহস্য; উক্তি মোট ৩-৯ শব্দ, দুই ভাগ, ১-৩টা শব্দ {} দিয়ে লাল।
 শুধু কোড ব্লকটা দাও, আগে-পরে কিছু লিখবে না।`;
-  return head + body + fmt;
+  return head + link + body + fmt;
 }
 
 /* ---------- long video: UI (format picker, style, length, facts) ---------- */
@@ -7834,9 +7911,17 @@ const LONG_TOPICS = {
   guide: ['৩০ দিনে ইংরেজিতে কথা বলা', 'ফ্রিল্যান্সিং শুরু করা', 'প্রথম চাকরির প্রস্তুতি', 'মাসে সঞ্চয়ের অভ্যাস', 'পড়ায় মন বসানো', 'ফোনের নেশা কমানো', 'ছোট ব্যবসা শুরু']
 };
 function isLongMode() { return !TF_ISL && S.vidFmt === 'long'; }
+/* ratio per video kind: short and long remember their own; changing it re-frames the story (characters and text are laid out again) */
+function curFmtLong() { return app.story ? app.story.fmt === 'long' : isLongMode(); }
+function setRatio(v) {
+  if (!RATIOS[v]) return; if (curFmtLong()) S.ratioLong = v; else S.ratioShort = v; S.expRatio = v; saveSettings();
+  setSeg('ratioPick', 'r', v); syncRatioQuick();
+  if (app.story) rebuild(true); sizeCanvas(); thumbSoon(); updateExpInfo();
+}
+function syncRatioQuick() { const box = $('ratioQuick'); if (!box) return; const cur = curFmtLong() ? (S.ratioLong || '16:9') : (S.ratioShort || '9:16'); box.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.r === cur)); }
 function longOpts() {
   const bi = $('pBook').value, b = bi !== '' ? BOOKS[bi] : null, les = $('pLesson').value;
-  return { series: S.series, longStyle: S.longStyle || 'life', minutes: +S.longMin || 10, topic: [$('pTopic').value.trim(), $('pArea').value].filter(Boolean).join(' — '), facts: ($('longFacts').value || '').trim().slice(0, 6000), hero: $('pHero').value.trim(), book: b ? b[0] : '', author: b ? b[1] : '', lesson: les || '' };
+  return { series: S.series, longStyle: S.longStyle || 'life', minutes: +S.longMin || 10, topic: [$('pTopic').value.trim(), $('pArea').value].filter(Boolean).join(' — '), facts: ($('longFacts').value || '').trim().slice(0, 6000), link: ($('longLink').value || '').trim().slice(0, 600), hero: $('pHero').value.trim(), book: b ? b[0] : '', author: b ? b[1] : '', lesson: les || '' };
 }
 function renderTopicChips(list) {
   const box = $('topicChips'); box.innerHTML = '';
@@ -7845,6 +7930,7 @@ function renderTopicChips(list) {
 function syncLongUI() {
   const L = isLongMode(), ls = S.longStyle || 'life';
   document.querySelectorAll('#fmtPick button').forEach(b => b.classList.toggle('on', b.dataset.fmt === (L ? 'long' : 'short')));
+  { const box = $('ratioQuick'); if (box) { const cur = L ? (S.ratioLong || '16:9') : (S.ratioShort || '9:16'); box.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.r === cur)); } }
   document.querySelectorAll('#longStyles button').forEach(b => b.classList.toggle('on', b.dataset.ls === ls));
   $('longBox').classList.toggle('hidden', !L);
   [$('pStyle') && $('pStyle').closest('label'), $('pLen') && $('pLen').closest('label'), $('bulkN') && $('bulkN').closest('details'), $('bulkNChat') && $('bulkNChat').closest('details')].forEach(x => x && x.classList.toggle('hidden', L));
@@ -7853,16 +7939,56 @@ function syncLongUI() {
   $('pTopic').placeholder = !L ? 'যেমন: প্রথম বেতন, মায়ের ত্যাগ, বন্ধুর ধার' : ls === 'thriller' ? 'যেমন: কোন ঘটনা বা খবর (যত নির্দিষ্ট, তত ভালো)' : ls === 'guide' ? 'যেমন: ৩০ দিনে ইংরেজিতে কথা বলা' : 'যেমন: লটারির নেশা, লোক দেখানো বিয়ে, কিস্তির ফাঁদ';
   const want = L ? 'L:' + ls : 'S'; if ($('topicChips').dataset.set !== want) { $('topicChips').dataset.set = want; renderTopicChips(L ? LONG_TOPICS[ls] : TOPIC_IDEAS); }
   $('btnWrite').textContent = L ? 'লং ভিডিওর স্ক্রিপ্ট লিখে খুলুন' : 'একটা গল্প লিখে খুলুন';
+  { const b = document.querySelector('#srcPick [data-pick="lib"] span'); if (b) b.textContent = L ? 'লং ভিডিওর তৈরি গল্প থেকে বেছে নিন' : 'তৈরি গল্পের তালিকা থেকে বেছে নিন'; }
+  { const g = $('genN'); if (g) { g.max = L ? 10 : 100; if (L && +g.value > 10) g.value = 3; } const gl = $('genLen'); if (gl) gl.closest('label').classList.toggle('hidden', L); const gh = document.querySelector('#src-add .aigen h4'); if (gh) gh.textContent = L ? 'AI দিয়ে লং স্ক্রিপ্ট লিখে লং লাইব্রেরিতে যোগ (একবারে সর্বোচ্চ ১০টা)' : 'AI দিয়ে লিখে সরাসরি লাইব্রেরিতে যোগ'; }
   $('s1Sub').textContent = L ? 'লং ভিডিও (ইউটিউব ১৬:৯) — নিচের যেকোনো একটা উপায় বেছে নিন।' : 'নিচের তিনটার যেকোনো একটা বেছে নিন।';
 }
 function initLongUI() {
   if (TF_ISL) return;
-  $('fmtPick').classList.remove('hidden');
-  $('fmtPick').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.vidFmt = b.dataset.fmt; saveSettings(); syncLongUI(); if (S.vidFmt === 'long') toast('লং ভিডিও: "AI দিয়ে নতুন গল্প লিখুন" থেকে ধরন আর দৈর্ঘ্য বেছে নিন', '', 4500); });
+  $('fmtPick').classList.remove('hidden'); $('ratioQuick').classList.remove('hidden');
+  $('ratioQuick').addEventListener('click', e => { const b = e.target.closest('button[data-r]'); if (!b) return; if (app.story && (app.story.fmt === 'long') !== isLongMode()) { const L = isLongMode(); if (L) S.ratioLong = b.dataset.r; else S.ratioShort = b.dataset.r; saveSettings(); syncRatioQuick(); toast('নতুন ' + (L ? 'লং' : 'শর্ট') + ' গল্পে এই মাপ লাগবে'); return; } setRatio(b.dataset.r); });
+  $('fmtPick').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.vidFmt = b.dataset.fmt; saveSettings(); syncLongUI(); fillLibFilters(); renderLib(); });
   $('longStyles').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.longStyle = b.dataset.ls; saveSettings(); syncLongUI(); });
   $('longMin').addEventListener('change', e => { S.longMin = +e.target.value || 10; saveSettings(); });
   $('longWeb').addEventListener('change', e => { S.longWeb = e.target.checked; saveSettings(); });
   syncLongUI();
+}
+/* write a long script with the in-app AI; if the answer stops before the end ("## cta"), ask it to continue (up to 2 times) */
+const YT_RE = /^(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/|live\/)|youtu\.be\/)[\w-]{6,}/i;
+async function aiLong(prompt, which, o, onStage) {
+  o = o || {}; const opts = { long: true, web: !!o.web }; if (o.link && YT_RE.test(o.link) && (which || S.aiTab) === 'gemini') opts.yt = o.link.split(/\s/)[0];
+  let text;
+  try { text = await aiComplete(prompt, which, opts); }
+  catch (e) { if (!opts.yt) throw e; delete opts.yt; onStage && onStage('ভিডিওটা সরাসরি পড়া গেল না — লিংক আর তথ্য দিয়ে লেখা হচ্ছে…'); text = await aiComplete(prompt, which, opts); }
+  const clean = x => String(x || '').replace(/```[a-z]*\s*/gi, '').trim();
+  text = clean(text);
+  for (let i = 0; i < 2 && text && !/^\s*##\s*cta\b/im.test(text); i++) {
+    onStage && onStage(`স্ক্রিপ্ট মাঝপথে থেমেছিল — বাকিটা লেখানো হচ্ছে (${bn(i + 1)})…`);
+    const tail = text.split('\n').slice(-30).join('\n');
+    const more = clean(await aiComplete(prompt + '\n\n---\nতোমার আগের উত্তর মাঝপথে কেটে গেছে। আগের উত্তরের শেষ অংশ:\n' + tail + '\n---\nঠিক এর পরের লাইন থেকে বাকি স্ক্রিপ্ট একই TF Script ফরম্যাটে লেখো, শেষ দৃশ্য "## cta" আর "বর্ণনা:", "হ্যাশট্যাগ:" পর্যন্ত। আগের লাইন আবার লিখবে না, শিরোনাম বা হেডার আবার দেবে না, শুধু বাকি লাইনগুলো দাও।', which, { long: true }));
+    if (!more) break; text = text.replace(/\n[^\n]*$/, m => /[।?!}]\s*$/.test(m) ? m : '') + '\n' + more.replace(/^===.*$/m, '');
+  }
+  return text;
+}
+/* "+ লাইব্রেরিতে যোগ" with AI in long mode: writes long scripts one by one */
+async function bulkWriteLong(o) {
+  const n = cl(Math.round(+o.n || 1), 1, 10), ui = o.ui, keyId = o.ai === 'claude' ? 'aKey' : 'gKey';
+  if (!getKey(keyId)) { toast(`আগে সেটিংসে ${o.ai === 'claude' ? 'Claude' : 'Gemini'} API key দিন`, 'err'); openSettings('key'); return; }
+  const style = S.longStyle || 'life', used = new Set(libItems().map(x => x.title)); const ideas = LONG_TOPICS[style].slice().sort(() => Math.random() - .5);
+  bulkStop = { stop: false }; const me = bulkStop; let done = 0, ok = 0, fail = 0, lastErr = '';
+  ['btnBulkWrite', 'btnGen', 'btnWrite'].forEach(id => $(id).disabled = true); $(ui.stop).classList.remove('hidden'); $(ui.bar).classList.remove('hidden');
+  const setP = st => { $(ui.bar).firstElementChild.style.width = (done / n * 100) + '%'; $(ui.info).textContent = `লং স্ক্রিপ্ট ${bn(done)}/${bn(n)} · যোগ হয়েছে ${bn(ok)}${fail ? ' · ব্যর্থ ' + bn(fail) : ''}${st ? ' — ' + st : lastErr ? ' — ' + lastErr : ''}`; };
+  setP('লেখা হচ্ছে (প্রতিটা ১-৩ মিনিট)…');
+  for (let i = 0; i < n && !me.stop; i++) {
+    const topic = o.topic || ideas[i % ideas.length];
+    try { const text = await aiLong(buildLongPrompt(Object.assign(longOpts(), { topic: [topic, o.area].filter(Boolean).join(' — '), facts: '', link: '' })), o.ai, { web: style !== 'life' && S.longWeb !== false }, setP);
+      const r = await addStoriesToLib(text); ok += r.ok; if (!r.ok) { fail++; lastErr = r.dup ? 'একই গল্প আগে ছিল' : (r.bad[0] || 'ফরম্যাট ঠিক হয়নি'); } }
+    catch (e) { fail++; lastErr = e.message; if (/key|401|403|402|429/.test(e.message)) me.stop = true; }
+    done++; setP();
+  }
+  bulkStop = null; ['btnBulkWrite', 'btnGen', 'btnWrite'].forEach(id => $(id).disabled = false); $(ui.stop).classList.add('hidden'); setTimeout(() => $(ui.bar).classList.add('hidden'), 1200);
+  fillLibFilters(); renderLib(); updateMyLibInfo();
+  toast(ok ? `${bn(ok)}টা লং স্ক্রিপ্ট লং লাইব্রেরিতে যোগ হয়েছে` : 'কোনো স্ক্রিপ্ট যোগ হয়নি: ' + lastErr, ok ? 'ok' : 'err', 7000);
 }
 /* YouTube text for a long video: title, description with chapter timestamps (0:00 …), tags */
 function publishPackLong(st) {
@@ -7889,7 +8015,7 @@ function publishPackLong(st) {
 /* headless helper (used by Claude to render fixes) */
 window.TFStudio = {
   async load(obj) { await loadAny(typeof obj === 'string' ? obj : JSON.stringify(obj)); return { duration: app.tl.total, shots: app.tl.shots.length }; },
-  frame(canvas, t) { const c = canvas.getContext('2d'); const fw = app.renderer.isLong ? LW : W; c.setTransform(canvas.width / fw, 0, 0, canvas.width / fw, 0, 0); app.renderer.render(c, t); },
+  frame(canvas, t) { const c = canvas.getContext('2d'); const fw = app.renderer.isLong ? app.renderer.FW : W; c.setTransform(canvas.width / fw, 0, 0, canvas.width / fw, 0, 0); app.renderer.render(c, t); },
   get duration() { return app.tl ? app.tl.total : 0; },
   async wav() { const m = await ensureMix(); const ab = await audioBufferToWav(m).arrayBuffer(); let s = ''; const u = new Uint8Array(ab); for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); },
   async exportTest() { const m = await ensureMix(); const r = await exportMP4(app.renderer, m, null, null); return { size: r.blob.size, codec: r.codec, audio: r.audio }; },
