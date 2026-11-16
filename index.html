@@ -358,6 +358,13 @@ body.widepv .pv{aspect-ratio:auto}
 .longonly{display:none}body.longfmt .longonly{display:block}body.longfmt #lenTabs,body.longfmt #lenFixedRow{display:none!important}
 .libtag{font-size:11.5px;color:#fff;background:#B3261E;border-radius:6px;padding:1px 7px;flex:none}
 @media (max-width:699px){body.longfmt .pv{width:100%}.longways{grid-template-columns:1fr}.fmtpick button{padding:10px 12px}}
+/* computer browser: use the whole screen — the work area grows, the preview column grows with the screen (more for wide frames), and the preview never gets taller than the window */
+@media (min-width:1100px){
+  .wrap{max-width:none;width:100%;box-sizing:border-box;grid-template-columns:minmax(0,1fr) clamp(372px,30vw,560px)}
+  body.widepv .wrap,body.longfmt .wrap{grid-template-columns:minmax(0,1fr) clamp(440px,40vw,1040px)}
+  .right .pv{width:min(100%,calc((100dvh - 250px) * var(--ar,.5625)));margin-left:auto;margin-right:auto}
+}
+@media (min-width:1600px){.wrap{gap:48px;padding:34px 52px 60px}}
 /* ===== v3.9 layer: start chooser, AI ways, share sheet ===== */
 .startpick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:6px 0 4px}
 .startpick button{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;padding:18px 16px;border:1px solid var(--line);border-radius:16px;background:#fff;cursor:pointer;color:var(--ink);box-shadow:var(--sh);transition:transform .15s ease-out,border-color .15s,box-shadow .15s;min-height:132px}
@@ -2805,7 +2812,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
 /* two parts share this engine: the Story part (index.html) and the Islamic part (index.html?part=islamic, see islamic/story.js) — each keeps its own settings, logo, used list and library */
 const TF_ISL = /[?&]part=islamic\b/.test(location.search);
 const LK = k => TF_ISL ? String(k).replace(/^tf_(settings|logo|used)$/, 'tf_isl_$1') : k;
-const APP_VERSION = '4.9.0';
+const APP_VERSION = '5.0.0';
 const STORY_LIBRARY = [];
 const FORMAT_VERSION = 1;
 
@@ -2822,7 +2829,7 @@ const MOODS = ['normal','happy','sad','tense','regret'];
 const FEELS = ['neutral','happy','sad','worried','surprised','angry','crying','tired','proud','shy'];
 const ACTIONS = ['idle','talk','phone','raise_phone','give','cup','point','arms_crossed','wave','head_down','hold','pray_hands','hands_on_head'];
 const PROPS = ['phone','envelope','money','cup','book','paper','sweets','bag','gift','laptop','medicine','key','flower','ring','plate'];
-const CARD_TYPES = ['sms','price','counter','check','compare','big','calendar','progress','call','alert','chat','reveal','doc','source','date'];
+const CARD_TYPES = ['sms','price','counter','check','compare','big','calendar','progress','call','alert','chat','reveal','doc','source','date','statement','label','tag','hud'];
 const METAPHORS = ['scale','kite','plant','hourglass','ladder','bridge','candle','seed_tree','glass','road'];
 const ROLES = {
   hero:{g:'m',a:'young',bn:'নায়ক'}, heroine:{g:'f',a:'young',bn:'নায়িকা'}, mother:{g:'f',a:'old',bn:'মা'},
@@ -4260,7 +4267,8 @@ function drawPerson(c, o) {
   const blink = ((t + seed * 1.7) % 3.4) < .13;
   c.save(); c.translate(o.x, o.y + bob); c.scale(o.flip ? -s : s, s);
   if (o.alpha != null) c.globalAlpha *= o.alpha;
-  ell(c, 0, 10, 150, 18, 'rgba(0,0,0,.10)');
+  ell(c, 0, LEG_LEN + 14, 130, 16, 'rgba(0,0,0,.12)');
+  drawLegs(c, L, sk, o.feel === 'shy' || act === 'head_down');
   // ----- hair behind head
   const hairCol = L.hair && L.hair.startsWith('grey') ? HAIR_GREY : (L.hair === 'bald_grey' ? HAIR_WHITE : HAIR_DARK);
   c.save(); c.translate(0, 0);
@@ -4285,7 +4293,7 @@ function drawPerson(c, o) {
   else if (A === 'hold') { arm('M-112,-185 Q-140,-90 -40,-110', -40, -112); arm('M112,-185 Q140,-90 40,-110', 40, -112); holdPt = [0, -135, 'chest']; }
   else arm(`M-112,-185 Q-140,-100 ${-132 + sway * .3},-5`, -132 + sway * .3, 0);
   if (A === 'idle' || A === 'head_down') arm(`M112,-185 Q140,-100 ${132 - sway * .3},-5`, 132 - sway * .3, 0);
-  if (A === 'talk') { const w = Math.sin(t * 5 + seed) * 10; arm(`M112,-185 Q160,-110 ${120 + w},-150`, 122 + w, -152); }
+  if (A === 'talk') { const w = o.talk ? Math.sin(t * 3.1 + seed) * 7 : 0; arm(`M112,-185 Q160,-110 ${120 + w},-150`, 122 + w, -152); }
   if (A === 'phone') { arm('M112,-185 Q150,-80 90,-75 L40,-118', 40, -122); holdPt = [30, -175, 'phone_small']; }
   if (A === 'raise_phone') { const wv = Math.sin(t * 3) * 4; arm(`M112,-185 Q175,-230 160,${-330 + wv}`, 160, -335 + wv); holdPt = [160, -470 + wv, 'phone_big']; }
   if (A === 'cup') { arm('M112,-185 Q145,-90 85,-95', 80, -100); holdPt = [80, -130, 'cup']; }
@@ -4314,6 +4322,25 @@ function drawPerson(c, o) {
     if (holdPt[2] === 'chest') { circ(c, -40, -112, 22, sk); circ(c, 40, -112, 22, sk); }
   }
   c.restore();
+}
+/* full body: legs + feet under every outfit (long clothes become a skirt/robe down to the ankles) */
+const LEG_LEN = 236;
+function drawLegs(c, L, sk, close) {
+  const c1 = L.c1, c2 = L.c2 || shade(c1, .35), Y = LEG_LEN, gap = close ? 14 : 24;
+  const shoeCol = L.female ? '#6b3a2a' : '#2b2522', pant = L.pants || (L.outfit === 'panjabi' || L.outfit === 'jubba' ? '#F1ECE0' : L.outfit === 'suit' || L.outfit === 'blazer' ? shade(c1, -.25) : L.outfit === 'uniform' ? '#2E3440' : L.outfit === 'nurse' ? c1 : L.outfit === 'coat' ? '#3d4a55' : '#3A4150');
+  const shoe = (x, col) => { P(c, `M${x - 30},${Y - 2} Q${x - 32},${Y - 26} ${x - 6},${Y - 28} L${x + 22},${Y - 26} Q${x + 46},${Y - 18} ${x + 44},${Y - 2}Z`, col); };
+  const sandal = x => { ell(c, x + 6, Y - 6, 34, 10, '#7a4a2a'); ell(c, x + 4, Y - 14, 22, 10, sk); };
+  const leg = (x0, x1, w, col) => P(c, `M${x0 - w},0 L${x1 - w * .8},${Y - 24} L${x1 + w * .8},${Y - 24} L${x0 + w},0Z`, col);
+  switch (L.outfit) {
+    case 'saree': P(c, `M-128,0 L-118,${Y - 8} Q0,${Y + 6} 118,${Y - 8} L128,0Z`, c1); P(c, `M-20,10 L-26,${Y - 6} M10,10 L12,${Y - 4} M40,10 L48,${Y - 8}`, null, shade(c1, -.15), 4); rect(c, -118, Y - 30, 236, 14, L.c2 || C_MA); sandal(-26); sandal(30); return;
+    case 'burqa': case 'abaya': P(c, `M-136,0 L-124,${Y - 6} Q0,${Y + 8} 124,${Y - 6} L136,0Z`, c1); P(c, `M-30,0 L-24,${Y - 4} M30,0 L24,${Y - 4}`, null, shade(c1, .12), 3); shoe(-34, shoeCol); shoe(38, shoeCol); return;
+    case 'vestlungi': P(c, `M-100,0 L-108,${Y - 26} L108,${Y - 26} L100,0Z`, c2); for (let i = 0; i < 5; i++) P(c, `M${-100 + i * 50},0 L${-108 + i * 54},${Y - 26}`, null, shade(c2, -.18), 3); P(c, `M-108,${Y - 70} L108,${Y - 70}`, null, shade(c2, .25), 5);
+      leg(-30, -30, 18, sk); leg(30, 30, 18, sk); P(c, `M-48,${Y - 26} L-12,${Y - 26} L-12,${Y - 50} L-48,${Y - 50}Z M12,${Y - 26} L48,${Y - 26} L48,${Y - 50} L12,${Y - 50}Z`, sk); sandal(-34); sandal(34); return;
+    case 'jubba': P(c, `M-128,0 L-120,${Y - 70} L120,${Y - 70} L128,0Z`, c1); leg(-gap - 14, -gap - 14, 24, pant); leg(gap + 14, gap + 14, 24, pant); shoe(-gap - 18, shoeCol); shoe(gap + 14, shoeCol); return;
+    case 'frock': P(c, `M-108,0 L-150,${Y * .42} L150,${Y * .42} L108,0Z`, c1); P(c, `M-150,${Y * .42} L150,${Y * .42}`, null, '#fff', 8); leg(-gap - 6, -gap - 6, 16, sk); leg(gap + 6, gap + 6, 16, sk); shoe(-gap - 10, '#C0392B'); shoe(gap + 6, '#C0392B'); return;
+    case 'salwar': case 'kurti': case 'uniform_f': P(c, `M-128,0 L-132,${Y * .4} L132,${Y * .4} L128,0Z`, c1); P(c, `M-58,${Y * .38} Q-64,${Y - 30} -48,${Y - 22} L-16,${Y - 22} Q-6,${Y * .6} -6,${Y * .38}Z M58,${Y * .38} Q64,${Y - 30} 48,${Y - 22} L16,${Y - 22} Q6,${Y * .6} 6,${Y * .38}Z`, L.outfit === 'uniform_f' ? '#ffffff' : (L.pants || c2)); sandal(-34); sandal(34); return;
+    default: leg(-gap - 22, -gap - 18, 30, pant); leg(gap + 22, gap + 18, 30, pant); P(c, `M0,8 L0,${Y * .55}`, null, shade(pant, -.2), 3); shoe(-gap - 22, shoeCol); shoe(gap + 18, shoeCol);
+  }
 }
 function armCol(L) { return L.outfit === 'vestlungi' ? L.skin : (L.outfit === 'vest' ? L.c2 : (L.outfit === 'suit' || L.outfit === 'blazer' ? L.c1 : L.c1)); }
 function drawOutfit(c, L, sk) {
@@ -4442,9 +4469,14 @@ function drawFace(c, L, o, feel, blink, t, seed) {
     if (/mustache|beard/.test(fh)) P(c, 'M-30,-258 Q0,-272 30,-258 Q0,-262 -30,-258Z', fc, fc, 6);
   }
   // mouth
-  const talkOpen = o.talk ? 4 + 9 * Math.abs(Math.sin(t * 15 + seed)) : 0;
+  // speaking: a calm, uneven open/close (about two syllables a second), shaped by the mood
+  const syl = Math.max(0, Math.sin(t * 9.5 + seed) * .62 + Math.sin(t * 5.7 + seed * 2.3) * .38);
+  const talkOpen = o.talk ? 2.5 + 7 * syl : 0;
   const lip = L.female ? '#9b3b3b' : '#6e2a2a';
-  if (o.talk) ell(c, 0, -246, 15, talkOpen, lip);
+  if (o.talk && (feel === 'happy' || feel === 'proud')) { P(c, `M-22,-252 Q0,${-240 + talkOpen * 2.2} 22,-252Z`, lip); line(c, -16, -251, 16, -251, '#fff', 4); }
+  else if (o.talk && (feel === 'crying' || feel === 'sad')) { P(c, `M-17,-240 Q0,-252 17,-240`, null, '#5a2424', 5); ell(c, 0, -243, 10, talkOpen * .55, lip); }
+  else if (o.talk && feel === 'angry') rr(c, -16, -250, 32, 6 + talkOpen * 1.1, 5, lip);
+  else if (o.talk) ell(c, 0, -246, 13, talkOpen, lip);
   else if (feel === 'happy' || feel === 'proud') { P(c, 'M-24,-254 Q0,-226 24,-254Z', lip); line(c, -18, -252, 18, -252, '#fff', 5); }
   else if (feel === 'sad' || feel === 'worried' || feel === 'crying') P(c, 'M-18,-240 Q0,-256 18,-240', null, '#5a2424', 5);
   else if (feel === 'surprised') ell(c, 0, -246, 12, 15, lip);
@@ -4591,6 +4623,10 @@ function drawResultCards(c, card, lt, k, t) {
 }
 function drawCard(c, card, lt, dur, t) {
   if (!card || !card.type) return;
+  if (card.type === 'statement') { drawStatement(c, card, lt, dur, t, W, H, .82, false); return; }
+  if (card.type === 'label') { drawTinyLabel(c, card, lt, dur, W, H - 90, 1.1, false); return; }
+  if (card.type === 'tag') { drawTags(c, card, lt, dur, 600, 760, 1, 44, W, H); return; }
+  if (card.type === 'hud') { drawHudCard(c, cardParts(card), lt, W - 40, 280, 1.1, true); return; }
   if (card.type === 'date') card = Object.assign({}, card, { type: 'calendar' });
   else if (card.type === 'doc') card = Object.assign({}, card, { type: 'reveal' });
   else if (card.type === 'source') card = Object.assign({}, card, { type: 'sms', title: card.name, text: card.text });
@@ -5241,6 +5277,9 @@ function buildTimeline(story, audio, opt) {
   return { shots, total: t + .2, note, thumb: opt.thumb ? lead - .25 : 0 };
 }
 /* ---------- per-scene layout ---------- */
+/* wide frames show people from head to feet where nothing (table, counter) stands in front of them */
+const FULL_POS = { 1: [[540, 1560, .86]], 2: [[330, 1560, .84], [750, 1560, .84]], 3: [[215, 1565, .78], [540, 1550, .8], [865, 1565, .78]] };
+function placeHasFg(key) { const p = PLACE_INDEX[key]; if (!p) return true; if (p.legacy) return !!FG[key]; return p.toks.some(tk => tk.fg); }
 const CAST_POS = { 1: [[540, 1430, 1.45]], 2: [[300, 1420, 1.18], [790, 1420, 1.18]], 3: [[215, 1430, 1.0], [540, 1400, 1.03], [865, 1430, 1.0]] };
 function camFor(sc, shotIdxInScene, ln) {
   const n = sc.cast.length || 1;
@@ -5441,6 +5480,7 @@ class StoryRenderer {
     popAt(c, 540, 820, back(lt, .05), () => txt(c, ch.no || '', 540, 860, 120, C_GO2, 800, 'center', FONT_BN, 960));
     withA(c, fin(lt, .3), () => wrapText(c, ch.title || '', 84, 940, 800).slice(0, 3).forEach((l, i) => txt(c, l, 540, 1020 + i * 100, 84, '#fff', 800, 'center', FONT_BN, 960)));
   }
+  posFor(sc) { const n = Math.min(3, sc.cast.length || 1); return CAST_POS[n] || CAST_POS[1]; }
   shotRangeOfScene(si) { const s = this.tl.shots; let a = -1, b = -1; for (let k = 0; k < s.length; k++) if (s[k].si === si) { if (a < 0) a = k; b = k; } return [a, b]; }
   drawStory(c, si, t) {
     const sc = this.story.scenes[si];
@@ -5466,17 +5506,17 @@ class StoryRenderer {
     c.filter = 'none';
     c.translate(W / 2, H / 2); c.scale(cam.z * push, cam.z * push); c.translate(-cam.x - drift, -cam.y);
     filteredLayer(c, sceneF.filter(Boolean).join(' '), null, c => {
-    if (this.cine2) c.drawImage(this.bgFor(si), 0, 0, W, H); else drawPlace(c, sc.place, t, sc.time, 'bg');
+    if (this.cine2) { const bgc = this.bgFor(si); c.drawImage(bgc, 0, 0, W, H); if (this.isLong) { c.save(); c.scale(-1, 1); c.drawImage(bgc, 0, 0, W, H); c.drawImage(bgc, -2 * W, 0, W, H); c.restore(); } } else drawPlace(c, sc.place, t, sc.time, 'bg');
     // characters
-    const n = sc.cast.length || 1, pos = CAST_POS[Math.min(3, n)] || CAST_POS[1];
+    const n = sc.cast.length || 1, pos = this.posFor(sc);
     sc.cast.forEach((id, i) => {
       const P0 = pos[i] || pos[0], cr = this.chars[id]; if (!cr) return; const m = st.mem[id] || { feel: 'neutral', act: 'idle' };
-      const talking = ln.who === id && lt > .05 && lt < sh.dur - .05;
+      const talking = !!ln.speak && ln.who === id && lt > .12 && lt < sh.dur - .15; // narration about someone ≠ that person speaking
       let eye = 0; if (ln.who && ln.who !== id) { const wi = sc.cast.indexOf(ln.who); eye = wi > i ? 1 : -1; }
       if (m.act === 'phone') eye = 0;
       const ent = cine ? eo((t - sc.start - .08 - i * .14) / .5) : 1; if (ent <= 0) return;
       const fromSide = P0[0] < 540 ? -1 : P0[0] > 540 ? 1 : 0;
-      const talkLift = talking && cine ? Math.abs(Math.sin(t * 6)) * 4 : 0;
+      const talkLift = talking && cine ? Math.max(0, Math.sin(t * 4.2)) * 2 : 0;
       c.save(); c.globalAlpha *= cl(ent * 1.4); c.translate(fromSide * (1 - ent) * 160, (1 - ent) * 80 - talkLift);
       // per-person look (shy/sad = grey + gold glow, listener in close-up = soft blur): drawn once onto a layer
       const pf = []; let psh = null;
@@ -5484,7 +5524,7 @@ class StoryRenderer {
       if (this.cine2 && cam.z > 1.6 && ln.who && ln.who !== id && n > 1) pf.push('blur(4px)');
       filteredLayer(c, pf.join(' '), psh, c => drawPerson(c, { L: cr.L, x: P0[0], y: P0[1], s: P0[2], flip: n > 1 && i === n - 1, feel: m.feel, act: m.act, hold: m.hold, talk: talking, t, seed: cr.seed, eye, tear: m.feel === 'crying' }));
       c.restore();
-      if (!this.golpo && this.nameTag[k] === id && lt < 2.2 && !(this.cine2 && si === this.firstStory && t - sc.start < 3.3)) { const kk = back(lt, .05, .4) * cl((2.2 - lt) / .3); const s2 = P0[2], ty = P0[1] - 470 * s2 * (cr.L.kid ? .74 : cr.L.teen ? .92 : 1); const nm = cr.ch.name; const w2 = tw(c, nm, 40, 700) + 54; popAt(c, P0[0], ty, kk, () => { rr(c, P0[0] - w2 / 2, ty - 34, w2, 64, 32, C_G, C_GO2, 3); P(c, `M${P0[0] - 12},${ty + 29} L${P0[0]},${ty + 46} L${P0[0] + 12},${ty + 29}Z`, C_G); txt(c, nm, P0[0], ty + 13, 40, C_CR, 700, 'center', FONT_BN, 420); }); }
+      if (!this.golpo && this.nameTag[k] === id && lt < 2.2 && !(this.isLong && ln.speak) && !(this.cine2 && si === this.firstStory && t - sc.start < 3.3)) { const kk = back(lt, .05, .4) * cl((2.2 - lt) / .3); const s2 = P0[2], ty = P0[1] - 470 * s2 * (cr.L.kid ? .74 : cr.L.teen ? .92 : 1); const nm = cr.ch.name; const w2 = tw(c, nm, 40, 700) + 54; popAt(c, P0[0], ty, kk, () => { rr(c, P0[0] - w2 / 2, ty - 34, w2, 64, 32, C_G, C_GO2, 3); P(c, `M${P0[0] - 12},${ty + 29} L${P0[0]},${ty + 46} L${P0[0] + 12},${ty + 29}Z`, C_G); txt(c, nm, P0[0], ty + 13, 40, C_CR, 700, 'center', FONT_BN, 420); }); }
     });
     drawPlace(c, sc.place, t, sc.time, 'fg');
     });
@@ -5662,7 +5702,7 @@ class StoryRenderer {
     fw = fw || W; fh = fh || H; u = u || 1;
     const k = this.shotAt(t), sh = this.tl.shots[k]; if (!sh) return;
     const sc = this.story.scenes[sh.si], ln = sc.lines[sh.li]; const end = sh.end + .12;
-    if (t < sh.start || t > end) return;
+    if (t < sh.start || t > end) return; if (ln && ln.card && ln.card.type === 'statement') return;
     if (this.golpo && sc.type === 'cta') return; // the end card already shows the line
     const S = this.settings, look = S.capLook || 'news', G = look === 'golpo', FAM = G ? 'TFSerif' : FONT_CAP, size = (S.capSize || 58) * u * (G ? .94 : 1), maxW = Math.min(fw * .84, 920 * u * (fw > fh ? 1.6 : 1)), cx = fw / 2, CW = 700;
     const spk = G && ln.speak && ln.who && this.chars[ln.who] ? this.chars[ln.who] : null;
@@ -6325,7 +6365,7 @@ const rebuildSoon = debounce(() => rebuild(true), 280);
 /* ---------- preview (uses the same frame composer as export → what you see is what you get) ---------- */
 const pv = $('pv'); const pctx = pv.getContext('2d', { alpha: false }); let pvComp = null;
 function sizeCanvas() {
-  const [a, b] = RATIOS[S.expRatio] || RATIOS['9:16']; const box = pv.parentElement; box.style.aspectRatio = a + '/' + b;
+  const [a, b] = RATIOS[S.expRatio] || RATIOS['9:16']; const box = pv.parentElement; box.style.aspectRatio = a + '/' + b; box.style.setProperty('--ar', (a / b).toFixed(4));
   const dpr = Math.min(2, window.devicePixelRatio || 1); const cw = pv.clientWidth || 340; if (!pv.clientWidth && pvComp) return; const w = Math.round(Math.min(a < b ? 1080 : 1280, cw * dpr)) & ~1;
   pv.width = w; pv.height = Math.round(w * b / a) & ~1; pvComp = new FrameComposer(app.renderer, pv.width, pv.height); drawAt(app.t);
 }
@@ -6604,8 +6644,8 @@ const PROP_BN = { phone: 'ফোন', envelope: 'খাম', money: 'টাক�
 const TIME_BN = { day: 'দিন', evening: 'সন্ধ্যা', night: 'রাত' }, MOOD_BN = { normal: 'স্বাভাবিক', happy: 'আনন্দ', sad: 'দুঃখ', tense: 'টেনশন', regret: 'আফসোস (সাদাকালো)' }, WEATHER_BN = { '': 'স্বাভাবিক', rain: 'বৃষ্টি', fog: 'কুয়াশা', sunny: 'রোদ' };
 const TYPE_BN = { story: 'গল্প', rewind: 'রিওয়াইন্ড', book: 'বই', takeaways: 'শিক্ষা', metaphor: 'উপমা', cta: 'শেষ', chapter: 'অধ্যায়' };
 const ROLE_BN = Object.fromEntries(Object.entries(ROLES).map(([k, v]) => [k, v.bn]));
-const CARD_BN = { sms: 'মেসেজ', price: 'দামের ট্যাগ', counter: 'সংখ্যা গণনা', check: 'চেকলিস্ট', compare: 'তুলনা', big: 'বড় লেখা', calendar: 'ক্যালেন্ডার', progress: 'প্রগ্রেস বার', call: 'ফোন কল', alert: 'লাল সতর্কতা', chat: 'চ্যাট', reveal: 'টুইস্ট (পুরোনো কাগজ)' };
-const CARD_TEMPLATES = { sms: { title: 'ব্যাংক এসএমএস', text: 'বেতন জমা: ৳ ৩৫,০০০' }, price: { text: '৳ ৪২,০০০' }, counter: { label: 'মোট', from: 0, to: 5000, prefix: '৳ ' }, check: { items: [{ t: 'কাজ ১', ok: true }, { t: 'কাজ ২', ok: false }] }, compare: { left: 'আগে', lv: '৩৫ হাজার', right: 'এখন', rv: '৪৫ হাজার' }, big: { text: '৫০০ জন' }, calendar: { text: '২০ তারিখ' }, progress: { label: 'সঞ্চয়', value: 60 }, call: { name: 'মা' }, alert: { text: 'টাকা নেই!' }, chat: { name: 'রাশেদ', text: 'দোস্ত, কই তুই?' }, reveal: { title: 'পুরোনো চিঠি', text: 'তোকে কোনোদিন বলা হয়নি...' } };
+const CARD_BN = { sms: 'মেসেজ', price: 'দামের ট্যাগ', counter: 'সংখ্যা গণনা', check: 'চেকলিস্ট', compare: 'তুলনা', big: 'বড় লেখা', calendar: 'ক্যালেন্ডার', progress: 'প্রগ্রেস বার', call: 'ফোন কল', alert: 'লাল সতর্কতা', chat: 'চ্যাট', reveal: 'টুইস্ট (পুরোনো কাগজ)', doc: 'নথি', source: 'সূত্র', date: 'তারিখ', statement: 'কালো পর্দায় বড় সোনালি লেখা', label: 'ছোট লেবেল (নিচে বামে)', tag: 'স্টিকার ট্যাগ', hud: 'কোণের হিসাব কার্ড' };
+const CARD_TEMPLATES = { sms: { title: 'ব্যাংক এসএমএস', text: 'বেতন জমা: ৳ ৩৫,০০০' }, price: { text: '৳ ৪২,০০০' }, counter: { label: 'মোট', from: 0, to: 5000, prefix: '৳ ' }, check: { items: [{ t: 'কাজ ১', ok: true }, { t: 'কাজ ২', ok: false }] }, compare: { left: 'আগে', lv: '৩৫ হাজার', right: 'এখন', rv: '৪৫ হাজার' }, big: { text: '৫০০ জন' }, calendar: { text: '২০ তারিখ' }, progress: { label: 'সঞ্চয়', value: 60 }, call: { name: 'মা' }, alert: { text: 'টাকা নেই!' }, chat: { name: 'রাশেদ', text: 'দোস্ত, কই তুই?' }, reveal: { title: 'পুরোনো চিঠি', text: 'তোকে কোনোদিন বলা হয়নি...' }, statement: { text: 'আর ঠিক তখনই / সব শেষ হয়ে গেল' }, label: { text: 'সূত্র: রয়টার্স' }, tag: { text: '✗ টিভি নেই / ✗ ফ্রিজ নেই' }, hud: { text: 'হাতে আছে / ৳ ২৫,০০০' } };
 function avatarCanvas(ch, size, big) { size = size || 80; const cv = el('canvas', { width: size, height: big ? Math.round(size * 1.15) : size }); const c = cv.getContext('2d'); c.fillStyle = '#f3f2ed'; c.fillRect(0, 0, cv.width, cv.height); c.save(); const k = size / 80; if (big) { c.translate(cv.width / 2, cv.height - 4 * k); c.scale(.16 * k, .16 * k); drawPerson(c, { L: lookFor(ch), x: 0, y: 0, s: 1, feel: 'happy', act: 'idle', t: 0, seed: 0 }); } else { c.translate(40 * k, 58 * k); c.scale(.18 * k, .18 * k); drawPerson(c, { L: lookFor(ch), x: 0, y: 300, s: 1, feel: 'happy', act: 'idle', t: 0, seed: 0 }); } c.restore(); return cv; }
 const AGE_BN = { kid: 'শিশু', teen: 'কিশোর', young: 'তরুণ', adult: 'মধ্যবয়সী', old: 'বয়স্ক', elder: 'বৃদ্ধ' };
 function applyLook(ch, role) { ch.role = role; const r = ROLES[role]; if (r) { ch.gender = r.g === 'f' ? 'female' : 'male'; ch.age = r.a; } ch.variant = false; }
@@ -6632,7 +6672,7 @@ function buildOverview() {
     const chips = []; if (sc.type === 'story') { chips.push(TIME_BN[sc.time], MOOD_BN[sc.mood].split(' ')[0]); sc.cast.forEach(id => chips.push(nm[id])); } const cards = sc.lines.filter(l => l.card).length; if (cards) chips.push(bn(cards) + 'টা কার্ড');
     box.append(el('div', { class: 'sovi', title: 'এই দৃশ্য থেকে চালাও', onclick: () => { stopPlay(true); app.t = sc.start + .01; drawAt(app.t); updateTime(); } }, holder, el('div', null, el('b', { text: `${bn(si + 1)}. ${TYPE_BN[sc.type] || sc.type}${sc.type === 'story' ? ' — ' + (PLACE_INDEX[sc.place] ? PLACE_INDEX[sc.place].bn : (PLACES[sc.place] || sc.place)) : ''}` }), el('span', { text: sc.lines[0] ? sc.lines[0].cap : '' }), el('div', { class: 'chips' }, ...chips.filter(Boolean).map(x => el('em', { text: x }))))));
   });
-  const step = () => { const it = thumbs.splice(0, 3); it.forEach(([h, si]) => { h.replaceWith(sceneThumb(si)); }); if (thumbs.length) setTimeout(step, 16); }; setTimeout(step, 30);
+  const st0 = app.story, step = () => { if (app.story !== st0) return; const it = thumbs.splice(0, 3); it.forEach(([h, si]) => { try { if (h.isConnected && app.story.scenes[si]) h.replaceWith(sceneThumb(si)); } catch (e) { } }); if (thumbs.length) setTimeout(step, 16); }; setTimeout(step, 30);
 }
 function buildEditors() {
   const st = app.story; $('storyTitle').textContent = st.title;
@@ -7434,7 +7474,7 @@ function longSfx(st, tl, S, play) {
       if (kt) {
         if (sh.li === 0 || ln.speak || ln.card) play('whoosh', sh.start - .07);
         if (sh.si === first && sh.li === 0) play('boom', sh.start);
-        if (pops) ktWords(ln, sh).forEach((w, i) => { if (w.num) play('ding', w.t0); else if (w.hl) play('pop', w.t0); else if (i % 2 === 0) play('click', w.t0); });
+        if (pops && !(ln.card && ln.card.type === 'statement')) ktWords(ln, sh).forEach((w, i) => { if (w.num) play('ding', w.t0); else if (w.hl) play('pop', w.t0); else if (i % 2 === 0) play('click', w.t0); });
       } else {
         const sp = ktStamp(ln); if (sp && pops) { const w = ktWords(ln, sh).find(x => x.hl) || { t0: sh.start + .2 }; play('paper', w.t0); }
       }
@@ -7443,10 +7483,71 @@ function longSfx(st, tl, S, play) {
       if (ty === 'doc') for (let i = 0; i < 16; i++) play('type', sh.start + .32 + i * .065);
       else if (ty === 'date') play('ding', sh.start + .28);
       else if (ty === 'source') play('paper', sh.start + .22);
-      else if (ty === 'reveal' && kt) play('boom', sh.start + .02); }
+      else if (ty === 'reveal' && kt) play('boom', sh.start + .02);
+      else if (ty === 'statement') { play('boom', sh.start + .02); const n = cardParts(ln.card).length > 1 ? cardParts(ln.card)[0].split(/\s+/).length : 0; if (pops) for (let i = 0; i < Math.min(n, 8); i++) play('type', sh.start + .1 + i * .1); play('whoosh', sh.start + .1 + n * .1 + .2); }
+      else if (ty === 'tag' && pops) cardParts(ln.card).slice(0, 4).forEach((x, i) => play('pop', sh.start + .15 + i * .22));
+      else if (ty === 'hud') play('ding', sh.start + .05); }
   });
 }
 
+/* ---------- first-video look (thriller): black statement cards, gold words, tiny labels;
+   second-video look (life): sticker tags, corner tracker card ---------- */
+function cardParts(card) { return String((card && card.text) || '').split('/').map(s => s.trim()).filter(Boolean); }
+function goldFill(c, y0, y1) { const g = c.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, '#FFF2C4'); g.addColorStop(.48, '#F5C04E'); g.addColorStop(1, '#B9791A'); return g; }
+/* "[statement: small lead line / BIG GOLD WORDS]" — cut to black, the lead line types in, then the big words come out of a blur one by one */
+function drawStatement(c, card, lt, dur, t, FW, FH, u, land) {
+  const p = cardParts(card), lead = p.length > 1 ? p[0] : '', big = (p.length > 1 ? p.slice(1) : p).join(' ');
+  c.save(); rect(c, 0, 0, FW, FH, '#040404');
+  { const g = c.createRadialGradient(FW * .5, FH * .48, 10, FW * .5, FH * .48, Math.max(FW, FH) * .7); g.addColorStop(0, 'rgba(70,50,16,.32)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, FW, FH); }
+  c.globalAlpha *= cl((dur - lt) / .25);
+  const mx = land ? 160 * u : 80 * u, maxW = FW - mx * 2, fam = 'TFDisp', words = big.split(/\s+/).filter(Boolean);
+  const lay = sz => { c.font = `800 ${sz}px ${fam}, ${FONT_FALLBACK}`; const sp = c.measureText(' ').width, r = [[]]; let w0 = 0;
+    words.forEach(w => { const ww = c.measureText(w).width; if (r[r.length - 1].length && w0 + sp + ww > maxW) { r.push([]); w0 = 0; } r[r.length - 1].push({ w, ww }); w0 += (w0 ? sp : 0) + ww; }); return { r, sp }; };
+  let bs = (land ? 156 : 150) * u, L = lay(bs); while ((L.r.length > (land ? 3 : 4) || L.r.some(row => row.reduce((a, x) => a + x.ww, 0) > maxW)) && bs > 56 * u) { bs -= 6 * u; L = lay(bs); }
+  const ls = (land ? 46 : 54) * u, lh = bs * 1.2, left = land, blockH = (lead ? ls * 1.8 : 0) + L.r.length * lh; let y = FH / 2 - blockH / 2 + (lead ? ls : 0), tEnd = .15;
+  if (lead) { const lw = lead.split(/\s+/); c.font = `600 ${ls}px ${FONT_BN}, ${FONT_FALLBACK}`; const sp = c.measureText(' ').width, tot = lw.reduce((a, w) => a + c.measureText(w).width, 0) + sp * (lw.length - 1); let x = left ? mx : FW / 2 - tot / 2;
+    lw.forEach((w, i) => { const ww = c.measureText(w).width, a = cl((lt - .1 - i * .1) / .12); if (a > 0) { c.save(); c.globalAlpha *= a; c.font = `600 ${ls}px ${FONT_BN}, ${FONT_FALLBACK}`; c.textAlign = 'left'; c.fillStyle = '#EDEDED'; c.fillText(w, x, y); c.restore(); } x += ww + sp; });
+    tEnd = .1 + lw.length * .1 + .25; y += ls * .8 + lh * .82; } else y += lh * .78;
+  let wi = 0;
+  L.r.forEach((row, ri) => { const rw = row.reduce((a, x) => a + x.ww, 0) + L.sp * (row.length - 1); let x = left ? mx : FW / 2 - rw / 2; const yy = y + ri * lh;
+    row.forEach(it => { const e = eo(cl((lt - tEnd - wi * .17) / .4)); wi++;
+      if (e > 0) { c.save(); c.globalAlpha *= e; const bl = (1 - e) * 18 * u; if (bl > .5) c.filter = `blur(${bl.toFixed(1)}px)`; const z = 1.1 - .1 * e, cx = x + it.ww / 2, cy = yy - bs * .35; c.translate(cx, cy); c.scale(z, z); c.translate(-cx, -cy);
+        c.font = `800 ${bs}px ${fam}, ${FONT_FALLBACK}`; c.textAlign = 'left'; c.shadowColor = 'rgba(245,192,78,.32)'; c.shadowBlur = 34 * u * e; c.fillStyle = goldFill(c, yy - bs * .85, yy + bs * .12); c.fillText(it.w, x, yy); c.restore(); }
+      x += it.ww + L.sp; }); });
+  c.restore();
+}
+/* "[label: সূত্র: …]" — a tiny label in the bottom-left corner (source, day, disclaimer) */
+function drawTinyLabel(c, card, lt, dur, FW, FH, u, light) {
+  const s = cardParts(card).join(' · '); if (!s) return; const a = cl(lt / .3) * cl((dur - lt) / .25); if (a <= 0) return;
+  const sz = 30 * u; c.save(); c.globalAlpha *= a; c.font = `600 ${sz}px ${FONT_BN}, ${FONT_FALLBACK}`; const w = Math.min(FW * .6, c.measureText(s).width + 36 * u), x = 40 * u, y = FH - 40 * u - sz * 1.6;
+  rr(c, x, y, w, sz * 1.6, 6 * u, light ? 'rgba(251,243,228,.88)' : 'rgba(0,0,0,.5)'); txt(c, s, x + 18 * u, y + sz * 1.12, sz, light ? '#5A4632' : '#E6E6E6', 600, 'left', FONT_BN, w - 30 * u); c.restore();
+}
+/* "[tag: ✗ টিভি নেই / ✓ সঞ্চয় আছে]" — white sticker tags with an icon and a thin coloured border, next to the person */
+function tagColor(s) { return /^[✗✕x×]/i.test(s) ? '#D2361F' : /^[✓✔]/.test(s) ? '#2E9E5B' : /^[♥❤]/.test(s) ? '#E0457B' : /^[⏰⌛🕒]/.test(s) ? '#3D7BD9' : '#E39B2D'; }
+function drawTags(c, card, lt, dur, ax, ay, side, sz, FW, FH) {
+  const items = cardParts(card).slice(0, 4); if (!items.length) return; const out = cl((dur - lt) / .25); if (out <= 0) return;
+  c.save(); c.globalAlpha *= out; c.font = `700 ${sz}px ${FONT_BN}, ${FONT_FALLBACK}`;
+  const ws = items.map(s => { const ic = /^[✗✕×✓✔♥❤⏰⌛]/.test(s) ? s[0] : '', tx = ic ? s.slice(1).trim() : s; return { ic, tx, w: c.measureText(tx).width + sz * (ic ? 2.6 : 1.4) }; });
+  const h = sz * 1.75, gap = h * .38, tot = items.length * h + (items.length - 1) * gap; let y = cl(ay - tot / 2, 120 * sz / 36, FH - tot - 140 * sz / 36);
+  ws.forEach((it, i) => { const k = back(lt, .15 + i * .22, .32); if (k <= 0) return; const w = Math.min(it.w, FW * .44), x = side > 0 ? cl(ax, 20, FW - w - 20) : cl(ax - w, 20, FW - w - 20), col = tagColor(it.ic || it.tx), cy = y + i * (h + gap) + h / 2;
+    popAt(c, x + w / 2, cy, k, () => { c.save(); c.translate(x + w / 2, cy); c.rotate((i % 2 ? .025 : -.025)); c.translate(-(x + w / 2), -cy); c.save(); c.shadowColor = 'rgba(40,20,10,.25)'; c.shadowBlur = 14; c.shadowOffsetY = 5; rr(c, x, cy - h / 2, w, h, h / 2, '#FFFFFF'); c.restore(); rr(c, x, cy - h / 2, w, h, h / 2, null, col, Math.max(2, sz * .08));
+      let tx = x + sz * .7; if (it.ic) { circ(c, x + h / 2, cy, h * .34, col); txt(c, it.ic, x + h / 2, cy + sz * .3, sz * .78, '#fff', 800, 'center', FONT_BN); tx = x + h * .95; }
+      txt(c, it.tx, tx, cy + sz * .36, sz, '#2A1C14', 700, 'left', FONT_BN, x + w - tx - sz * .5); c.restore(); }); });
+  c.restore();
+}
+/* "[hud: হাতে আছে / ৳১ কোটি → ৳২৫ লাখ]" — a tracker card that stays in the corner until the next one */
+function drawHudCard(c, parts, lt, x0, y0, u, right) {
+  const label = parts.length > 1 ? parts[0] : '', val = (parts.length > 1 ? parts.slice(1) : parts).join(' / '); if (!val) return;
+  const vs = 46 * u, ls = 28 * u; c.save(); c.font = `800 ${vs}px ${FONT_BN}, ${FONT_FALLBACK}`; const vw = c.measureText(val).width; c.font = `600 ${ls}px ${FONT_BN}, ${FONT_FALLBACK}`; const lw = label ? c.measureText(label).width : 0;
+  const w = Math.max(vw, lw) + 70 * u, h = (label ? 128 : 88) * u, x = right ? x0 - w : x0, y = y0, k = back(lt, 0, .4);
+  popAt(c, x + w / 2, y + h / 2, k, () => { c.save(); c.shadowColor = 'rgba(40,20,10,.3)'; c.shadowBlur = 22 * u; c.shadowOffsetY = 8 * u; rr(c, x, y, w, h, 18 * u, '#FFFDF8'); c.restore(); rr(c, x, y, 10 * u, h, [18 * u, 0, 0, 18 * u], '#D2361F');
+    if (lt < .7) rr(c, x, y, w, h, 18 * u, null, `rgba(210,54,31,${(.9 * (1 - lt / .7)).toFixed(2)})`, 5 * u);
+    if (label) txt(c, label, x + 34 * u, y + 46 * u, ls, '#7A6A5A', 600, 'left', FONT_BN, w - 50 * u);
+    const by = y + (label ? 104 : 62) * u, ai = val.lastIndexOf('→');
+    if (ai >= 0) { const a = val.slice(0, ai + 1) + ' ', b = val.slice(ai + 1).trim(); c.font = `800 ${vs}px ${FONT_BN}, ${FONT_FALLBACK}`; const aw = c.measureText(a).width; txt(c, a, x + 34 * u, by, vs, '#2A1C14', 800, 'left', FONT_BN); txt(c, b, x + 34 * u + aw, by, vs, '#D2361F', 800, 'left', FONT_BN); }
+    else txt(c, val, x + 34 * u, by, vs, '#2A1C14', 800, 'left', FONT_BN); });
+  c.restore();
+}
 /* Frame-adaptive renderer: the same story world (1080×1920) seen through a window of ANY aspect ratio
    (16:9, 9:16, 4:5, 1:1). Long videos always use it; short videos use it for every ratio except 9:16.
    The camera frames the characters for the chosen frame, so nobody is cut off and the scene is never squeezed
@@ -7468,6 +7569,7 @@ class LongRenderer extends StoryRenderer {
     if (this.story) this.computeCams();
   }
   get frameW() { return this.FW; } get frameH() { return this.FH; }
+  posFor(sc) { const n = Math.min(3, sc.cast.length || 1); return this.land && !placeHasFg(sc.place) ? FULL_POS[n] : (CAST_POS[n] || CAST_POS[1]); }
   load(story, timeline, settings) {
     super.load(story, timeline, settings);
     this.isLong = true; this.longFmt = story.fmt === 'long'; this.style = this.longFmt ? (story.longStyle || 'life') : 'life'; this.kt = this.style !== 'life';
@@ -7476,7 +7578,9 @@ class LongRenderer extends StoryRenderer {
     this.P = this.kt
       ? { box: 'rgba(8,14,28,.9)', ink: '#FFFFFF', hi: '#FFD23F', hi2: '#FF9F43', red: '#E5484D', edge: 'rgba(255,210,63,.85)', bg1: '#0B1322', bg2: '#16233D' }
       : { box: 'rgba(248,241,229,.97)', ink: '#2A1C14', hi: '#B3261E', hi2: '#C0841A', red: '#B3261E', edge: 'rgba(179,38,30,.55)', bg1: '#3A2A20', bg2: '#5B4030' };
-    this.words = this.tl.shots.map(sh => { const ln = story.scenes[sh.si].lines[sh.li]; return ktWords(ln, sh); });
+    this.words = this.tl.shots.map(sh => { const ln = story.scenes[sh.si].lines[sh.li]; return ktWords(ln, sh); }); this._chk = {};
+    // corner tracker ([hud: …]) stays from its line until the next one, a chapter-free end card, or the end
+    { let cur = null; this.hud = this.tl.shots.map((sh, k) => { const sc = story.scenes[sh.si], ln = sc.lines[sh.li]; if (sc.type !== 'story' && sc.type !== 'chapter') cur = null; if (ln && ln.card && ln.card.type === 'hud') cur = { parts: cardParts(ln.card), t0: sh.start }; return sc.type === 'story' ? cur : null; }); }
     this.chap = []; let cur = null; story.scenes.forEach((sc, i) => { if (sc.type === 'chapter') cur = sc; this.chap[i] = cur; });
     this.chapList = story.scenes.filter(s => s.type === 'chapter');
     // variety: no transition, text animation or camera move repeats back to back
@@ -7497,7 +7601,7 @@ class LongRenderer extends StoryRenderer {
   }
   /* camera inside the 9:16 story world for the current frame: wide shots and chest-up close-ups */
   longCam(sc, idx, ln, si) {
-    const n = Math.min(3, sc.cast.length || 1), pos = CAST_POS[n] || CAST_POS[1], HH = this.HH, land = this.land, port = this.port;
+    const n = Math.min(3, sc.cast.length || 1), pos = this.posFor(sc), HH = this.HH, land = this.land, port = this.port, full = pos === FULL_POS[n];
     const kidF = id => { const cr = this.chars[id]; return cr ? (cr.L.kid ? .74 : cr.L.teen ? .92 : 1) : 1; };
     const head = i => { const P0 = pos[i] || pos[0]; return P0[1] - 418 * P0[2] * kidF(sc.cast[i]); };
     const sp = ln.who ? sc.cast.indexOf(ln.who) : (ln.focus ? sc.cast.indexOf(ln.focus) : -1);
@@ -7507,15 +7611,19 @@ class LongRenderer extends StoryRenderer {
     if (group) {
       z = (land ? (this.kt ? 1.06 : 1) : port ? (n === 2 ? 1.34 : n === 1 ? 1.25 : 1.2) : 1.12) * av; let top = 1e9; for (let i = 0; i < n; i++) top = Math.min(top, head(i));
       const vw = W / z; x = 540 + ax * vw * .07; y = top - 48 + HH / z * (land ? 1 : port ? .62 : .8);
+      if (full && av <= 1) { // head-to-feet establishing shot
+        let feet = 0; for (let i = 0; i < n; i++) { const P0 = pos[i] || pos[0]; feet = Math.max(feet, P0[1] + (LEG_LEN + 16) * P0[2] * kidF(sc.cast[i])); }
+        z = Math.min(1, (HH * 2) / (feet - top + 110)); x = 540; y = (top - 50 + feet + 30) / 2; }
     } else {
       const P0 = pos[sp] || pos[0]; z = (land ? (this.kt ? 1.5 : (n === 1 ? 1.42 : 1.58)) : port ? (n === 1 ? (idx % 2 ? 1.95 : 1.7) : 1.85) : 1.65) * (ang % 2 ? 1.08 : 1);
+      if (full) z *= cl(1.05 / P0[2], 1, 1.3);
       const vw = W / z;
       if (this.kt && land) { side = P0[0] <= 540 ? 1 : -1; x = P0[0] + side * vw * .21; }
       else { const dir = n > 1 ? (P0[0] < 540 ? 1 : -1) : 0; x = P0[0] + dir * vw * (port ? .2 : .08); }
       y = head(sp) - 36 + HH / z * (land ? .95 : port ? .62 : .78);
     }
     const hw = 540 / z, hh = HH / z;
-    return { cam: { x: cl(x, hw, W - hw), y: cl(y, hh, H - hh), z }, side };
+    return { cam: { x: z < 1 ? 540 : cl(x, hw, W - hw), y: cl(y, hh, H - hh), z }, side };
   }
   bgFor(si) {
     if (this._bgL.has(si)) return this._bgL.get(si);
@@ -7547,7 +7655,7 @@ class LongRenderer extends StoryRenderer {
     if (!camForce) {
       if (k > a && this.lc[k - 1]) { const pc = this.lc[k - 1], e = eio(lt / .6); cam = { x: pc.x + (cam.x - pc.x) * e, y: pc.y + (cam.y - pc.y) * e, z: pc.z + (cam.z - pc.z) * e }; }
       const kb = this.kb[k] || { dx: 0, dz: 0 }, p = cl(lt / Math.max(1, sh.dur)), vw = W / cam.z;
-      cam = { x: cl(cam.x + kb.dx * vw * .035 * p, 540 / cam.z, W - 540 / cam.z), y: cam.y, z: cam.z * (1 + kb.dz * .035 * p) };
+      cam = { x: cam.z < 1 ? cam.x + kb.dx * vw * .02 * p : cl(cam.x + kb.dx * vw * .035 * p, 540 / cam.z, W - 540 / cam.z), y: cam.y, z: cam.z * (1 + kb.dz * .035 * p) };
     }
     c.save(); c.scale(this.s, this.s); c.translate(0, -this.y0);
     this._camOverride = cam; this._noCard = true;
@@ -7596,7 +7704,9 @@ class LongRenderer extends StoryRenderer {
   drawSceneL(c, si, t) {
     const sc = this.story.scenes[si];
     c.save();
-    if (sc.type === 'story') { const r = this.drawStoryL(c, si, t); const ln = sc.lines[r.sh.li]; if (ln.card) this.drawCardL(c, ln.card, t - r.sh.start, r.sh.dur + .2, t, r.k); }
+    if (sc.type === 'story') { const k0 = this.shotIn(si, t), sh0 = this.tl.shots[k0], l0 = sc.lines[sh0.li];
+      if (l0 && l0.card && l0.card.type === 'statement') { this._cam = null; drawStatement(c, l0.card, t - sh0.start, sh0.dur + .2, t, this.FW, this.FH, this.u, this.land); }
+      else { const r = this.drawStoryL(c, si, t); this._cam = r.cam; this._camSi = si; const ln = sc.lines[r.sh.li]; if (ln.card) this.drawCardL(c, ln.card, t - r.sh.start, r.sh.dur + .2, t, r.k); } }
     else if (sc.type === 'chapter') this.drawChapterL(c, si, t);
     else if (sc.type === 'book') this.drawBookL(c, si, t);
     else if (sc.type === 'cta') this.drawCTAL(c, si, t);
@@ -7609,6 +7719,9 @@ class LongRenderer extends StoryRenderer {
   cardSpot(side) { const FW = this.FW, FH = this.FH; if (this.land) return { x: this.kt ? (side >= 0 ? FW * .72 : FW * .28) : FW * .73, y: this.kt ? FH * .4 : FH * .36, s: .74 * FW / 1920 }; return { x: FW / 2, y: this.port ? FH * .3 : FH * .34, s: this.port ? .94 : .72 }; }
   drawCardL(c, card, lt, dur, t, k) {
     const ty = card.type, side = this.side[k] || 0, sp = this.cardSpot(side);
+    if (ty === 'hud' || ty === 'statement') return;
+    if (ty === 'label') { drawTinyLabel(c, card, lt, dur, this.FW, this.FH, this.u * (this.land ? 1 : 1.25), !this.kt); return; }
+    if (ty === 'tag') { const sh = this.tl.shots[k], sc = this.story.scenes[sh.si]; this.drawTagsL(c, card, lt, dur, sc, sc.lines[sh.li]); return; }
     if (ty === 'reveal' && lt < .35) withA(c, (1 - lt / .35) * .8, () => rect(c, 0, 0, this.FW, this.FH, '#FFF8EC'));
     if (ty === 'doc' || ty === 'source' || ty === 'date') { c.save(); c.translate(sp.x, sp.y); const s2 = this.land ? this.FW / 1920 : this.FW / 1080 * (this.port ? 1.12 : .9); c.scale(s2, s2); this.drawNewCard(c, card, lt, dur, t); c.restore(); return; }
     c.save(); c.translate(sp.x, sp.y); c.scale(sp.s, sp.s); c.translate(-540, -640);
@@ -7654,38 +7767,107 @@ class LongRenderer extends StoryRenderer {
     const pos = []; L.rows.forEach((r, ri) => { let x = bx + pad + (side === 0 || hook ? (bw - pad * 2 - rw[ri]) / 2 : 0); r.forEach(it => { pos[it.i] = { x, y: by + 26 * u + (spk ? 52 * u : 0) + lh * (ri + .78), ww: it.ww }; x += it.ww + L.sp; }); });
     return (this._ktL[key] = { size, fam, bx, by, bw, bh, pos, spk, lh });
   }
+  /* world point (1080×1920 story world) → frame pixel, using the camera of the shot drawn last */
+  toScr(wx, wy) { const cam = this._cam; if (!cam) return null; return [this.s * ((wx - cam.x) * cam.z + W / 2), this.s * ((wy - cam.y) * cam.z + H / 2 - this.y0), this.s * cam.z]; }
+  headScr(sc, id, up) { if (!this._cam || this._camSi !== this.story.scenes.indexOf(sc)) return null; const i = sc.cast.indexOf(id); if (i < 0) return null; const pos = this.posFor(sc), P0 = pos[i] || pos[0];
+    const cr = this.chars[id], kf = cr ? (cr.L.kid ? .74 : cr.L.teen ? .92 : 1) : 1; return this.toScr(P0[0], P0[1] - (418 + (up || 0)) * P0[2] * kf); }
+  /* first-video captions: 2-5 word chunks in a dark box sized to the whole chunk; words come out of a blur one by one;
+     key words yellow with an underline; the caption sits at the bottom, the top, or above the speaker */
+  ktChunks(k) {
+    if (this._chk[k]) return this._chk[k]; const ws = this.words[k], sh = this.tl.shots[k], out = []; let cur = [];
+    ws.forEach((w, i) => { cur.push(i); const left = ws.length - i - 1; if (/[,।?!—:;]$/.test(w.w) || (cur.length >= 4 && left !== 1) || cur.length >= 5) { out.push(cur); cur = []; } });
+    if (cur.length) { if (cur.length === 1 && out.length && out[out.length - 1].length < 5) out[out.length - 1].push(cur[0]); else out.push(cur); }
+    return (this._chk[k] = out.map((ix, j) => ({ ix, t0: ws[ix[0]].t0 - .06, t1: j + 1 < out.length ? ws[out[j + 1][0]].t0 - .06 : sh.end + .15 })));
+  }
   drawKT(c, t) {
     const k = this.shotAt(t), sh = this.tl.shots[k]; if (!sh) return; const sc = this.story.scenes[sh.si]; if (sc.type !== 'story') return;
-    if (t < sh.start - .05 || t > sh.end + .2) return;
-    const ln = sc.lines[sh.li], words = this.words[k], PL = this.P, u = this.u, hook = sh.si === this.firstStory && sh.li === 0, hasCard = !!ln.card;
-    const side = (hasCard && !hook) || !this.land ? 0 : (this.side[k] || 0);
-    const L = this.ktLayout(c, k, sh, ln, side, hook, hasCard); const lt = t - sh.start, out = cl((sh.end + .2 - t) / .2);
-    const mode = hook ? 'zoom' : ln.speak ? 'type' : this.mode[k];
-    const shake = /angry|surprised/.test(ln.feel || '');
-    const ent = eo((lt + .05) / .3), dx = side > 0 ? (1 - ent) * 120 * u : side < 0 ? -(1 - ent) * 120 * u : 0, dy = side === 0 ? (1 - ent) * 60 * u : 0;
-    c.save(); c.globalAlpha *= out * cl(ent * 1.4); c.translate(dx, dy);
-    if (hook) withA(c, .55 * ent, () => rect(c, 0, 0, this.FW, this.FH, '#050912'));
-    c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 30 * u; c.shadowOffsetY = 10 * u; rr(c, L.bx, L.by, L.bw, L.bh, 16 * u, PL.box); c.restore();
-    const accent = k % 3 === 1 ? PL.red : PL.hi;
-    rr(c, L.bx, L.by, 10 * u, L.bh, [16 * u, 0, 0, 16 * u], accent); { const g = c.createLinearGradient(L.bx, 0, L.bx + L.bw, 0); g.addColorStop(0, PL.edge); g.addColorStop(1, 'rgba(255,210,63,0)'); c.fillStyle = g; c.fillRect(L.bx + 16 * u, L.by, L.bw - 32 * u, 4 * u); }
-    if (L.spk) { const r = 34 * u, ax = L.bx + 40 * u + r, ay = L.by + 40 * u; c.drawImage(this.faceOf(ln.who, 96), ax - r, ay - r, 2 * r, 2 * r); circ(c, ax, ay, r + 3 * u, null, PL.hi, 4 * u); txt(c, L.spk.ch.name + ' বলল', ax + r + 18 * u, ay + 13 * u, 34 * u, PL.hi, 800, 'left', FONT_BN, L.bw - 140 * u); }
-    c.textAlign = 'left';
-    words.forEach((w, i) => { const p = L.pos[i]; if (!p) return; const wl = t - w.t0; if (wl < 0) return;
-      const sz = L.size * (w.num ? 1.12 : 1), col = w.num || w.hl ? PL.hi : PL.ink; let s = 1, a = 1, ox = 0, oy = 0, txtW = w.w;
-      if (mode === 'pop') { s = back(wl, 0, .26); a = cl(wl / .08); }
-      else if (mode === 'slide') { const e = eo(wl / .22); ox = (1 - e) * 46 * u; a = e; }
-      else if (mode === 'rise') { const e = eo(wl / .24); oy = (1 - e) * 34 * u; a = e; }
-      else if (mode === 'drop') { const e = back(wl, 0, .3); oy = -(1 - cl(e)) * 40 * u; a = cl(wl / .1); }
-      else if (mode === 'zoom') { const e = eo(wl / .28); s = 1.7 - .7 * e; a = e; }
-      else if (mode === 'wave') { const e = eo(wl / .2); a = e; oy = Math.sin(wl * 14) * 8 * u * cl(1 - wl / .6); }
-      else if (mode === 'type') { const n = Math.ceil(cl(wl / .16) * w.w.length); txtW = w.w.slice(0, n); }
-      if ((w.hl || w.num) && shake && wl < .4) ox += Math.sin(wl * 60) * 5 * u * (1 - wl / .4);
-      if (w.hl || w.num) { const e = eo((wl - .05) / .25); if (e > 0) { if (i % 2) withA(c, .9, () => rr(c, p.x - 8 * u, p.y - sz * .86 + oy, (p.ww + 16 * u) * e, sz * 1.12, 10 * u, this.kt ? 'rgba(255,210,63,.22)' : 'rgba(179,38,30,.15)')); else rect(c, p.x, p.y + sz * .18, p.ww * e, 5 * u, accent); } }
-      c.save(); c.globalAlpha *= a; c.translate(p.x + p.ww / 2 + ox, p.y - sz * .3 + oy); c.scale(s, s); c.translate(-(p.x + p.ww / 2), -(p.y - sz * .3));
-      c.font = `800 ${sz}px ${L.fam}, ${FONT_FALLBACK}`; c.fillStyle = col; c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = 4; c.shadowOffsetY = 2; c.fillText(txtW, p.x, p.y); c.restore();
-    });
-    if (hook) { const e = eo((lt - .2) / .6); rect(c, L.bx + 40 * u, L.by + L.bh - 18 * u, (L.bw - 80 * u) * e, 6 * u, PL.red); }
+    const ln = sc.lines[sh.li]; if (ln.card && ln.card.type === 'statement') return;
+    const chs = this.ktChunks(k), ch = chs.find(x => t >= x.t0 && t < x.t1); if (!ch) return;
+    const words = this.words[k], u = this.u, FW = this.FW, FH = this.FH, hook = sh.si === this.firstStory && sh.li === 0;
+    let size = (this.land ? 54 : this.port ? 76 : 66) * u * (hook ? 1.3 : 1); const padX = 24 * u, maxW = FW * (this.land ? .7 : .88);
+    const meas = sz => { c.font = `700 ${sz}px ${FONT_BN}, ${FONT_FALLBACK}`; const sp = c.measureText(' ').width; const ws = ch.ix.map(i => c.measureText(words[i].w).width); return { sp, ws, tot: ws.reduce((a, b) => a + b, 0) + sp * (ws.length - 1) }; };
+    let M = meas(size); while (M.tot > maxW - padX * 2 && size > 30 * u) { size -= 3 * u; M = meas(size); }
+    const bw = M.tot + padX * 2, bh = size * 1.62;
+    // where: per shot, never the same spot three times; cards keep the caption at the bottom
+    let spot = hook ? 'mid' : (ln.card && ln.card.type !== 'label') ? 'bot' : ['bot', 'bot', 'top', 'bot', 'near', 'bot', 'top'][(k * 5 + 3) % 7];
+    let bx = (FW - bw) / 2, by;
+    if (spot === 'near') { const hp = ln.who ? this.headScr(sc, ln.who, 150) : null; if (hp && hp[1] - bh - 30 * u > 130 * u && hp[0] > 0 && hp[0] < FW) { bx = cl(hp[0] - bw / 2, 30 * u, FW - bw - 30 * u); by = hp[1] - bh - 30 * u; } else spot = 'bot'; }
+    if (spot === 'top') by = (this.land ? 130 : this.port ? 300 : 170) * u;
+    else if (spot === 'mid') by = FH * .5 - bh / 2;
+    else if (spot === 'bot') by = FH - bh - (this.land ? 80 : this.port ? 330 : 120) * u;
+    const lt = t - ch.t0, e0 = eo(cl(lt / .14)), out = cl((ch.t1 + .02 - t) / .08);
+    c.save(); c.globalAlpha *= e0 * out;
+    if (ln.speak && ln.who && this.chars[ln.who]) { const nm = this.chars[ln.who].ch.name, q = this.land ? 1 : 1.35; c.font = `700 ${30 * u * q}px ${FONT_BN}, ${FONT_FALLBACK}`; const nw = c.measureText(nm).width + 26 * u * q; rr(c, bx, by - 46 * u * q, nw, 40 * u * q, 5 * u, 'rgba(255,210,63,.95)'); txt(c, nm, bx + 13 * u * q, by - 16 * u * q, 30 * u * q, '#111', 700, 'left', FONT_BN); }
+    c.save(); c.translate(bx + bw / 2, by + bh / 2); const z = .96 + .04 * e0; c.scale(z, z); c.translate(-(bx + bw / 2), -(by + bh / 2)); rr(c, bx, by, bw, bh, 5 * u, 'rgba(10,10,12,.74)'); c.restore();
+    let x = bx + padX; const y = by + bh * .66;
+    ch.ix.forEach((i, j) => { const w = words[i], ww = M.ws[j], wl = t - w.t0; if (wl >= 0) { const e = eo(cl(wl / .17)), key = w.hl || w.num, col = key ? '#FFD23F' : '#FFFFFF';
+        c.save(); c.globalAlpha *= e; const bl = (1 - e) * 9 * u; if (bl > .4) c.filter = `blur(${bl.toFixed(1)}px)`; c.font = `700 ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; c.textAlign = 'left'; c.fillStyle = col; c.fillText(w.w, x, y); c.restore();
+        if (key) { const ue = eo(cl((wl - .08) / .22)); if (ue > 0) rect(c, x, y + size * .2, ww * ue, 4 * u, '#FFD23F'); } }
+      x += ww + M.sp; });
     c.restore();
+  }
+  /* second-video captions: the whole sentence in a cream pill at the bottom, key words red; a character's own words in a speech bubble above the head */
+  drawLifeCap(c, t) {
+    const k = this.shotAt(t), sh = this.tl.shots[k]; if (!sh) return; const sc = this.story.scenes[sh.si]; if (sc.type !== 'story') return;
+    const ln = sc.lines[sh.li]; if (ln.card && ln.card.type === 'statement') return;
+    const lt = t - sh.start, a = cl((lt + .05) / .22) * cl((sh.end + .15 - t) / .2); if (a <= 0) return;
+    if (ln.speak && ln.who && this.drawBubble(c, k, sh, sc, ln, lt, a)) return;
+    const words = this.words[k], u = this.u, FW = this.FW, FH = this.FH, hud = this.land && this.hud && this.hud[k];
+    let size = (this.land ? 48 : 60) * u; const maxW = FW * (hud ? .56 : this.land ? .74 : .86);
+    const lay = sz => { c.font = `700 ${sz}px ${FONT_BN}, ${FONT_FALLBACK}`; const sp = c.measureText(' ').width, rows = [[]]; let w0 = 0;
+      words.forEach((w, i) => { const ww = c.measureText(w.w).width; if (rows[rows.length - 1].length && w0 + sp + ww > maxW - 70 * u) { rows.push([]); w0 = 0; } rows[rows.length - 1].push({ i, ww }); w0 += (w0 ? sp : 0) + ww; }); return { rows, sp }; };
+    let L = lay(size); while (L.rows.length > 2 && size > 32 * u) { size -= 3 * u; L = lay(size); }
+    const lh = size * 1.32, rw = L.rows.map(r => r.reduce((s, x) => s + x.ww, 0) + L.sp * (r.length - 1)), bw = Math.max(...rw) + 70 * u, bh = L.rows.length * lh + 30 * u;
+    const bx = (FW - bw) / 2, by = FH - bh - (this.land ? 56 : this.port ? 280 : 100) * u, rise = (1 - eo(cl((lt + .05) / .25))) * 14 * u;
+    c.save(); c.globalAlpha *= a; c.translate(0, rise);
+    c.save(); c.shadowColor = 'rgba(60,30,10,.28)'; c.shadowBlur = 18 * u; c.shadowOffsetY = 6 * u; rr(c, bx, by, bw, bh, Math.min(bh / 2, 46 * u), '#FBF1DF'); c.restore();
+    L.rows.forEach((r, ri) => { let x = (FW - rw[ri]) / 2; const y = by + 15 * u + lh * (ri + .74); r.forEach(it => { const w = words[it.i]; txt(c, w.w, x, y, size, w.hl || w.num ? '#D2361F' : '#2A1C14', w.hl || w.num ? 800 : 700, 'left', FONT_BN); x += it.ww + L.sp; }); });
+    c.restore();
+  }
+  drawBubble(c, k, sh, sc, ln, lt, a) {
+    const hp = this.headScr(sc, ln.who, 150); if (!hp) return false; const u = this.u, FW = this.FW, words = this.words[k];
+    let size = (this.land ? 42 : 52) * u; const maxW = Math.min(640 * u, FW * (this.land ? .42 : .8));
+    const lay = sz => { c.font = `700 ${sz}px ${FONT_BN}, ${FONT_FALLBACK}`; const sp = c.measureText(' ').width, rows = [[]]; let w0 = 0;
+      words.forEach((w, i) => { const ww = c.measureText(w.w).width; if (rows[rows.length - 1].length && w0 + sp + ww > maxW - 56 * u) { rows.push([]); w0 = 0; } rows[rows.length - 1].push({ i, ww }); w0 += (w0 ? sp : 0) + ww; }); return { rows, sp }; };
+    let L = lay(size); while (L.rows.length > 3 && size > 28 * u) { size -= 3 * u; L = lay(size); }
+    const lh = size * 1.3, rw = L.rows.map(r => r.reduce((s, x) => s + x.ww, 0) + L.sp * (r.length - 1)), bw = Math.max(...rw) + 56 * u, bh = L.rows.length * lh + 30 * u;
+    if (hp[0] < 0 || hp[0] > FW) return false; const top = (!this.land && this.hud && this.hud[k]) ? (this.port ? 430 : 290) * u : 110 * u;
+    let bx = cl(hp[0] - bw / 2, 30 * u, FW - bw - 30 * u), by = hp[1] - bh - 50 * u, tail;
+    if (by >= top) { const tx = cl(hp[0], bx + 50 * u, bx + bw - 50 * u); tail = [tx - 24 * u, by + bh - 2, hp[0] * .3 + tx * .7, by + bh + 40 * u, tx + 24 * u, by + bh - 2]; }
+    else { // close-up: the head is near the top, so the bubble sits beside the face with the tail pointing at it
+      const r = 170 * hp[2], right = hp[0] < FW / 2; by = cl(hp[1] + 120 * hp[2] - bh / 2, top, this.FH * .62 - bh); bx = right ? hp[0] + r : hp[0] - r - bw;
+      if (bx < 20 * u || bx + bw > FW - 20 * u) return false; const ey = cl(hp[1] + 120 * hp[2], by + 30 * u, by + bh - 30 * u), ex = right ? bx + 2 : bx + bw - 2;
+      tail = [ex, ey - 22 * u, right ? bx - 40 * u : bx + bw + 40 * u, ey + 14 * u, ex, ey + 22 * u]; }
+    const k2 = back(lt, 0, .3);
+    c.save(); c.globalAlpha *= a; popAt(c, tail[2], tail[3], k2, () => {
+      c.save(); c.shadowColor = 'rgba(40,20,10,.28)'; c.shadowBlur = 18 * u; c.shadowOffsetY = 6 * u; c.fillStyle = '#FFFFFF'; c.beginPath(); c.moveTo(tail[0], tail[1]); c.lineTo(tail[2], tail[3]); c.lineTo(tail[4], tail[5]); c.closePath(); c.fill(); rr(c, bx, by, bw, bh, 30 * u, '#FFFFFF'); c.restore();
+      L.rows.forEach((r, ri) => { let x = (bx + bw / 2) - rw[ri] / 2; const y = by + 15 * u + lh * (ri + .74); r.forEach(it => { const w = words[it.i]; txt(c, w.w, x, y, size, w.hl || w.num ? '#D2361F' : '#2A1C14', 700, 'left', FONT_BN); x += it.ww + L.sp; }); }); });
+    c.restore(); return true;
+  }
+  drawTagsL(c, card, lt, dur, sc, ln) {
+    const id = ln.who || sc.cast[0], hp = id ? this.headScr(sc, id, -170) : null, u = this.u, FW = this.FW, FH = this.FH, sz = (this.land ? 36 : 44) * u;
+    let ax, ay, side; if (hp && hp[0] > 0 && hp[0] < FW) { const off = 190 * hp[2]; side = hp[0] < FW * .55 ? 1 : -1; ax = hp[0] + side * off; ay = hp[1]; } else { side = 1; ax = FW * .58; ay = FH * .4; }
+    drawTags(c, card, lt, dur, ax, ay, side, sz, FW, FH);
+  }
+  drawHudL(c, t, k) {
+    const h = this.hud && this.hud[k]; if (!h) return; const u = this.u, FW = this.FW, FH = this.FH;
+    if (this.land) drawHudCard(c, h.parts, t - h.t0, FW - 40 * u, FH - 40 * u - (h.parts.length > 1 ? 128 : 88) * u, u, true);
+    else drawHudCard(c, h.parts, t - h.t0, FW - 36 * u, (this.port ? 250 : 130) * u, u * (this.port ? 1.15 : 1), true);
+  }
+  /* first-video chapter card: black, a tiny "অধ্যায় N" label, the title in gold that comes into focus, then a light sweep */
+  drawChapterGold(c, si, t) {
+    const sc = this.story.scenes[si], lt = t - sc.start, ch = sc.chapter || {}, FW = this.FW, FH = this.FH, u = this.u, idx = this.chapList.indexOf(sc);
+    rect(c, 0, 0, FW, FH, '#050505'); { const g = c.createRadialGradient(FW / 2, FH / 2, 10, FW / 2, FH / 2, Math.max(FW, FH) * .65); g.addColorStop(0, 'rgba(80,58,20,.3)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, FW, FH); }
+    this.dust(c, t, 22, '#C9A45A');
+    const lab = 'অধ্যায় ' + bn(Math.max(1, idx + 1)) + (ch.no ? '  ·  ' + ch.no : ''), ls = (this.land ? 36 : 44) * u;
+    const ts0 = (this.land ? 132 : 128) * u; let ts = ts0, tl = wrapText(c, ch.title || '', ts, FW * .84, 800, 'TFDisp'); while (tl.length > 2 && ts > 60 * u) { ts -= 6 * u; tl = wrapText(c, ch.title || '', ts, FW * .84, 800, 'TFDisp'); }
+    const lh = ts * 1.2, blockH = ls * 2 + tl.length * lh, y0 = FH / 2 - blockH / 2;
+    withA(c, cl((lt - .05) / .35), () => { c.save(); c.font = `600 ${ls}px ${FONT_BN}, ${FONT_FALLBACK}`; c.textAlign = 'center'; c.fillStyle = '#CFCFCF'; if ('letterSpacing' in c) c.letterSpacing = `${(4 * u).toFixed(1)}px`; c.fillText(lab, FW / 2, y0 + ls); c.restore(); });
+    const e = eo(cl((lt - .25) / .8)); if (e > 0) { c.save(); c.globalAlpha *= e; const bl = (1 - e) * 24 * u; if (bl > .5) c.filter = `blur(${bl.toFixed(1)}px)`; const z = 1.12 - .12 * e; c.translate(FW / 2, FH / 2); c.scale(z, z); c.translate(-FW / 2, -FH / 2);
+      tl.forEach((l, i) => { const y = y0 + ls * 2 + lh * (i + .8); c.font = `800 ${ts}px TFDisp, ${FONT_FALLBACK}`; c.textAlign = 'center'; c.shadowColor = 'rgba(245,192,78,.3)'; c.shadowBlur = 40 * u; c.fillStyle = goldFill(c, y - ts * .85, y + ts * .12); c.fillText(l, FW / 2, y); }); c.restore(); }
+    const sw = cl((lt - 1.05) / .9); if (sw > 0 && sw < 1) { const x = -FW * .3 + sw * FW * 1.6; c.save(); c.globalCompositeOperation = 'lighter'; const g = c.createLinearGradient(x - 260 * u, 0, x + 260 * u, 0); g.addColorStop(0, 'rgba(255,170,60,0)'); g.addColorStop(.5, 'rgba(255,214,150,.38)'); g.addColorStop(1, 'rgba(255,170,60,0)'); c.fillStyle = g; c.translate(x, FH / 2); c.rotate(.25); c.fillRect(-260 * u, -FH, 520 * u, FH * 2); c.restore(); }
+    const ul = eo(cl((lt - .9) / .5)); rect(c, FW / 2 - 180 * u * ul, y0 + ls * 2 + tl.length * lh + ts * .2, 360 * u * ul, 4 * u, '#C9973A');
+    if (this.chapList.length > 1 && idx >= 0) { const n = this.chapList.length, gap = 54 * u, x0 = FW / 2 - (n - 1) * gap / 2, y = FH * .88; for (let i = 0; i < n; i++) { circ(c, x0 + i * gap, y, (i === idx ? 13 : 9) * u, i <= idx ? '#E5B354' : 'rgba(255,255,255,.2)'); } }
   }
   drawStamp(c, t) {
     const k = this.shotAt(t), sh = this.tl.shots[k]; if (!sh) return; const sc = this.story.scenes[sh.si]; if (sc.type !== 'story') return;
@@ -7699,6 +7881,7 @@ class LongRenderer extends StoryRenderer {
   }
   drawChapterL(c, si, t) {
     const sc = this.story.scenes[si], lt = t - sc.start, ch = sc.chapter || {}, PL = this.P, FW = this.FW, FH = this.FH, u = this.u;
+    if (this.kt) { this.drawChapterGold(c, si, t); return; }
     c.drawImage(this.blurBg('ch' + si, si), 0, 0, FW, FH); this.dust(c, t, 30, this.kt ? '#9DB4FF' : '#F3E3C6');
     const num = (String(ch.no).match(/[০-৯\d]+/) || [''])[0], idx = this.chapList.indexOf(sc);
     if (num) withA(c, .16 * fin(lt, 0, .5), () => { c.save(); c.font = `800 ${620 * u}px TFDisp, ${FONT_FALLBACK}`; c.textAlign = 'center'; c.fillStyle = this.kt ? PL.hi : '#F3E3C6'; c.fillText(num, FW / 2 + (1 - eo(lt / .8)) * 300 * u, FH * .5 + 230 * u); c.restore(); });
@@ -7739,12 +7922,15 @@ class LongRenderer extends StoryRenderer {
     const cap = sc.lines[0] ? sc.lines[0].cap : ''; popAt(c, FW / 2, FH / 2, back(lt, .15), () => { c.save(); let sz = 150 * u; c.font = `800 ${sz}px ${FONT_ACC}, ${FONT_FALLBACK}`; c.textAlign = 'center'; while (sz > 60 * u && c.measureText(cap).width > FW * .86) { sz -= 8 * u; c.font = `800 ${sz}px ${FONT_ACC}, ${FONT_FALLBACK}`; } c.lineJoin = 'round'; c.lineWidth = sz * .14; c.strokeStyle = '#0B1623'; c.strokeText(cap, FW / 2, FH / 2 + sz * .35); c.fillStyle = C_GO2; c.fillText(cap, FW / 2, FH / 2 + sz * .35); c.restore(); });
   }
   drawTakeawaysL(c, si, t) {
-    const sc = this.story.scenes[si], lt = t - sc.start, PL = this.P, FW = this.FW, FH = this.FH, u = this.u; c.drawImage(this.blurBg('tk' + si, si), 0, 0, FW, FH);
-    popAt(c, FW / 2, 120 * u, back(lt, .05), () => { rr(c, FW / 2 - 300 * u, 70 * u, 600 * u, 100 * u, 50 * u, PL.hi); txt(c, 'যা মনে রাখবে', FW / 2, 140 * u, 56 * u, this.kt ? '#0B1322' : '#FFF4E4', 800, 'center', FONT_BN); });
+    const sc = this.story.scenes[si], lt = t - sc.start, PL = this.P, FW = this.FW, FH = this.FH, u = this.u; if (this.kt) c.drawImage(this.blurBg('tk' + si, si), 0, 0, FW, FH);
+    else { const g = c.createLinearGradient(0, 0, 0, FH); g.addColorStop(0, '#4A2342'); g.addColorStop(1, '#22101E'); c.fillStyle = g; c.fillRect(0, 0, FW, FH); this.dust(c, t, 26, '#F3C98B');
+      // a glass jar of coins: small savings, big result (the moral card's icon)
+      const jx = FW / 2 - 380 * u, jy = 122 * u, jk = back(lt, .1); if (jk > 0) popAt(c, jx, jy, jk, () => { rr(c, jx - 34 * u, jy - 44 * u, 68 * u, 16 * u, 5 * u, '#C9973A'); rr(c, jx - 40 * u, jy - 30 * u, 80 * u, 86 * u, 18 * u, 'rgba(255,240,220,.18)', 'rgba(255,240,220,.7)', 3 * u); for (let i = 0; i < 6; i++) circ(c, jx - 22 * u + (i % 3) * 22 * u, jy + 38 * u - Math.floor(i / 3) * 18 * u, 10 * u, '#F2B33D', '#9C6A12', 2 * u); }); }
+    popAt(c, FW / 2, 120 * u, back(lt, .05), () => { rr(c, FW / 2 - 300 * u, 70 * u, 600 * u, 100 * u, 50 * u, this.kt ? PL.hi : '#F6E3C4'); txt(c, 'যা মনে রাখবে', FW / 2, 140 * u, 56 * u, this.kt ? '#0B1322' : '#4A2342', 800, 'center', FONT_BN); });
     const [a, b] = this.shotRangeOfScene(si), n = b - a + 1, top = 220 * u, gap = Math.min(170 * u, (FH - top - 80 * u) / Math.max(1, n)), bw = FW * .84, bx = (FW - bw) / 2;
     for (let k = a; k <= b; k++) { const sh = this.tl.shots[k], ln = sc.lines[sh.li], i = k - a, p = eo((t - sh.start + .1) / .45); if (p <= 0) continue; const y = top + i * gap, h = gap - 26 * u; const item = ln.item || ln.cap;
-      c.save(); c.translate((1 - p) * 600 * u * (i % 2 ? -1 : 1), 0); c.globalAlpha *= p; rr(c, bx, y, bw, h, 24 * u, this.kt ? 'rgba(12,20,38,.94)' : '#F7F0E3'); circ(c, bx + 80 * u, y + h / 2, 46 * u, PL.hi); txt(c, bn(i + 1), bx + 80 * u, y + h / 2 + 18 * u, 52 * u, this.kt ? '#0B1322' : '#fff', 800);
-      txt(c, item, bx + 160 * u, y + h / 2 + 18 * u, 50 * u, this.kt ? '#fff' : '#2A1C14', 700, 'left', FONT_BN, bw - 200 * u); c.restore(); }
+      c.save(); c.translate((1 - p) * 600 * u * (i % 2 ? -1 : 1), 0); c.globalAlpha *= p; rr(c, bx, y, bw, h, 24 * u, this.kt ? 'rgba(12,20,38,.94)' : 'rgba(255,236,214,.1)', this.kt ? null : 'rgba(255,214,170,.35)', 2 * u); circ(c, bx + 80 * u, y + h / 2, 46 * u, this.kt ? PL.hi : '#F2B33D'); txt(c, bn(i + 1), bx + 80 * u, y + h / 2 + 18 * u, 52 * u, this.kt ? '#0B1322' : '#fff', 800);
+      txt(c, item, bx + 160 * u, y + h / 2 + 18 * u, 50 * u, this.kt ? '#fff' : '#FFF1DE', 700, 'left', FONT_BN, bw - 200 * u); c.restore(); }
   }
   drawCTAL(c, si, t) {
     const sc = this.story.scenes[si], lt = t - sc.start, S = this.settings, PL = this.P, FW = this.FW, FH = this.FH, u = this.u, land = this.land;
@@ -7773,8 +7959,10 @@ class LongRenderer extends StoryRenderer {
     if (sc.type === 'story') {
       const by = this.land ? 86 * u : 170 * u;
       if (sc.badge) { const k = back(lt, .15), out = cl((4.5 - lt) / .4); if (out > 0) withA(c, out, () => { c.font = `800 ${44 * u}px ${FONT_BN}, ${FONT_FALLBACK}`; const w = c.measureText(sc.badge).width + 80 * u; popAt(c, FW / 2, by, k, () => { c.save(); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 14 * u; rr(c, FW / 2 - w / 2, by - 36 * u, w, 74 * u, 37 * u, this.kt ? PL.hi : 'rgba(122,31,26,.95)'); c.restore(); txt(c, sc.badge, FW / 2, by + 16 * u, 44 * u, this.kt ? '#0B1322' : '#FFF3E0', 800, 'center', FONT_BN); }); }); }
-      const ch = this.chap[si]; if (ch && ch.chapter) { const lab = [ch.chapter.no, ch.chapter.title].filter(Boolean).join(' · '); c.font = `700 ${30 * u}px ${FONT_BN}, ${FONT_FALLBACK}`; const w = Math.min(FW * (this.land ? .4 : .52), c.measureText(lab).width + 50 * u); withA(c, .92, () => { rr(c, FW - w - 40 * u, 40 * u, w, 56 * u, 28 * u, this.kt ? 'rgba(8,14,28,.82)' : 'rgba(42,28,20,.75)', this.kt ? PL.hi : 'rgba(243,227,198,.6)', 2); txt(c, lab, FW - w / 2 - 40 * u, 78 * u, 30 * u, this.kt ? PL.hi : '#FFF3E0', 700, 'center', FONT_BN, w - 30 * u); }); }
-      if (S.captions !== false) { if (this.kt) this.drawKT(c, t); else { this.drawCaption(c, t, FW, FH, this.uc); this.drawStamp(c, t); } }
+      const ch = this.chap[si]; if (ch && ch.chapter) { const lab = [ch.chapter.no, ch.chapter.title].filter(Boolean).join(' · '); c.font = `700 ${30 * u}px ${FONT_BN}, ${FONT_FALLBACK}`; const w = Math.min(FW * (this.land ? .4 : .52), c.measureText(lab).width + 50 * u); if (this.kt) withA(c, .92, () => { rr(c, FW - w - 40 * u, 40 * u, w, 56 * u, 28 * u, 'rgba(8,14,28,.82)', PL.hi, 2); txt(c, lab, FW - w / 2 - 40 * u, 78 * u, 30 * u, PL.hi, 700, 'center', FONT_BN, w - 30 * u); });
+        else { const y = (this.land ? 118 : 150) * u; withA(c, .95, () => { rr(c, 40 * u, y, w, 56 * u, 8 * u, 'rgba(38,26,20,.88)'); txt(c, lab, 40 * u + w / 2, y + 38 * u, 30 * u, '#FFF3E0', 700, 'center', FONT_BN, w - 30 * u); }); } }
+      this.drawHudL(c, t, this.shotAt(t));
+      if (S.captions !== false) { if (this.kt) this.drawKT(c, t); else { this.drawLifeCap(c, t); this.drawStamp(c, t); } }
     }
   }
   /* thumbnail for the current frame (also the first frame of the video) */
@@ -7788,7 +7976,7 @@ class LongRenderer extends StoryRenderer {
   drawThumbInto(c) {
     const st = this.story, PL = this.P, FW = this.FW, FH = this.FH, u = this.u, land = this.land, pick = coverPickShot(st, this.tl), sc = st.scenes[pick.si];
     const k = this.shotIn(pick.si, pick.t), ln = sc.lines[this.tl.shots[k].li] || {}; let focus = sc.cast.indexOf(ln.who || ln.focus); if (focus < 0) focus = 0;
-    const n = Math.min(3, sc.cast.length || 1), pos = CAST_POS[n] || CAST_POS[1], P0 = pos[focus] || pos[0], cr = this.chars[sc.cast[focus]], kf = cr ? (cr.L.kid ? .74 : cr.L.teen ? .92 : 1) : 1, headY = P0[1] - 418 * P0[2] * kf;
+    const n = Math.min(3, sc.cast.length || 1), pos = this.posFor(sc), P0 = pos[focus] || pos[0], cr = this.chars[sc.cast[focus]], kf = cr ? (cr.L.kid ? .74 : cr.L.teen ? .92 : 1) : 1, headY = P0[1] - 418 * P0[2] * kf;
     const z = land ? 1.55 : 1.6, vw = W / z, HH = this.HH, fy = headY + 120 * P0[2] * kf;
     const cam = land ? { x: cl(P0[0] - vw * .22, 540 / z, W - 540 / z), y: cl(headY - 30 + HH / z * .95, HH / z, H - HH / z), z }
       : { x: cl(P0[0], 540 / z, W - 540 / z), y: cl(fy - (.64 * FH / this.s - HH) / z, HH / z, H - HH / z), z };
@@ -7838,6 +8026,11 @@ ${book}
 5. "চলো শুরু থেকে দেখি।" তারপর ১০-২০ বছর আগে ফিরে যাও (দৃশ্যের ব্যাজে "১৮ বছর আগে")।
 6. ${chapN}: প্রতিটা "## chapter | ফাঁদ ১ | চেনা বাক্যটা" দিয়ে শুরু। প্রতিটায় ঘটনা, তারপর কথক গল্প থামিয়ে দর্শককে সরাসরি বোঝায় (হিসাব, গবেষণা, উপমা), তারপর আবার গল্প।
 7. সমান্তরাল দৃশ্য: "সেই একই সপ্তাহে…" উল্টো চরিত্রটা চুপচাপ ঠিক কাজটা করছে।
+   - স্টিকার ট্যাগ: ঘরের অবস্থা বা চরিত্রের অবস্থা বোঝাতে [tag: ✗ টিভি নেই / ✗ ফ্রিজ নেই / ♥ ভালোবাসা আছে] (✗ লাল, ✓ সবুজ, ♥ গোলাপি, ⏰ সময়) — চরিত্রের পাশে ভেসে ওঠে। পুরো ভিডিওতে ৪-৮টা।
+   - হিসাব কার্ড: টাকা বা সংখ্যা বদলালে [hud: লেবেল / আগে → এখন] (যেমন [hud: হাতে আছে / ৳১ কোটি → ৳২৫ লাখ]) — পরের হিসাব কার্ড না আসা পর্যন্ত কোণে থেকে যায়। ৩-৬টা।
+   - টাকা গোনা: [counter: লেবেল / শুরু / শেষ / ৳] — বড় পতনে টাকা গুনে গুনে শূন্যে নামে।
+   - একবার [label: হিসেব গল্পের আন্দাজ] দিয়ে দাও।
+   - চরিত্রের নিজের সংলাপ ("> " দিয়ে) মাথার ওপরে কথার বেলুনে আসবে — তাই সংলাপ ছোট ও জোরালো রাখো (৪-১২ শব্দ), পুরো ভিডিওতে ২৫-৫০টা।
 8. চরম পতন: অসুখ, প্রতারণা, নিলাম, অপমান — গল্পের সবচেয়ে কষ্টের জায়গা।
 9. রহস্যের উত্তর: সেই জিনিস খোলা হয় [reveal: জিনিস / ভেতরের লেখা বা হিসাব] — ছোট ছোট সঞ্চয় বা সিদ্ধান্তের বড় ফল।
 10. আবেগী সমাধান ও নতুন শুরু। শুরুর একটা জিনিস বা সংলাপ ফিরে এসে বৃত্ত পূর্ণ করে।
@@ -7854,6 +8047,8 @@ ${book}
 3. কঠিন বিষয় দেশি উপমায় (বাবুর্চি, পরোটা, জেনারেটরের তার, চায়ের দোকান…)।
 4. ${chapN}: "## chapter | প্রথম দিন | ছোট শিরোনাম"। অধ্যায়ের মাঝে ক্লিফহ্যাঙ্গার: "কিন্তু সবচেয়ে বড় খবরটা তখনো বাকি ছিল।"
 5. সূত্রের কার্ড: [source: পত্রিকার নাম / কী বলেছে] (৩-৬ বার), নথির কার্ড: [doc: শিরোনাম / ভেতরের লেখা] (১-২ বার)।
+   - ছোট লেবেল: [label: সূত্র: পত্রিকার নাম] বা [label: দিন ১ · ৮ নভেম্বর] — পর্দার নিচে বামে ছোট করে থাকে (৪-৮ বার)।
+5ক. স্টেটমেন্ট কার্ড (সবচেয়ে জরুরি): গল্পের মোড় ঘোরানো বা ধাক্কা দেওয়া কথাগুলো কালো পর্দায় বড় সোনালি লেখা হয়ে আসে — [statement: ছোট শুরুর লাইন / বড় সোনালি ৩-৮ শব্দ]। ওই লাইনের কথকের বাক্যটাও প্রায় একই কথা বলবে। পুরো ভিডিওতে ৬-১২টা, হুকে অন্তত ১টা, প্রতিটা অধ্যায়ের শেষে ১টা। যেমন: [statement: কোনো ডাকাত ঢোকেনি / তবু উধাও হলো ১০১ মিলিয়ন ডলার]
 6. দুই পক্ষের মত, তারপর ন্যায্য লাইন: "এখন পর্যন্ত কোনো প্রমাণ পাওয়া যায়নি…"।
 7. শুরুর দৃশ্যে ফিরে যাও (বৃত্ত পূর্ণ), জীবনের শিক্ষা, তারপর খোলা প্রশ্ন।
 8. "## cta | প্রশ্ন | বিকল্প ১, বিকল্প ২": "কমেন্টে তোমার মতামত জানাও।"`;
@@ -7898,7 +8093,7 @@ ${style === 'life' ? 'বই: বইয়ের ইংরেজি নাম | 
 - সময়: day, evening, night | মেজাজ: normal, happy, sad, tense, regret | আবহাওয়া: rain, fog, sunny
 - চরিত্রের role: ${Object.keys(ROLES).join(', ')}
 - মুখের ভাব: ${FEELS.join(', ')} | কাজ: ${ACTIONS.join(', ')} | হাতে: ${PROPS.join(', ')}
-- কার্ড (মোট ১২-২৫টা, ছড়িয়ে): [reveal: জিনিস / লেখা] [sms: শিরোনাম / লেখা] [chat: নাম / লেখা] [call: নাম] [alert: লেখা] [date: তারিখ] [doc: শিরোনাম / লেখা] [source: সূত্র / কী বলেছে] [counter: লেবেল / শুরু / শেষ / আগে-চিহ্ন] [compare: বাম / মান / ডান / মান] [check: + কাজ / + কাজ] [price: লেখা] [big: লেখা] [progress: লেবেল / শতাংশ]
+- কার্ড (মোট ১২-২৫টা, ছড়িয়ে): [reveal: জিনিস / লেখা] [sms: শিরোনাম / লেখা] [chat: নাম / লেখা] [call: নাম] [alert: লেখা] [date: তারিখ] [doc: শিরোনাম / লেখা] [source: সূত্র / কী বলেছে] [counter: লেবেল / শুরু / শেষ / আগে-চিহ্ন] [compare: বাম / মান / ডান / মান] [check: + কাজ / + কাজ] [price: লেখা] [big: লেখা] [progress: লেবেল / শতাংশ]${style === 'thriller' ? ' [statement: ছোট লাইন / বড় সোনালি লেখা] [label: সূত্র: নাম]' : style === 'life' ? ' [tag: ✗ লেখা / ✓ লেখা] [hud: লেবেল / আগে → এখন] [label: ছোট লেখা]' : ' [label: ছোট লেখা]'}
 - থাম্বনেল: টিজার ৫-৯ শব্দের রহস্য; উক্তি মোট ৩-৯ শব্দ, দুই ভাগ, ১-৩টা শব্দ {} দিয়ে লাল।
 শুধু কোড ব্লকটা দাও, আগে-পরে কিছু লিখবে না।`;
   return head + link + body + fmt;

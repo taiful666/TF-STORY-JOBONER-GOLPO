@@ -18,8 +18,13 @@ Two parts in one app:
   music, export and share as the short videos; the mix is rendered in 45-second windows and the MP4 is written as a
   fragmented file in pieces, so a 15-minute video fits in a phone's memory.
 - Step 1 has a format switch (শর্ট / লং) and a size row (৯:১৬, ৪:৫, ১:১, ১৬:৯). Each format remembers its own size and has its
-  own library (`long-library.js` holds the 10 built-in long stories) with its own used/unused marks. Any size other than a
+  own library (`long-library.js` holds the 13 built-in long stories) with its own used/unused marks. Any size other than a
   short 9:16 is drawn by the frame-adaptive renderer, which re-frames the characters and lays text out for that frame.
+- 5.0: full-body characters (legs, feet, outfit-specific lower body); mouths move only for the character who is speaking.
+  Thriller look: 2–5 word caption chunks with blur-in words and yellow underlined key words, black statement cards with
+  gold words (`[statement: lead / big words]`), gold chapter cards, tiny corner labels (`[label: …]`). Life look: cream
+  sentence pill with red key words, speech bubbles for dialogue, sticker tags (`[tag: ✗ … / ✓ …]`), corner tracker
+  (`[hud: label / before → after]`), plum moral cards. On a computer the web app uses the full screen width.
 - `home.html` — start screen: pick **গল্প** (the Story part, `index.html`) or **ইসলামিক** (`index.html?part=islamic`).
 - The Islamic part reuses the Story engine (`islamic/story.js`): a library of real sources (Quran passages, Sahih al-Bukhari); the app downloads the exact text, the AI writes only the retelling, and the video shows the exact quote with its reference. No people on screen. Own settings, library and project (`tf_isl_*`, IndexedDB `tf_story_studio_isl`).
 - Cards and short reels for the Islamic page: `islamic/index.html` (TF Post Maker), opened from the Islamic part.
