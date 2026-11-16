@@ -211,6 +211,7 @@ ${who.split(' / ')[0]}
 \`\`\`
 - দৃশ্যের লাইন: "## জায়গা সময় মেজাজ [আবহাওয়া] | ব্যাজ (ঐচ্ছিক, যেমন 'বহু বছর পর') |" — শেষের ঘর খালি।
 - জায়গা: ${ISL_PLACES_FOR_PROMPT()}
+- গল্পে কোনো প্রাণী থাকলে জায়গার সাথে যোগ করো: যেমন desert+camel:400, rocky_valley+sheep:300+goat:700 (প্রাণী: goat, sheep, dumba, cow, camel, horse, donkey, doves, cat)
 - সময়: day, evening, night | মেজাজ: normal, happy, sad, tense, regret | আবহাওয়া: rain, fog, sunny
 - থাম্বনেলের আইকন: book, flower, candle নয় — শুধু book বা flower।
 শুধু কোড ব্লকটা দাও, আগে-পরে কিছু লিখবে না।`;
@@ -376,24 +377,26 @@ ${who.split(' / ')[0]}
     c.save(); c.fillStyle = R._pat; c.translate(0, -(t * 6) % 180); c.fillRect(0, 0, W, H + 180); c.restore();
     for (let i = 0; i < 26; i++) { const x = (i * 197) % W, y = (i * 331 + t * 14 * (1 + i % 3)) % H; withA(c, .1 + (i % 4) * .05, () => circ(c, x, y, 2 + i % 3, '#F3E3C6')); }
     const k = back(lt, .05, .55); if (k <= 0) return;
-    const isQ = !/বুখারি|হাদিস/.test(sc.ref || '') ; const label = isQ ? 'আল-কুরআন' : 'সহিহ হাদিস';
+    const isQ = !/বুখারি|হাদিস/.test(sc.ref || '') ; const label = isQ ? 'আল-কুরআন' : 'হাদিস';
     const [a, b] = R.shotRangeOfScene(si); let cur = R.shotAt(t); if (cur < a) cur = a; if (cur > b) cur = b; const curLi = R.tl.shots[cur] ? R.tl.shots[cur].li : 0;
     const intro = sc.lines[0] ? sc.lines[0].cap : ''; const qlines = sc.lines.slice(1);
-    const qtxt = qlines.map(l => l.cap); const size = qtxt.join(' ').length > 260 ? 52 : qtxt.join(' ').length > 160 ? 58 : 64;
-    const wrapped = []; qtxt.forEach((s, i) => wrapText(c, s, size, 860, 700, 'TFSerif').forEach(w => wrapped.push({ w, i: i + 1 })));
+    const qtxt = qlines.map(l => l.cap); const qlen = qtxt.join(' ').length; let size = qlen > 260 ? 52 : qlen > 160 ? 58 : 64;
+    let wrapped = []; const wrapAll = () => { wrapped = []; qtxt.forEach((s, i) => wrapText(c, s, size, 860, 700, 'TFSerif').forEach(w => wrapped.push({ w, i: i + 1 }))); };
+    wrapAll(); while (size > 36 && wrapped.length * size * 1.42 > 1080) { size -= 4; wrapAll(); } // long passages: smaller text so it fits
     const lh = size * 1.42; const arL = sc.arabic ? (() => { c.font = `600 50px "Amiri","Noto Naskh Arabic","Scheherazade New",serif`; const ws = sc.arabic.split(' '), out = []; let lineS = ''; ws.forEach(w => { const tst = lineS ? lineS + ' ' + w : w; if (c.measureText(tst).width > 860 && lineS) { out.push(lineS); lineS = w; } else lineS = tst; }); if (lineS) out.push(lineS); return out.length <= 4 ? out : []; })() : [];
-    const top = 300, boxH = 250 + arL.length * 78 + wrapped.length * lh + 150; const y0 = Math.max(220, 960 - boxH / 2);
+    const top = 300, boxH = 250 + arL.length * 78 + wrapped.length * lh + 150 + (sc.trans ? 40 : 0); const y0 = Math.max(220, 960 - boxH / 2);
     popAt(c, 540, y0 + boxH / 2, k, () => {
       c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 40; c.shadowOffsetY = 14; rr(c, 70, y0, 940, boxH, 44, 'rgba(8,30,20,.88)'); c.restore();
       rr(c, 86, y0 + 16, 908, boxH - 32, 34, null, 'rgba(233,196,106,.55)', 3);
-      c.font = `700 40px ${FONT_BN}, ${FONT_FALLBACK}`; const lw = c.measureText(label).width + 80; rr(c, 540 - lw / 2, y0 - 34, lw, 68, 34, '#E9C46A'); txt(c, label, 540, y0 + 12, 40, '#0B2A1C', 700, 'center', FONT_BN);
+      c.font = `700 40px ${FONT_BN}, ${FONT_FALLBACK}`; const lw = c.measureText(label).width + 80; rr(c, 540 - lw / 2, y0 - 34, lw, 68, 34, '#E9C46A'); txt(c, label, 540, y0 + 12, 40, '#0B2A1C', 400, 'center', 'TFGalada');
       let y = y0 + 110;
-      if (intro) { txt(c, intro, 540, y, 42, '#E9C46A', 700, 'center', FONT_BN, 860); y += 40; }
+      if (intro) { txt(c, intro, 540, y, 44, '#E9C46A', 400, 'center', 'TFGalada', 860); y += 40; }
       if (arL.length) { c.save(); c.direction = 'rtl'; c.font = `600 50px "Amiri","Noto Naskh Arabic","Scheherazade New",serif`; c.textAlign = 'center'; c.fillStyle = '#F6E7BF'; arL.forEach((l, i) => c.fillText(l, 540, y + 70 + i * 78)); c.restore(); y += arL.length * 78 + 30; line(c, 380, y + 10, 700, y + 10, 'rgba(233,196,106,.6)', 3); y += 10; }
       y += 30;
       wrapped.forEach((o, i) => { const on = o.i === curLi || curLi === 0; withA(c, on ? 1 : .42, () => txt(c, o.w, 540, y + lh * (i + .8), size, on ? '#FFF6E2' : '#D9CFB8', 700, 'center', 'TFSerif', 900)); });
       y += wrapped.length * lh + 40;
-      withA(c, fin(lt, .6, .5), () => txt(c, '— ' + (sc.ref || ''), 540, y + 30, 38, '#E9C46A', 700, 'center', FONT_BN, 880));
+      withA(c, fin(lt, .6, .5), () => txt(c, '— ' + (sc.ref || ''), 540, y + 30, 38, '#E9C46A', 700, 'center', 'TFSerif', 880));
+      if (sc.trans) withA(c, fin(lt, .8, .5) * .75, () => txt(c, 'অনুবাদ: ' + sc.trans, 540, y + 76, 28, '#CFC3A6', 400, 'center', 'TFSerif', 880));
     });
   }
 
@@ -416,39 +419,96 @@ ${who.split(' / ')[0]}
     return { ytTitle, desc, tags: tagStr, fb };
   }
 
+  // places that already show people in prayer: no extra characters there
+  const CROWD = /^(mosque_salah|eid_salah|tahajjud_room|night_dua|kaaba_view)\b/;
   /* ---------- library UI ---------- */
   let BUSY = false, PENDING = null;
   const genOf = id => USERLIB.slice().reverse().find(u => u.src === id) || null;
-  const usedU = u => !!u && usedList().includes('LIB:' + u.id);
+  const G_OWN = 'নিজের যোগ করা', G_LIFE = 'জীবনের গল্প';
+  const PRE = () => (window.ISL_STORIES || []);
+  /* used list + history (when it was used) */
+  const HKEY = 'tf_isl_hist';
+  const hist = () => { try { return JSON.parse(localStorage.getItem(HKEY) || '{}') || {}; } catch (e) { return {}; } };
+  const setHist = h => { try { localStorage.setItem(HKEY, JSON.stringify(h)); } catch (e) { } };
+  const usedId = id => !!id && usedList().includes('LIB:' + id);
+  const usedU = u => !!u && usedId(u.id);
+  function toggleUsed(id) {
+    const key = 'LIB:' + id, u = usedList(), h = hist();
+    if (u.includes(key)) { try { localStorage.setItem(LK('tf_used'), JSON.stringify(u.filter(x => x !== key))); } catch (e) { } delete h[id]; toast('ব্যবহৃত তালিকা থেকে সরানো হলো'); }
+    else { addUsed(key); h[id] = Date.now(); toast('✓ ব্যবহৃত হিসেবে চিহ্নিত', 'ok'); }
+    setHist(h); islRenderLib();
+  }
+  const dateBn = ts => { const d = new Date(ts); return bn(d.getDate()) + ' ' + ['জানু', 'ফেব্রু', 'মার্চ', 'এপ্রি', 'মে', 'জুন', 'জুলাই', 'আগ', 'সেপ্টে', 'অক্টো', 'নভে', 'ডিসে'][d.getMonth()]; };
+  const titleOf = txt => ((String(txt).match(/^\s*===\s*(.*)$/m) || [, ''])[1] || '').trim();
+  const ayahRefOf = txt => ((String(txt).match(/^\s*##\s*ayah\s*\|\s*([^|\n]*)/m) || [, ''])[1] || '').trim();
   function rows() {
-    const q = ($('libSearch').value || '').trim().toLowerCase(), grp = $('libBook').value, f = $('libFilter').value;
-    const own = USERLIB.filter(u => !u.src || !ISL_BY_ID[u.src]).map(u => { const m = libMeta(u.txt, u.id, 0, true); return { own: true, id: u.id, title: m.title, ref: (u.txt.match(/^\s*বই:\s*([^|\n]*)/m) || [, ''])[1].trim(), group: 'নিজের যোগ করা', u }; });
-    const all = ISL_LIB.map(it => ({ it, id: it.id, title: it.title, ref: fullRef(it), group: it.group, u: genOf(it.id) })).concat(own.reverse());
-    all.forEach((r, i) => r.n = i + 1);
-    return { all, list: all.filter(r => (!grp || r.group === grp) && (f === 'all' || (f === 'ready' ? !!r.u : f === 'todo' ? !r.u : f === 'used' ? usedU(r.u) : !usedU(r.u))) && (!q || (r.title + ' ' + r.ref + ' ' + r.group).toLowerCase().includes(q))) };
+    const q = ($('libSearch').value || '').trim().toLowerCase(), grp = $('libBook').value, f = $('libFilter').value, h = hist();
+    const pre = PRE().map(x => ({ pre: true, id: x.id, title: titleOf(x.txt), ref: ayahRefOf(x.txt), group: G_LIFE + ' · ' + x.cat, top: G_LIFE, u: { id: x.id, txt: x.txt } }));
+    const own = USERLIB.filter(u => !u.src || !ISL_BY_ID[u.src]).map(u => { const m = libMeta(u.txt, u.id, 0, true); return { own: true, id: u.id, title: m.title, ref: (u.txt.match(/^\s*বই:\s*([^|\n]*)/m) || [, ''])[1].trim(), group: G_OWN, top: G_OWN, u }; });
+    const src = ISL_LIB.map(it => ({ it, id: it.id, title: it.title, ref: fullRef(it), group: it.group, top: it.group, u: genOf(it.id) }));
+    const all = pre.concat(src, own.reverse());
+    all.forEach((r, i) => { r.n = i + 1; r.at = r.u ? h[r.u.id] || 0 : 0; });
+    let list = all.filter(r => (!grp || r.group === grp || r.top === grp) && (f === 'all' || (f === 'ready' ? !!r.u : f === 'todo' ? !r.u : f === 'used' || f === 'hist' ? usedU(r.u) : !usedU(r.u))) && (!q || (r.title + ' ' + r.ref + ' ' + r.group).toLowerCase().includes(q)));
+    if (f === 'hist') list = list.slice().sort((a, b) => b.at - a.at);
+    return { all, list };
   }
   function islRenderLib() {
     const ul = $('libList'); if (!ul) return; ul.innerHTML = ''; const { all, list } = rows();
     $('libCount').textContent = `${bn(list.length)}টা গল্প · তৈরি ${bn(all.filter(r => r.u).length)} · ব্যবহৃত ${bn(all.filter(r => usedU(r.u)).length)}`;
     const frag = document.createDocumentFragment();
     list.forEach(r => {
-      const st = r.u ? el('span', { class: 'islst ok', text: usedU(r.u) ? '✓ ব্যবহৃত' : '✓ তৈরি' }) : el('span', { class: 'islst', text: 'নতুন' });
+      const used = usedU(r.u);
+      const st = r.u ? el('button', { type: 'button', class: 'islst del ' + (used ? 'ok used' : 'ok'), title: used ? 'ব্যবহৃত — চাপলে টিক উঠে যাবে' : 'চাপলে ব্যবহৃত হিসেবে টিক পড়বে', text: used ? '✓ ব্যবহৃত' + (r.at ? ' · ' + dateBn(r.at) : '') : '○ টিক দিন', onclick: e => { e.stopPropagation(); toggleUsed(r.u.id); } }) : el('span', { class: 'islst', text: 'নতুন' });
       const re = r.u && r.it ? el('button', { type: 'button', class: 'islre del', title: 'নতুন করে লিখুন', 'aria-label': 'নতুন করে লিখুন', text: '↻', onclick: e => { e.stopPropagation(); islGenerate(r.it, { fresh: true }); } }) : null;
-      frag.append(el('li', { class: (r.u && app.libId === r.u.id ? 'cur' : '') + (BUSY === r.id ? ' busy' : ''), onclick: e => { if (e.target.closest('.del')) return; islOpen(r); } },
-        el('span', { class: 'no', text: bn(r.n) }), el('span', { class: 't' }, el('b', { text: r.title }), el('span', { text: `${r.ref} · ${r.group}` })), st, re));
+      frag.append(el('li', { class: (r.u && app.libId === r.u.id ? 'cur' : '') + (BUSY === r.id ? ' busy' : '') + (used ? ' usedrow' : ''), onclick: e => { if (e.target.closest('.del')) return; islOpen(r); } },
+        el('span', { class: 'no', text: bn(r.n) }), el('span', { class: 't' }, el('b', { text: r.title }), el('span', { text: `${r.ref} · ${r.group}` + (r.pre ? ' · অফলাইনে তৈরি' : '') })), st, re));
     });
     if (!list.length) frag.append(el('li', { class: 'muted', text: 'কিছু পাওয়া যায়নি' }));
     ul.append(frag);
   }
   function islFillFilters() {
     const b = $('libBook'), f = $('libFilter'); const cb = b.value, cf = f.value;
-    b.innerHTML = ''; b.append(el('option', { value: '', text: 'সব ধরন' }), ...[G_PROPHET, G_QURAN, G_HADITH, 'নিজের যোগ করা'].map(g => el('option', { value: g, text: g }))); b.value = [G_PROPHET, G_QURAN, G_HADITH, 'নিজের যোগ করা'].includes(cb) ? cb : '';
-    if (!f.dataset.isl) { f.innerHTML = ''; f.append(...[['all', 'সব'], ['ready', 'তৈরি হয়েছে'], ['todo', 'এখনো লেখা হয়নি'], ['new', 'অব্যবহৃত'], ['used', 'ব্যবহৃত']].map(([v, tx]) => el('option', { value: v, text: tx }))); f.dataset.isl = '1'; f.value = 'all'; } else f.value = cf || 'all';
+    const cats = Array.from(new Set(PRE().map(x => x.cat)));
+    const groups = [[G_LIFE, `${G_LIFE} (তৈরি, অফলাইন)`]].concat(cats.map(c => [G_LIFE + ' · ' + c, '— ' + c]), [[G_PROPHET, G_PROPHET], [G_QURAN, G_QURAN], [G_HADITH, G_HADITH], [G_OWN, G_OWN]]);
+    b.innerHTML = ''; b.append(el('option', { value: '', text: 'সব ধরন' }), ...groups.map(([v, tx]) => el('option', { value: v, text: tx }))); b.value = groups.some(g => g[0] === cb) ? cb : '';
+    if (!f.dataset.isl) { f.innerHTML = ''; f.append(...[['all', 'সব'], ['new', 'অব্যবহৃত'], ['used', 'ব্যবহৃত'], ['hist', 'ইতিহাস (সাম্প্রতিক আগে)'], ['ready', 'তৈরি আছে'], ['todo', 'এখনো লেখা হয়নি']].map(([v, tx]) => el('option', { value: v, text: tx }))); f.dataset.isl = '1'; f.value = 'all'; } else f.value = cf || 'all';
   }
   async function islOpen(r) {
     if (BUSY) { toast('একটা গল্প লেখা হচ্ছে — একটু অপেক্ষা করুন'); return; }
-    if (r.u) { await loadLib({ id: r.u.id, txt: r.u.txt }); islRenderLib(); return; }
+    if (r.u) { const txt = await verifyQuran(r.u.txt, r.u.id); await loadLib({ id: r.u.id, txt }); islRenderLib(); return; }
     if (r.it) islGenerate(r.it);
+  }
+  /* ready-made stories carry "উৎস: q 2:153": with internet the app swaps in the official translation (and Arabic), once, and keeps it */
+  async function verifyQuran(txt, id) {
+    const m = String(txt).match(/^\s*উৎস\s*[:：]\s*q\s+(\d+):(\d+)(?:-(\d+))?\s*$/m); if (!m || /^\s*অনুবাদ\s*[:：]/m.test(txt)) return txt;
+    const s = +m[1], f = +m[2], t = +(m[3] || m[2]), key = `tf_isl_qv:${s}:${f}-${t}`;
+    let v = null; try { v = JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) { }
+    if (!v) {
+      try {
+        setStat('আয়াতের মূল অনুবাদ মিলিয়ে নেওয়া হচ্ছে…');
+        const j = await getJson(`${QAPI}surah/${s}/editions/quran-uthmani,${QTRANS}?offset=${f - 1}&limit=${t - f + 1}`, 7000);
+        const ar = j.data && j.data[0] && j.data[0].ayahs, bnA = j.data && j.data[1] && j.data[1].ayahs;
+        if (ar && bnA && ar.length === t - f + 1 && ar[0].numberInSurah === f) { v = { ar: ar.map((x, i) => stripBismillah(nrm(x.text), s, f + i)).join(' ۝ '), bn: bnA.map(x => nrm(x.text)) }; try { localStorage.setItem(key, JSON.stringify(v)); } catch (e) { } }
+        setStat('');
+      } catch (e) { setStat(''); return txt; } // offline: keep the built-in meaning
+    }
+    if (!v) return txt;
+    const lines = String(txt).split('\n'), out = []; let i = 0;
+    for (; i < lines.length; i++) {
+      out.push(lines[i]);
+      if (/^\s*##\s*ayah\b/i.test(lines[i])) {
+        let j2 = i + 1, intro = null; const keep = [];
+        for (; j2 < lines.length && !/^\s*##/.test(lines[j2]); j2++) { const l = lines[j2].trim(); if (/^উৎস\s*[:：]/.test(l)) keep.push(l); else if (intro === null && /^-\s*/.test(l)) intro = l; }
+        out.push(...keep); if (intro) out.push(intro);
+        if (v.ar.length <= 520) out.push('আরবি: ' + v.ar);
+        v.bn.forEach(b => chunkExact(b).forEach(c => out.push('- ' + c)));
+        out.push('অনুবাদ: মুহিউদ্দীন খান');
+        i = j2 - 1;
+      }
+    }
+    const nt = out.join('\n');
+    const pre = PRE().find(x => x.id === id); if (pre) pre.txt = nt; else { const u = USERLIB.find(x => x.id === id); if (u) { u.txt = nt; saveUserLib(); } }
+    return nt;
   }
   function setStat(s, kind) { const e = $('islStat'); if (!e) return; e.textContent = s || ''; e.className = 'keystat' + (kind === 'ok' ? ' ok' : kind === 'err' ? ' bad' : ''); e.classList.toggle('hidden', !s); }
   function whichAI() {
@@ -512,6 +572,9 @@ ${who.split(' / ')[0]}
       #libList li .islst.ok { background:#e2f1e8; color:#1f6b45 }
       #libList li .islre { flex:none; width:34px; height:34px; border-radius:10px; border:1px solid var(--line); background:#fff; margin-left:6px; cursor:pointer; font-size:16px }
       #libList li.busy { opacity:.55 }
+      #libList li .islst.del { border:0; cursor:pointer; font:inherit; font-size:12px }
+      #libList li.usedrow .t b { color:#6b7470 }
+      #libList li .islst.used { background:#1f6b45; color:#fff }
       .islbar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:8px 0 }
       .islbar .seg button { padding:6px 12px }
       #islChat { border:1px solid var(--line); border-radius:16px; padding:14px; margin:12px 0; background:#fff }
@@ -529,7 +592,7 @@ ${who.split(' / ')[0]}
     const pick = $('srcPick');
     if (pick) {
       const set = (k, b, s) => { const x = pick.querySelector(`[data-pick="${k}"]`); if (x) { const bb = x.querySelector('b'), ss = x.querySelector('span'); if (bb) bb.textContent = b; if (ss) ss.textContent = s; } };
-      set('lib', 'কুরআন ও হাদিসের গল্প', `${bn(ISL_LIB.length)}টা তৈরি তালিকা — বাছুন, বাকিটা অ্যাপ করবে`);
+      set('lib', 'কুরআন ও হাদিসের গল্প', `${bn(PRE().length)}টা তৈরি গল্প (নেট ছাড়াই) + ${bn(ISL_LIB.length)}টা উৎস থেকে নতুন গল্প`);
       set('ai', 'নিজের পছন্দের আয়াত বা হাদিস', 'সূরা-আয়াত বা বুখারির হাদিস নম্বর দিন');
       set('paste', 'লেখা স্ক্রিপ্ট পেস্ট করুন', 'আগে লেখা TF Script থাকলে');
       const cards = el('button', { type: 'button', class: 'islcards', onclick: () => { location.href = 'islamic/index.html'; } }, el('i', { text: '🖼' }), el('b', { text: 'ছবি-কার্ড ও ছোট রিল' }), el('span', { text: 'আয়াত, হাদিস, বাণীর পোস্ট — পোস্ট মেকার' }));
@@ -575,6 +638,7 @@ ${who.split(' / ')[0]}
         el('button', { type: 'button', class: 'primary wide', text: 'গল্প বানান', onclick: () => { try { const it = customItem(); showSrc('lib'); islGenerate(it); } catch (e) { toast(e.message, 'err', 6000); } } })));
     }
     keyNote();
+    if (window.ISL_ART_DOM) window.ISL_ART_DOM();
   }
   function keyNote() { const n = $('islKeyNote'); if (!n) return; const w = whichAI(); n.textContent = w === 'chat' ? 'API key ছাড়া: প্রম্পট কপি করে বাইরে লেখাবেন (সেটিংসে key দিলে অ্যাপেই লেখা হবে)' : (w === 'claude' ? 'Claude' : 'Gemini') + ' key দিয়ে অ্যাপেই লেখা হবে'; }
 
@@ -590,33 +654,43 @@ ${who.split(' / ')[0]}
     const _parse = parseTFScript;
     parseTFScript = function (text) {
       const raw = _parse(text);
-      raw.characters = [];
+      // people are allowed only when the script declares them (ordinary people, drawn without faces); prophets' stories declare none
+      const ok = new Set(raw.characters.map(ch => ch.id)); raw._noPeople = !ok.size;
       raw.scenes.forEach(sc => {
         if (sc.type === 'story' && /^(ayah|quote|আয়াত)$/i.test(sc.place || '')) {
           sc.type = 'ayah'; sc.ref = sc.badge || ''; sc.badge = ''; sc.cast = []; sc.place = 'abstract';
-          sc.lines = sc.lines.filter(l => { const m = String(l.cap || '').match(/^আরবি\s*[:：]\s*(.*)$/); if (m) { sc.arabic = m[1].trim(); return false; } return true; });
+          sc.lines = sc.lines.filter(l => { const cap = String(l.cap || ''); let m = cap.match(/^আরবি\s*[:：]\s*(.*)$/); if (m) { sc.arabic = m[1].trim(); return false; } m = cap.match(/^উৎস\s*[:：]\s*(.*)$/); if (m) { sc.src = m[1].trim(); return false; } m = cap.match(/^অনুবাদ\s*[:：]\s*(.*)$/); if (m) { sc.trans = m[1].trim(); return false; } return true; });
         }
-        if (sc.cast) sc.cast = [];
-        sc.lines.forEach(l => { l.who = undefined; l.speak = false; });
+        if (sc.cast) sc.cast = sc.cast.filter(id => ok.has(id));
+        sc.lines.forEach(l => { if (!l.who || !ok.has(l.who)) { l.who = undefined; l.speak = false; } });
       });
       return raw;
     };
     const _norm = normalizeStory;
     normalizeStory = function (raw, hero) {
-      const extra = (raw.scenes || []).filter(sc => Array.isArray(sc.lines) ? sc.lines.length : sc.lines).map(sc => ({ type: sc.type, ref: sc.ref || '', arabic: sc.arabic || '' }));
-      const r = _norm(raw, hero); let k = 0;
-      r.story.scenes.forEach(sc => { const x = extra[k++]; if (x && x.type === 'ayah' && sc.type === 'ayah') { sc.ref = x.ref; sc.arabic = x.arabic; } sc.cast = []; sc.lines.forEach(l => { l.who = null; l.focus = null; l.speak = false; }); });
+      const extra = (raw.scenes || []).filter(sc => Array.isArray(sc.lines) ? sc.lines.length : sc.lines).map(sc => ({ type: sc.type, ref: sc.ref || '', arabic: sc.arabic || '', src: sc.src || '', trans: sc.trans || '', cast: (sc.cast || []).length }));
+      const r = _norm(raw, hero); let k = 0; r.story._noPeople = !!raw._noPeople;
+      r.story.scenes.forEach(sc => { const x = extra[k++]; if (x && x.type === 'ayah' && sc.type === 'ayah') { sc.ref = x.ref; sc.arabic = x.arabic; sc.src = x.src; sc.trans = x.trans; }
+        if (raw._noPeople || sc.type === 'ayah') { sc.cast = []; sc.lines.forEach(l => { l.who = null; l.focus = null; l.speak = false; }); }
+        else if (x && x.type === 'story' && sc.type === 'story' && !x.cast && !sc.lines.some(l => l.who)) sc.cast = [];
+        if (sc.type === 'story' && CROWD.test(sc.place || '')) { sc.cast = []; sc.lines.forEach(l => { l.who = null; l.focus = null; l.speak = false; }); } });
       r.warnings = r.warnings.filter(w => !/চরিত্র|নায়ক|বইয়ের রেফারেন্স|book/.test(w));
       return r;
     };
-    autoDirect = function (st) { splitByContext(st); st.scenes.forEach(sc => { sc.cast = []; sc.lines.forEach(l => { l.who = null; l.focus = null; l.speak = false; l.do = ''; l.hold = ''; }); }); };
+    const _auto = autoDirect;
+    autoDirect = function (st) {
+      if (!st._noPeople) { const keep = S.ctxBg; S.ctxBg = false; try { _auto(st); } finally { S.ctxBg = keep; } st.scenes.forEach(sc => { if (sc.type === 'ayah' || (sc.type === 'story' && CROWD.test(sc.place || ''))) { sc.cast = []; sc.lines.forEach(l => { l.who = null; l.focus = null; l.speak = false; }); } }); return; } // ordinary people (faceless)
+      splitByContext(st); st.scenes.forEach(sc => { sc.cast = []; sc.lines.forEach(l => { l.who = null; l.focus = null; l.speak = false; l.do = ''; l.hold = ''; }); });
+    };
     const _cam = camFor; camFor = function (sc, i, ln) { if (sc.type === 'story' && !sc.cast.length) return { x: 540, y: 900 + (i % 2) * 60, z: 1.04 + (i % 3) * .05 }; return _cam(sc, i, ln); };
     const RP = StoryRenderer.prototype;
     const _cam2 = RP.camFor2; RP.camFor2 = function (sc, idx, ln) { if (sc.type === 'story' && !sc.cast.length) return { x: 540 + ((idx % 3) - 1) * 50, y: 880 + (idx % 2) * 70, z: 1.06 + (idx % 3) * .06 }; return _cam2.call(this, sc, idx, ln); };
     const _scene = RP.drawScene; RP.drawScene = function (c, si, t) { const sc = this.story.scenes[si]; if (sc && sc.type === 'ayah') { c.save(); drawAyah.call(this, c, si, t); c.restore(); return; } return _scene.call(this, c, si, t); };
     const _cap = RP.drawCaption; RP.drawCaption = function (c, t, fw, fh, u) { const k = this.shotAt(t), sh = this.tl.shots[k]; if (sh && this.story.scenes[sh.si].type === 'ayah') return; return _cap.call(this, c, t, fw, fh, u); };
     publishPack = islPublishPack;
+    if (window.ISL_ART_PATCH) window.ISL_ART_PATCH();
     renderLib = islRenderLib; fillLibFilters = islFillFilters; updateUsedInfo = function () { };
+    const _addUsed = addUsed; addUsed = function (x) { _addUsed(x); if (/^LIB:/.test(x)) { const h = hist(), id = String(x).slice(4); if (!h[id]) { h[id] = Date.now(); setHist(h); } } };
     try { Cloud.usable = () => false; Cloud.pushLib = () => { }; Cloud.addUsed = () => { }; } catch (e) { }
     const _init = init;
     init = async function () { await _init(); try { domTweaks(); islFillFilters(); islRenderLib(); } catch (e) { console.error(e); } };
