@@ -366,6 +366,7 @@ body.v2scrolled .top{border-bottom-color:var(--line)}
 .brand img{width:32px;height:32px;border-radius:9px;display:block;flex:none}
 .brand b{display:block!important;font-size:17px;font-weight:700;letter-spacing:-.1px;font-family:'Inter','Hind Siliguri',sans-serif}
 .ctrls{gap:2px}
+.icobtn.acct{font-size:18px}.icobtn.acct.on{color:#2e7d4f;font-weight:800}
 .icobtn{width:40px;height:40px;border:0;border-radius:12px;background:transparent;color:var(--text);display:grid;place-items:center;padding:0}
 .icobtn:hover{background:var(--surface-2)}
 @media (hover:none){.icobtn:hover,.btn:hover,.v2item:hover{background:inherit}.btn.primary:hover{background:var(--accent)}}
@@ -605,6 +606,7 @@ details:not(.sect)>summary{font-size:14px!important;color:var(--muted)}
 .tfsh-main{width:100%;min-height:46px;font-weight:700}
 @media (max-width:420px){.tfswitch span{display:none}.tfswitch{padding:0 10px}}
 </style>
+<script src="../cloud-core.js"></script>
 </head>
 <body>
 <header class="top">
@@ -614,6 +616,7 @@ details:not(.sect)>summary{font-size:14px!important;color:var(--muted)}
       <a class="tfswitch" id="tfToStory" href="../index.html?part=islamic" title="ইসলামিক গল্প-ভিডিও (কুরআন ও হাদিসের গল্প)"><i>🎬</i><span>গল্প-ভিডিও</span></a>
       <button type="button" class="btn primary hidden install-ui" id="installBtn"><span data-i18n="install"></span></button>
       <button type="button" class="icobtn" id="newPostBtn" title="New post" aria-label="New post"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></button>
+      <button type="button" class="icobtn acct" id="acctBtn" title="Gmail দিয়ে লগইন (সব অংশে একই অ্যাকাউন্ট)" aria-label="অ্যাকাউন্ট">👤</button>
       <button type="button" class="icobtn" id="v2Theme" title="Theme" aria-label="Theme"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
       <button type="button" class="icobtn" id="v2MenuBtn" title="Menu" aria-label="Menu"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button>
       <button type="button" class="btn desk-only" id="langBtn">বাংলা</button>
@@ -4733,7 +4736,66 @@ function reelWire(){
 }
 
 window.TFPC = { mem: MEM, reel: { RS, RX, compose: reelCompose, count: reelCount, synth: reelSynth }, state: C, F: () => F(), D: () => D(), B: () => B(), renderTo, setMode, showTab };
-const startApp = () => { if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init(); };
+/* ===== ☁ the app's one Gmail login (cloud-core.js): this part's history (repeat-memory) and library go to the same account,
+   as "icd_" docs next to the Story part's data. Memory lists are merged (never shrink); the library follows the cloud once
+   the first upload from this device is done, and later changes here are sent as differences. ===== */
+const ICD = { CH: 180000, seen: false, sig: {}, libIds: null, timer: 0, unsub: null,
+  memDoc: k => 'icd_m_' + k, libDoc: id => 'icd_l_' + String(id).slice(0, 50),
+  start(){
+    const C = window.TFCloud; if(!C) return;
+    const _set = MEM.set.bind(MEM); MEM.set = (k, v) => { const r = _set(k, v); ICD.soon(); return r; };
+    const _save = saveLib; saveLib = function(){ _save(); ICD.soon(); };
+    C.on(u => this.onUser(u)); C.start();
+    $('acctBtn').addEventListener('click', () => this.button());
+  },
+  paint(){ const C = window.TFCloud, b = $('acctBtn'); if(!b) return; const u = C && C.user; b.textContent = u ? '✓' : '👤'; b.title = u ? 'লগইন: ' + (u.email || '') + ' — হিস্ট্রি সিঙ্ক হচ্ছে' : 'Gmail দিয়ে লগইন (সব অংশে একই অ্যাকাউন্ট)'; b.classList.toggle('on', !!u); },
+  async button(){
+    const C = window.TFCloud; if(!C.usable()){ toast('অ্যাপ আপডেট করলে Gmail লগইন চালু হবে'); return; }
+    if(C.user){ if(confirm((C.user.email || '') + ' দিয়ে লগইন করা আছে — সব অংশে এই অ্যাকাউন্ট চালু।\n\nলগআউট করবেন? (সব অংশ থেকেই লগআউট হবে, হিস্ট্রি ক্লাউডে থাকবে)')) { await this.flush(); await C.signOut(); } return; }
+    try{ if(await C.signIn()) toast('লগইন হয়েছে — হিস্ট্রি সিঙ্ক হচ্ছে'); }catch(e){ if(!/popup-closed-by-user|cancelled-popup-request/.test((e && e.code) || '')) toast(e.code === 'loading' ? e.message : C.msg(e)); }
+  },
+  onUser(u){
+    if(this.unsub){ try{ this.unsub(); }catch(e){} this.unsub = null; } this.seen = false; this.sig = {}; this.libIds = null; this.paint();
+    if(!u) return;
+    const C = window.TFCloud, col = C.ref().collection('stories'), FP = firebase.firestore.FieldPath.documentId();
+    this.unsub = col.where(FP, '>=', 'icd_').where(FP, '<', 'icd`').onSnapshot(q => { if(!q.metadata.fromCache) this.apply(q); }, e => { console.warn('cloud', e); toast(C.msg(e)); });
+  },
+  apply(q){
+    const parts = {}, lib = [];
+    q.docs.forEach(d => { const id = d.id, txt = d.get('txt'); if(typeof txt !== 'string') return;
+      if(id.startsWith('icd_l_')){ try{ lib.push(JSON.parse(txt)); }catch(e){} return; }
+      const m = /^icd_m_(.+?)(?:~(\d+))?$/.exec(id); if(m){ (parts[m[1]] = parts[m[1]] || [])[+(m[2] || 0)] = txt; } });
+    // memory: union of this device and the cloud
+    Object.keys(parts).forEach(k => { if(!MEMK(k)) return; let v; try{ v = JSON.parse(parts[k].join('')); }catch(e){ return; } this.sig[k] = parts[k].join('').length + ':' + parts[k].length; const cur = MEM.get(k, []); const merged = memMerge(cur, v); if(JSON.stringify(merged) !== JSON.stringify(cur)) MEM.data[k] = merged, MEM.ok && MEM.put(k); });
+    // library: first time on this device → union; afterwards the cloud is the truth
+    const flag = 'tf_cloud_merged_icd_' + window.TFCloud.user.uid; let first = false; try{ first = !localStorage.getItem(flag); }catch(e){}
+    const remoteIds = new Set(lib.map(x => x && x.id).filter(Boolean));
+    if(first){ const have = new Set(LIB.map(x => x.id)); lib.forEach(x => { if(x && x.id && !have.has(x.id)) LIB.push(x); }); }
+    else if(!this.libIds) LIB = lib.filter(x => x && x.id);
+    else { // keep what changed here but is not sent yet: added items stay, deleted items stay deleted
+      const known = this.libIds, here = new Set(LIB.map(x => x.id)), gone = new Set([...known].filter(id => !here.has(id)));
+      LIB = lib.filter(x => x && x.id && !gone.has(x.id)).concat(LIB.filter(x => !known.has(x.id) && !remoteIds.has(x.id))); }
+    LIB.sort((a, b) => String(b.date || '').localeCompare(String(a.date || ''))); LIB = LIB.slice(0, 500);
+    store.set('library', LIB); try{ renderLib(); }catch(e){}
+    this.libIds = first ? new Set() : remoteIds; this.seen = true; this.push().then(ok => { if(ok && first) try{ localStorage.setItem(flag, '1'); }catch(e){} });
+  },
+  soon(){ if(!this.seen) return; clearTimeout(this.timer); this.timer = setTimeout(() => this.push(), 2500); },
+  async flush(){ clearTimeout(this.timer); if(this.seen) await this.push(); },
+  async push(){
+    const C = window.TFCloud; if(!C.user || !this.seen) return false;
+    const col = C.ref().collection('stories'), ops = [];
+    MEM.keys().forEach(k => { const s = JSON.stringify(MEM.get(k, [])), n = Math.max(1, Math.ceil(s.length / this.CH)), sig = s.length + ':' + n; if(this.sig[k] === sig) return;
+      const old = this.sig[k] ? +this.sig[k].split(':')[1] : 0; for(let i = 0; i < n; i++) ops.push(['set', this.memDoc(k) + (i ? '~' + i : ''), s.slice(i * this.CH, (i + 1) * this.CH)]); for(let i = n; i < old; i++) ops.push(['del', this.memDoc(k) + '~' + i]); this.sig[k] = sig; });
+    const now = new Set();
+    LIB.forEach(x => { const s = JSON.stringify(x); if(s.length > 195000) return; now.add(x.id); if(!this.libIds.has(x.id)) ops.push(['set', this.libDoc(x.id), s]); });
+    this.libIds.forEach(id => { if(!now.has(id)) ops.push(['del', this.libDoc(id)]); }); this.libIds = now;
+    if(!ops.length) return true;
+    try{ for(let i = 0; i < ops.length; i += 400){ const b = C.db.batch(); ops.slice(i, i + 400).forEach(([kind, id, txt]) => kind === 'set' ? b.set(col.doc(id), { txt, at: Date.now() }) : b.delete(col.doc(id))); await b.commit(); } return true; }
+    catch(e){ console.warn('cloud', e); toast(C.msg(e)); return false; }
+  }
+};
+window.TFIcd = { ICD, MEM, getLib: () => LIB, setLib: v => { LIB = v; }, save: () => saveLib() }; /* for the automatic tests */
+const startApp = () => { const go = () => { init(); try{ ICD.start(); }catch(e){ console.warn(e); } }; if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go(); };
 MEM.load().then(startApp, startApp);
 })();
 </script>

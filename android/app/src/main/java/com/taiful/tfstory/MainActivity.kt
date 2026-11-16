@@ -191,7 +191,11 @@ class MainActivity : AppCompatActivity() {
         if (intent.getBooleanExtra(EXTRA_UPDATE, false)) Updater.check(this, true)
     }
 
-    override fun onResume() { super.onResume(); web.onResume(); Updater.resumePendingInstall(this) }
+    override fun onResume() {
+        super.onResume(); web.onResume(); Updater.resumePendingInstall(this)
+        // the app often stays open in the background for days: look for a new version again when it comes back (at most every 30 min)
+        if (System.currentTimeMillis() - Updater.lastCheck > 30 * 60 * 1000L) web.postDelayed({ Updater.check(this, false) }, 1500)
+    }
     override fun onPause() { web.onPause(); super.onPause() }
     override fun onSaveInstanceState(outState: Bundle) { super.onSaveInstanceState(outState); web.saveState(outState) }
     override fun onDestroy() { web.destroy(); super.onDestroy() }

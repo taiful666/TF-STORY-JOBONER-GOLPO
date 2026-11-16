@@ -62,6 +62,9 @@ h3{font-size:16px;margin:22px 0 10px;font-weight:700;color:var(--ink)}h4{margin:
 label{display:flex;flex-direction:column;gap:5px;font-size:13.5px;color:var(--sub);margin-bottom:12px;min-width:0}
 input:not([type=checkbox]):not([type=range]):not([type=file]),select,textarea{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:15px;color:var(--ink);transition:border-color .15s,box-shadow .15s}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--g);box-shadow:0 0 0 3px rgba(30,58,47,.1)}
+/* a small ✕ inside a text box: empties it (shown only when there is something to clear) */
+.clrwrap{position:relative;display:block}.clrwrap>input,.clrwrap>textarea{padding-right:40px!important}
+.clrx{position:absolute;top:6px;right:6px;width:30px;height:30px;border-radius:50%;border:0;background:rgba(127,127,127,.16);color:inherit;font-size:15px;line-height:30px;padding:0;cursor:pointer;display:none}.clrx.on{display:block}.clrx:hover{background:rgba(180,35,26,.15);color:#b4231a}
 textarea{resize:vertical}.mono{font-family:ui-monospace,Consolas,monospace;font-size:13px}
 input[type=range]{accent-color:var(--g);width:100%}.num{width:100px!important}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
@@ -847,6 +850,7 @@ button.primary.gold:hover{filter:brightness(.96)}
   <div id="acIn" class="hidden">
     <div class="acuser"><img id="acPhoto" alt="" referrerpolicy="no-referrer" width="48" height="48"><div class="acwho"><b id="acName"></b><span id="acEmail"></span></div></div>
     <div class="keystat" id="acSync" role="status" aria-live="polite">সিঙ্ক হচ্ছে…</div>
+    <p class="muted sm">এই একই লগইন অ্যাপের সব অংশে চালু — গল্প, ইসলামিক গল্প-ভিডিও আর ছবি-কার্ড। প্রতিটা অংশের হিস্ট্রি আলাদা থাকে, কিন্তু সব এই এক Gmail-এ সিঙ্ক হয়।</p>
     <ul class="acstats" aria-label="আপনার হিস্ট্রি">
       <li><b id="acMine">০</b><span>নিজের যোগ করা গল্প</span></li>
       <li><b id="acUsedN">০</b><span>ব্যবহৃত গল্প</span></li>
@@ -2812,7 +2816,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
 /* two parts share this engine: the Story part (index.html) and the Islamic part (index.html?part=islamic, see islamic/story.js) — each keeps its own settings, logo, used list and library */
 const TF_ISL = /[?&]part=islamic\b/.test(location.search);
 const LK = k => TF_ISL ? String(k).replace(/^tf_(settings|logo|used)$/, 'tf_isl_$1') : k;
-const APP_VERSION = '5.0.0';
+const APP_VERSION = '5.1.0';
 const STORY_LIBRARY = [];
 const FORMAT_VERSION = 1;
 
@@ -7121,12 +7125,24 @@ function updateYT() { if (!app.story) return; const pk = publishPack(app.story);
 const speechListSoon = debounce(() => { const ol = $('speechList'); if (!ol || !app.story) return; ol.innerHTML = ''; const frag = document.createDocumentFragment(); allLines().forEach(({ si, ln }) => { const changed = ln.say.replace(/[।?!,.]/g, '').trim() !== ln.cap.replace(/[।?!,.]/g, '').trim(); frag.append(el('li', null, changed ? el('em', { text: ln.say }) : ln.say, S.emotion === 'auto' ? el('small', { text: 'আবেগ: ' + emotionFor(si, ln) }) : null)); }); ol.append(frag); }, 400);
 
 /* ---------- new story (reset) ---------- */
+/* ✕ buttons for the text boxes where a story, prompt answer, topic or link is typed or pasted */
+function addClearButtons() {
+  const ids = ['pTopic', 'longLink', 'longFacts', 'chatIn', 'storyIn', 'genTopic', 'addIn'], btns = [];
+  ids.forEach(id => { const f = $(id); if (!f || f.parentNode.classList.contains('clrwrap')) return;
+    const w = el('span', { class: 'clrwrap' }); f.parentNode.insertBefore(w, f); w.append(f);
+    const b = el('button', { type: 'button', class: 'clrx', title: 'খালি করুন', 'aria-label': 'খালি করুন', text: '✕' });
+    b.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); if (f.value.length > 300 && !confirm('লেখাটা মুছে ফেলবেন?')) return; f.value = ''; f.dispatchEvent(new Event('input', { bubbles: true })); f.dispatchEvent(new Event('change', { bubbles: true })); f.focus(); paint(); });
+    w.append(b); btns.push([f, b]); ['input', 'change', 'focus', 'blur'].forEach(ev => f.addEventListener(ev, () => paint()));
+  });
+  const paint = () => btns.forEach(([f, b]) => b.classList.toggle('on', !!f.value));
+  window.paintClearButtons = paint; paint(); setInterval(() => { if (!document.hidden) paint(); }, 1500);
+}
 async function newStory() {
   if (app.story && !confirm('নতুন গল্প শুরু করবেন? এখনকার গল্প বন্ধ হবে (লাইব্রেরি, সেটিংস, key, কণ্ঠের ক্যাশ সব থাকবে)।')) return;
   stopPlay(true); app.story = null; app.tl = null; app.renderer = new StoryRenderer(); pvComp = null; app.markers = []; app.notes = ''; app.libId = null; app.warnings = []; app.exported = false; app.lastExport = null; app.visited3 = false; app.t = 0;
   app.audio = { mode: app.audio.mode === 'upload' ? 'none' : app.audio.mode, tts: app.audio.tts, rec: app.audio.rec, upload: null }; app.mix = null; app.mixDirty = true;
   await IDB.set('kv', 'project', null);
-  ['charEditor', 'sceneOverview', 'sceneEditor', 'markerList', 'warnList'].forEach(id => $(id).innerHTML = ''); ['storyIn', 'aiNotes', 'thumbText', 'ytText', 'chatIn', 'pTopic'].forEach(id => $(id).value = ''); document.querySelectorAll('#topicChips button').forEach(x => x.classList.remove('on')); try { $('dlgShare').open && $('dlgShare').close(); } catch (e) { } $('storyTitle').textContent = ''; $('uploadInfo').textContent = ''; $('lineInfo').textContent = '';
+  ['charEditor', 'sceneOverview', 'sceneEditor', 'markerList', 'warnList'].forEach(id => $(id).innerHTML = ''); ['storyIn', 'aiNotes', 'thumbText', 'ytText', 'chatIn', 'pTopic', 'longLink', 'longFacts', 'genTopic'].forEach(id => { if ($(id)) $(id).value = ''; }); if (window.paintClearButtons) paintClearButtons(); document.querySelectorAll('#topicChips button').forEach(x => x.classList.remove('on')); try { $('dlgShare').open && $('dlgShare').close(); } catch (e) { } $('storyTitle').textContent = ''; $('uploadInfo').textContent = ''; $('lineInfo').textContent = '';
   $('expDone').classList.add('hidden'); $('expProg').classList.add('hidden'); $('pvEmpty').classList.remove('hidden'); drawAt(0); updateTime(); renderLib(); goStep(1); showSrc(null);
   toast('স্ক্রিন পরিষ্কার — নতুন গল্প শুরু করুন', 'ok');
 }
@@ -7192,6 +7208,12 @@ async function fillModels(selId, fn, key) { try { const ms = await fn(); if (!ms
    These values are PUBLIC by design (safe in a public repo): the Firestore security rules decide who can read what,
    and they only let each signed-in Gmail account read/write its own users/{uid} data. API keys never leave this device. */
 const TF_CLOUD = { apiKey: 'AIzaSyAfZ29i4FwMlsDKoXqLvVpKN4uZWkJ4Edw', authDomain: 'tf-story-studio.firebaseapp.com', projectId: 'tf-story-studio', appId: '1:91248581816:web:d900f083014d5cbee8a84d' };
+/* one Gmail login for the whole app: the Story part, the Islamic story-video part and the Islamic picture-card part all use
+   the same account. They share users/{uid}: library docs of the Islamic part start with "isl_", its used-list entries with
+   "isl:", and the picture-card part keeps its history in "icd_" docs (see cloud-core.js) — so no part ever sees another's. */
+const CPFX = TF_ISL ? 'isl_' : '', UPFX = TF_ISL ? 'isl:' : '';
+const cloudMine = id => TF_ISL ? id.startsWith('isl_') : !/^(isl_|icd_)/.test(id);
+const usedMine = x => TF_ISL ? x.startsWith('isl:') : !x.startsWith('isl:');
 const Cloud = {
   user: null, auth: null, db: null, unsub: [], remoteIds: null, seen: { lib: false, used: false }, meta: {}, errText: '',
   configured() { return !!(TF_CLOUD.apiKey && TF_CLOUD.authDomain && TF_CLOUD.projectId && TF_CLOUD.appId); },
@@ -7252,19 +7274,25 @@ const Cloud = {
     try { await this.auth.signOut(); } catch (e) { }
     if (this.native()) try { window.TFAndroid.googleSignOut(); } catch (e) { }
     USERLIB = []; await IDB.set('kv', 'userLib', []);
-    try { localStorage.removeItem(LK('tf_used')); localStorage.removeItem('tf_cloud_merged_' + uid); } catch (e) { }
+    try { localStorage.removeItem(LK('tf_used')); localStorage.removeItem('tf_cloud_merged_' + CPFX + uid); } catch (e) { }
     try { await this.db.terminate(); await this.db.clearPersistence(); } catch (e) { }
     location.reload();
+  },
+  // signed out somewhere else in the app (home screen or the other part): drop this part's copy of the account's data
+  forgetLocal() {
+    let had = false; try { Object.keys(localStorage).forEach(k => { if (k.startsWith('tf_cloud_merged_' + CPFX) && (CPFX || !/^tf_cloud_merged_(isl|icd)_/.test(k))) { localStorage.removeItem(k); had = true; } }); } catch (e) { }
+    if (!had) return; USERLIB = []; IDB.set('kv', 'userLib', []); try { localStorage.removeItem(LK('tf_used')); } catch (e) { }
+    rebuildLIB(); renderLib(); updateMyLibInfo(); updateUsedInfo();
   },
   stop() { this.unsub.forEach(f => { try { f(); } catch (e) { } }); this.unsub = []; },
   onUser(u) {
     this.stop(); this.user = u; this.remoteIds = null; this.seen = { lib: false, used: false }; this.meta = {}; this.errText = '';
-    if (!u) { this.render(); return; }
-    const uref = this.ref(), col = uref.collection('stories'), flag = 'tf_cloud_merged_' + u.uid;
+    if (!u) { this.forgetLocal(); this.render(); return; }
+    const uref = this.ref(), col = uref.collection('stories'), flag = 'tf_cloud_merged_' + CPFX + u.uid;
     // first sign-in on this device: upload what is already saved here, so nothing is lost (union, never overwrite)
     if (!localStorage.getItem(flag)) {
       const used = usedList().slice(-3000);
-      if (used.length) uref.set({ used: firebase.firestore.FieldValue.arrayUnion(...used), updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }).catch(e => this.fail(e));
+      if (used.length) uref.set({ used: firebase.firestore.FieldValue.arrayUnion(...used.map(x => UPFX + x)), updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }).catch(e => this.fail(e));
       this.commit(USERLIB.map(x => ['set', x])).then(ok => { if (ok) try { localStorage.setItem(flag, '1'); } catch (e) { } });
     }
     this.remoteIds = new Set(USERLIB.map(x => x.id));
@@ -7275,7 +7303,7 @@ const Cloud = {
   applyLib(q) {
     this.meta.lib = q.metadata; if (!q.metadata.fromCache) this.seen.lib = true;
     if (this.seen.lib) { // until the server has answered once, never drop anything saved on this device
-      const remote = q.docs.map(d => ({ id: d.id, txt: d.get('txt'), at: d.get('at') || 0 })).filter(x => typeof x.txt === 'string').sort((a, b) => a.at - b.at);
+      const remote = q.docs.filter(d => cloudMine(d.id)).map(d => ({ id: d.id.slice(CPFX.length), txt: d.get('txt'), at: d.get('at') || 0 })).filter(x => typeof x.txt === 'string').sort((a, b) => a.at - b.at);
       const sig = l => l.map(x => x.id + ':' + x.txt.length).join(',');
       if (sig(remote) !== sig(USERLIB)) { USERLIB = remote; IDB.set('kv', 'userLib', USERLIB); rebuildLIB(); renderLib(); updateMyLibInfo(); fillLibFilters(); }
       this.remoteIds = new Set(remote.map(x => x.id));
@@ -7285,7 +7313,7 @@ const Cloud = {
   applyUsed(d) {
     this.meta.used = d.metadata; if (!d.metadata.fromCache) this.seen.used = true;
     if (this.seen.used) {
-      const remote = (d.exists && Array.isArray(d.get('used'))) ? d.get('used').filter(x => typeof x === 'string') : [];
+      const remote = (d.exists && Array.isArray(d.get('used'))) ? d.get('used').filter(x => typeof x === 'string' && usedMine(x)).map(x => x.slice(UPFX.length)) : []; this.remoteUsed = remote;
       if (JSON.stringify(remote) !== JSON.stringify(usedList())) { try { localStorage.setItem(LK('tf_used'), JSON.stringify(remote)); } catch (e) { } updateUsedInfo(); renderLib(); }
     }
     this.render();
@@ -7296,7 +7324,7 @@ const Cloud = {
     const col = this.ref().collection('stories'), jobs = [];
     for (let i = 0; i < ops.length; i += 400) {
       const b = this.db.batch();
-      ops.slice(i, i + 400).forEach(([kind, x]) => kind === 'set' ? b.set(col.doc(x.id), { txt: String(x.txt), at: Number(x.at) || Date.now() }) : b.delete(col.doc(x)));
+      ops.slice(i, i + 400).forEach(([kind, x]) => kind === 'set' ? b.set(col.doc(CPFX + x.id), { txt: String(x.txt), at: Number(x.at) || Date.now() }) : b.delete(col.doc(CPFX + x)));
       jobs.push(b.commit());
     }
     this.render();
@@ -7309,8 +7337,8 @@ const Cloud = {
     this.remoteIds.forEach(id => { if (!cur.has(id)) ops.push(['del', id]); });
     this.remoteIds = cur; this.commit(ops);
   },
-  addUsed(s) { if (this.user) this.ref().set({ used: firebase.firestore.FieldValue.arrayUnion(s), updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }).catch(e => this.fail(e)); },
-  clearUsed() { if (this.user) this.ref().set({ used: [], updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }).catch(e => this.fail(e)); },
+  addUsed(s) { if (this.user) this.ref().set({ used: firebase.firestore.FieldValue.arrayUnion(UPFX + s), updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }).catch(e => this.fail(e)); },
+  clearUsed() { const mine = (this.remoteUsed || []).map(x => UPFX + x); if (this.user && mine.length) this.ref().set({ used: firebase.firestore.FieldValue.arrayRemove(...mine), updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }).catch(e => this.fail(e)); },
   fail(e) { console.warn('cloud', e); this.errText = this.msg(e); this.render(); },
   status() {
     if (this.errText) return ['err', this.errText];
@@ -7351,7 +7379,7 @@ async function init() {
   Cloud.init();
   document.querySelectorAll('#stepBar button').forEach(b => b.addEventListener('click', () => goStep(b.dataset.step)));
   document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => goStep(b.dataset.go)));
-  $('btnNew').onclick = newStory; $('btnGallery').onclick = () => openGallery(null);
+  $('btnNew').onclick = newStory; addClearButtons(); $('btnGallery').onclick = () => openGallery(null);
   segTabs('galFilter', 'gf', v => { galFilter = v; renderGallery(); });
   segTabs('srcTabs', 'src', v => showSrc(v)); initStartPick(); initLongUI();
   segTabs('aiTabs', 'ai', v => { S.aiTab = v; saveSettings(); applySettingsToUI(); });

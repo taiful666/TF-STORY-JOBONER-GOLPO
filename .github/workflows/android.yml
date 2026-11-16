@@ -6,6 +6,7 @@ on:
     paths:
       - 'index.html'
       - 'long-library.js'
+      - 'cloud-core.js'
       - 'home.html'
       - 'islamic/**'
       - 'manifest.webmanifest'
@@ -37,7 +38,7 @@ jobs:
       signed: ${{ steps.sign.outputs.signed }}
       vn: ${{ steps.name.outputs.vn }}
     env:
-      TF_VERSION_NAME: '5.0'
+      TF_VERSION_NAME: '5.1'
     steps:
       - uses: actions/checkout@v5
 
@@ -62,7 +63,7 @@ jobs:
       - name: Put the web app inside the APK
         run: |
           mkdir -p android/app/src/main/assets/www
-          cp index.html long-library.js manifest.webmanifest icon-192.png icon-512.png icon-maskable-512.png android/app/src/main/assets/www/
+          cp index.html long-library.js cloud-core.js manifest.webmanifest icon-192.png icon-512.png icon-maskable-512.png android/app/src/main/assets/www/
           cp -r vendor android/app/src/main/assets/www/
           # start screen + the Islamic part (TF Post Maker)
           cp home.html android/app/src/main/assets/www/

@@ -36,6 +36,7 @@ object Updater {
     private val main = Handler(Looper.getMainLooper())
     @Volatile private var pendingApk: File? = null
     @Volatile private var busy = false
+    @Volatile var lastCheck = 0L
 
     /** Latest release on GitHub, or null (no internet / no release / error). Runs on a background thread. */
     fun fetchLatest(): Release? = try {
@@ -60,6 +61,7 @@ object Updater {
     /** Called when the app opens (and from the notification / settings button). */
     fun check(activity: Activity, manual: Boolean) {
         if (busy) return
+        lastCheck = System.currentTimeMillis()
         thread {
             val r = fetchLatest()
             main.post {

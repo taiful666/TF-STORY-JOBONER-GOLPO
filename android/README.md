@@ -25,6 +25,10 @@ Two parts in one app:
   gold words (`[statement: lead / big words]`), gold chapter cards, tiny corner labels (`[label: …]`). Life look: cream
   sentence pill with red key words, speech bubbles for dialogue, sticker tags (`[tag: ✗ … / ✓ …]`), corner tracker
   (`[hud: label / before → after]`), plum moral cards. On a computer the web app uses the full screen width.
+- 5.1: one Gmail login for the whole app (home screen, Story part, Islamic story-video part, Islamic picture-card part),
+  shared through `cloud-core.js`; each part keeps its own history in the same account (Islamic docs `isl_…`, used entries
+  `isl:…`, picture-card history `icd_…`), so the Firestore rules need no change. ✕ clear buttons on the text boxes.
+  The app looks for a new version whenever it comes back to the screen (at most every 30 min) and in the background every 4 hours.
 - `home.html` — start screen: pick **গল্প** (the Story part, `index.html`) or **ইসলামিক** (`index.html?part=islamic`).
 - The Islamic part reuses the Story engine (`islamic/story.js`): a library of real sources (Quran passages, Sahih al-Bukhari); the app downloads the exact text, the AI writes only the retelling, and the video shows the exact quote with its reference. No people on screen. Own settings, library and project (`tf_isl_*`, IndexedDB `tf_story_studio_isl`).
 - Cards and short reels for the Islamic page: `islamic/index.html` (TF Post Maker), opened from the Islamic part.

@@ -655,7 +655,7 @@ rafiq:crying:pray_hands চরিত্রের ভাব দেখাতে �
   /* ---------- page changes for this part ---------- */
   function css() {
     const s = document.createElement('style'); s.textContent = `
-      body.isl #charEditor, body.isl .castbox, body.isl .lgrid5, body.isl #btnAccount, body.isl #btnGallery, body.isl #usedInfo, body.isl #btnRandom { display:none!important }
+      body.isl #charEditor, body.isl .castbox, body.isl .lgrid5, body.isl #btnGallery, body.isl #usedInfo, body.isl #btnRandom { display:none!important }
       body.isl .brand b::after { content:" · ইসলামিক"; color:#2C7A55; font-size:.82em }
       #libList li .islst { flex:none; font-size:12px; padding:3px 9px; border-radius:999px; background:#f1efe8; color:#6b7470; margin-left:6px; white-space:nowrap }
       #libList li .islst.ok { background:#e2f1e8; color:#1f6b45 }
@@ -792,7 +792,6 @@ rafiq:crying:pray_hands চরিত্রের ভাব দেখাতে �
     renderLib = islRenderLib; fillLibFilters = islFillFilters; updateUsedInfo = function () { };
     const _loadQ = loadAny; loadAny = async function (t, o) { try { if (typeof t === 'string') t = await verifyQuran(t, o && o.libId); } catch (e) { } return _loadQ(t, o); };
     const _addUsed = addUsed; addUsed = function (x) { _addUsed(x); if (/^LIB:/.test(x)) { const h = hist(), id = String(x).slice(4); if (!h[id]) { h[id] = Date.now(); setHist(h); } } };
-    try { Cloud.usable = () => false; Cloud.pushLib = () => { }; Cloud.addUsed = () => { }; } catch (e) { }
     const _init = init;
     init = async function () { await _init(); try { domTweaks(); islFillFilters(); islRenderLib(); } catch (e) { console.error(e); } };
   };

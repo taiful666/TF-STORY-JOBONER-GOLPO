@@ -27,11 +27,11 @@ class TFApp : Application() {
                 }
             )
         }
-        // check for a new version in the background twice a day (only with internet)
-        val req = PeriodicWorkRequestBuilder<UpdateWorker>(12, TimeUnit.HOURS)
+        // check for a new version in the background every 4 hours (only with internet); UPDATE re-schedules older installs too
+        val req = PeriodicWorkRequestBuilder<UpdateWorker>(4, TimeUnit.HOURS)
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .build()
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork("tf_update_check", ExistingPeriodicWorkPolicy.KEEP, req)
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork("tf_update_check", ExistingPeriodicWorkPolicy.UPDATE, req)
     }
 
     companion object {

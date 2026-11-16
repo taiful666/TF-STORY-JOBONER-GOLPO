@@ -42,6 +42,18 @@ h1{font-size:22px;margin:8px 4px 0;font-weight:700}
 .chip i{font-style:normal;font-weight:800}
 .chip.on i{color:#2e7d4f}.chip.off i{color:#b4231a}
 .muted{color:var(--sub);font-size:12.5px;margin:0}
+
+.acct{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.acct .av{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#e9efe9;font-size:20px;overflow:hidden;flex:none}
+.acct .av img{width:100%;height:100%;object-fit:cover}
+.acct .who{flex:1;min-width:160px}
+.acct .who b{display:block;font-size:14.5px}
+.acct .who small{display:block;color:var(--sub);font-size:12.5px;margin-top:2px;line-height:1.45}
+.acct button{font:inherit;font-weight:700;font-size:14px;padding:10px 16px;border-radius:12px;border:0;cursor:pointer;background:var(--g);color:#fff;min-height:44px}
+.acct button.out{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.acct button:disabled{opacity:.6}
+.acct .err{flex-basis:100%;margin:0;color:#b4231a;font-size:12.5px}
+@media (prefers-color-scheme:dark){.acct .av{background:#24302a}}
 footer{text-align:center;color:var(--sub);font-size:12px;padding:6px 16px 18px}
 @media (max-width:360px){.part{min-height:230px;padding:16px 12px 14px}.part b{font-size:20px}.part .ic{width:50px;height:50px;font-size:27px}}
 @media (prefers-color-scheme:dark){
@@ -74,6 +86,12 @@ footer{text-align:center;color:var(--sub);font-size:12px;padding:6px 16px 18px}
       <span class="go">খুলুন →</span>
     </a>
   </div>
+  <section class="acct" id="acct" aria-label="অ্যাকাউন্ট">
+    <span class="av" id="acAv">👤</span>
+    <div class="who"><b id="acName">Gmail দিয়ে লগইন</b><small id="acSub">একবার লগইন করলেই গল্প, ইসলামিক গল্প-ভিডিও আর ছবি-কার্ড — সব অংশের হিস্ট্রি এই এক Gmail-এ থাকবে, অন্য ফোন বা কম্পিউটারেও।</small></div>
+    <button type="button" id="acBtn">Google (Gmail) দিয়ে লগইন</button>
+    <p class="err" id="acErr" hidden></p>
+  </section>
   <section class="same" aria-label="দুই অংশে যা একই">
     <b>দুই অংশেই একই</b>
     <div class="row">
@@ -85,6 +103,7 @@ footer{text-align:center;color:var(--sub);font-size:12px;padding:6px 16px 18px}
   </section>
 </main>
 <footer id="ver">TF Story Studio</footer>
+<script src="cloud-core.js"></script>
 <script>
 'use strict';
 (function(){
@@ -103,6 +122,34 @@ footer{text-align:center;color:var(--sub);font-size:12px;padding:6px 16px 18px}
   const remember = k => { try{ localStorage.setItem('tf_suite_last', k); }catch(e){} };
   $('goStory').addEventListener('click', () => remember('story'));
   $('goIslamic').addEventListener('click', () => remember('islamic'));
+  /* the one login for the whole app */
+  const C = window.TFCloud, btn = $('acBtn'), err = m => { $('acErr').textContent = m || ''; $('acErr').hidden = !m; };
+  const paint = u => {
+    if(!C.usable()){ $('acName').textContent = 'লগইন এই ভার্সনে নেই'; $('acSub').textContent = 'অ্যাপ আপডেট করলে Gmail লগইন চালু হবে।'; btn.hidden = true; return; }
+    btn.hidden = false; btn.disabled = false;
+    if(u){
+      const ph = /^https:\/\/lh3\.googleusercontent\.com\//.test(u.photoURL || '') ? u.photoURL : '';
+      $('acAv').innerHTML = ''; if(ph){ const i = document.createElement('img'); i.src = ph; i.alt = ''; i.referrerPolicy = 'no-referrer'; $('acAv').append(i); } else $('acAv').textContent = '✓';
+      $('acName').textContent = u.displayName || u.email || 'লগইন করা আছে'; $('acSub').textContent = (u.email ? u.email + ' · ' : '') + 'গল্প ও ইসলামিক — সব অংশে এই অ্যাকাউন্ট চালু, হিস্ট্রি এখানেই সিঙ্ক হয়';
+      btn.textContent = 'লগআউট'; btn.className = 'out';
+    } else {
+      $('acAv').textContent = '👤'; $('acName').textContent = 'Gmail দিয়ে লগইন';
+      $('acSub').textContent = 'একবার লগইন করলেই গল্প, ইসলামিক গল্প-ভিডিও আর ছবি-কার্ড — সব অংশের হিস্ট্রি এই এক Gmail-এ থাকবে, অন্য ফোন বা কম্পিউটারেও।';
+      btn.textContent = 'Google (Gmail) দিয়ে লগইন'; btn.className = '';
+    }
+    err(C.err);
+  };
+  C.on(paint); C.start();
+  btn.addEventListener('click', async () => {
+    err('');
+    if(C.user){
+      if(!confirm('লগআউট করবেন? সব অংশ থেকেই লগআউট হবে। আপনার গল্প ও হিস্ট্রি ক্লাউডে নিরাপদ থাকবে।')) return;
+      btn.disabled = true; btn.textContent = 'লগআউট হচ্ছে…'; await C.signOut(); paint(null); return;
+    }
+    btn.disabled = true; btn.textContent = 'লগইন হচ্ছে…';
+    try{ await C.signIn(); }catch(e){ if(!/popup-closed-by-user|cancelled-popup-request/.test((e && e.code) || '')) err(e.code === 'loading' ? e.message : C.msg(e)); }
+    paint(C.user);
+  });
   try{ if(window.TFAndroid && window.TFAndroid.appVersion) $('ver').textContent = 'TF Story Studio · ভার্সন ' + window.TFAndroid.appVersion(); }catch(e){}
 })();
 </script>
