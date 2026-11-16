@@ -27,10 +27,31 @@ OK=1
 [ -z "$PID" ] && { echo "FAIL: app is not running"; OK=0; }
 # only a crash of OUR app counts (the uiautomator test tool itself sometimes crashes on slow emulators)
 adb logcat -d | grep -A3 "FATAL EXCEPTION" | grep -q "Process: com.taiful.tfstory" && { echo "FAIL: app crashed"; OK=0; }
-adb logcat -d -s TFWeb:* | grep -qE 'health "?title=TF Story Studio lib=[1-9]' || { echo "FAIL: web app did not start"; OK=0; }
+adb logcat -d -s TFWeb:* | grep -qE 'health "?title=TF Story Studio page=/assets/www/index.html lib=[1-9]' || { echo "FAIL: web app did not start"; OK=0; }
 adb logcat -d -s TFWeb:* | grep -q "SELFTEST ok" || { echo "FAIL: saving a file through the bridge did not work"; OK=0; }
 adb shell 'ls "/sdcard/Download/TF Story Studio/"' 2>&1 | head -3
 adb exec-out screencap -p > screen.png
+
+echo "---- Islamic part (islamic/index.html) ----"
+adb logcat -c
+adb shell am start -W -S -n com.taiful.tfstory/.MainActivity --es tf_page islamic/index.html --ez tf_selftest true
+for i in $(seq 1 24); do
+  if adb logcat -d -s TFWeb:* | grep -q "SELFTEST"; then echo "Islamic part ready after $((i*5))s"; break; fi
+  sleep 5
+done
+adb logcat -d -s TFWeb:* | tail -8
+adb logcat -d | grep -E "chromium.*(Uncaught|SyntaxError|TypeError|ReferenceError)" | head -10
+adb logcat -d -s TFWeb:* | grep -q 'page=/assets/www/islamic/index.html' || { echo "FAIL: Islamic part did not start"; OK=0; }
+adb logcat -d -s TFWeb:* | grep -q "SELFTEST ok" || { echo "FAIL: saving from the Islamic part did not work"; OK=0; }
+adb exec-out screencap -p > screen-islamic.png
+
+echo "---- start screen (home.html) ----"
+adb logcat -c
+adb shell am start -W -S -n com.taiful.tfstory/.MainActivity
+sleep 12
+adb logcat -d -s TFWeb:* | tail -4
+adb logcat -d -s TFWeb:* | grep -q 'page=/assets/www/home.html' || { echo "FAIL: start screen did not open"; OK=0; }
+adb exec-out screencap -p > screen-home.png
 python3 - <<'PY' || true
 import zlib,struct
 d=open('screen.png','rb').read(); print('screenshot bytes', len(d))

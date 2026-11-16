@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1E3A2F">
+<title>TF Story Studio — কী বানাবেন আজ?</title>
+<link rel="icon" href="icon-192.png">
+<style>
+:root{--g:#1E3A2F;--g2:#2C5442;--go:#F2C14E;--ink:#1c2321;--sub:#6b7470;--line:#e7e5df;--bg:#fafaf7;--card:#fff;--isl:#0f3d24;--isl2:#1f6b4a;--islgo:#c9a227}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:SolaimanLipi,"Noto Sans Bengali","Hind Siliguri","Nirmala UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+body{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:12px;padding:22px 20px 6px;max-width:760px;width:100%;margin:0 auto}
+.top img{width:44px;height:44px;border-radius:12px;display:block}
+.top b{font-size:19px;letter-spacing:.2px;display:block}
+.top small{display:block;color:var(--sub);font-size:13px;margin-top:1px}
+main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:14px 16px 20px;display:flex;flex-direction:column;gap:16px}
+h1{font-size:22px;margin:8px 4px 0;font-weight:700}
+.lead{margin:-8px 4px 0;color:var(--sub);font-size:14.5px}
+.pick{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.part{position:relative;display:flex;flex-direction:column;gap:10px;min-height:250px;padding:18px 14px 16px;border-radius:22px;color:#fff;text-decoration:none;overflow:hidden;box-shadow:0 10px 28px rgba(20,40,30,.18);transition:transform .12s ease,box-shadow .12s ease;outline:none}
+.part:active{transform:scale(.975)}
+.part:focus-visible{box-shadow:0 0 0 3px #fff,0 0 0 6px var(--go)}
+.part.story{background:linear-gradient(160deg,var(--g2),var(--g) 70%)}
+.part.isl{background:linear-gradient(160deg,var(--isl2),var(--isl) 70%)}
+.part::after{content:"";position:absolute;right:-40px;bottom:-40px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.06)}
+.part .ic{width:58px;height:58px;border-radius:18px;display:grid;place-items:center;font-size:31px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18)}
+.part.story .ic{box-shadow:inset 0 0 0 2px rgba(242,193,78,.55)}
+.part.isl .ic{box-shadow:inset 0 0 0 2px rgba(201,162,39,.7)}
+.part b{font-size:22px;line-height:1.2}
+.part p{margin:0;font-size:13.5px;line-height:1.5;opacity:.9}
+.part ul{list-style:none;margin:auto 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.part li{font-size:12px;padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.13)}
+.part .go{display:inline-flex;align-items:center;gap:6px;margin-top:4px;font-weight:700;font-size:14px;color:var(--go)}
+.part.isl .go{color:#e6c766}
+.part .last{position:absolute;top:12px;right:12px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--go);color:#2b2200}
+.same{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.same b{font-size:14.5px}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:#f6f5f1;color:var(--ink)}
+.chip i{font-style:normal;font-weight:800}
+.chip.on i{color:#2e7d4f}.chip.off i{color:#b4231a}
+.muted{color:var(--sub);font-size:12.5px;margin:0}
+footer{text-align:center;color:var(--sub);font-size:12px;padding:6px 16px 18px}
+@media (max-width:360px){.part{min-height:230px;padding:16px 12px 14px}.part b{font-size:20px}.part .ic{width:50px;height:50px;font-size:27px}}
+@media (prefers-color-scheme:dark){
+  :root{--ink:#eceee9;--sub:#a3aaa6;--line:#2b302d;--bg:#121513;--card:#1a1e1b}
+  .chip{background:#202521}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <img src="icon-192.png" alt="">
+  <div><b>TF Story Studio</b><small>গল্প ও ইসলামিক — এক অ্যাপে</small></div>
+</header>
+<main>
+  <h1>আজ কী বানাবেন?</h1>
+  <p class="lead">একটা অংশ বেছে নিন। পরে উপরের বোতাম দিয়ে অন্য অংশে যেতে পারবেন।</p>
+  <div class="pick">
+    <a class="part story" id="goStory" href="index.html">
+      <span class="ic">📖</span>
+      <b>গল্প</b>
+      <p>জেনারেল ও মোটিভেশনাল গল্পের ভিডিও</p>
+      <ul><li>জীবনের গল্প</li><li>বইয়ের শিক্ষা</li><li>কণ্ঠ ও মিউজিক</li></ul>
+      <span class="go">খুলুন →</span>
+    </a>
+    <a class="part isl" id="goIslamic" href="islamic/index.html">
+      <span class="ic">🕋</span>
+      <b>ইসলামিক</b>
+      <p>কুরআন-হাদিসের গল্প, আয়াত ও বাণী</p>
+      <ul><li>কার্ড</li><li>রিল ভিডিও</li><li>ক্যাপশন</li></ul>
+      <span class="go">খুলুন →</span>
+    </a>
+  </div>
+  <section class="same" aria-label="দুই অংশে যা একই">
+    <b>দুই অংশেই একই</b>
+    <div class="row">
+      <span class="chip">📤 শেয়ার: Facebook · YouTube · WhatsApp · Drive</span>
+      <span class="chip">✍️ প্রতিটা প্ল্যাটফর্মের জন্য আলাদা লেখা</span>
+    </div>
+    <div class="row" id="keyChips"></div>
+    <p class="muted">API key একবার সেটিংসে দিলেই দুই অংশে কাজ করে।</p>
+  </section>
+</main>
+<footer id="ver">TF Story Studio</footer>
+<script>
+'use strict';
+(function(){
+  const $ = id => document.getElementById(id);
+  const has = n => { try{ return !!(sessionStorage.getItem(n) || localStorage.getItem(n)); }catch(e){ return false; } };
+  const chips = [['Claude', 'tf_akey'], ['Gemini', 'tf_gkey'], ['Cartesia কণ্ঠ', 'tf_ckey']];
+  chips.forEach(([name, k]) => {
+    const on = has(k), c = document.createElement('span');
+    c.className = 'chip ' + (on ? 'on' : 'off'); c.innerHTML = '<i>' + (on ? '✓' : '–') + '</i>';
+    c.append(document.createTextNode(name + (on ? ' key আছে' : ' key নেই')));
+    $('keyChips').append(c);
+  });
+  let last = ''; try{ last = localStorage.getItem('tf_suite_last') || ''; }catch(e){}
+  const tag = { story:'goStory', islamic:'goIslamic' }[last];
+  if(tag){ const b = document.createElement('span'); b.className = 'last'; b.textContent = 'শেষবার'; $(tag).append(b); }
+  const remember = k => { try{ localStorage.setItem('tf_suite_last', k); }catch(e){} };
+  $('goStory').addEventListener('click', () => remember('story'));
+  $('goIslamic').addEventListener('click', () => remember('islamic'));
+  try{ if(window.TFAndroid && window.TFAndroid.appVersion) $('ver').textContent = 'TF Story Studio · ভার্সন ' + window.TFAndroid.appVersion(); }catch(e){}
+})();
+</script>
+</body>
+</html>

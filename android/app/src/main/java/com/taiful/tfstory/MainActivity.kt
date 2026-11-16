@@ -37,7 +37,16 @@ class MainActivity : AppCompatActivity() {
 
     // the app is served from a secure https origin inside the APK (works offline; storage + microphone allowed)
     private val origin = "https://appassets.androidplatform.net"
-    private val startUrl = "$origin/assets/www/index.html"
+    // start screen: pick "গল্প" (index.html) or "ইসলামিক" (islamic/index.html)
+    private val startUrl = "$origin/assets/www/home.html"
+    private val storyUrl = "$origin/assets/www/index.html"
+
+    /** which page to open first: the start screen, or (automatic tests only) a page given with --es tf_page */
+    private fun firstUrl(): String {
+        val page = intent?.getStringExtra("tf_page")
+        if (page != null && Regex("^[a-z0-9_-]+(/[a-z0-9_-]+)?\\.html$").matches(page)) return "$origin/assets/www/$page"
+        return if (intent?.getBooleanExtra("tf_selftest", false) == true) storyUrl else startUrl
+    }
 
     private val pickFiles = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { res ->
         val cb = fileCallback ?: return@registerForActivityResult
@@ -98,7 +107,7 @@ class MainActivity : AppCompatActivity() {
             override fun onPageFinished(view: WebView, url: String) {
                 // health check written to the log (used by the automatic emulator test)
                 view.postDelayed({
-                    view.evaluateJavascript("(function(){try{return 'title=' + document.title + ' lib=' + document.querySelectorAll('#libList li').length + ' android=' + (typeof IS_ANDROID!=='undefined' && IS_ANDROID) + ' webcodecs=' + ('VideoEncoder' in window)}catch(e){return 'err ' + e}})()") { r -> Log.i("TFWeb", "health $r") }
+                    view.evaluateJavascript("(function(){try{return 'title=' + document.title + ' page=' + location.pathname + ' lib=' + document.querySelectorAll('#libList li').length + ' android=' + (typeof IS_ANDROID!=='undefined' && IS_ANDROID) + ' webcodecs=' + ('VideoEncoder' in window)}catch(e){return 'err ' + e}})()") { r -> Log.i("TFWeb", "health $r") }
                     // automatic test only (adb … --ez tf_selftest true): save a tiny file through the bridge
                     if (intent?.getBooleanExtra("tf_selftest", false) == true)
                         view.evaluateJavascript("androidSendFile(new Blob(['TF self-test ' + Date.now()], {type:'text/plain'}), 'tf_selftest.txt', 'save').then(r => console.error('SELFTEST ' + r)).catch(e => console.error('SELFTEST err ' + e))", null)
@@ -160,7 +169,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        if (savedInstanceState != null) web.restoreState(savedInstanceState) else web.loadUrl(startUrl)
+        if (savedInstanceState != null) web.restoreState(savedInstanceState) else web.loadUrl(firstUrl())
 
         if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
             askNotify.launch(Manifest.permission.POST_NOTIFICATIONS)

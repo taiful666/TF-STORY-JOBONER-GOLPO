@@ -73,6 +73,7 @@ button:active,.btn:active{transform:scale(.97)}button:disabled{opacity:.45;curso
 .ghost{background:#fff;border-color:var(--line)!important;color:var(--ink)}.ghost:hover{border-color:var(--g)!important}
 .link{border:0;background:none;color:var(--g);font-weight:600;cursor:pointer;padding:4px 2px;text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(30,58,47,.3)}
 .icon{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:pointer;display:inline-grid;place-items:center;font-size:15px;flex:none;transition:border-color .15s}.icon:hover{border-color:var(--g)}.icon.sm{width:38px;height:auto}.icon.dark{background:var(--g);color:#fff;border-color:var(--g)}
+a.icon.suitebtn{text-decoration:none;color:inherit;font-size:19px;line-height:1}
 .filebtn{position:relative;overflow:hidden;margin:0}.filebtn input{position:absolute;inset:0;opacity:0;cursor:pointer}
 .chk{flex-direction:row;align-items:center;gap:8px;color:var(--ink);font-size:14.5px}.chk input{width:17px;height:17px;accent-color:var(--g)}.chk.center{justify-content:center}
 .keyrow{display:flex;gap:6px}.keyrow input,.keyrow select{flex:1;min-width:0}
@@ -457,6 +458,7 @@ button.primary.gold:hover{filter:brightness(.96)}
     <button data-step="4"><i><svg><use href="#i-share"/></svg><em>✓</em></i><span class="lbl"><b class="lf">এক্সপোর্ট</b><b class="ls">এক্সপোর্ট</b><small class="sn">ভিডিও ও শেয়ার</small></span></button>
   </nav>
   <div class="tools">
+    <a class="icon suitebtn" id="btnSuite" href="islamic/index.html" title="ইসলামিক অংশে যান (কুরআন-হাদিসের গল্প, আয়াত, বাণী)" aria-label="ইসলামিক অংশ">🕋</a>
     <button class="icon acbtn" id="btnAccount" type="button" title="Gmail লগইন ও ক্লাউড সিঙ্ক" aria-label="Gmail অ্যাকাউন্ট"><svg aria-hidden="true"><use href="#i-user"/></svg><img id="acBtnPhoto" class="hidden" alt="" width="42" height="42" referrerpolicy="no-referrer"><i class="acdot hidden" id="acDot" aria-hidden="true"></i></button>
     <button class="icon" id="btnGallery" title="সব চরিত্র দেখুন" aria-label="সব চরিত্র"><svg><use href="#i-users"/></svg></button>
     <button class="icon" id="btnHelp" title="সাহায্য" aria-label="সাহায্য"><svg><use href="#i-help"/></svg></button>
@@ -735,6 +737,7 @@ button.primary.gold:hover{filter:brightness(.96)}
   </div>
   <div class="stp hidden" id="st-key">
     <p class="muted sm">🔒 key শুধু এই ব্রাউজারে থাকে, সরাসরি Google/Anthropic/Cartesia-তে যায়। কোনো ফাইল বা শেয়ারে key যায় না।</p>
+    <p class="muted sm">🔗 Gemini ও Claude key <b>গল্প</b> ও <b>ইসলামিক</b> — দুই অংশেই একসাথে কাজ করে। একবার দিলেই হবে।</p>
     <h4>Gemini (গল্প লেখা)</h4>
     <div class="grid2">
       <label>Gemini API key<div class="keyrow"><input id="gKey" type="password" autocomplete="off" spellcheck="false" placeholder="AIza..."><button type="button" class="icon sm" data-eye="gKey" aria-label="দেখাও">👁</button></div></label>
@@ -7219,7 +7222,8 @@ async function init() {
   // installable app (PWA) when served from https (GitHub Pages); later wrapped as an Android APK
   if (!IS_ANDROID && 'serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => { });
   // Android Back button: close dialog → previous step → (app asks to press again to exit)
-  window.TFBack = () => { const d = document.querySelector('dialog[open]'); if (d) { d.close(); return true; } if (curStep > 1) { goStep(curStep - 1); return true; } return false; };
+  try { localStorage.setItem('tf_suite_last', 'story'); } catch (e) { }
+  window.TFBack = () => { const d = document.querySelector('dialog[open]'); if (d) { d.close(); return true; } if (curStep > 1) { goStep(curStep - 1); return true; } if (IS_ANDROID) { location.href = 'home.html'; return true; } return false; };
   if (IS_ANDROID) { document.body.classList.add('in-app'); const v = (() => { try { return window.TFAndroid.appVersion(); } catch (e) { return ''; } })(); $('appInfo').classList.remove('hidden'); $('appVer').textContent = 'অ্যাপ ভার্সন: ' + v; $('btnCheckUpdate').onclick = () => window.TFAndroid.checkUpdate(); $('shareHint').textContent = 'ভিডিও ফোনের গ্যালারিতে (Movies › TF Story Studio) সেভ হয়েছে। "শেয়ার" চাপলে Drive, Facebook Reels/পোস্ট, WhatsApp — যেকোনোটা বেছে নিন।'; }
   try { await Promise.all(['400 40px TFBody', '700 40px TFBody', '400 40px TFKalp', '400 40px TFAdorsho', '400 40px TFBensen', '700 40px TFCap', '700 40px TFDisp', '800 40px TFDisp', '700 40px TFAtma', '700 40px TFMina', '400 40px TFTiro', '700 40px TFSerif', '400 40px TFGalada', '700 40px TFPlay'].map(f => document.fonts.load(f, 'অআকখ২৫ Ab'))); } catch (e) { }
   try { const cf = await IDB.get('kv', 'customFont'); if (cf && cf.bytes) { await loadCustomFont(cf.bytes, cf.name); applyFonts(); buildFontPickers(); } } catch (e) { }

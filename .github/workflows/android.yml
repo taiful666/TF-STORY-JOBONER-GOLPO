@@ -5,10 +5,19 @@ on:
     branches: [main]
     paths:
       - 'index.html'
+      - 'home.html'
+      - 'islamic/**'
       - 'manifest.webmanifest'
       - 'icon-*.png'
       - 'android/**'
       - 'vendor/**'
+      - '.github/workflows/android.yml'
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'home.html'
+      - 'islamic/**'
+      - 'android/**'
       - '.github/workflows/android.yml'
   workflow_dispatch:
 
@@ -27,7 +36,7 @@ jobs:
       signed: ${{ steps.sign.outputs.signed }}
       vn: ${{ steps.name.outputs.vn }}
     env:
-      TF_VERSION_NAME: '4.3'
+      TF_VERSION_NAME: '4.4'
     steps:
       - uses: actions/checkout@v5
 
@@ -54,6 +63,9 @@ jobs:
           mkdir -p android/app/src/main/assets/www
           cp index.html manifest.webmanifest icon-192.png icon-512.png icon-maskable-512.png android/app/src/main/assets/www/
           cp -r vendor android/app/src/main/assets/www/
+          # start screen + the Islamic part (TF Post Maker)
+          cp home.html android/app/src/main/assets/www/
+          cp -r islamic android/app/src/main/assets/www/
 
       - name: Prepare signing key (from encrypted GitHub secrets — never stored in the repo)
         id: sign
@@ -113,11 +125,12 @@ jobs:
           script: bash android/ci/smoke.sh
       - uses: actions/upload-artifact@v4
         if: always()
-        with: { name: emulator-screenshot, path: screen.png, if-no-files-found: ignore }
+        with: { name: emulator-screenshot, path: 'screen*.png', if-no-files-found: ignore }
 
   release:
     needs: [build, test]
-    if: needs.build.outputs.signed == 'true'
+    # only builds of main become an update for the phones; branch / pull-request builds are for testing
+    if: needs.build.outputs.signed == 'true' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
