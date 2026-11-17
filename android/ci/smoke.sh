@@ -48,7 +48,7 @@ adb exec-out screencap -p > screen-islamic.png
 echo "---- Islamic story videos (index.html?part=islamic) ----"
 adb logcat -c
 adb shell "am start -W -S -n com.taiful.tfstory/.MainActivity --es tf_page 'index.html?part=islamic'"
-sleep 15
+for i in $(seq 1 15); do adb logcat -d -s TFWeb:* | grep -q 'part=islamic' && break; sleep 3; done
 adb logcat -d -s TFWeb:* | tail -4
 adb logcat -d | grep -E "chromium.*(Uncaught|SyntaxError|TypeError|ReferenceError)" | head -10
 adb logcat -d -s TFWeb:* | grep -qE 'page=/assets/www/index.html\?part=islamic lib=[1-9]' || { echo "FAIL: Islamic story part did not start"; OK=0; }
@@ -57,7 +57,7 @@ adb exec-out screencap -p > screen-islamic-story.png
 echo "---- start screen (home.html) ----"
 adb logcat -c
 adb shell am start -W -S -n com.taiful.tfstory/.MainActivity
-sleep 12
+for i in $(seq 1 15); do adb logcat -d -s TFWeb:* | grep -q 'page=/assets/www/home.html' && break; sleep 3; done
 adb logcat -d -s TFWeb:* | tail -4
 adb logcat -d -s TFWeb:* | grep -q 'page=/assets/www/home.html' || { echo "FAIL: start screen did not open"; OK=0; }
 adb exec-out screencap -p > screen-home.png
