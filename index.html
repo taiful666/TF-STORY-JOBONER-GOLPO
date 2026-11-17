@@ -5320,7 +5320,7 @@ function oneOf(v, list, def) { v = str(v).toLowerCase(); return list.includes(v)
 
 function normalizeStory(raw, hero) {
   const warn = [];
-  const st = { title: str(raw.title) || 'নতুন গল্প', thumb: str(raw.thumb), area: str(raw.area), voiceMap: (raw.voiceMap && typeof raw.voiceMap === 'object') ? Object.fromEntries(Object.entries(raw.voiceMap).filter(([k, v]) => typeof v === 'string').map(([k, v]) => [String(k).slice(0, 40), v.slice(0, 80)])) : {}, cover: (raw.cover && typeof raw.cover === 'object') ? { ctx: str(raw.cover.ctx), l1: str(raw.cover.l1), l2: str(raw.cover.l2), icon: PROPS.includes(str(raw.cover.icon)) ? str(raw.cover.icon) : '', sym: str(raw.cover.sym).slice(0, 4), who: str(raw.cover.who) } : null, book: raw.book || {}, youtube: raw.youtube || {}, characters: [], scenes: [] };
+  const st = { title: str(raw.title) || 'নতুন গল্প', thumb: str(raw.thumb), area: str(raw.area), voiceMap: (raw.voiceMap && typeof raw.voiceMap === 'object') ? Object.fromEntries(Object.entries(raw.voiceMap).filter(([k, v]) => typeof v === 'string').map(([k, v]) => [String(k).slice(0, 40), v.slice(0, 80)])) : {}, cover: (raw.cover && typeof raw.cover === 'object') ? { ctx: str(raw.cover.ctx), l1: str(raw.cover.l1), l2: str(raw.cover.l2), icon: PROPS.includes(str(raw.cover.icon)) ? str(raw.cover.icon) : '', sym: str(raw.cover.sym).slice(0, 4), symFull: str(raw.cover.sym).slice(0, 18), who: str(raw.cover.who) } : null, book: raw.book || {}, youtube: raw.youtube || {}, characters: [], scenes: [] };
   st.book = { title: str(st.book.title), author: str(st.book.author), lesson: str(st.book.lesson), lesson_bn: str(st.book.lesson_bn) };
   if (str(raw.fmt) === 'long') { st.fmt = 'long'; st.longStyle = oneOf(raw.longStyle, ['life', 'thriller', 'guide'], 'life'); }
   const ids = new Set(); const roleCount = {};
@@ -7013,6 +7013,17 @@ function coverData(st) {
   let sym = cv.sym || ''; if (!sym) { const m = allTxt.match(/[০-৯\d]+/); sym = m ? m[0].slice(0, 3) : '৳'; }
   return { ctx: strip(ctx), l1: l1.trim(), l2: l2.trim(), icon, sym };
 }
+/* the thumbnail's curiosity line: the script's teaser if it has one, else built from the title — an open loop, not the ending.
+   returns { body, end ('?' or '…'), q (is a question), key (words to highlight) } */
+function thumbHook(st, l1, l2) {
+  const QW = /কেন|কী|কি |কোথায়|কীভাবে|কিভাবে|কে |কার |কতদিন|কত |আসলে কী/;
+  let t = String((st.cover && st.cover.ctx) || '').trim(); const marked = new Set(); (t.match(/\{([^}]*)\}/g) || []).forEach(m => m.slice(1, -1).split(/\s+/).forEach(w => marked.add(w))); t = t.replace(/[{}]/g, '');
+  if (!t) { const ti = String(st.title || l1 || '').replace(/[{}]/g, ''); t = (ti.split(/[,!।:—–|]/)[0] || ti).trim(); const w = t.split(/\s+/); if (w.length > 7) t = w.slice(0, 7).join(' '); }
+  t = t.replace(/\s*(\.\.\.|…|\?|!|।)+\s*$/, '').trim();
+  const q = QW.test(t + ' '), end = q ? '?' : '…';
+  const key = new Set(marked); t.split(/\s+/).forEach(w => { if (/এমন|আসল|গোপন|লুকানো|সত্যি|কেউ|কখনো|শেষ|একটাই|কেন|কী|কোথায়/.test(w)) key.add(w.replace(KT_PUNCT, '')); });
+  return { body: t, end, q, key };
+}
 function coverPickShot(st, tl) {
   // the most emotional line (more people on screen + strong feeling, no pop-up card) → picture-frame moment
   let best = null, bestScore = -1;
@@ -8140,7 +8151,7 @@ class LongRenderer extends StoryRenderer {
     String(L1 + ' ' + L2).split(/\s+/).forEach(w => { if (/[০-৯\d]/.test(w)) red.add(w.replace(KT_PUNCT, '')); });
     const good = /সফল|জিত|আয়|প্রথম ক্লায়েন্ট|লাভ|ধনী|কোটিপতি|বাঁচল|জয়/.test(all) && !/হারা|ধ্বংস|শেষ|চুরি|ফাঁদ|ভুল|নেই|কাঁদ|শূন্য|ঋণ|ধার|প্রতারণা/.test(all);
     // layout per frame
-    const Lc = land ? { tx: 64 * u, ty: 64 * u, tw: FW * .55, cx: FW * .515, cy: FH * .33, cw: FW * .45, head: [FW * .19, FH * .66], ps: FH / 1080 * 2.3, lines: 3, size: 140 * u }
+    const Lc = land ? { tx: 64 * u, ty: 64 * u, tw: FW * .5, cx: FW * .515, cy: FH * .36, cw: FW * .45, head: [FW * .19, FH * .66], ps: FH / 1080 * 2.3, lines: 3, size: 140 * u }
       : port ? { tx: 56 * u, ty: 120 * u, tw: FW - 112 * u, cx: FW * .07, cy: FH * .37, cw: FW * .86, head: [FW * .5, FH * .835], ps: FW / 1080 * 2.6, lines: 4, size: 175 * u }
       : { tx: 56 * u, ty: 70 * u, tw: FW - 112 * u, cx: FW * .3, cy: FH * .4, cw: FW * .64, head: [FW * .2, FH * .8], ps: FW / 1080 * (FH > FW * 1.1 ? 2 : 1.75), lines: 3, size: 128 * u };
     const ch = Lc.cw * .64, cardC = [Lc.cx + Lc.cw / 2, Lc.cy + ch / 2];
@@ -8150,30 +8161,40 @@ class LongRenderer extends StoryRenderer {
       const rg = c.createRadialGradient(cardC[0], cardC[1], 10, cardC[0], cardC[1], Math.max(FW, FH) * .6); rg.addColorStop(0, kt ? 'rgba(255,70,80,.35)' : 'rgba(255,214,120,.45)'); rg.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = rg; c.fillRect(0, 0, FW, FH);
       const vg = c.createRadialGradient(FW / 2, FH / 2, Math.min(FW, FH) * .35, FW / 2, FH / 2, Math.max(FW, FH) * .75); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.6)'); c.fillStyle = vg; c.fillRect(0, 0, FW, FH); }
     // 2. the key picture of the story in a tilted card
-    const hero = this.thumbHero(d); LV.card(c, hero, { x: Lc.cx, y: Lc.cy, w: Lc.cw, h: ch, rot: land ? .035 : -.03, u, t: 2, lt: 3.2, zoom: 1.05 });
+    const hero = this.thumbHero(d); if (hero.kind === 'chart_line' && /শূন্য|নিচে|হারা|পতন|উধাও|নেই|ধস|দেউলিয়া|শেষ/.test(all + ' ' + String((st.cover && st.cover.ctx) || ''))) hero.tx[1] = 'crash'; LV.card(c, hero, { x: Lc.cx, y: Lc.cy, w: Lc.cw, h: ch, rot: land ? .035 : -.03, u, t: 2, lt: 3.2, zoom: 1.05 });
     // a number badge on the card's corner (the headline's amount)
-    { const m = (L1 + ' ' + L2 + ' ' + (st.title || '')).match(/[০-৯\d][০-৯\d,.]*\s*(কোটি|লাখ|হাজার|মিলিয়ন|বিলিয়ন|ট্রিলিয়ন)?\s*(টাকা|ডলার|৳)?/); const amt = m && (m[1] || m[2] || m[0].replace(/[^০-৯\d]/g, '').length >= 3) ? m[0].trim() : '';
-      if (amt) { const bs = (land ? 64 : 70) * u; c.font = `800 ${bs}px ${FONT_BN}, ${FONT_FALLBACK}`; const bw = c.measureText(amt).width + 60 * u, bx = Math.min(Lc.cx + Lc.cw - bw * .7, FW - bw - 24 * u), by = Lc.cy - bs * .55; c.save(); c.translate(bx + bw / 2, by + bs * .7); c.rotate(.07); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 24 * u; c.shadowOffsetY = 8 * u; rr(c, -bw / 2, -bs * .75, bw, bs * 1.5, 14 * u, good ? '#22A06B' : '#E5202E', '#FFFFFF', 6 * u); c.restore(); c.save(); c.translate(bx + bw / 2, by + bs * .7); c.rotate(.07); txt(c, amt, 0, bs * .36, bs, '#FFFFFF', 800, 'center', FONT_BN, bw - 30 * u); c.restore(); } }
+    { const m = (L1 + ' ' + L2 + ' ' + (st.title || '')).match(/[০-৯\d][০-৯\d,.]*\s*(কোটি|লাখ|হাজার|মিলিয়ন|বিলিয়ন|ট্রিলিয়ন)?\s*(টাকা|ডলার|৳)?/); const sy = String((st.cover && (st.cover.symFull || st.cover.sym)) || '').trim(), amt = sy.length > 1 && /[০-৯\d]/.test(sy) ? sy : m && (m[1] || m[2] || m[0].replace(/[^০-৯\d]/g, '').length >= 3) ? m[0].trim() : '';
+      if (amt) { const bs = (land ? 64 : 70) * u; c.font = `800 ${bs}px ${FONT_BN}, ${FONT_FALLBACK}`; const bw = c.measureText(amt).width + 60 * u, bx = Math.min(Lc.cx + Lc.cw - bw * .7, FW - bw - 24 * u), by = Lc.cy - bs * .55; c.save(); c.translate(bx + bw / 2, by + bs * .7); c.rotate(.07); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 24 * u; c.shadowOffsetY = 8 * u; rr(c, -bw / 2, -bs * .75, bw, bs * 1.5, 14 * u, good ? '#22A06B' : '#E5202E', '#FFFFFF', 6 * u); c.restore(); c.save(); c.translate(bx + bw / 2, by + bs * .7); c.rotate(.07); c.font = `800 ${bs}px ${FONT_BN}, ${FONT_FALLBACK}`; c.fillStyle = '#FFFFFF'; c.textAlign = 'center'; c.fillText(amt, 0, bs * .36); c.textAlign = 'left'; c.restore(); } }
+    const hook = thumbHook(st, L1, L2), quote0 = (st.cover && st.cover.ctx && (st.cover.l1 || st.cover.l2)) ? String((st.cover.l1 || '') + ' ' + (st.cover.l2 || '')).trim() : '', qw = quote0.replace(/[{}]/g, '').split(/\s+/).filter(Boolean), hw = new Set(hook.body.split(/\s+/)), quote = qw.length && qw.filter(w => hw.has(w)).length / qw.length > .4 ? '' : quote0; let headPt = null;
+    // a big "?" sticker on the picture: the question the viewer must click to answer
+    if (hook.q) { const qx = Lc.cx + Lc.cw - 30 * u, qy = Lc.cy + ch - 20 * u, qr = (land ? 78 : 90) * u; c.save(); c.translate(qx, qy); c.rotate(.18); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 24 * u; c.beginPath(); c.arc(0, 0, qr, 0, 7); c.fillStyle = '#FFD23F'; c.fill(); c.lineWidth = 8 * u; c.strokeStyle = '#FFFFFF'; c.stroke(); c.restore(); c.save(); c.translate(qx, qy); c.rotate(.18); txt(c, '?', 0, qr * .5, qr * 1.5, '#E5202E', 800, 'center', 'TFDisp'); c.restore(); }
     // 3. the main character as a sticker
     const cnt = {}; st.scenes.forEach(s0 => { if (s0.type !== 'story') return; (s0.cast || []).forEach(id => cnt[id] = (cnt[id] || 0) + 1); (s0.lines || []).forEach(l => { if (l.who) cnt[l.who] = (cnt[l.who] || 0) + .3; }); });
-    const id = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0], cr = id && this.chars[id];
+    const who = st.cover && st.cover.who && this.chars[st.cover.who] ? st.cover.who : '', id = who || Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0], cr = id && this.chars[id];
     if (cr) { const pc = document.createElement('canvas'); pc.width = FW; pc.height = FH; const px = pc.getContext('2d'), s0 = Lc.ps, kf = cr.L.kid ? .74 : cr.L.teen ? .92 : 1, hx = Lc.head[0], hy = Lc.head[1];
       try { drawPerson(px, { L: cr.L, x: hx, y: hy + 330 * s0 * kf, s: s0, feel: good ? 'happy' : 'surprised', act: good ? 'point' : 'hands_on_head', t: .55, seed: 3, flip: !land && hx > FW * .5 }); } catch (e) { }
       const wc = document.createElement('canvas'); wc.width = FW; wc.height = FH; const wx = wc.getContext('2d'); wx.drawImage(pc, 0, 0); wx.globalCompositeOperation = 'source-in'; wx.fillStyle = '#FFFFFF'; wx.fillRect(0, 0, FW, FH);
       c.save(); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 50 * u; c.shadowOffsetY = 14 * u; c.drawImage(wc, 0, 0); c.restore();
       const ow = 10 * u; for (let a = 0; a < 16; a++) c.drawImage(wc, Math.cos(a / 16 * Math.PI * 2) * ow, Math.sin(a / 16 * Math.PI * 2) * ow); c.drawImage(pc, 0, 0);
       // shock lines by the head
-      const hr = 115 * s0 * kf; if (land) { c.save(); c.strokeStyle = '#FFD23F'; c.lineWidth = 12 * u; c.lineCap = 'round'; [-.9, -.5, -.1].forEach(a => { const ax = hx + Math.cos(a) * hr * 1.25, ay = hy - hr * .25 + Math.sin(a) * hr * 1.25; c.beginPath(); c.moveTo(ax, ay); c.lineTo(ax + Math.cos(a) * 60 * u, ay + Math.sin(a) * 60 * u); c.stroke(); }); c.restore(); }
+      const hr = 115 * s0 * kf; headPt = [hx, hy, hr]; if (land) { c.save(); c.strokeStyle = '#FFD23F'; c.lineWidth = 12 * u; c.lineCap = 'round'; [-.9, -.5, -.1].forEach(a => { const ax = hx + Math.cos(a) * hr * 1.25, ay = hy - hr * .25 + Math.sin(a) * hr * 1.25; c.beginPath(); c.moveTo(ax, ay); c.lineTo(ax + Math.cos(a) * 60 * u, ay + Math.sin(a) * 60 * u); c.stroke(); }); c.restore(); }
       // a red arrow from the character to the picture
-      if (land) { const ax = hx + hr * 1.5, ay = hy - hr * .3, bx = Lc.cx - 10 * u, by = Lc.cy + ch * .55; const arrow = (col, lw) => { c.save(); c.strokeStyle = col; c.fillStyle = col; c.lineWidth = lw; c.lineCap = 'round'; c.beginPath(); c.moveTo(ax, ay); c.quadraticCurveTo((ax + bx) / 2, ay - 120 * u, bx - 40 * u, by); c.stroke(); const ang = Math.atan2(by - (ay - 120 * u), bx - 40 * u - (ax + bx) / 2); c.translate(bx - 40 * u, by); c.rotate(ang); c.beginPath(); c.moveTo(lw * 1.6, 0); c.lineTo(-lw * 1.6, -lw * 1.7); c.lineTo(-lw * 1.6, lw * 1.7); c.closePath(); c.fill(); c.restore(); }; arrow('#FFFFFF', 30 * u); arrow('#E5202E', 18 * u); } }
-    // 4. headline
-    const maxW = Lc.tw; let size = Lc.size; const fit = (t0, sz) => t0 ? wrapText(c, t0, sz, maxW, 800, FONT_BN) : [];
-    while (size > 64 * u && fit(L1, size).length + fit(L2, size * .92).length > Lc.lines) size -= 6 * u;
-    let y = Lc.ty;
-    if (d.ctx) { const cs = Math.max(34 * u, size * .3); c.font = `800 ${cs}px ${FONT_BN}, ${FONT_FALLBACK}`; const w = Math.min(maxW, c.measureText(d.ctx).width + 50 * u); c.save(); c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = 14 * u; rr(c, Lc.tx, y, w, cs * 1.5, 10 * u, '#E5202E'); c.restore(); txt(c, d.ctx, Lc.tx + 25 * u, y + cs * 1.08, cs, '#FFFFFF', 800, 'left', FONT_BN, w - 40 * u); y += cs * 1.5 + 18 * u; }
-    y += size * .95; c.textAlign = 'left'; c.lineJoin = 'round';
-    fit(L1, size).slice(0, Lc.lines - (L2 ? 1 : 0)).forEach(l => { let xx = Lc.tx; l.split(/\s+/).forEach(w => { const key = red.has(w.replace(KT_PUNCT, '')); c.font = `800 ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; c.save(); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 18 * u; c.shadowOffsetY = 6 * u; c.lineWidth = size * .2; c.strokeStyle = '#000000'; c.strokeText(w, xx, y); c.restore(); c.fillStyle = key ? '#FFD23F' : '#FFFFFF'; c.fillText(w, xx, y); xx += c.measureText(w + ' ').width; }); y += size * 1.1; });
-    if (L2) { const s2 = size * .92; fit(L2, s2).slice(0, 2).forEach((l, i) => { c.font = `800 ${s2}px ${FONT_BN}, ${FONT_FALLBACK}`; const w = c.measureText(l).width + 56 * u, bx = Lc.tx - 6 * u, by = y - s2 * .95; c.save(); c.translate(bx + w / 2, by + s2 * .6); c.rotate(-.025); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 24 * u; c.shadowOffsetY = 8 * u; rr(c, -w / 2, -s2 * .6, w, s2 * 1.22, 12 * u, kt ? '#E5202E' : '#FFD23F'); c.restore(); c.save(); c.translate(bx + w / 2, by + s2 * .6); c.rotate(-.025); c.fillStyle = kt ? '#FFFFFF' : '#141414'; c.font = `800 ${s2}px ${FONT_BN}, ${FONT_FALLBACK}`; c.textAlign = 'left'; c.fillText(l, -w / 2 + 28 * u, s2 * .36); c.restore(); y += s2 * 1.3; }); }
+      if (land && !quote) { const ax = hx + hr * 1.5, ay = hy - hr * .3, bx = Lc.cx - 10 * u, by = Lc.cy + ch * .55; const arrow = (col, lw) => { c.save(); c.strokeStyle = col; c.fillStyle = col; c.lineWidth = lw; c.lineCap = 'round'; c.beginPath(); c.moveTo(ax, ay); c.quadraticCurveTo((ax + bx) / 2, ay - 120 * u, bx - 40 * u, by); c.stroke(); const ang = Math.atan2(by - (ay - 120 * u), bx - 40 * u - (ax + bx) / 2); c.translate(bx - 40 * u, by); c.rotate(ang); c.beginPath(); c.moveTo(lw * 1.6, 0); c.lineTo(-lw * 1.6, -lw * 1.7); c.lineTo(-lw * 1.6, lw * 1.7); c.closePath(); c.fill(); c.restore(); }; arrow('#FFFFFF', 30 * u); arrow('#E5202E', 18 * u); } }
+    // 4. the curiosity hook, big at the top: an open question, never the ending
+    { const maxW = Lc.tw; let size = Lc.size; const fit = (t0, sz) => t0 ? wrapText(c, t0, sz, maxW, 800, FONT_BN) : [];
+      while (size > 64 * u && fit(hook.body + hook.end, size).length > Lc.lines) size -= 6 * u;
+      let y = Lc.ty + size * .95; const ls = fit(hook.body + hook.end, size).slice(0, Lc.lines), lastL = ls.length - 1; c.textAlign = 'left'; c.lineJoin = 'round';
+      ls.forEach((l, li) => { let xx = Lc.tx; const ws = l.split(/\s+/); ws.forEach((w, wi) => { const last = li === lastL && wi === ws.length - 1 && w.endsWith(hook.end), stem = last ? w.slice(0, -hook.end.length) : w, key = hook.key.has(stem.replace(KT_PUNCT, '')) || /[০-৯\d]/.test(stem), sz = size; c.font = `800 ${sz}px ${FONT_BN}, ${FONT_FALLBACK}`; w = stem; const isEnd = false;
+        c.save(); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 20 * u; c.shadowOffsetY = 6 * u; c.lineWidth = sz * .2; c.strokeStyle = '#000000'; c.strokeText(w, xx, y); c.restore(); c.fillStyle = isEnd ? '#FF3B3B' : key ? '#FFD23F' : '#FFFFFF'; c.fillText(w, xx, y);
+        if (key) { c.save(); c.fillStyle = '#FFD23F'; c.fillRect(xx, y + size * .14, c.measureText(w).width, 8 * u); c.restore(); } xx += c.measureText(w).width; if (last) { const es = size * 1.3; c.font = `800 ${es}px ${FONT_BN}, ${FONT_FALLBACK}`; xx += 6 * u; c.save(); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 20 * u; c.lineWidth = es * .2; c.strokeStyle = '#000000'; c.strokeText(hook.end, xx, y); c.restore(); c.fillStyle = '#FF3B3B'; c.fillText(hook.end, xx, y); c.font = `800 ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; } xx += c.measureText(' ').width; }); y += size * 1.12; }); }
+    // 5. what the character says, in a speech bubble beside the face ({words} in red)
+    if (quote && headPt) { const qs = (land ? 50 : 58) * u, qmax = land ? FW * .3 : FW * .62, words = quote.replace(/[{}]/g, ''), redW = new Set(); (quote.match(/\{([^}]*)\}/g) || []).forEach(m => m.slice(1, -1).split(/\s+/).forEach(w => redW.add(w)));
+      let q = qs, lines = wrapText(c, '“' + words + '”', q, qmax, 800, FONT_BN); while (lines.length > 3 && q > 30 * u) { q -= 3 * u; lines = wrapText(c, '“' + words + '”', q, qmax, 800, FONT_BN); }
+      c.font = `800 ${q}px ${FONT_BN}, ${FONT_FALLBACK}`; const bw = Math.max(...lines.map(l => c.measureText(l).width)) + 56 * u, bh = lines.length * q * 1.25 + 40 * u, [hx, hy, hr] = headPt, side = land || hx < FW * .5;
+      let bx = land || !port ? hx + hr * 1.05 : FW / 2 - bw / 2, by = land || !port ? hy - hr * .15 - bh : hy - hr * 1.5 - bh; bx = Math.max(24 * u, Math.min(FW - bw - 24 * u, bx)); by = Math.max(24 * u, by);
+      c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 26 * u; c.shadowOffsetY = 8 * u; c.fillStyle = '#FFFFFF'; c.beginPath(); c.roundRect(bx, by, bw, bh, 26 * u); c.fill();
+      const tx0 = land || !port ? bx + 30 * u : hx + 40 * u, ty0 = by + bh - 4 * u; c.beginPath(); c.moveTo(tx0, ty0); c.lineTo(tx0 + 60 * u, ty0); c.lineTo(land || !port ? hx + hr * .55 : hx + hr * .1, land || !port ? hy - hr * .05 : hy - hr * 1.1); c.closePath(); c.fill(); c.restore();
+      let yy = by + 20 * u + q * .98; lines.forEach(l => { let xx = bx + 28 * u; l.split(/\s+/).forEach(w => { c.font = `800 ${q}px ${FONT_BN}, ${FONT_FALLBACK}`; c.fillStyle = redW.has(w.replace(/[“”]/g, '').replace(KT_PUNCT, '')) ? '#E5202E' : '#141414'; c.textAlign = 'left'; c.fillText(w, xx, yy); xx += c.measureText(w + ' ').width; }); yy += q * 1.25; }); }
     // 5. channel logo
     c.save(); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 14; drawLogo(c, FW - 84 * u, land ? 84 * u : FH - 84 * u, 110 * u, (this.settings || {}).logo || 'TF'); c.restore();
   }
@@ -8309,6 +8330,13 @@ ${style === 'life' ? 'বই: বইয়ের ইংরেজি নাম | 
 - কার্ড (মোট ১২-২৫টা, ছড়িয়ে): [reveal: জিনিস / লেখা] [sms: শিরোনাম / লেখা] [chat: নাম / লেখা] [call: নাম] [alert: লেখা] [date: তারিখ] [doc: শিরোনাম / লেখা] [source: সূত্র / কী বলেছে] [counter: লেবেল / শুরু / শেষ / আগে-চিহ্ন] [compare: বাম / মান / ডান / মান] [check: + কাজ / + কাজ] [price: লেখা] [big: লেখা] [progress: লেবেল / শতাংশ] [scene: ধরন / লেখা১ / লেখা২]${style === 'thriller' ? ' [statement: ছোট লাইন / বড় সোনালি লেখা] [label: সূত্র: নাম]' : style === 'life' ? ' [tag: ✗ লেখা / ✓ লেখা] [hud: লেবেল / আগে → এখন] [label: ছোট লেখা]' : ' [label: ছোট লেখা]'}
 - অ্যানিমেটেড কনসেপ্ট ছবি (পুরো পর্দা জুড়ে, ক্যারেক্টার ছাড়া; ১০-২০টা, যেখানে সংখ্যা/তারিখ/জায়গা/নথি/তালা/ফোন/চার্ট বোঝানো দরকার): [scene: ধরন / লেখা১ / লেখা২]। ধরন: calendar(তারিখ), skyline, building(স্কুল/ব্যাংক/অফিস), chart_line(লেখা, up/down/crash), chart_bars, counter, doc, email, money, people, route(দেশ১ / দেশ২), magnifier, lock(লেখা, lock/open), phone(মেসেজ...), balance, timeline, question, network, files, clock, alert। যেমন: [scene: chart_line / ১০১ মিলিয়ন ডলার / crash]
 - থাম্বনেল: টিজার ৫-৯ শব্দের রহস্য; উক্তি মোট ৩-৯ শব্দ, দুই ভাগ, ১-৩টা শব্দ {} দিয়ে লাল।
+- থাম্বনেলের টিজার (সবচেয়ে বড় লেখা, ৪-৭ শব্দ) হবে খোলা প্রশ্ন, যার উত্তর জানতে ভিডিও দেখতেই হবে। গল্পের শেষ বা ফলাফল কখনো বলবে না। এই ছাঁচগুলোর একটা নাও:
+  ১) লুকানো জিনিস: "কিপটে চাচার কৌটোয় এমন কী ছিল?" / "শেষ পাতায় লেখা ছিল একটাই কথা..."
+  ২) সংখ্যা + রহস্য: "১১ বছর রোজ রাত ৯টায় ছাদে... কেন?"
+  ৩) উল্টো ঘটনা: "লটারি জিতে যে কারণে ফকির হলো" / "কিপটে চাচাই কোটিপতি?"
+  ৪) অসম্পূর্ণ বাক্য: "ব্যাংকের সিস্টেমে একটা ছোট ভুল..."
+  ৫) কেউ জানত না: "যে সত্যিটা ২৬ বছর কেউ জানত না"
+  টিজারে নির্দিষ্ট সংখ্যা বা চেনা জিনিস (কৌটো, খাতা, ফোন, রসিদ) রাখো; এক-দুটো শব্দ {} দিয়ে চিহ্নিত করো। উক্তি = ধাক্কা দেওয়া সংলাপ, টিজারের উত্তর নয়। সংখ্যার ঘরে পুরো অঙ্ক দাও ("৭ লাখ", "১০১ মিলিয়ন")।
 - ইউটিউব টাইটেল (৫০-৭০ অক্ষর): কৌতূহলের ফাঁক রাখো, উত্তর দিও না। একটা নির্দিষ্ট সংখ্যা (টাকা/দিন/বছর) + একটা বৈপরীত্য বা ধাক্কা ("জিতেছিল তিন লাখ, আজ ফর্মের টাকাও নেই")। ক্লিকবেইট মিথ্যা নয়, গল্পে যা আছে তাই।
 - থাম্বনেলের লেখা টাইটেলের পুনরাবৃত্তি নয়, পরিপূরক: উক্তির প্রথম অংশ ২-৪ শব্দ (সংখ্যা থাকলে ভালো), শেষ অংশ ২-৪ শব্দের ধাক্কা। আইকনের জায়গায় গল্পের মূল ছবির ধরন দাও (money, chart_line, plate, house, lock, jail, fire, gold, wallet, piggy, exam, health, laptop, plane …)।
 শুধু কোড ব্লকটা দাও, আগে-পরে কিছু লিখবে না।`;
