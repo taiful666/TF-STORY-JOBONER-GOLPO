@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://apis.google.com; style-src 'unsafe-inline'; font-src data:; img-src 'self' data: blob: https://lh3.googleusercontent.com; media-src data: blob: https:; connect-src https://api.cartesia.ai https://api.alquran.cloud https://cdn.jsdelivr.net https://generativelanguage.googleapis.com https://api.anthropic.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://apis.google.com data: blob:; frame-src https://*.firebaseapp.com https://accounts.google.com https://apis.google.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
+<script>/* web: opening the site root shows the same start screen as the Android app (গল্প / ইসলামিক), like the app does */
+(function () { try { if (window.TFAndroid) return; var q = location.search, p = location.pathname; if (/[?&](part|direct)=/.test(q) || !/\/$/.test(p)) return; location.replace('home.html' + q + location.hash); } catch (e) { } })();</script>
 <meta name="theme-color" content="#1E3A2F">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -585,6 +587,7 @@ dialog{border-radius:16px}.dlg{padding:24px}.dlg h3{font-size:18px}
     <button data-step="4"><i><svg><use href="#i-share"/></svg><em>✓</em></i><span class="lbl"><b class="lf">এক্সপোর্ট</b><b class="ls">এক্সপোর্ট</b><small class="sn">ভিডিও ও শেয়ার</small></span></button>
   </nav>
   <div class="tools">
+    <a class="icon suitebtn" id="btnHome" href="home.html" title="শুরুর পাতা: গল্প / ইসলামিক অংশ বাছুন" aria-label="শুরুর পাতা">🏠</a>
     <a class="icon suitebtn" id="btnSuite" href="islamic/index.html" title="ইসলামিক অংশে যান (কুরআন-হাদিসের গল্প, আয়াত, বাণী)" aria-label="ইসলামিক অংশ">🕋</a>
     <button class="icon acbtn" id="btnAccount" type="button" title="Gmail লগইন ও ক্লাউড সিঙ্ক" aria-label="Gmail অ্যাকাউন্ট"><svg aria-hidden="true"><use href="#i-user"/></svg><img id="acBtnPhoto" class="hidden" alt="" width="42" height="42" referrerpolicy="no-referrer"><i class="acdot hidden" id="acDot" aria-hidden="true"></i></button>
     <button class="icon" id="btnGallery" title="সব চরিত্র দেখুন" aria-label="সব চরিত্র"><svg><use href="#i-users"/></svg></button>
@@ -7603,7 +7606,8 @@ function longSfx(st, tl, S, play) {
   tl.shots.forEach(sh => {
     const sc = st.scenes[sh.si], ln = sc.lines[sh.li]; if (!ln) return;
     if (sc.type === 'story') {
-      if (sh.vis && pops) { play('whoosh', sh.start - .05); const vk = sh.vis; if (vk === 'calendar' || vk === 'counter' || vk === 'chart_bars' || vk === 'chart_line') play('ding', sh.start + .55); else if (vk === 'doc' || vk === 'email') for (let i = 0; i < 12; i++) play('type', sh.start + .5 + i * .07); else if (vk === 'alert' || vk === 'lock' || vk === 'question') play('boom', sh.start + .05); else if (vk === 'files' || vk === 'money') play('paper', sh.start + .3); else play('pop', sh.start + .35); }
+      if (sh.ins && pops) play('pop', sh.start + .3);
+      if (sh.vis && pops) { play('whoosh', sh.start - .05); const vk = sh.vis; if (vk === 'calendar' || vk === 'counter' || vk === 'chart_bars' || vk === 'chart_line' || vk === 'trophy' || vk === 'gift' || vk === 'idea' || vk === 'piggy' || vk === 'gold') play('ding', sh.start + .55); else if (vk === 'exam') play('boom', sh.start + 1.8); else if (vk === 'laptop') for (let i = 0; i < 10; i++) play('type', sh.start + .3 + i * .08); else if (vk === 'fire' || vk === 'jail' || vk === 'rain' || vk === 'heart' || vk === 'tv') play('boom', sh.start + .05); else if (vk === 'doc' || vk === 'email') for (let i = 0; i < 12; i++) play('type', sh.start + .5 + i * .07); else if (vk === 'alert' || vk === 'lock' || vk === 'question') play('boom', sh.start + .05); else if (vk === 'files' || vk === 'money') play('paper', sh.start + .3); else play('pop', sh.start + .35); }
       if (kt) {
         if (sh.li === 0 || ln.speak || ln.card) play('whoosh', sh.start - .07);
         if (sh.si === first && sh.li === 0) play('boom', sh.start);
@@ -7731,7 +7735,7 @@ class LongRenderer extends StoryRenderer {
     if (!this.story || !this.tl) return; this.lc = []; this.side = []; this.kb = []; let prev = -1, idx = 0;
     this.tl.shots.forEach((sh, k) => { const sc = this.story.scenes[sh.si], ln = sc.lines[sh.li]; if (sh.si !== prev) { idx = 0; prev = sh.si; } else idx++;
       if (sc.type === 'story') { const r = this.longCam(sc, idx, ln, sh.si); this.lc[k] = r.cam; this.side[k] = r.side; }
-      const h = hashStr(this.story.title + ':' + k); this.kb[k] = { dx: [-1, 0, 1, 1, -1][h % 5], dz: [1, -1, 1, 0][(h >> 3) % 4] }; });
+      const h = Math.abs(hashStr(this.story.title + ':' + k)) >>> 0; this.kb[k] = { dx: [-1, 0, 1, 1, -1][h % 5], dz: [1, -1, 1, 0][Math.floor(h / 8) % 4] }; });
     this._ktL = {};
   }
   /* camera inside the 9:16 story world for the current frame: wide shots and chest-up close-ups */
@@ -7840,7 +7844,8 @@ class LongRenderer extends StoryRenderer {
   drawShotL(c, si, k, t) {
     const sh = this.tl.shots[k], vk = this.vis && this.vis[k];
     if (vk && typeof LV !== 'undefined') { this._cam = null; LV.draw(c, vk, { FW: this.FW, FH: this.FH, u: this.u, t, lt: Math.max(0, t - sh.start), dur: sh.dur, land: this.land }); return; }
-    const r = this.drawStoryL(c, si, t); this._cam = r.cam; this._camSi = si; const ln = this.story.scenes[si].lines[r.sh.li]; if (ln.card) this.drawCardL(c, ln.card, t - r.sh.start, r.sh.dur + .2, t, r.k);
+    const r = this.drawStoryL(c, si, t); this._cam = r.cam; this._camSi = si; const sc = this.story.scenes[si], ln = sc.lines[r.sh.li]; if (ln.card) this.drawCardL(c, ln.card, t - r.sh.start, r.sh.dur + .2, t, r.k);
+    const iv = this.vis && this.vis.ins && this.vis.ins[k]; if (iv && typeof LV !== 'undefined' && LV.inset) { const heads = sc.cast.map(id => { const hd = this.headScr(sc, id, 0); return hd && isFinite(hd[0]) && isFinite(hd[1]) ? [hd[0], hd[1], hd[2], id === ln.who ? 1 : 0] : null; }).filter(Boolean), sp = heads.find(hd => hd[3]), side = sp && sp[0] > this.FW * .5 ? -1 : 1; LV.inset(c, iv, { FW: this.FW, FH: this.FH, u: this.u, t, lt: Math.max(0, t - sh.start), dur: sh.dur, land: this.land, side, heads, capBottom: !!this.kt }); }
   }
   drawSceneL(c, si, t) {
     const sc = this.story.scenes[si];
@@ -7851,7 +7856,7 @@ class LongRenderer extends StoryRenderer {
         if (this.vis && (this.vis[k0] || (samePrev && this.vis[k0 - 1] && dis < 1))) {
           // picture shots: a quick dissolve from the previous shot (character shot or another picture)
           if (dis < 1) { this.drawShotL(c, si, k0 - 1, sh0.start - .001); c.save(); c.globalAlpha = dis; this.drawShotL(c, si, k0, t); c.restore(); } else this.drawShotL(c, si, k0, t); }
-        else { const r = this.drawStoryL(c, si, t); this._cam = r.cam; this._camSi = si; const ln = sc.lines[r.sh.li]; if (ln.card) this.drawCardL(c, ln.card, t - r.sh.start, r.sh.dur + .2, t, r.k); } } }
+        else this.drawShotL(c, si, k0, t); } }
     else if (sc.type === 'chapter') this.drawChapterL(c, si, t);
     else if (sc.type === 'book') this.drawBookL(c, si, t);
     else if (sc.type === 'cta') this.drawCTAL(c, si, t);
@@ -7934,7 +7939,7 @@ class LongRenderer extends StoryRenderer {
     let M = meas(size); while (M.tot > maxW - padX * 2 && size > 30 * u) { size -= 3 * u; M = meas(size); }
     const bw = M.tot + padX * 2, bh = size * 1.62;
     // where: per shot, never the same spot three times; cards keep the caption at the bottom
-    let spot = hook && !(this.vis && this.vis[k]) ? 'mid' : (ln.card && ln.card.type !== 'label') || (this.vis && this.vis[k]) ? 'bot' : ['bot', 'bot', 'top', 'bot', 'near', 'bot', 'top'][(k * 5 + 3) % 7];
+    let spot = hook && !(this.vis && this.vis[k]) ? 'mid' : (ln.card && ln.card.type !== 'label') || (this.vis && (this.vis[k] || (this.vis.ins && this.vis.ins[k]))) ? 'bot' : ['bot', 'bot', 'top', 'bot', 'near', 'bot', 'top'][(k * 5 + 3) % 7];
     let bx = (FW - bw) / 2, by;
     if (spot === 'near') { const hp = ln.who ? this.headScr(sc, ln.who, 150) : null; if (hp && hp[1] - bh - 30 * u > 130 * u && hp[0] > 0 && hp[0] < FW) { bx = cl(hp[0] - bw / 2, 30 * u, FW - bw - 30 * u); by = hp[1] - bh - 30 * u; } else spot = 'bot'; }
     if (spot === 'top') by = (this.land ? 130 : this.port ? 300 : 170) * u;
@@ -8124,7 +8129,64 @@ class LongRenderer extends StoryRenderer {
     try { this.drawThumbInto(x); } catch (e) { console.warn(e); rect(x, 0, 0, this.FW, this.FH, this.P.bg1); }
     this._lcov = cv; this._lcovKey = key; c.drawImage(cv, 0, 0, this.FW, this.FH);
   }
+  /* thumbnail: bold colour + burst, the story's key picture in a tilted card, the main character as a white-outlined sticker
+     (shocked, hands on head — or happy and pointing), a red arrow, and a huge two-line headline (line 2 in a yellow/red box) */
   drawThumbInto(c) {
+    if (typeof LV === 'undefined' || !LV.card) return this.drawThumbClassic(c);
+    const st = this.story, FW = this.FW, FH = this.FH, u = this.u, land = this.land, port = this.port, kt = this.kt, d = coverData(st);
+    const raw1 = (st.thumb || '').trim() ? st.thumb.split('|')[0] : (st.cover && st.cover.l1) || d.l1, raw2 = (st.thumb || '').trim() ? (st.thumb.split('|')[1] || '') : (st.cover && st.cover.l2) || d.l2;
+    const red = new Set(); [raw1, raw2].forEach(r => (String(r).match(/\{([^}]*)\}/g) || []).forEach(m => m.slice(1, -1).split(/\s+/).forEach(w => red.add(w))));
+    const L1 = String(raw1).replace(/[{}]/g, '').trim(), L2 = String(raw2).replace(/[{}]/g, '').trim(), all = L1 + ' ' + L2;
+    String(L1 + ' ' + L2).split(/\s+/).forEach(w => { if (/[০-৯\d]/.test(w)) red.add(w.replace(KT_PUNCT, '')); });
+    const good = /সফল|জিত|আয়|প্রথম ক্লায়েন্ট|লাভ|ধনী|কোটিপতি|বাঁচল|জয়/.test(all) && !/হারা|ধ্বংস|শেষ|চুরি|ফাঁদ|ভুল|নেই|কাঁদ|শূন্য|ঋণ|ধার|প্রতারণা/.test(all);
+    // layout per frame
+    const Lc = land ? { tx: 64 * u, ty: 64 * u, tw: FW * .55, cx: FW * .515, cy: FH * .33, cw: FW * .45, head: [FW * .19, FH * .66], ps: FH / 1080 * 2.3, lines: 3, size: 140 * u }
+      : port ? { tx: 56 * u, ty: 120 * u, tw: FW - 112 * u, cx: FW * .07, cy: FH * .37, cw: FW * .86, head: [FW * .5, FH * .835], ps: FW / 1080 * 2.6, lines: 4, size: 175 * u }
+      : { tx: 56 * u, ty: 70 * u, tw: FW - 112 * u, cx: FW * .3, cy: FH * .4, cw: FW * .64, head: [FW * .2, FH * .8], ps: FW / 1080 * (FH > FW * 1.1 ? 2 : 1.75), lines: 3, size: 128 * u };
+    const ch = Lc.cw * .64, cardC = [Lc.cx + Lc.cw / 2, Lc.cy + ch / 2];
+    // 1. background
+    { const g = c.createLinearGradient(0, 0, FW, FH); if (kt) { g.addColorStop(0, '#12040A'); g.addColorStop(1, '#5E0B16'); } else { g.addColorStop(0, '#3A1203'); g.addColorStop(1, '#D9480F'); } c.fillStyle = g; c.fillRect(0, 0, FW, FH);
+      c.save(); c.translate(cardC[0], cardC[1]); c.globalAlpha = kt ? .16 : .2; c.fillStyle = kt ? '#FF3B4E' : '#FFE08A'; const n = 18, R0 = Math.hypot(FW, FH); for (let i = 0; i < n; i++) { c.rotate(Math.PI * 2 / n); c.beginPath(); c.moveTo(0, 0); c.lineTo(R0, -R0 * .09); c.lineTo(R0, R0 * .09); c.closePath(); c.fill(); } c.restore();
+      const rg = c.createRadialGradient(cardC[0], cardC[1], 10, cardC[0], cardC[1], Math.max(FW, FH) * .6); rg.addColorStop(0, kt ? 'rgba(255,70,80,.35)' : 'rgba(255,214,120,.45)'); rg.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = rg; c.fillRect(0, 0, FW, FH);
+      const vg = c.createRadialGradient(FW / 2, FH / 2, Math.min(FW, FH) * .35, FW / 2, FH / 2, Math.max(FW, FH) * .75); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.6)'); c.fillStyle = vg; c.fillRect(0, 0, FW, FH); }
+    // 2. the key picture of the story in a tilted card
+    const hero = this.thumbHero(d); LV.card(c, hero, { x: Lc.cx, y: Lc.cy, w: Lc.cw, h: ch, rot: land ? .035 : -.03, u, t: 2, lt: 3.2, zoom: 1.05 });
+    // a number badge on the card's corner (the headline's amount)
+    { const m = (L1 + ' ' + L2 + ' ' + (st.title || '')).match(/[০-৯\d][০-৯\d,.]*\s*(কোটি|লাখ|হাজার|মিলিয়ন|বিলিয়ন|ট্রিলিয়ন)?\s*(টাকা|ডলার|৳)?/); const amt = m && (m[1] || m[2] || m[0].replace(/[^০-৯\d]/g, '').length >= 3) ? m[0].trim() : '';
+      if (amt) { const bs = (land ? 64 : 70) * u; c.font = `800 ${bs}px ${FONT_BN}, ${FONT_FALLBACK}`; const bw = c.measureText(amt).width + 60 * u, bx = Math.min(Lc.cx + Lc.cw - bw * .7, FW - bw - 24 * u), by = Lc.cy - bs * .55; c.save(); c.translate(bx + bw / 2, by + bs * .7); c.rotate(.07); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 24 * u; c.shadowOffsetY = 8 * u; rr(c, -bw / 2, -bs * .75, bw, bs * 1.5, 14 * u, good ? '#22A06B' : '#E5202E', '#FFFFFF', 6 * u); c.restore(); c.save(); c.translate(bx + bw / 2, by + bs * .7); c.rotate(.07); txt(c, amt, 0, bs * .36, bs, '#FFFFFF', 800, 'center', FONT_BN, bw - 30 * u); c.restore(); } }
+    // 3. the main character as a sticker
+    const cnt = {}; st.scenes.forEach(s0 => { if (s0.type !== 'story') return; (s0.cast || []).forEach(id => cnt[id] = (cnt[id] || 0) + 1); (s0.lines || []).forEach(l => { if (l.who) cnt[l.who] = (cnt[l.who] || 0) + .3; }); });
+    const id = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0], cr = id && this.chars[id];
+    if (cr) { const pc = document.createElement('canvas'); pc.width = FW; pc.height = FH; const px = pc.getContext('2d'), s0 = Lc.ps, kf = cr.L.kid ? .74 : cr.L.teen ? .92 : 1, hx = Lc.head[0], hy = Lc.head[1];
+      try { drawPerson(px, { L: cr.L, x: hx, y: hy + 330 * s0 * kf, s: s0, feel: good ? 'happy' : 'surprised', act: good ? 'point' : 'hands_on_head', t: .55, seed: 3, flip: !land && hx > FW * .5 }); } catch (e) { }
+      const wc = document.createElement('canvas'); wc.width = FW; wc.height = FH; const wx = wc.getContext('2d'); wx.drawImage(pc, 0, 0); wx.globalCompositeOperation = 'source-in'; wx.fillStyle = '#FFFFFF'; wx.fillRect(0, 0, FW, FH);
+      c.save(); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 50 * u; c.shadowOffsetY = 14 * u; c.drawImage(wc, 0, 0); c.restore();
+      const ow = 10 * u; for (let a = 0; a < 16; a++) c.drawImage(wc, Math.cos(a / 16 * Math.PI * 2) * ow, Math.sin(a / 16 * Math.PI * 2) * ow); c.drawImage(pc, 0, 0);
+      // shock lines by the head
+      const hr = 115 * s0 * kf; if (land) { c.save(); c.strokeStyle = '#FFD23F'; c.lineWidth = 12 * u; c.lineCap = 'round'; [-.9, -.5, -.1].forEach(a => { const ax = hx + Math.cos(a) * hr * 1.25, ay = hy - hr * .25 + Math.sin(a) * hr * 1.25; c.beginPath(); c.moveTo(ax, ay); c.lineTo(ax + Math.cos(a) * 60 * u, ay + Math.sin(a) * 60 * u); c.stroke(); }); c.restore(); }
+      // a red arrow from the character to the picture
+      if (land) { const ax = hx + hr * 1.5, ay = hy - hr * .3, bx = Lc.cx - 10 * u, by = Lc.cy + ch * .55; const arrow = (col, lw) => { c.save(); c.strokeStyle = col; c.fillStyle = col; c.lineWidth = lw; c.lineCap = 'round'; c.beginPath(); c.moveTo(ax, ay); c.quadraticCurveTo((ax + bx) / 2, ay - 120 * u, bx - 40 * u, by); c.stroke(); const ang = Math.atan2(by - (ay - 120 * u), bx - 40 * u - (ax + bx) / 2); c.translate(bx - 40 * u, by); c.rotate(ang); c.beginPath(); c.moveTo(lw * 1.6, 0); c.lineTo(-lw * 1.6, -lw * 1.7); c.lineTo(-lw * 1.6, lw * 1.7); c.closePath(); c.fill(); c.restore(); }; arrow('#FFFFFF', 30 * u); arrow('#E5202E', 18 * u); } }
+    // 4. headline
+    const maxW = Lc.tw; let size = Lc.size; const fit = (t0, sz) => t0 ? wrapText(c, t0, sz, maxW, 800, FONT_BN) : [];
+    while (size > 64 * u && fit(L1, size).length + fit(L2, size * .92).length > Lc.lines) size -= 6 * u;
+    let y = Lc.ty;
+    if (d.ctx) { const cs = Math.max(34 * u, size * .3); c.font = `800 ${cs}px ${FONT_BN}, ${FONT_FALLBACK}`; const w = Math.min(maxW, c.measureText(d.ctx).width + 50 * u); c.save(); c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = 14 * u; rr(c, Lc.tx, y, w, cs * 1.5, 10 * u, '#E5202E'); c.restore(); txt(c, d.ctx, Lc.tx + 25 * u, y + cs * 1.08, cs, '#FFFFFF', 800, 'left', FONT_BN, w - 40 * u); y += cs * 1.5 + 18 * u; }
+    y += size * .95; c.textAlign = 'left'; c.lineJoin = 'round';
+    fit(L1, size).slice(0, Lc.lines - (L2 ? 1 : 0)).forEach(l => { let xx = Lc.tx; l.split(/\s+/).forEach(w => { const key = red.has(w.replace(KT_PUNCT, '')); c.font = `800 ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; c.save(); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 18 * u; c.shadowOffsetY = 6 * u; c.lineWidth = size * .2; c.strokeStyle = '#000000'; c.strokeText(w, xx, y); c.restore(); c.fillStyle = key ? '#FFD23F' : '#FFFFFF'; c.fillText(w, xx, y); xx += c.measureText(w + ' ').width; }); y += size * 1.1; });
+    if (L2) { const s2 = size * .92; fit(L2, s2).slice(0, 2).forEach((l, i) => { c.font = `800 ${s2}px ${FONT_BN}, ${FONT_FALLBACK}`; const w = c.measureText(l).width + 56 * u, bx = Lc.tx - 6 * u, by = y - s2 * .95; c.save(); c.translate(bx + w / 2, by + s2 * .6); c.rotate(-.025); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 24 * u; c.shadowOffsetY = 8 * u; rr(c, -w / 2, -s2 * .6, w, s2 * 1.22, 12 * u, kt ? '#E5202E' : '#FFD23F'); c.restore(); c.save(); c.translate(bx + w / 2, by + s2 * .6); c.rotate(-.025); c.fillStyle = kt ? '#FFFFFF' : '#141414'; c.font = `800 ${s2}px ${FONT_BN}, ${FONT_FALLBACK}`; c.textAlign = 'left'; c.fillText(l, -w / 2 + 28 * u, s2 * .36); c.restore(); y += s2 * 1.3; }); }
+    // 5. channel logo
+    c.save(); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 14; drawLogo(c, FW - 84 * u, land ? 84 * u : FH - 84 * u, 110 * u, (this.settings || {}).logo || 'TF'); c.restore();
+  }
+  /* the picture that sums up the story: the script's cover icon if it names one, else the most dramatic planned visual */
+  thumbHero(d) {
+    const st = this.story, all = (this.vis || []).filter(Boolean).concat(((this.vis && this.vis.ins) || []).filter(Boolean)), icon = LV.normKind((st.cover && st.cover.icon) || '');
+    const fix = v => Object.assign({}, v, { tx: v.tx.slice() });
+    if (icon) { const v = all.find(x => x.kind === icon); return v ? fix(v) : { kind: icon, tx: [d.sym || ''], th: LV.THEME_OF(icon), seed: 7 }; }
+    const PRI = ['chart_line', 'money', 'fire', 'jail', 'lock', 'gold', 'trophy', 'wallet', 'house', 'plate', 'health', 'piggy', 'exam', 'plane', 'laptop', 'doc', 'counter', 'calendar', 'skyline', 'building', 'phone', 'people'];
+    for (const k of PRI) { const v = all.find(x => x.kind === k); if (v) return fix(v); }
+    return all[0] ? fix(all[0]) : { kind: 'money', tx: [d.sym || '৳'], th: 'money', seed: 7 };
+  }
+  drawThumbClassic(c) {
     const st = this.story, PL = this.P, FW = this.FW, FH = this.FH, u = this.u, land = this.land, pick = coverPickShot(st, this.tl), sc = st.scenes[pick.si];
     const k = this.shotIn(pick.si, pick.t), ln = sc.lines[this.tl.shots[k].li] || {}; let focus = sc.cast.indexOf(ln.who || ln.focus); if (focus < 0) focus = 0;
     const n = Math.min(3, sc.cast.length || 1), pos = this.posFor(sc), P0 = pos[focus] || pos[0], cr = this.chars[sc.cast[focus]], kf = cr ? (cr.L.kid ? .74 : cr.L.teen ? .92 : 1) : 1, headY = P0[1] - 418 * P0[2] * kf;
@@ -8247,6 +8309,8 @@ ${style === 'life' ? 'বই: বইয়ের ইংরেজি নাম | 
 - কার্ড (মোট ১২-২৫টা, ছড়িয়ে): [reveal: জিনিস / লেখা] [sms: শিরোনাম / লেখা] [chat: নাম / লেখা] [call: নাম] [alert: লেখা] [date: তারিখ] [doc: শিরোনাম / লেখা] [source: সূত্র / কী বলেছে] [counter: লেবেল / শুরু / শেষ / আগে-চিহ্ন] [compare: বাম / মান / ডান / মান] [check: + কাজ / + কাজ] [price: লেখা] [big: লেখা] [progress: লেবেল / শতাংশ] [scene: ধরন / লেখা১ / লেখা২]${style === 'thriller' ? ' [statement: ছোট লাইন / বড় সোনালি লেখা] [label: সূত্র: নাম]' : style === 'life' ? ' [tag: ✗ লেখা / ✓ লেখা] [hud: লেবেল / আগে → এখন] [label: ছোট লেখা]' : ' [label: ছোট লেখা]'}
 - অ্যানিমেটেড কনসেপ্ট ছবি (পুরো পর্দা জুড়ে, ক্যারেক্টার ছাড়া; ১০-২০টা, যেখানে সংখ্যা/তারিখ/জায়গা/নথি/তালা/ফোন/চার্ট বোঝানো দরকার): [scene: ধরন / লেখা১ / লেখা২]। ধরন: calendar(তারিখ), skyline, building(স্কুল/ব্যাংক/অফিস), chart_line(লেখা, up/down/crash), chart_bars, counter, doc, email, money, people, route(দেশ১ / দেশ২), magnifier, lock(লেখা, lock/open), phone(মেসেজ...), balance, timeline, question, network, files, clock, alert। যেমন: [scene: chart_line / ১০১ মিলিয়ন ডলার / crash]
 - থাম্বনেল: টিজার ৫-৯ শব্দের রহস্য; উক্তি মোট ৩-৯ শব্দ, দুই ভাগ, ১-৩টা শব্দ {} দিয়ে লাল।
+- ইউটিউব টাইটেল (৫০-৭০ অক্ষর): কৌতূহলের ফাঁক রাখো, উত্তর দিও না। একটা নির্দিষ্ট সংখ্যা (টাকা/দিন/বছর) + একটা বৈপরীত্য বা ধাক্কা ("জিতেছিল তিন লাখ, আজ ফর্মের টাকাও নেই")। ক্লিকবেইট মিথ্যা নয়, গল্পে যা আছে তাই।
+- থাম্বনেলের লেখা টাইটেলের পুনরাবৃত্তি নয়, পরিপূরক: উক্তির প্রথম অংশ ২-৪ শব্দ (সংখ্যা থাকলে ভালো), শেষ অংশ ২-৪ শব্দের ধাক্কা। আইকনের জায়গায় গল্পের মূল ছবির ধরন দাও (money, chart_line, plate, house, lock, jail, fire, gold, wallet, piggy, exam, health, laptop, plane …)।
 শুধু কোড ব্লকটা দাও, আগে-পরে কিছু লিখবে না।`;
   return head + link + body + fmt;
 }

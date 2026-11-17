@@ -3,7 +3,7 @@
   "short_name": "TF Story",
   "description": "বাংলা বইয়ের গল্প থেকে অ্যানিমেটেড শর্টস/রিলস ভিডিও বানানোর অ্যাপ",
   "lang": "bn",
-  "start_url": "./index.html",
+  "start_url": "./home.html",
   "scope": "./",
   "id": "./",
   "display": "standalone",
