@@ -37,3 +37,11 @@ Two parts in one app:
 
 Builds run on GitHub Actions (`.github/workflows/android.yml`). The release signing key is kept in the
 repository's encrypted Actions secrets `TF_KEYSTORE_BASE64` and `TF_KEYSTORE_PASSWORD` — never in the repo.
+
+## Long video visuals (`long-visuals.js`)
+
+The long-video section draws Backbenchers-style animated concept visuals (calendar, charts, documents, lock, phone, map route, skyline, …) on a cinematic background, with word-by-word captions and RGB-split chapter cards.
+
+- Bundled with the web files (`index.html`, `long-library.js`, `long-visuals.js`); the Android CI copies it into `assets/www/`.
+- Script card: `[scene: kind / text1 / text2]` (kinds: calendar, skyline, building, chart_line, chart_bars, counter, doc, email, money, people, route, magnifier, lock, phone, balance, timeline, question, network, files, clock, alert). Without explicit cards the planner picks visuals from the narration keywords.
+- Setting `visuals` (checkbox "লং ভিডিওতে কনসেপ্ট ছবি") turns them on/off.

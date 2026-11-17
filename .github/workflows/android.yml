@@ -6,6 +6,7 @@ on:
     paths:
       - 'index.html'
       - 'long-library.js'
+      - 'long-visuals.js'
       - 'cloud-core.js'
       - 'home.html'
       - 'islamic/**'
@@ -63,7 +64,7 @@ jobs:
       - name: Put the web app inside the APK
         run: |
           mkdir -p android/app/src/main/assets/www
-          cp index.html long-library.js cloud-core.js manifest.webmanifest icon-192.png icon-512.png icon-maskable-512.png android/app/src/main/assets/www/
+          cp index.html long-library.js long-visuals.js cloud-core.js manifest.webmanifest icon-192.png icon-512.png icon-maskable-512.png android/app/src/main/assets/www/
           cp -r vendor android/app/src/main/assets/www/
           # start screen + the Islamic part (TF Post Maker)
           cp home.html android/app/src/main/assets/www/

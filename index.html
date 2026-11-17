@@ -767,6 +767,7 @@ dialog{border-radius:16px}.dlg{padding:24px}.dlg h3{font-size:18px}
       <div class="row"><label class="btn ghost filebtn">নিজের মিউজিক ফাইল দিন<input type="file" id="musicUpload" accept="audio/*,.mp3,.wav,.m4a,.ogg"></label><span class="muted" id="musicInfo"></span></div>
       <label class="chk"><input type="checkbox" id="mSfx" checked> সাউন্ড ইফেক্ট</label>
       <label class="chk"><input type="checkbox" id="mPops" checked> সাবটাইটেলে হালকা "পপ"</label>
+      <label class="chk"><input type="checkbox" id="mVisuals" checked> লং ভিডিওতে কনসেপ্ট ছবি (ক্যালেন্ডার, চার্ট, বিল্ডিং, নথি…)</label>
 
       <h3>ভিডিওর দৈর্ঘ্য</h3>
       <nav class="seg sub small" id="lenTabs"><button class="on" data-len="auto">অটো (গল্প অনুযায়ী)</button><button data-len="fixed">নির্দিষ্ট</button></nav>
@@ -2912,6 +2913,7 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
 </script>
 <script>if (/[?&]part=islamic\b/.test(location.search)) document.write('<script src="islamic/story.js"><\/script><script src="islamic/art.js"><\/script><script src="islamic/stories-1.js"><\/script><script src="islamic/stories-2.js"><\/script><script src="islamic/stories-3.js"><\/script>');</script>
 <script src="long-library.js"></script>
+<script src="long-visuals.js"></script>
 <script>/* ===================== TF Story Studio — data ===================== */
 'use strict';
 /* two parts share this engine: the Story part (index.html) and the Islamic part (index.html?part=islamic, see islamic/story.js) — each keeps its own settings, logo, used list and library */
@@ -2934,7 +2936,7 @@ const MOODS = ['normal','happy','sad','tense','regret'];
 const FEELS = ['neutral','happy','sad','worried','surprised','angry','crying','tired','proud','shy'];
 const ACTIONS = ['idle','talk','phone','raise_phone','give','cup','point','arms_crossed','wave','head_down','hold','pray_hands','hands_on_head'];
 const PROPS = ['phone','envelope','money','cup','book','paper','sweets','bag','gift','laptop','medicine','key','flower','ring','plate'];
-const CARD_TYPES = ['sms','price','counter','check','compare','big','calendar','progress','call','alert','chat','reveal','doc','source','date','statement','label','tag','hud'];
+const CARD_TYPES = ['sms','price','counter','check','compare','big','calendar','progress','call','alert','chat','reveal','doc','source','date','statement','label','tag','hud','scene'];
 const METAPHORS = ['scale','kite','plant','hourglass','ladder','bridge','candle','seed_tree','glass','road'];
 const ROLES = {
   hero:{g:'m',a:'young',bn:'নায়ক'}, heroine:{g:'f',a:'young',bn:'নায়িকা'}, mother:{g:'f',a:'old',bn:'মা'},
@@ -4437,14 +4439,14 @@ function drawLegs(c, L, sk, close) {
   const sandal = x => { ell(c, x + 6, Y - 6, 34, 10, '#7a4a2a'); ell(c, x + 4, Y - 14, 22, 10, sk); };
   const leg = (x0, x1, w, col) => P(c, `M${x0 - w},0 L${x1 - w * .8},${Y - 24} L${x1 + w * .8},${Y - 24} L${x0 + w},0Z`, col);
   switch (L.outfit) {
-    case 'saree': P(c, `M-128,0 L-118,${Y - 8} Q0,${Y + 6} 118,${Y - 8} L128,0Z`, c1); P(c, `M-20,10 L-26,${Y - 6} M10,10 L12,${Y - 4} M40,10 L48,${Y - 8}`, null, shade(c1, -.15), 4); rect(c, -118, Y - 30, 236, 14, L.c2 || C_MA); sandal(-26); sandal(30); return;
+    case 'saree': P(c, `M-128,0 L-118,${Y - 8} Q0,${Y + 6} 118,${Y - 8} L128,0Z`, c1); P(c, `M-34,10 L-44,${Y - 8} L-20,${Y - 5} L-12,10Z M4,10 L0,${Y - 5} L28,${Y - 6} L24,10Z M44,10 L40,${Y - 7} L64,${Y - 9} L62,10Z`, shade(c1, -.1)); rect(c, -118, Y - 30, 236, 14, L.c2 || C_MA); sandal(-26); sandal(30); return;
     case 'burqa': case 'abaya': P(c, `M-136,0 L-124,${Y - 6} Q0,${Y + 8} 124,${Y - 6} L136,0Z`, c1); P(c, `M-30,0 L-24,${Y - 4} M30,0 L24,${Y - 4}`, null, shade(c1, .12), 3); shoe(-34, shoeCol); shoe(38, shoeCol); return;
     case 'vestlungi': P(c, `M-100,0 L-108,${Y - 26} L108,${Y - 26} L100,0Z`, c2); for (let i = 0; i < 5; i++) P(c, `M${-100 + i * 50},0 L${-108 + i * 54},${Y - 26}`, null, shade(c2, -.18), 3); P(c, `M-108,${Y - 70} L108,${Y - 70}`, null, shade(c2, .25), 5);
       leg(-30, -30, 18, sk); leg(30, 30, 18, sk); P(c, `M-48,${Y - 26} L-12,${Y - 26} L-12,${Y - 50} L-48,${Y - 50}Z M12,${Y - 26} L48,${Y - 26} L48,${Y - 50} L12,${Y - 50}Z`, sk); sandal(-34); sandal(34); return;
     case 'jubba': P(c, `M-128,0 L-120,${Y - 70} L120,${Y - 70} L128,0Z`, c1); leg(-gap - 14, -gap - 14, 24, pant); leg(gap + 14, gap + 14, 24, pant); shoe(-gap - 18, shoeCol); shoe(gap + 14, shoeCol); return;
     case 'frock': P(c, `M-108,0 L-150,${Y * .42} L150,${Y * .42} L108,0Z`, c1); P(c, `M-150,${Y * .42} L150,${Y * .42}`, null, '#fff', 8); leg(-gap - 6, -gap - 6, 16, sk); leg(gap + 6, gap + 6, 16, sk); shoe(-gap - 10, '#C0392B'); shoe(gap + 6, '#C0392B'); return;
     case 'salwar': case 'kurti': case 'uniform_f': P(c, `M-128,0 L-132,${Y * .4} L132,${Y * .4} L128,0Z`, c1); P(c, `M-58,${Y * .38} Q-64,${Y - 30} -48,${Y - 22} L-16,${Y - 22} Q-6,${Y * .6} -6,${Y * .38}Z M58,${Y * .38} Q64,${Y - 30} 48,${Y - 22} L16,${Y - 22} Q6,${Y * .6} 6,${Y * .38}Z`, L.outfit === 'uniform_f' ? '#ffffff' : (L.pants || c2)); sandal(-34); sandal(34); return;
-    default: leg(-gap - 22, -gap - 18, 30, pant); leg(gap + 22, gap + 18, 30, pant); P(c, `M0,8 L0,${Y * .55}`, null, shade(pant, -.2), 3); shoe(-gap - 22, shoeCol); shoe(gap + 18, shoeCol);
+    default: leg(-gap - 22, -gap - 18, 30, pant); leg(gap + 22, gap + 18, 30, pant); shoe(-gap - 22, shoeCol); shoe(gap + 18, shoeCol);
   }
 }
 function armCol(L) { return L.outfit === 'vestlungi' ? L.skin : (L.outfit === 'vest' ? L.c2 : (L.outfit === 'suit' || L.outfit === 'blazer' ? L.c1 : L.c1)); }
@@ -4505,7 +4507,7 @@ function drawOutfit(c, L, sk) {
       P(c, 'M-112,-198 Q0,-128 112,-198 Q118,-160 0,-108 Q-118,-160 -112,-198Z', shade(L.c2 || c1, .12)); break;
     default: // shirt
       P(c, torso, c1); P(c, 'M60,-213 Q114,-206 120,-150 L128,10 L70,10 Q95,-120 60,-213Z', dk);
-      P(c, 'M-38,-213 L0,-168 L38,-213Z', shade(c1, .35)); P(c, 'M0,-168 L0,10', null, dk, 3);
+      P(c, 'M-38,-213 L0,-168 L38,-213Z', shade(c1, .35)); P(c, 'M0,-168 L0,-18', null, dk, 3);
       [-120, -80, -40].forEach(y => circ(c, 0, y, 5, shade(c1, .4)));
   }
   if (L.koti) { P(c, 'M-122,-150 Q-116,-206 -62,-213 L-26,-150 L-22,10 L-130,10Z', L.koti); P(c, 'M122,-150 Q116,-206 62,-213 L26,-150 L22,10 L130,10Z', L.koti); P(c, 'M-26,-150 L-22,10 M26,-150 L22,10', null, shade(L.koti, -.3), 3); rr(c, -100, -110, 34, 6, 3, shade(L.koti, .25)); }
@@ -6749,8 +6751,8 @@ const PROP_BN = { phone: 'ফোন', envelope: 'খাম', money: 'টাক�
 const TIME_BN = { day: 'দিন', evening: 'সন্ধ্যা', night: 'রাত' }, MOOD_BN = { normal: 'স্বাভাবিক', happy: 'আনন্দ', sad: 'দুঃখ', tense: 'টেনশন', regret: 'আফসোস (সাদাকালো)' }, WEATHER_BN = { '': 'স্বাভাবিক', rain: 'বৃষ্টি', fog: 'কুয়াশা', sunny: 'রোদ' };
 const TYPE_BN = { story: 'গল্প', rewind: 'রিওয়াইন্ড', book: 'বই', takeaways: 'শিক্ষা', metaphor: 'উপমা', cta: 'শেষ', chapter: 'অধ্যায়' };
 const ROLE_BN = Object.fromEntries(Object.entries(ROLES).map(([k, v]) => [k, v.bn]));
-const CARD_BN = { sms: 'মেসেজ', price: 'দামের ট্যাগ', counter: 'সংখ্যা গণনা', check: 'চেকলিস্ট', compare: 'তুলনা', big: 'বড় লেখা', calendar: 'ক্যালেন্ডার', progress: 'প্রগ্রেস বার', call: 'ফোন কল', alert: 'লাল সতর্কতা', chat: 'চ্যাট', reveal: 'টুইস্ট (পুরোনো কাগজ)', doc: 'নথি', source: 'সূত্র', date: 'তারিখ', statement: 'কালো পর্দায় বড় সোনালি লেখা', label: 'ছোট লেবেল (নিচে বামে)', tag: 'স্টিকার ট্যাগ', hud: 'কোণের হিসাব কার্ড' };
-const CARD_TEMPLATES = { sms: { title: 'ব্যাংক এসএমএস', text: 'বেতন জমা: ৳ ৩৫,০০০' }, price: { text: '৳ ৪২,০০০' }, counter: { label: 'মোট', from: 0, to: 5000, prefix: '৳ ' }, check: { items: [{ t: 'কাজ ১', ok: true }, { t: 'কাজ ২', ok: false }] }, compare: { left: 'আগে', lv: '৩৫ হাজার', right: 'এখন', rv: '৪৫ হাজার' }, big: { text: '৫০০ জন' }, calendar: { text: '২০ তারিখ' }, progress: { label: 'সঞ্চয়', value: 60 }, call: { name: 'মা' }, alert: { text: 'টাকা নেই!' }, chat: { name: 'রাশেদ', text: 'দোস্ত, কই তুই?' }, reveal: { title: 'পুরোনো চিঠি', text: 'তোকে কোনোদিন বলা হয়নি...' }, statement: { text: 'আর ঠিক তখনই / সব শেষ হয়ে গেল' }, label: { text: 'সূত্র: রয়টার্স' }, tag: { text: '✗ টিভি নেই / ✗ ফ্রিজ নেই' }, hud: { text: 'হাতে আছে / ৳ ২৫,০০০' } };
+const CARD_BN = { sms: 'মেসেজ', price: 'দামের ট্যাগ', counter: 'সংখ্যা গণনা', check: 'চেকলিস্ট', compare: 'তুলনা', big: 'বড় লেখা', calendar: 'ক্যালেন্ডার', progress: 'প্রগ্রেস বার', call: 'ফোন কল', alert: 'লাল সতর্কতা', chat: 'চ্যাট', reveal: 'টুইস্ট (পুরোনো কাগজ)', doc: 'নথি', source: 'সূত্র', date: 'তারিখ', statement: 'কালো পর্দায় বড় সোনালি লেখা', label: 'ছোট লেবেল (নিচে বামে)', tag: 'স্টিকার ট্যাগ', hud: 'কোণের হিসাব কার্ড', scene: 'অ্যানিমেটেড কনসেপ্ট ছবি' };
+const CARD_TEMPLATES = { sms: { title: 'ব্যাংক এসএমএস', text: 'বেতন জমা: ৳ ৩৫,০০০' }, price: { text: '৳ ৪২,০০০' }, counter: { label: 'মোট', from: 0, to: 5000, prefix: '৳ ' }, check: { items: [{ t: 'কাজ ১', ok: true }, { t: 'কাজ ২', ok: false }] }, compare: { left: 'আগে', lv: '৩৫ হাজার', right: 'এখন', rv: '৪৫ হাজার' }, big: { text: '৫০০ জন' }, calendar: { text: '২০ তারিখ' }, progress: { label: 'সঞ্চয়', value: 60 }, call: { name: 'মা' }, alert: { text: 'টাকা নেই!' }, chat: { name: 'রাশেদ', text: 'দোস্ত, কই তুই?' }, reveal: { title: 'পুরোনো চিঠি', text: 'তোকে কোনোদিন বলা হয়নি...' }, scene: { text: 'chart_line / ৩ বিলিয়ন ডলার / up' }, statement: { text: 'আর ঠিক তখনই / সব শেষ হয়ে গেল' }, label: { text: 'সূত্র: রয়টার্স' }, tag: { text: '✗ টিভি নেই / ✗ ফ্রিজ নেই' }, hud: { text: 'হাতে আছে / ৳ ২৫,০০০' } };
 function avatarCanvas(ch, size, big) { size = size || 80; const cv = el('canvas', { width: size, height: big ? Math.round(size * 1.15) : size }); const c = cv.getContext('2d'); c.fillStyle = '#f3f2ed'; c.fillRect(0, 0, cv.width, cv.height); c.save(); const k = size / 80; if (big) { c.translate(cv.width / 2, cv.height - 4 * k); c.scale(.16 * k, .16 * k); drawPerson(c, { L: lookFor(ch), x: 0, y: 0, s: 1, feel: 'happy', act: 'idle', t: 0, seed: 0 }); } else { c.translate(40 * k, 58 * k); c.scale(.18 * k, .18 * k); drawPerson(c, { L: lookFor(ch), x: 0, y: 300, s: 1, feel: 'happy', act: 'idle', t: 0, seed: 0 }); } c.restore(); return cv; }
 const AGE_BN = { kid: 'শিশু', teen: 'কিশোর', young: 'তরুণ', adult: 'মধ্যবয়সী', old: 'বয়স্ক', elder: 'বৃদ্ধ' };
 function applyLook(ch, role) { ch.role = role; const r = ROLES[role]; if (r) { ch.gender = r.g === 'f' ? 'female' : 'male'; ch.age = r.a; } ch.variant = false; }
@@ -7292,7 +7294,7 @@ function buildFontPickers() {
 function applySettingsToUI() {
   applyFonts(); buildFontPickers(); $('sCapLook').value = S.capLook || 'news'; $('sCtxBg').checked = S.ctxBg !== false;
   $('cModel').value = S.model; $('cVoiceId').value = S.voiceId || ''; fillVoiceSelect(); $('cSpeed').value = S.speed; $('cSpeedOut').textContent = (+S.speed).toFixed(2); $('cEmotion').value = S.emotion || 'none';
-  $('mStyle').value = S.music; $('mVol').value = S.musicVol; $('mVolOut').textContent = S.musicVol; $('mSfx').checked = S.sfx !== false; $('mPops').checked = S.pops !== false;
+  $('mStyle').value = S.music; $('mVol').value = S.musicVol; $('mVolOut').textContent = S.musicVol; $('mSfx').checked = S.sfx !== false; $('mPops').checked = S.pops !== false; if ($('mVisuals')) $('mVisuals').checked = S.visuals !== false;
   $('sSeries').value = S.series; $('sTagline').value = S.tagline; $('sLogo').value = S.logo; $('sHero').value = S.hero; $('sOutro').value = S.outro || ''; $('sWm').value = S.wm; $('sWmOut').textContent = S.wm;
   $('sCap').value = S.capSize; $('sCapOut').textContent = S.capSize; $('sGap').value = S.gap; $('sWatermark').checked = S.watermark !== false; $('sCaptions').checked = S.captions !== false; $('sCapStyle').value = S.capStyle || 'karaoke'; $('sProgress').checked = S.progress !== false; $('sCinema').checked = S.cinema !== false; $('sAnimStyle').value = S.animStyle === 'classic' ? 'classic' : S.animStyle === 'golpo' ? 'golpo' : 'jibonpath'; $('sHookCard').checked = S.hookCard !== false; $('sMultiVoice').checked = S.multiVoice !== false; $('sThumb').checked = S.thumbFrame !== false;
   setSeg('lenTabs', 'len', S.lenMode); $('lenFixedRow').classList.toggle('hidden', S.lenMode !== 'fixed'); $('lenSec').value = S.lenSec;
@@ -7525,7 +7527,7 @@ async function init() {
   $('recBtn').onclick = () => toggleRec(false); $('recAll').onclick = () => toggleRec(true); $('recPlay').onclick = playRecLine;
   $('recPrev').onclick = () => { recIdx--; updateRec(); }; $('recNext').onclick = () => { recIdx++; updateRec(); };
   bindSetting('mStyle', 'music', null, 'change', v => { if (v === 'upload' && !S._musicBuf) { toast('নিচের বাটন দিয়ে মিউজিক ফাইল দিন'); } });
-  bindSetting('mVol', 'musicVol', t => +t.value, 'input', v => $('mVolOut').textContent = v); bindSetting('mSfx', 'sfx', t => t.checked); bindSetting('mPops', 'pops', t => t.checked);
+  bindSetting('mVol', 'musicVol', t => +t.value, 'input', v => $('mVolOut').textContent = v); bindSetting('mSfx', 'sfx', t => t.checked); bindSetting('mPops', 'pops', t => t.checked); bindSetting('mVisuals', 'visuals', t => t.checked);
   $('musicUpload').onchange = e => { uploadMusic(e.target.files[0]).then(() => rebuild(true)); e.target.value = ''; };
   bindSetting('lenSec', 'lenSec', t => cl(+t.value || 90, 15, 1800));
   // settings dialog
@@ -7601,6 +7603,7 @@ function longSfx(st, tl, S, play) {
   tl.shots.forEach(sh => {
     const sc = st.scenes[sh.si], ln = sc.lines[sh.li]; if (!ln) return;
     if (sc.type === 'story') {
+      if (sh.vis && pops) { play('whoosh', sh.start - .05); const vk = sh.vis; if (vk === 'calendar' || vk === 'counter' || vk === 'chart_bars' || vk === 'chart_line') play('ding', sh.start + .55); else if (vk === 'doc' || vk === 'email') for (let i = 0; i < 12; i++) play('type', sh.start + .5 + i * .07); else if (vk === 'alert' || vk === 'lock' || vk === 'question') play('boom', sh.start + .05); else if (vk === 'files' || vk === 'money') play('paper', sh.start + .3); else play('pop', sh.start + .35); }
       if (kt) {
         if (sh.li === 0 || ln.speak || ln.card) play('whoosh', sh.start - .07);
         if (sh.si === first && sh.li === 0) play('boom', sh.start);
@@ -7709,6 +7712,8 @@ class LongRenderer extends StoryRenderer {
       ? { box: 'rgba(8,14,28,.9)', ink: '#FFFFFF', hi: '#FFD23F', hi2: '#FF9F43', red: '#E5484D', edge: 'rgba(255,210,63,.85)', bg1: '#0B1322', bg2: '#16233D' }
       : { box: 'rgba(248,241,229,.97)', ink: '#2A1C14', hi: '#B3261E', hi2: '#C0841A', red: '#B3261E', edge: 'rgba(179,38,30,.55)', bg1: '#3A2A20', bg2: '#5B4030' };
     this.words = this.tl.shots.map(sh => { const ln = story.scenes[sh.si].lines[sh.li]; return ktWords(ln, sh); }); this._chk = {};
+    // concept pictures (long-visuals.js): explicit [scene: …] cards, old cards turned full-screen, and keyword-picked pictures for narration
+    this.vis = (typeof LV !== 'undefined') ? LV.plan(story, this.tl.shots, { kt: this.kt, visuals: settings.visuals !== false }) : this.tl.shots.map(() => null);
     // corner tracker ([hud: …]) stays from its line until the next one, a chapter-free end card, or the end
     { let cur = null; this.hud = this.tl.shots.map((sh, k) => { const sc = story.scenes[sh.si], ln = sc.lines[sh.li]; if (sc.type !== 'story' && sc.type !== 'chapter') cur = null; if (ln && ln.card && ln.card.type === 'hud') cur = { parts: cardParts(ln.card), t0: sh.start }; return sc.type === 'story' ? cur : null; }); }
     this.chap = []; let cur = null; story.scenes.forEach((sc, i) => { if (sc.type === 'chapter') cur = sc; this.chap[i] = cur; });
@@ -7831,12 +7836,22 @@ class LongRenderer extends StoryRenderer {
     if (!opt || opt.ui !== false) this.drawUIL(c, t, si);
     c.restore();
   }
+  /* one shot of a story scene: a concept picture (LV) or the characters; used for dissolves between shots */
+  drawShotL(c, si, k, t) {
+    const sh = this.tl.shots[k], vk = this.vis && this.vis[k];
+    if (vk && typeof LV !== 'undefined') { this._cam = null; LV.draw(c, vk, { FW: this.FW, FH: this.FH, u: this.u, t, lt: Math.max(0, t - sh.start), dur: sh.dur, land: this.land }); return; }
+    const r = this.drawStoryL(c, si, t); this._cam = r.cam; this._camSi = si; const ln = this.story.scenes[si].lines[r.sh.li]; if (ln.card) this.drawCardL(c, ln.card, t - r.sh.start, r.sh.dur + .2, t, r.k);
+  }
   drawSceneL(c, si, t) {
     const sc = this.story.scenes[si];
     c.save();
     if (sc.type === 'story') { const k0 = this.shotIn(si, t), sh0 = this.tl.shots[k0], l0 = sc.lines[sh0.li];
       if (l0 && l0.card && l0.card.type === 'statement') { this._cam = null; drawStatement(c, l0.card, t - sh0.start, sh0.dur + .2, t, this.FW, this.FH, this.u, this.land); }
-      else { const r = this.drawStoryL(c, si, t); this._cam = r.cam; this._camSi = si; const ln = sc.lines[r.sh.li]; if (ln.card) this.drawCardL(c, ln.card, t - r.sh.start, r.sh.dur + .2, t, r.k); } }
+      else { const lt0 = t - sh0.start, pk = this.tl.shots[k0 - 1], samePrev = pk && pk.si === si, dis = samePrev && lt0 < .2 ? eio(lt0 / .2) : 1;
+        if (this.vis && (this.vis[k0] || (samePrev && this.vis[k0 - 1] && dis < 1))) {
+          // picture shots: a quick dissolve from the previous shot (character shot or another picture)
+          if (dis < 1) { this.drawShotL(c, si, k0 - 1, sh0.start - .001); c.save(); c.globalAlpha = dis; this.drawShotL(c, si, k0, t); c.restore(); } else this.drawShotL(c, si, k0, t); }
+        else { const r = this.drawStoryL(c, si, t); this._cam = r.cam; this._camSi = si; const ln = sc.lines[r.sh.li]; if (ln.card) this.drawCardL(c, ln.card, t - r.sh.start, r.sh.dur + .2, t, r.k); } } }
     else if (sc.type === 'chapter') this.drawChapterL(c, si, t);
     else if (sc.type === 'book') this.drawBookL(c, si, t);
     else if (sc.type === 'cta') this.drawCTAL(c, si, t);
@@ -7919,7 +7934,7 @@ class LongRenderer extends StoryRenderer {
     let M = meas(size); while (M.tot > maxW - padX * 2 && size > 30 * u) { size -= 3 * u; M = meas(size); }
     const bw = M.tot + padX * 2, bh = size * 1.62;
     // where: per shot, never the same spot three times; cards keep the caption at the bottom
-    let spot = hook ? 'mid' : (ln.card && ln.card.type !== 'label') ? 'bot' : ['bot', 'bot', 'top', 'bot', 'near', 'bot', 'top'][(k * 5 + 3) % 7];
+    let spot = hook && !(this.vis && this.vis[k]) ? 'mid' : (ln.card && ln.card.type !== 'label') || (this.vis && this.vis[k]) ? 'bot' : ['bot', 'bot', 'top', 'bot', 'near', 'bot', 'top'][(k * 5 + 3) % 7];
     let bx = (FW - bw) / 2, by;
     if (spot === 'near') { const hp = ln.who ? this.headScr(sc, ln.who, 150) : null; if (hp && hp[1] - bh - 30 * u > 130 * u && hp[0] > 0 && hp[0] < FW) { bx = cl(hp[0] - bw / 2, 30 * u, FW - bw - 30 * u); by = hp[1] - bh - 30 * u; } else spot = 'bot'; }
     if (spot === 'top') by = (this.land ? 130 : this.port ? 300 : 170) * u;
@@ -7928,11 +7943,11 @@ class LongRenderer extends StoryRenderer {
     const lt = t - ch.t0, e0 = eo(cl(lt / .14)), out = cl((ch.t1 + .02 - t) / .08);
     c.save(); c.globalAlpha *= e0 * out;
     if (ln.speak && ln.who && this.chars[ln.who]) { const nm = this.chars[ln.who].ch.name, q = this.land ? 1 : 1.35; c.font = `700 ${30 * u * q}px ${FONT_BN}, ${FONT_FALLBACK}`; const nw = c.measureText(nm).width + 26 * u * q; rr(c, bx, by - 46 * u * q, nw, 40 * u * q, 5 * u, 'rgba(255,210,63,.95)'); txt(c, nm, bx + 13 * u * q, by - 16 * u * q, 30 * u * q, '#111', 700, 'left', FONT_BN); }
-    c.save(); c.translate(bx + bw / 2, by + bh / 2); const z = .96 + .04 * e0; c.scale(z, z); c.translate(-(bx + bw / 2), -(by + bh / 2)); rr(c, bx, by, bw, bh, 5 * u, 'rgba(10,10,12,.74)'); c.restore();
+    c.save(); c.translate(bx + bw / 2, by + bh / 2); const z = .96 + .04 * e0; c.scale(z, z); c.translate(-(bx + bw / 2), -(by + bh / 2)); c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 16 * u; c.shadowOffsetY = 5 * u; rr(c, bx, by, bw, bh, 12 * u, 'rgba(12,14,20,.8)'); c.restore(); rr(c, bx, by, bw, bh, 12 * u, null, 'rgba(255,255,255,.07)', 1.5 * u); c.restore();
     let x = bx + padX; const y = by + bh * .66;
-    ch.ix.forEach((i, j) => { const w = words[i], ww = M.ws[j], wl = t - w.t0; if (wl >= 0) { const e = eo(cl(wl / .17)), key = w.hl || w.num, col = key ? '#FFD23F' : '#FFFFFF';
+    ch.ix.forEach((i, j) => { const w = words[i], ww = M.ws[j], wl = t - w.t0; if (wl >= 0) { const e = eo(cl(wl / .17)), key = w.hl || w.num, col = key ? '#FFB224' : '#FFFFFF';
         c.save(); c.globalAlpha *= e; const bl = (1 - e) * 9 * u; if (bl > .4) c.filter = `blur(${bl.toFixed(1)}px)`; c.font = `700 ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; c.textAlign = 'left'; c.fillStyle = col; c.fillText(w.w, x, y); c.restore();
-        if (key) { const ue = eo(cl((wl - .08) / .22)); if (ue > 0) rect(c, x, y + size * .2, ww * ue, 4 * u, '#FFD23F'); } }
+        if (key) { const ue = eo(cl((wl - .08) / .22)); if (ue > 0) rect(c, x, y + size * .2, ww * ue, 4 * u, '#FFB224'); } }
       x += ww + M.sp; });
     c.restore();
   }
@@ -7940,6 +7955,7 @@ class LongRenderer extends StoryRenderer {
   drawLifeCap(c, t) {
     const k = this.shotAt(t), sh = this.tl.shots[k]; if (!sh) return; const sc = this.story.scenes[sh.si]; if (sc.type !== 'story') return;
     const ln = sc.lines[sh.li]; if (ln.card && ln.card.type === 'statement') return;
+    if (!(ln.speak && ln.who) || (this.vis && this.vis[k])) { this.drawKT(c, t); return; } // narration: the same word-by-word captions as the thriller look
     const lt = t - sh.start, a = cl((lt + .05) / .22) * cl((sh.end + .15 - t) / .2); if (a <= 0) return;
     if (ln.speak && ln.who && this.drawBubble(c, k, sh, sc, ln, lt, a)) return;
     const words = this.words[k], u = this.u, FW = this.FW, FH = this.FH, hud = this.land && this.hud && this.hud[k];
@@ -7984,20 +8000,25 @@ class LongRenderer extends StoryRenderer {
     if (this.land) drawHudCard(c, h.parts, t - h.t0, FW - 40 * u, FH - 40 * u - (h.parts.length > 1 ? 128 : 88) * u, u, true);
     else drawHudCard(c, h.parts, t - h.t0, FW - 36 * u, (this.port ? 250 : 130) * u, u * (this.port ? 1.15 : 1), true);
   }
-  /* first-video chapter card: black, a tiny "অধ্যায় N" label, the title in gold that comes into focus, then a light sweep */
+  /* chapter card (all long styles): near-black with a warm glow, a tiny "অধ্যায় N" label, the title in cream that comes into focus
+     through a red/cyan colour split, a light sweep, an underline and progress dots */
   drawChapterGold(c, si, t) {
-    const sc = this.story.scenes[si], lt = t - sc.start, ch = sc.chapter || {}, FW = this.FW, FH = this.FH, u = this.u, idx = this.chapList.indexOf(sc);
-    rect(c, 0, 0, FW, FH, '#050505'); { const g = c.createRadialGradient(FW / 2, FH / 2, 10, FW / 2, FH / 2, Math.max(FW, FH) * .65); g.addColorStop(0, 'rgba(80,58,20,.3)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, FW, FH); }
-    this.dust(c, t, 22, '#C9A45A');
+    const sc = this.story.scenes[si], lt = t - sc.start, ch = sc.chapter || {}, FW = this.FW, FH = this.FH, u = this.u, idx = this.chapList.indexOf(sc), warm = !this.kt;
+    rect(c, 0, 0, FW, FH, '#050505'); { const g = c.createRadialGradient(FW / 2, FH / 2, 10, FW / 2, FH / 2, Math.max(FW, FH) * .66); g.addColorStop(0, warm ? 'rgba(150,70,24,.42)' : 'rgba(80,58,20,.34)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, FW, FH); }
+    if (typeof LV !== 'undefined') { c.save(); c.globalAlpha = .55; LV.grain(c, { FW, FH, t }); c.restore(); }
+    this.dust(c, t, 26, warm ? '#E0A468' : '#C9A45A');
     const lab = 'অধ্যায় ' + bn(Math.max(1, idx + 1)) + (ch.no ? '  ·  ' + ch.no : ''), ls = (this.land ? 36 : 44) * u;
     const ts0 = (this.land ? 132 : 128) * u; let ts = ts0, tl = wrapText(c, ch.title || '', ts, FW * .84, 800, 'TFDisp'); while (tl.length > 2 && ts > 60 * u) { ts -= 6 * u; tl = wrapText(c, ch.title || '', ts, FW * .84, 800, 'TFDisp'); }
     const lh = ts * 1.2, blockH = ls * 2 + tl.length * lh, y0 = FH / 2 - blockH / 2;
-    withA(c, cl((lt - .05) / .35), () => { c.save(); c.font = `600 ${ls}px ${FONT_BN}, ${FONT_FALLBACK}`; c.textAlign = 'center'; c.fillStyle = '#CFCFCF'; if ('letterSpacing' in c) c.letterSpacing = `${(4 * u).toFixed(1)}px`; c.fillText(lab, FW / 2, y0 + ls); c.restore(); });
+    withA(c, cl((lt - .05) / .35), () => { c.save(); c.font = `600 ${ls}px ${FONT_BN}, ${FONT_FALLBACK}`; c.textAlign = 'center'; c.fillStyle = '#D6D0C6'; if ('letterSpacing' in c) c.letterSpacing = `${(4 * u).toFixed(1)}px`; c.fillText(lab, FW / 2, y0 + ls); c.restore(); });
     const e = eo(cl((lt - .25) / .8)); if (e > 0) { c.save(); c.globalAlpha *= e; const bl = (1 - e) * 24 * u; if (bl > .5) c.filter = `blur(${bl.toFixed(1)}px)`; const z = 1.12 - .12 * e; c.translate(FW / 2, FH / 2); c.scale(z, z); c.translate(-FW / 2, -FH / 2);
-      tl.forEach((l, i) => { const y = y0 + ls * 2 + lh * (i + .8); c.font = `800 ${ts}px TFDisp, ${FONT_FALLBACK}`; c.textAlign = 'center'; c.shadowColor = 'rgba(245,192,78,.3)'; c.shadowBlur = 40 * u; c.fillStyle = goldFill(c, y - ts * .85, y + ts * .12); c.fillText(l, FW / 2, y); }); c.restore(); }
+      const split = ((1 - e) * 16 + (lt < 2.2 ? 3.2 + Math.sin(lt * 31) * 1.2 : 2)) * u;
+      tl.forEach((l, i) => { const y = y0 + ls * 2 + lh * (i + .8); c.font = `800 ${ts}px TFDisp, ${FONT_FALLBACK}`; c.textAlign = 'center';
+        c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha *= .55; c.fillStyle = '#FF2A2A'; c.fillText(l, FW / 2 - split, y); c.fillStyle = '#19C7FF'; c.fillText(l, FW / 2 + split, y); c.restore();
+        c.shadowColor = warm ? 'rgba(255,120,40,.5)' : 'rgba(255,170,60,.42)'; c.shadowBlur = 44 * u; const g = c.createLinearGradient(0, y - ts * .85, 0, y + ts * .12); g.addColorStop(0, '#FFFFFF'); g.addColorStop(.55, '#FFEFD0'); g.addColorStop(1, '#F2C486'); c.fillStyle = g; c.fillText(l, FW / 2, y); }); c.restore(); }
     const sw = cl((lt - 1.05) / .9); if (sw > 0 && sw < 1) { const x = -FW * .3 + sw * FW * 1.6; c.save(); c.globalCompositeOperation = 'lighter'; const g = c.createLinearGradient(x - 260 * u, 0, x + 260 * u, 0); g.addColorStop(0, 'rgba(255,170,60,0)'); g.addColorStop(.5, 'rgba(255,214,150,.38)'); g.addColorStop(1, 'rgba(255,170,60,0)'); c.fillStyle = g; c.translate(x, FH / 2); c.rotate(.25); c.fillRect(-260 * u, -FH, 520 * u, FH * 2); c.restore(); }
-    const ul = eo(cl((lt - .9) / .5)); rect(c, FW / 2 - 180 * u * ul, y0 + ls * 2 + tl.length * lh + ts * .2, 360 * u * ul, 4 * u, '#C9973A');
-    if (this.chapList.length > 1 && idx >= 0) { const n = this.chapList.length, gap = 54 * u, x0 = FW / 2 - (n - 1) * gap / 2, y = FH * .88; for (let i = 0; i < n; i++) { circ(c, x0 + i * gap, y, (i === idx ? 13 : 9) * u, i <= idx ? '#E5B354' : 'rgba(255,255,255,.2)'); } }
+    const ul = eo(cl((lt - .9) / .5)); rect(c, FW / 2 - 180 * u * ul, y0 + ls * 2 + tl.length * lh + ts * .2, 360 * u * ul, 4 * u, warm ? '#E8742E' : '#C9973A');
+    if (this.chapList.length > 1 && idx >= 0) { const n = this.chapList.length, gap = 54 * u, x0 = FW / 2 - (n - 1) * gap / 2, y = FH * .88; for (let i = 0; i < n; i++) { circ(c, x0 + i * gap, y, (i === idx ? 13 : 9) * u, i <= idx ? (warm ? '#F08A3E' : '#E5B354') : 'rgba(255,255,255,.2)'); } }
   }
   drawStamp(c, t) {
     const k = this.shotAt(t), sh = this.tl.shots[k]; if (!sh) return; const sc = this.story.scenes[sh.si]; if (sc.type !== 'story') return;
@@ -8011,7 +8032,7 @@ class LongRenderer extends StoryRenderer {
   }
   drawChapterL(c, si, t) {
     const sc = this.story.scenes[si], lt = t - sc.start, ch = sc.chapter || {}, PL = this.P, FW = this.FW, FH = this.FH, u = this.u;
-    if (this.kt) { this.drawChapterGold(c, si, t); return; }
+    this.drawChapterGold(c, si, t); return;
     c.drawImage(this.blurBg('ch' + si, si), 0, 0, FW, FH); this.dust(c, t, 30, this.kt ? '#9DB4FF' : '#F3E3C6');
     const num = (String(ch.no).match(/[০-৯\d]+/) || [''])[0], idx = this.chapList.indexOf(sc);
     if (num) withA(c, .16 * fin(lt, 0, .5), () => { c.save(); c.font = `800 ${620 * u}px TFDisp, ${FONT_FALLBACK}`; c.textAlign = 'center'; c.fillStyle = this.kt ? PL.hi : '#F3E3C6'; c.fillText(num, FW / 2 + (1 - eo(lt / .8)) * 300 * u, FH * .5 + 230 * u); c.restore(); });
@@ -8223,7 +8244,8 @@ ${style === 'life' ? 'বই: বইয়ের ইংরেজি নাম | 
 - সময়: day, evening, night | মেজাজ: normal, happy, sad, tense, regret | আবহাওয়া: rain, fog, sunny
 - চরিত্রের role: ${Object.keys(ROLES).join(', ')}
 - মুখের ভাব: ${FEELS.join(', ')} | কাজ: ${ACTIONS.join(', ')} | হাতে: ${PROPS.join(', ')}
-- কার্ড (মোট ১২-২৫টা, ছড়িয়ে): [reveal: জিনিস / লেখা] [sms: শিরোনাম / লেখা] [chat: নাম / লেখা] [call: নাম] [alert: লেখা] [date: তারিখ] [doc: শিরোনাম / লেখা] [source: সূত্র / কী বলেছে] [counter: লেবেল / শুরু / শেষ / আগে-চিহ্ন] [compare: বাম / মান / ডান / মান] [check: + কাজ / + কাজ] [price: লেখা] [big: লেখা] [progress: লেবেল / শতাংশ]${style === 'thriller' ? ' [statement: ছোট লাইন / বড় সোনালি লেখা] [label: সূত্র: নাম]' : style === 'life' ? ' [tag: ✗ লেখা / ✓ লেখা] [hud: লেবেল / আগে → এখন] [label: ছোট লেখা]' : ' [label: ছোট লেখা]'}
+- কার্ড (মোট ১২-২৫টা, ছড়িয়ে): [reveal: জিনিস / লেখা] [sms: শিরোনাম / লেখা] [chat: নাম / লেখা] [call: নাম] [alert: লেখা] [date: তারিখ] [doc: শিরোনাম / লেখা] [source: সূত্র / কী বলেছে] [counter: লেবেল / শুরু / শেষ / আগে-চিহ্ন] [compare: বাম / মান / ডান / মান] [check: + কাজ / + কাজ] [price: লেখা] [big: লেখা] [progress: লেবেল / শতাংশ] [scene: ধরন / লেখা১ / লেখা২]${style === 'thriller' ? ' [statement: ছোট লাইন / বড় সোনালি লেখা] [label: সূত্র: নাম]' : style === 'life' ? ' [tag: ✗ লেখা / ✓ লেখা] [hud: লেবেল / আগে → এখন] [label: ছোট লেখা]' : ' [label: ছোট লেখা]'}
+- অ্যানিমেটেড কনসেপ্ট ছবি (পুরো পর্দা জুড়ে, ক্যারেক্টার ছাড়া; ১০-২০টা, যেখানে সংখ্যা/তারিখ/জায়গা/নথি/তালা/ফোন/চার্ট বোঝানো দরকার): [scene: ধরন / লেখা১ / লেখা২]। ধরন: calendar(তারিখ), skyline, building(স্কুল/ব্যাংক/অফিস), chart_line(লেখা, up/down/crash), chart_bars, counter, doc, email, money, people, route(দেশ১ / দেশ২), magnifier, lock(লেখা, lock/open), phone(মেসেজ...), balance, timeline, question, network, files, clock, alert। যেমন: [scene: chart_line / ১০১ মিলিয়ন ডলার / crash]
 - থাম্বনেল: টিজার ৫-৯ শব্দের রহস্য; উক্তি মোট ৩-৯ শব্দ, দুই ভাগ, ১-৩টা শব্দ {} দিয়ে লাল।
 শুধু কোড ব্লকটা দাও, আগে-পরে কিছু লিখবে না।`;
   return head + link + body + fmt;
