@@ -451,6 +451,106 @@ button.primary.gold:hover{filter:brightness(.96)}
 .acstats b{font-size:22px;font-variant-numeric:tabular-nums}.acstats span{font-size:13px;color:var(--sub);line-height:1.35}
 </style>
 
+<style id="v6">
+/* ===== v6 — modern minimal workspace (desktop ≥1100px). Phone & tablet layouts are untouched. ===== */
+.tip,.dk,#expLine,#cmdk,.cmdbtn,.pubtabs{display:none}
+.tip[hidden]{display:none!important}
+#tipPop{position:fixed;z-index:9999;display:none;max-width:340px;padding:11px 14px;border-radius:10px;background:#1b2420;color:#eef2ef;font-size:13.5px;line-height:1.6;box-shadow:0 12px 32px rgba(0,0,0,.24)}
+#tipPop.on{display:block}#tipPop p{margin:0 0 7px}#tipPop p:last-child{margin:0}#tipPop b{color:var(--go);font-weight:700}
+@media (min-width:1100px){
+:root{--bg:#f7f8f6;--line:#e6e9e4;--soft:#f0f2ee;--sub:#68726c;--r:12px;--sh:none}
+html,body{font-size:15px;letter-spacing:0;background:var(--bg)}
+body{grid-template-columns:240px minmax(0,1fr)}
+.hx,.mo,.startpick span,.aiways button span,.fmtpick button span,.ratios button span,.platgrid span,#expInfo{display:none!important}
+.dk{display:inline}
+.tip{display:inline-grid;place-items:center;width:20px;height:20px;min-height:0;padding:0;border-radius:50%;border:1px solid #cdd3ce;background:#fff;color:#74807a;font:italic 700 12px/1 Georgia,serif;cursor:pointer;flex:none;vertical-align:middle;margin-left:6px;transition:border-color .15s,color .15s,background .15s}
+.tip:hover,.tip.on{border-color:var(--g);color:var(--g);background:#eef3ef}
+label>.tip{position:absolute;right:0;top:-1px;margin:0}
+.tipline{display:inline-block}
+/* ---- sidebar ---- */
+.top{padding:20px 14px 16px;gap:10px;background:#fff;border-right:1px solid var(--line)}
+.brand{padding:2px 8px 12px}.brand b{font-size:16px;font-weight:800}.logo{width:34px;height:34px;border-radius:9px}
+.newbtn{min-height:40px;padding:0 14px;border-radius:10px;font-size:14.5px;box-shadow:none}
+.cmdbtn{display:flex;align-items:center;gap:10px;width:100%;min-height:38px;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--sub);font-size:14px;cursor:pointer;text-align:left;transition:border-color .15s}
+.cmdbtn:hover{border-color:#c5ccc6;color:var(--ink)}.cmdbtn svg{width:16px;height:16px}.cmdbtn span{flex:1}
+kbd{font:600 11px/1 ui-monospace,Consolas,monospace;padding:3px 6px;border-radius:6px;background:#fff;border:1px solid var(--line);color:var(--sub)}
+.steps{margin:10px 0 0;gap:2px}
+.steps button{padding:8px 10px;border-radius:10px;font-size:14.5px;font-weight:600;gap:12px;min-height:0;width:100%}
+.steps button .lbl{min-width:0}
+.steps button .sn{display:block;max-width:150px;margin-top:1px;font-size:12px;font-weight:500;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.steps button .sn:empty{display:none}
+.steps button i{width:32px;height:32px;border-radius:9px;border:0;background:var(--soft)}
+.steps button i svg{width:18px;height:18px}
+.steps button.on{background:#eef3ef;color:var(--g)}.steps button.on i{background:var(--g);color:var(--go)}
+.steps button.done i{background:var(--soft);color:var(--ok)}
+.tools{border-top:1px solid var(--line);padding-top:12px;gap:2px;justify-content:space-between}
+.tools .icon{width:36px;height:36px;border:0;background:transparent;border-radius:9px;color:#4a554f}.tools .icon:hover{background:var(--soft)}
+/* ---- content ---- */
+.wrap{max-width:1480px;width:100%;margin:0 auto;padding:36px 40px 72px;gap:48px;grid-template-columns:minmax(0,1fr) clamp(360px,30vw,520px)}
+body.widepv .wrap,body.longfmt .wrap{grid-template-columns:minmax(0,1fr) clamp(420px,36vw,640px)}
+.left{max-width:720px;width:100%}.right{top:36px}
+.stephead{margin:0 0 20px}.stephead h2{display:flex;align-items:center;font-size:24px;font-weight:800;letter-spacing:-.1px}
+.stephead p.ellip{font-size:13.5px;margin-top:2px}#step1 .stephead{display:flex;align-items:center;gap:2px}
+h3{display:flex;align-items:center;font-size:15px;font-weight:700;margin:26px 0 10px}
+h4{display:flex;align-items:center;font-size:13px;font-weight:700;color:#4d5852;margin:18px 0 8px}
+label{position:relative;font-size:13px;font-weight:600;color:#56615b;gap:6px;margin-bottom:14px}
+input:not([type=checkbox]):not([type=range]):not([type=file]),select,textarea{min-height:40px;padding:8px 12px;border-radius:10px;font-size:14.5px;border-color:#dfe3de}
+textarea{min-height:0}
+.btn,button.primary,button.ghost{min-height:40px;padding:8px 16px;border-radius:10px;font-size:14.5px;font-weight:600;box-shadow:none}
+.primary{box-shadow:none}.primary.xl{min-height:52px;padding:12px;font-size:16px;border-radius:12px}
+.icon{width:36px;height:36px;border-radius:10px}
+.seg{padding:3px;border-radius:11px}.seg button{min-height:34px;padding:5px 14px;font-size:14px;font-weight:600;border-radius:8px}
+.chk{font-size:14px;font-weight:500}
+.keystat{padding:8px 12px;border-radius:10px;font-size:13px}
+.pane{padding:20px;border-radius:14px;box-shadow:none}
+.card2,.tele,.prog{border-radius:14px}
+.list li{margin:6px 0;padding:10px 12px;border:1px solid var(--line);border-radius:10px;box-shadow:none}
+.list li:hover,.list li.cur{border-color:var(--g)}
+.sovi,.ccard{box-shadow:none}
+.startpick{gap:14px}
+.startpick button{min-height:0;padding:22px 18px 20px;gap:14px;border-radius:14px;box-shadow:none}
+.startpick i{width:42px;height:42px}.startpick b{font-size:15.5px}
+.aiways button,.fmtpick button{padding:12px 14px;border-radius:12px}.aiways button b,.fmtpick button b{font-size:14.5px}
+.nextbar{margin-top:24px;padding:12px 14px;border-radius:12px;background:#fff;border:1px solid var(--line);box-shadow:none}
+.more{margin-top:14px;padding:2px 18px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.more>summary{padding:12px 0;font-size:14.5px;font-weight:700;color:var(--ink)}
+.more[open]>summary{border-bottom:1px solid var(--line);margin-bottom:12px}
+.more[open]{padding-bottom:16px}
+/* preview */
+.right .pv{border-radius:14px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 8px 24px rgba(16,24,20,.07)}
+.ctrl{gap:12px}.time{font-size:12.5px}
+/* ---- export ---- */
+.exp{max-width:none;padding:22px;background:#fff;border:1px solid var(--line);border-radius:14px}
+.exp h4{margin:24px 0 10px}.exp>h4:first-child{margin-top:0}.exp .chk{margin-top:14px}
+.ratios{gap:8px;margin-bottom:6px}
+.ratios button{padding:12px 6px 10px;border-radius:12px;gap:2px}.ratios button i{height:34px;max-width:50px;margin-bottom:2px}.ratios button b{font-size:14.5px}
+.thumbrow{display:grid;grid-template-columns:auto minmax(0,1fr);gap:20px;align-items:start;margin-bottom:6px}
+.thumbrow canvas{width:auto;max-width:100%;height:auto;max-height:200px;border-radius:10px}
+#expLine{display:block;margin:20px 0 12px;font-size:13px;color:var(--sub)}
+.done{margin-top:14px;padding:16px;border-radius:12px;background:#f3f8f4;border:1px solid #dbe8df}
+.done>p.center:not([id]){display:none}
+.donebtns{display:flex;gap:10px}.donebtns button{flex:1;max-width:none}
+.pubd{margin-top:16px}
+.pubtabs{display:flex;gap:4px;margin:2px 0 16px}
+.pubtabs button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 14px;min-height:32px;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--sub)}
+.pubtabs button.on{background:var(--g);border-color:var(--g);color:#fff}
+.pubitem{position:relative}.pubitem>.row{position:absolute;top:-2px;right:0;margin:0}
+.pubitem>.row button{min-height:28px;padding:2px 12px;font-size:12.5px}
+#pubPack[data-g="yt"] .pubitem[data-g="fb"],#pubPack[data-g="fb"] .pubitem[data-g="yt"]{display:none}
+dialog{border-radius:16px}.dlg{padding:24px}.dlg h3{font-size:18px}
+/* ---- command palette ---- */
+#cmdk{position:fixed;inset:0;z-index:9000;display:none;align-items:flex-start;justify-content:center;padding-top:14vh;background:rgba(20,26,23,.38)}
+#cmdk.on{display:flex}
+.cmdbox{width:min(600px,92vw);background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.3)}
+.cmdbox input{width:100%;border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;min-height:56px;padding:0 20px!important;font-size:16px;box-shadow:none!important}
+.cmdbox ul{list-style:none;margin:0;padding:6px;max-height:min(52vh,420px);overflow:auto}
+.cmdbox li.hd{padding:10px 12px 4px;font-size:11.5px;font-weight:700;color:var(--sub);letter-spacing:.3px}
+.cmdbox li.it{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;cursor:pointer;font-size:14.5px}
+.cmdbox li.it small{margin-left:auto;color:var(--sub);font-size:12px}
+.cmdbox li.it.sel{background:#eef3ef;color:var(--g)}.cmdbox li.it.off{opacity:.45}
+.cmdbox .none{padding:22px;text-align:center;color:var(--sub)}
+}
+</style>
+
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -545,7 +645,7 @@ button.primary.gold:hover{filter:brightness(.96)}
           <label>জীবনের ক্ষেত্র<select id="pArea"></select></label>
           <label>গল্পের ধরন<select id="pStyle"><option value="twist">টুইস্ট গল্প (কঠিন সংলাপ → লুকানো সত্য → শেষে বই)</option><option value="classic">দুই অঙ্কের গল্প (আগের ধরন)</option></select></label>
         </div>
-        <details class="more2"><summary>আরও বাছাই — বই, শিক্ষা, নায়কের নাম, দৈর্ঘ্য (ঐচ্ছিক)</summary>
+        <details class="more2"><summary><span class="mo">আরও বাছাই — বই, শিক্ষা, নায়কের নাম, দৈর্ঘ্য (ঐচ্ছিক)</span><span class="dk">আরও বাছাই</span></summary>
         <div class="grid2">
           <label>বই<select id="pBook"></select></label>
           <label>শিক্ষা<select id="pLesson"></select></label>
@@ -571,7 +671,7 @@ button.primary.gold:hover{filter:brightness(.96)}
             <li><b>AI-এর উত্তর এখানে পেস্ট করুন</b><textarea id="chatIn" rows="7" class="mono" placeholder="AI যা লিখেছে, পুরোটা এখানে পেস্ট করুন"></textarea>
               <div class="row"><button class="primary" id="btnChatParse">দৃশ্য সাজাও <svg><use href="#i-arrow"/></svg></button><button class="ghost" type="button" id="btnChatPaste">ক্লিপবোর্ড থেকে পেস্ট</button></div></li>
           </ol>
-          <details class="more2"><summary>একসাথে অনেক গল্পের প্রম্পট (লাইব্রেরির জন্য)</summary><div class="row"><input type="number" id="bulkNChat" min="2" max="30" value="10" class="num" aria-label="কয়টা গল্প"><button class="ghost" id="btnCopyBulkPrompt">টা গল্পের প্রম্পট কপি</button></div><p class="muted sm">অনেক গল্পের উত্তর "অনেক গল্প একসাথে লাইব্রেরিতে যোগ করুন"-এ পেস্ট করবেন।</p></details>
+          <details class="more2"><summary><span class="mo">একসাথে অনেক গল্পের প্রম্পট (লাইব্রেরির জন্য)</span><span class="dk">একসাথে অনেক প্রম্পট</span></summary><div class="row"><input type="number" id="bulkNChat" min="2" max="30" value="10" class="num" aria-label="কয়টা গল্প"><button class="ghost" id="btnCopyBulkPrompt">টা গল্পের প্রম্পট কপি</button></div><p class="muted sm">অনেক গল্পের উত্তর "অনেক গল্প একসাথে লাইব্রেরিতে যোগ করুন"-এ পেস্ট করবেন।</p></details>
         </div>
         <p class="note">🔒 API key শুধু আপনার ব্রাউজারে থাকে (সেটিংসে)। কোনো এক্সপোর্ট/শেয়ার ফাইলে key থাকে না।</p>
       </div>
@@ -616,7 +716,7 @@ button.primary.gold:hover{filter:brightness(.96)}
       <div id="charEditor"></div>
       <h3>দৃশ্যের তালিকা</h3>
       <div id="sceneOverview" class="sov"></div>
-      <details class="more" id="advEdit"><summary>বিস্তারিত এডিট (ঐচ্ছিক — লাইন, জায়গা, মুখের ভাব, কার্ড)</summary><div id="sceneEditor"></div></details>
+      <details class="more" id="advEdit"><summary><span class="mo">বিস্তারিত এডিট (ঐচ্ছিক — লাইন, জায়গা, মুখের ভাব, কার্ড)</span><span class="dk">বিস্তারিত এডিট</span></summary><div id="sceneEditor"></div></details>
       <div class="nextbar" id="next2"><span><svg><use href="#i-check"/></svg> দৃশ্য প্রস্তুত</span><button class="primary" data-go="3">পরের ধাপ: কণ্ঠ ও মিউজিক <svg><use href="#i-arrow"/></svg></button></div>
     </div>
 
@@ -636,7 +736,7 @@ button.primary.gold:hover{filter:brightness(.96)}
         <div id="charVoices" class="charvoices"></div>
         <div class="row"><button class="primary" id="btnTTS">পুরো গল্পের কণ্ঠ বানাও</button><span class="muted" id="ttsInfo"></span></div>
         <div class="bar hidden" id="ttsBar"><i></i></div>
-        <details class="speech"><summary>কণ্ঠে যেভাবে পড়া হবে (সংখ্যা/সংক্ষেপ ঠিক আছে কিনা দেখুন)</summary><ol id="speechList" class="speechlist"></ol></details>
+        <details class="speech"><summary><span class="mo">কণ্ঠে যেভাবে পড়া হবে (সংখ্যা/সংক্ষেপ ঠিক আছে কিনা দেখুন)</span><span class="dk">পড়ার ধরন দেখুন</span></summary><ol id="speechList" class="speechlist"></ol></details>
       </div>
       <div class="vp hidden" id="v-rec">
         <div class="tele">
@@ -687,11 +787,12 @@ button.primary.gold:hover{filter:brightness(.96)}
           <button data-r="16:9"><i style="aspect-ratio:16/9"></i><b>১৬:৯</b><span>ইউটিউব ভিডিও</span></button>
         </div>
         <h4>রেজোলিউশন</h4>
-        <nav class="seg sub small" id="resPick"><button data-res="720">720p (দ্রুত)</button><button data-res="1080" class="on">1080p (সেরা)</button><button data-res="1440">2K</button><button data-res="2160">4K (ধীর)</button></nav>
+        <nav class="seg sub small" id="resPick"><button data-res="720">720p<span class="mo"> (দ্রুত)</span></button><button data-res="1080" class="on">1080p<span class="mo"> (সেরা)</span></button><button data-res="1440">2K</button><button data-res="2160">4K<span class="mo"> (ধীর)</span></button></nav>
         <h4>থাম্বনেল (কভার)</h4>
         <div class="thumbrow"><canvas id="thumbPv" width="180" height="320" aria-label="থাম্বনেল প্রিভিউ"></canvas><div class="grow"><label>থাম্বনেলের বড় লেখা<input id="thumbText" placeholder="খালি রাখলে গল্পের শিরোনাম"></label><p class="muted sm">ভিডিওর প্রথম ফ্রেমেও এটাই থাকবে।</p><label>থাম্বনেলের ডিজাইন<select id="coverTheme"><option value="golpo">গল্প-উক্তি (লাল টিজার + বক্তার উক্তি কার্ড)</option><option value="jibonpath">জীবনপাঠ (পেজের লোগো ও রং)</option><option value="indigo">কাঁথা নীল</option><option value="terracotta">মাটির রং</option><option value="dusk">সাঁঝবাতি</option></select></label><button class="ghost sm" id="btnThumbDl" type="button"><svg><use href="#i-down"/></svg> থাম্বনেল ছবি ফোনে সেভ</button></div></div>
         <label class="chk"><input type="checkbox" id="sAutoThumb"> এক্সপোর্ট শেষ হলে থাম্বনেল ছবিও অটো সেভ</label>
         <p class="muted center" id="expInfo"></p>
+        <p class="muted center" id="expLine"></p>
         <button class="primary xl" id="btnExport"><svg><use href="#i-down"/></svg> ভিডিও এক্সপোর্ট</button>
         <div class="prog hidden" id="expProg">
           <div class="row between"><b id="expStage">তৈরি হচ্ছে…</b><b class="pct" id="expPct">০%</b></div>
@@ -709,16 +810,16 @@ button.primary.gold:hover{filter:brightness(.96)}
           <p class="muted sm center" id="shareHint"></p>
         </div>
       </div>
-      <details class="more pubd" id="pubDetails"><summary>ইউটিউব / ফেসবুক লেখা দেখুন (টাইটেল, ডিসক্রিপশন, ট্যাগ, ক্যাপশন)</summary>
+      <details class="more pubd" id="pubDetails"><summary><span class="mo">ইউটিউব / ফেসবুক লেখা দেখুন (টাইটেল, ডিসক্রিপশন, ট্যাগ, ক্যাপশন)</span><span class="dk">প্রকাশের লেখা</span></summary>
       <div class="pub" id="pubPack">
         <label>ইউটিউব টাইটেল<textarea id="pubYtTitle" rows="2" readonly></textarea></label>
-        <div class="row"><button class="ghost sm" type="button" data-copy="pubYtTitle">টাইটেল কপি</button></div>
+        <div class="row"><button class="ghost sm" type="button" data-copy="pubYtTitle"><span class="mo">টাইটেল </span>কপি</button></div>
         <label>ইউটিউব ডিসক্রিপশন<textarea id="ytText" rows="7" readonly></textarea></label>
-        <div class="row"><button class="ghost sm" type="button" id="btnCopyYT">ডিসক্রিপশন কপি</button></div>
+        <div class="row"><button class="ghost sm" type="button" id="btnCopyYT"><span class="mo">ডিসক্রিপশন </span>কপি</button></div>
         <label>ইউটিউব ট্যাগ<textarea id="pubYtTags" rows="2" readonly></textarea></label>
-        <div class="row"><button class="ghost sm" type="button" data-copy="pubYtTags">ট্যাগ কপি</button></div>
+        <div class="row"><button class="ghost sm" type="button" data-copy="pubYtTags"><span class="mo">ট্যাগ </span>কপি</button></div>
         <label>ফেসবুক রিলস/পোস্ট ক্যাপশন<textarea id="pubFb" rows="6" readonly></textarea></label>
-        <div class="row"><button class="ghost sm" type="button" data-copy="pubFb">ক্যাপশন কপি</button></div>
+        <div class="row"><button class="ghost sm" type="button" data-copy="pubFb"><span class="mo">ক্যাপশন </span>কপি</button></div>
       </div>
       </details>
       <details class="more">
@@ -6854,7 +6955,8 @@ async function uploadMusic(file) { if (!file) return; try { const bytes = await 
 
 /* ---------- step 4: export + share ---------- */
 let abortFlag = null;
-function updateExpInfo() { const { w, h } = frameSize(S.expRatio, S.expRes); const d = app.tl ? app.tl.total : 0; const L = app.renderer && app.renderer.isLong; $('expInfo').textContent = `${w} × ${h} · ৩০fps · ` + (d >= 90 ? `${fmtT(d)} মিনিট` : `${bn(Math.round(d))} সেকেন্ড`) + (L ? ` · ${app.story && app.story.fmt === 'long' ? 'লং ভিডিও (' + (LONG_STYLE_BN[app.renderer.style] || '') + ')' : 'শর্ট ভিডিও'} — চরিত্র ও লেখা এই মাপে নতুন করে সাজানো · আনুমানিক ফাইল ${bn(Math.max(1, Math.round(d * (w * h / (1080 * 1920) * 4.5 + .16) / 8)))} MB` + (S.expRes >= 1080 && d > 480 ? ' · ফোনে দ্রুত চাইলে 720p নিন' : '') : ''); }
+function updateExpInfo() { const { w, h } = frameSize(S.expRatio, S.expRes); const d = app.tl ? app.tl.total : 0; const L = app.renderer && app.renderer.isLong; $('expInfo').textContent = `${w} × ${h} · ৩০fps · ` + (d >= 90 ? `${fmtT(d)} মিনিট` : `${bn(Math.round(d))} সেকেন্ড`) + (L ? ` · ${app.story && app.story.fmt === 'long' ? 'লং ভিডিও (' + (LONG_STYLE_BN[app.renderer.style] || '') + ')' : 'শর্ট ভিডিও'} — চরিত্র ও লেখা এই মাপে নতুন করে সাজানো · আনুমানিক ফাইল ${bn(Math.max(1, Math.round(d * (w * h / (1080 * 1920) * 4.5 + .16) / 8)))} MB` + (S.expRes >= 1080 && d > 480 ? ' · ফোনে দ্রুত চাইলে 720p নিন' : '') : '');
+  const el = $('expLine'); if (el) { const mb = Math.max(1, Math.round(d * (w * h / (1080 * 1920) * 4.5 + .16) / 8)); el.textContent = `${w}×${h} · ৩০fps · ` + (d >= 90 ? `${fmtT(d)} মিনিট` : `${bn(Math.round(d))} সেকেন্ড`) + (L ? ` · ~${bn(mb)} MB` : ''); el.dataset.tip = L ? `${app.story && app.story.fmt === 'long' ? 'লং ভিডিও (' + (LONG_STYLE_BN[app.renderer.style] || '') + ')' : 'শর্ট ভিডিও'} — চরিত্র ও লেখা এই মাপে নতুন করে সাজানো হবে।` + (S.expRes >= 1080 && d > 480 ? ' ফোনে দ্রুত চাইলে 720p নিন।' : '') : ''; } }
 async function doExport() {
   if (!app.story) { toast('আগে গল্প বাছুন', 'err'); return; }
   stopPlay(true); if (IS_ANDROID) try { window.TFAndroid.keepAwake(true); } catch (e) { } ExportGuard.start(); const b = $('btnExport'); b.disabled = true; $('expDone').classList.add('hidden'); $('expProg').classList.remove('hidden'); abortFlag = { aborted: false };
@@ -8314,5 +8416,178 @@ function initShareSheet() {
   });
 }
 </script>
+<script id="v6js">
+/* v6 — desktop workspace layer: info tips (ⓘ), live step summaries, Ctrl+K command palette. No app logic changed. */
+(function () {
+  'use strict';
+  const $q = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  const norm = s => (s || '').replace(/\s+/g, ' ').trim();
+  /* ---------- ⓘ info tips ---------- */
+  const pop = document.createElement('div'); pop.id = 'tipPop'; pop.setAttribute('role', 'tooltip'); document.body.appendChild(pop);
+  let openBtn = null; const tips = new Map();
+  const flat = v => Array.isArray(v) ? v.flatMap(flat) : (v ? [v] : []);
+  const texts = t => flat(t.items.map(f => typeof f === 'function' ? f() : f));
+  const refresh = t => { const v = !texts(t).length; if (t.btn.hidden !== v) t.btn.hidden = v; };
+  function hide() { pop.classList.remove('on'); if (openBtn) openBtn.classList.remove('on'); openBtn = null; }
+  function show(btn, t) {
+    const host = btn.closest('dialog') || document.body; if (pop.parentNode !== host) host.appendChild(pop);
+    pop.textContent = ''; texts(t).forEach(x => { const p = document.createElement('p'); if (typeof x === 'string') p.textContent = x; else { const b = document.createElement('b'); b.textContent = x.b; p.append(b, ' — ' + x.t); } pop.appendChild(p); });
+    pop.classList.add('on'); btn.classList.add('on'); openBtn = btn;
+    const r = btn.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight;
+    pop.style.left = Math.min(Math.max(8, r.left + r.width / 2 - w / 2), innerWidth - w - 8) + 'px';
+    let y = r.bottom + 8; if (y + h > innerHeight - 8) y = Math.max(8, r.top - h - 8); pop.style.top = y + 'px';
+  }
+  function tipFor(target, item, watch) {
+    let t = tips.get(target);
+    if (!t) {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'tip'; b.textContent = 'i'; b.setAttribute('aria-label', 'তথ্য দেখুন');
+      t = { btn: b, items: [] }; tips.set(target, t); target.appendChild(b);
+      b.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); if (openBtn === b) hide(); else { hide(); show(b, t); } });
+    }
+    t.items.push(item);
+    if (watch) new MutationObserver(() => refresh(t)).observe(watch, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['data-tip'] });
+    refresh(t); return t;
+  }
+  function headingFor(el) {
+    let s = el.previousElementSibling, n = 0;
+    while (s && n++ < 4) {
+      if (/^H[2-4]$/.test(s.tagName)) return s;
+      const h = s.querySelector && s.querySelector(':scope > h2,:scope > h3,:scope > h4'); if (h) return h;
+      s = s.previousElementSibling;
+    }
+    return null;
+  }
+  function helper(sel, target) {
+    $$(sel).forEach(el => {
+      if (el.dataset.tipped || el.querySelector('button,a,input,select,textarea')) return;
+      let tg = typeof target === 'function' ? target(el) : (target ? $q(target) : headingFor(el));
+      if (typeof tg === 'string') tg = $q(tg);
+      el.dataset.tipped = '1'; el.classList.add('hx');
+      if (!tg) { tg = document.createElement('span'); tg.className = 'tipline'; el.parentNode.insertBefore(tg, el); }
+      tipFor(tg, () => el.dataset.tip != null ? norm(el.dataset.tip) : norm(el.textContent), el);
+    });
+  }
+  function group(cont, target) {
+    const c = $q(cont); if (!c) return;
+    const rows = () => [...c.querySelectorAll('button')].map(b => { const t = b.querySelector('b'), s = b.querySelector('span'); return t && s ? { b: norm(t.textContent), t: norm(s.textContent) } : null; }).filter(Boolean);
+    c.querySelectorAll('button').forEach(b => { const t = b.querySelector('b'), s = b.querySelector('span'); if (t && s && !b.title) b.title = norm(t.textContent) + ' — ' + norm(s.textContent); });
+    const tg = typeof target === 'function' ? target() : (target && $q(target)); if (tg) tipFor(tg, rows);
+  }
+  function setupTips() {
+    helper('#s1Sub', '#step1 .stephead');
+    helper('#longNote', '#longBox h4');
+    helper('.topiclbl small, #longBox label small, #src-ai label small', el => el.closest('label'));
+    helper('#src-ai > p.note', '.howh');
+    helper('#src-add > p.muted');
+    helper('#step2 > p.muted.sm');
+    helper('#step3 p.muted.sm.longonly', () => { const h = $$('#step3 h3').find(x => /দৈর্ঘ্য/.test(x.textContent)); return h; });
+    helper('#v-upload > p.muted:not([id])', '#voiceTabs');
+    helper('.thumbrow p.muted.sm', el => el.previousElementSibling);
+    helper('#expHint', '#expStage');
+    helper('details.more p.muted:not([id])');
+    helper('#ratioQuick .rqnote', '#ratioQuick > span');
+    helper('#st-key > p.muted.sm', '#st-key h4');
+    helper('#dlgAccount p.muted.sm:not([id]), #dlgAccount .acwhy', '#acTitle');
+    helper('#dlgSettings span.muted.sm:not([id]), #dlgSettings .logobox p.muted.sm');
+    group('#srcPick', '#step1 .stephead'); group('#fmtPick'); group('#aiTabs', '.howh'); group('#longStyles', '#longBox h4');
+    group('#ratioPick', () => $q('#ratioPick').previousElementSibling);
+    const rh = $q('#resPick') && $q('#resPick').previousElementSibling; if (rh) tipFor(rh, '720p — দ্রুত · 1080p — সেরা মান · 2K/4K — ধীর কিন্তু আরও ধারালো');
+    const el = $q('#expLine'); if (el) tipFor(el, () => norm(el.dataset.tip || ''), el);
+  }
+  document.addEventListener('click', e => { if (openBtn && !e.target.closest('#tipPop') && !e.target.closest('.tip')) hide(); }, true);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') hide(); });
+  addEventListener('scroll', hide, true); addEventListener('resize', hide);
+
+  /* ---------- publish text → tabs (YouTube | Facebook) ---------- */
+  function setupPub() {
+    const pack = $q('#pubPack'); if (!pack || pack.dataset.v6) return; pack.dataset.v6 = '1';
+    const kids = [...pack.children], pairs = [];
+    for (let i = 0; i + 1 < kids.length; i += 2) if (kids[i].tagName === 'LABEL' && kids[i + 1].classList.contains('row')) pairs.push([kids[i], kids[i + 1]]);
+    pairs.forEach((p, i) => { const w = document.createElement('div'); w.className = 'pubitem'; w.dataset.g = i < 3 ? 'yt' : 'fb'; pack.insertBefore(w, p[0]); w.append(p[0], p[1]); });
+    pack.dataset.g = 'yt';
+    const nav = document.createElement('nav'); nav.className = 'pubtabs'; nav.innerHTML = '<button type="button" class="on" data-g="yt">YouTube</button><button type="button" data-g="fb">Facebook</button>';
+    pack.parentNode.insertBefore(nav, pack);
+    nav.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; pack.dataset.g = b.dataset.g; nav.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); });
+  }
+
+  /* ---------- live step summaries (every step shows what the earlier ones produced) ---------- */
+  const bnx = v => (typeof bn === 'function' ? bn(v) : v);
+  let last = '';
+  function summaries() {
+    try {
+      const st = app.story, has = !!st; const sn = n => $q('#stepBar [data-step="' + n + '"] .sn'); const out = {};
+      out[1] = has ? norm(String(st.title || '').split('|')[0]) : '';
+      const sc = has && st.scenes ? st.scenes.length : 0, ch = has && st.characters ? (Array.isArray(st.characters) ? st.characters.length : Object.keys(st.characters).length) : 0;
+      out[2] = has ? (bnx(sc) + 'টা দৃশ্য' + (ch ? ' · ' + bnx(ch) + ' চরিত্র' : '')) : '';
+      const vm = { tts: 'Cartesia কণ্ঠ', rec: 'নিজের রেকর্ড', upload: 'অডিও ফাইল', none: 'কণ্ঠ ছাড়া' };
+      out[3] = has ? (vm[app.audio.mode] || '') : '';
+      out[4] = app.exported ? 'এক্সপোর্ট হয়েছে' : (has ? bnx(S.expRatio) + ' · ' + bnx(S.expRes) + 'p' : '');
+      const key = JSON.stringify(out); if (key === last) return; last = key;
+      [1, 2, 3, 4].forEach(n => { const e = sn(n); if (e) e.textContent = out[n]; });
+    } catch (e) { }
+  }
+
+  /* ---------- Ctrl+K command palette: every tool in one place ---------- */
+  const go = n => () => goStep(n);
+  const click = s => () => { const e = $q(s); if (e) e.click(); };
+  const then = (n, s) => () => { goStep(n); setTimeout(() => { const e = $q(s); if (e) e.click(); }, 60); };
+  const need = () => !!app.story;
+  const CMDS = [
+    ['ধাপ', 'গল্প', 'story', go(1)], ['ধাপ', 'দৃশ্য', 'scene', go(2), need], ['ধাপ', 'কণ্ঠ ও মিউজিক', 'voice music', go(3), need], ['ধাপ', 'এক্সপোর্ট', 'export', go(4), need],
+    ['গল্প', 'লাইব্রেরি থেকে গল্প নিন', 'library', then(1, '[data-pick="lib"]')], ['গল্প', 'নিজের গল্প পেস্ট করুন', 'paste', then(1, '[data-pick="paste"]')],
+    ['গল্প', 'AI দিয়ে নতুন গল্প লিখুন', 'ai write', then(1, '[data-pick="ai"]')], ['গল্প', 'অনেক গল্প একসাথে যোগ করুন', 'bulk add', then(1, '[data-pick="add"]')],
+    ['গল্প', 'নতুন গল্প শুরু', 'new', click('#btnNew')],
+    ['দৃশ্য', 'আবার অটো সাজাও', 'auto direct', then(2, '#btnAutoDirect'), need], ['দৃশ্য', 'সব চরিত্র দেখুন', 'characters', click('#btnGallery')],
+    ['কণ্ঠ', 'Cartesia AI কণ্ঠ', 'tts cartesia', then(3, '#voiceTabs [data-v="tts"]'), need], ['কণ্ঠ', 'নিজে রেকর্ড করুন', 'record', then(3, '#voiceTabs [data-v="rec"]'), need],
+    ['কণ্ঠ', 'অডিও ফাইল আপলোড', 'upload audio', then(3, '#voiceTabs [data-v="upload"]'), need], ['কণ্ঠ', 'কণ্ঠ ছাড়া', 'no voice silent', then(3, '#voiceTabs [data-v="none"]'), need],
+    ['এক্সপোর্ট', '৯:১৬ — Shorts / Reels', '9:16 shorts reels', then(4, '#ratioPick [data-r="9:16"]'), need], ['এক্সপোর্ট', '১৬:৯ — ইউটিউব', '16:9 youtube', then(4, '#ratioPick [data-r="16:9"]'), need],
+    ['এক্সপোর্ট', '৪:৫ — ফেসবুক পোস্ট', '4:5 facebook', then(4, '#ratioPick [data-r="4:5"]'), need], ['এক্সপোর্ট', '১:১ — স্কয়ার', '1:1 square', then(4, '#ratioPick [data-r="1:1"]'), need],
+    ['এক্সপোর্ট', 'ভিডিও এক্সপোর্ট শুরু', 'export video start', then(4, '#btnExport'), need], ['এক্সপোর্ট', 'থাম্বনেল ছবি সেভ', 'thumbnail', then(4, '#btnThumbDl'), need],
+    ['এক্সপোর্ট', 'প্রকাশের লেখা (টাইটেল, ডিসক্রিপশন)', 'title description tags caption youtube facebook', () => { goStep(4); setTimeout(() => { const d = $q('#pubDetails'); if (d) { d.open = true; d.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }, 80); }, need],
+    ['অ্যাপ', 'সেটিংস', 'settings', click('#btnSettings')], ['অ্যাপ', 'API key', 'api key gemini claude cartesia', () => { click('#btnSettings')(); setTimeout(click('#setTabs [data-st="key"]'), 60); }],
+    ['অ্যাপ', 'সাবটাইটেল ও ফন্ট', 'subtitle font caption', () => { click('#btnSettings')(); setTimeout(click('#setTabs [data-st="vid"]'), 60); }],
+    ['অ্যাপ', 'Gmail অ্যাকাউন্ট', 'account login gmail', click('#btnAccount')], ['অ্যাপ', 'সাহায্য', 'help', click('#btnHelp')],
+    ['অ্যাপ', 'ইসলামিক অংশ', 'islamic', () => { location.href = 'islamic/index.html'; }]
+  ];
+  let box, inp, list, sel = 0, shown = [];
+  function buildPalette() {
+    box = document.createElement('div'); box.id = 'cmdk'; box.innerHTML = '<div class="cmdbox" role="dialog" aria-label="দ্রুত খুঁজুন"><input type="text" placeholder="কী করতে চান? যেমন: এক্সপোর্ট, কণ্ঠ, সেটিংস" aria-label="খুঁজুন" autocomplete="off" spellcheck="false"><ul></ul></div>';
+    document.body.appendChild(box); inp = box.querySelector('input'); list = box.querySelector('ul');
+    inp.addEventListener('input', () => { sel = 0; render(); });
+    box.addEventListener('mousedown', e => { if (e.target === box) close(); });
+    list.addEventListener('click', e => { const li = e.target.closest('li.it'); if (li) run(+li.dataset.i); });
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'ArrowDown') { e.preventDefault(); sel = Math.min(shown.length - 1, sel + 1); mark(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); sel = Math.max(0, sel - 1); mark(); }
+      else if (e.key === 'Enter') { e.preventDefault(); run(sel); } else if (e.key === 'Escape') { e.stopPropagation(); close(); }
+    });
+  }
+  function render() {
+    const q = norm(inp.value).toLowerCase(); shown = CMDS.filter(c => !q || (c[1] + ' ' + c[0] + ' ' + c[2]).toLowerCase().includes(q));
+    list.textContent = ''; if (!shown.length) { const d = document.createElement('li'); d.className = 'none'; d.textContent = 'কিছু পাওয়া যায়নি'; list.appendChild(d); return; }
+    let g = ''; shown.forEach((c, i) => {
+      if (c[0] !== g) { g = c[0]; const h = document.createElement('li'); h.className = 'hd'; h.textContent = g; list.appendChild(h); }
+      const li = document.createElement('li'); li.className = 'it' + (c[4] && !c[4]() ? ' off' : ''); li.dataset.i = i; li.textContent = c[1];
+      if (c[4] && !c[4]()) { const s = document.createElement('small'); s.textContent = 'আগে গল্প বাছুন'; li.appendChild(s); } list.appendChild(li);
+    }); mark();
+  }
+  function mark() { list.querySelectorAll('li.it').forEach(li => { const on = +li.dataset.i === sel; li.classList.toggle('sel', on); if (on) li.scrollIntoView({ block: 'nearest' }); }); }
+  function run(i) { const c = shown[i]; if (!c) return; close(); setTimeout(() => c[3](), 30); }
+  function open() { if (!box) buildPalette(); hide(); inp.value = ''; sel = 0; render(); box.classList.add('on'); inp.focus(); }
+  function close() { if (box) box.classList.remove('on'); }
+  addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); box && box.classList.contains('on') ? close() : open(); }
+  });
+  function sidebarBtn() {
+    const nb = $q('#btnNew'); if (!nb || $q('.cmdbtn')) return;
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'cmdbtn'; b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/></svg><span>দ্রুত খুঁজুন</span><kbd>Ctrl K</kbd>';
+    b.addEventListener('click', open); nb.insertAdjacentElement('afterend', b);
+  }
+
+  function init() { setupTips(); setupPub(); sidebarBtn(); summaries(); setInterval(summaries, 1000); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+
 </body>
 </html>
