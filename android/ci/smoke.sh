@@ -11,6 +11,12 @@ for i in $(seq 1 24); do
   if adb logcat -d -s TFWeb:* | grep -q "SELFTEST"; then echo "web app ready after $((i*5))s"; break; fi
   sleep 5
 done
+# the very first WebView start after install sometimes stalls on the emulator: relaunch once
+if ! adb logcat -d -s TFWeb:* | grep -q "SELFTEST"; then
+  echo "no web app yet: relaunching once"
+  adb shell am start -W -S -n com.taiful.tfstory/.MainActivity --ez tf_selftest true
+  for i in $(seq 1 24); do adb logcat -d -s TFWeb:* | grep -q "SELFTEST" && { echo "web app ready after relaunch, $((i*5))s"; break; }; sleep 5; done
+fi
 sleep 3
 PID=$(adb shell pidof com.taiful.tfstory | tr -d '\r')
 echo "PID=$PID"
