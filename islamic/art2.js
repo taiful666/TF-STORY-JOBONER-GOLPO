@@ -466,47 +466,86 @@
   };
   function patchCoverSymbol(A) {
     const _dc = drawCover;
-    drawCover = function (c, R, k) { const key = k || S.coverTheme; if (key === 'islamic_sym') return coverSym(c, R); return _dc(c, R, k); };
-    try { if (!localStorage.getItem('tf_isl_v5')) { S.coverTheme = 'islamic_sym'; S.coverFirstFrame = true; saveSettings(); localStorage.setItem('tf_isl_v5', '1'); } } catch (e) { }
-    function coverSym(c, R) {
-      const st = R.story; if (!st) return; const d = coverData(st), Sx = (typeof S !== 'undefined' ? S : {}), cp = coverCopy(st, d, 'isl');
+    drawCover = function (c, R, k) { const key = k || S.coverTheme; if (key === 'islamic_sym') return coverSym(c, R, 'mix'); if (key === 'islamic_scene') return coverSym(c, R, 'scene'); if (key === 'islamic_pattern') return coverSym(c, R, 'pattern'); return _dc(c, R, k); };
+    try { if (!localStorage.getItem('tf_isl_v6')) { S.coverTheme = 'islamic_sym'; S.coverFirstFrame = true; saveSettings(); localStorage.setItem('tf_isl_v6', '1'); } } catch (e) { }
+    const hashS = s => { let h = 2166136261; s = String(s || ''); for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
+    /* two kinds of cover, mixed by the story and the "change style" button: 'scene' = the most striking moment of the video with the words on it,
+       'pattern' = an Islamic pattern with the words on it. The symbol is only a small corner medal. Words stay inside the middle band so
+       Facebook / YouTube / Reels crops still show them. Fonts: only the bold, eye-catching ones (TFDisp / TFCap / TFSerif). */
+    function coverSym(c, R, mode) { const st = R.story; if (!st || !R.tl) return; const old = FONT_BN; try { drawSymCover(c, R, mode); } finally { FONT_BN = old; } }
+    function drawSymCover(c, R, mode) {
+      const st = R.story, d = coverData(st), Sx = (typeof S !== 'undefined' ? S : {}), cp = coverCopy(st, d, 'isl');
       const V = A.getVar(), pal = PAL[V.name] || PAL['সবুজ-সোনালি'], gold = '#F2C14E', sym = pickSymbol(st);
+      const vi = Math.max(0, Object.keys(PAL).indexOf(V.name)), h = hashS(st.title || d.l1 || '');
+      const fam = ['TFDisp', 'TFDisp', 'TFCap', 'TFSerif'][(h >> 7) % 4], FW = fam === 'TFDisp' ? 800 : 700; FONT_BN = fam;
+      const kind = mode === 'scene' ? 'scene' : mode === 'pattern' ? 'pattern' : (((h >> 2) + vi) % 2 ? 'scene' : 'pattern');
+      const LAY = kind === 'scene' ? ['B', 'C'] : ['A', 'B', 'C']; let lay = LAY[((h >> 4) + vi) % LAY.length]; if (lay === 'B' && cp.lines.length < 2) lay = kind === 'scene' ? 'C' : 'A';
+      const patt = ((h >> 9) + vi) % 3, left = ((h >> 11) + vi) % 2 === 0; // symbol corner: top-left or top-right
       const g = { gold, grad: (y0, y1) => { const q = c.createLinearGradient(0, y0, 0, y1); q.addColorStop(0, '#FFF3B8'); q.addColorStop(.5, gold); q.addColorStop(1, '#A8691A'); return q; } };
-      const CX = 540, CY = 610, MR = 300;
       c.save();
-      // background: deep colour, khatam star lattice, glow behind the medallion, rays, vignette
+      // ---- background
       const bg = c.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, pal[0]); bg.addColorStop(1, pal[1]); c.fillStyle = bg; c.fillRect(0, 0, W, H);
-      c.save(); c.globalAlpha = .08; c.strokeStyle = gold; c.lineWidth = 2.4; for (let y = 0, r = 0; y < H + 120; y += 120, r++) for (let x = (r % 2) * 60; x < W + 120; x += 120) { star8(c, x, y, 54); c.stroke(); } c.restore();
-      const gl = c.createRadialGradient(CX, CY, 80, CX, CY, 760); gl.addColorStop(0, 'rgba(255,214,120,.42)'); gl.addColorStop(1, 'rgba(255,214,120,0)'); c.fillStyle = gl; c.fillRect(0, 0, W, H);
-      c.save(); c.globalCompositeOperation = 'screen'; covRays(c, CX, CY, 16, 1500, 'rgba(255,230,160,A)', .15, .12); c.restore();
-      const vg = c.createRadialGradient(540, 760, 380, 540, 960, 1300); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.55)'); c.fillStyle = vg; c.fillRect(0, 0, W, H);
-      // ornamental frame around the whole card
+      if (kind === 'scene') {
+        const P0 = A.pickCoverShot(st, R.tl), sc = st.scenes[P0.si] || {}, people = (sc.cast || []).length;
+        const off = document.createElement('canvas'); off.width = W; off.height = H; const oc = off.getContext('2d', { alpha: false });
+        R._camOverride = clampCam({ x: 540, y: people ? 1160 : 1000, z: people ? 1.18 : 1.1 }); try { R.drawScene(oc, P0.si, P0.t); } catch (e) { rect(oc, 0, 0, W, H, pal[0]); } R._camOverride = null;
+        c.filter = 'saturate(1.25) contrast(1.08)'; c.drawImage(off, 0, 0, W, H); c.filter = 'none';
+        c.save(); c.globalCompositeOperation = 'soft-light'; c.fillStyle = V.grade; c.fillRect(0, 0, W, H); c.restore();
+        const dk = pal[1].replace('#', ''), rgb = [0, 2, 4].map(i => parseInt(dk.substr(i, 2), 16)).join(',');
+        const sh = c.createLinearGradient(0, 0, 0, H);
+        if (lay === 'B') { sh.addColorStop(0, `rgba(${rgb},.88)`); sh.addColorStop(.26, `rgba(${rgb},.55)`); sh.addColorStop(.4, `rgba(${rgb},0)`); sh.addColorStop(.58, `rgba(${rgb},0)`); sh.addColorStop(.74, `rgba(${rgb},.78)`); sh.addColorStop(1, `rgba(${rgb},.94)`); }
+        else { sh.addColorStop(0, `rgba(${rgb},.7)`); sh.addColorStop(.16, `rgba(${rgb},0)`); sh.addColorStop(.42, `rgba(${rgb},.12)`); sh.addColorStop(.6, `rgba(${rgb},.8)`); sh.addColorStop(1, `rgba(${rgb},.95)`); }
+        c.fillStyle = sh; c.fillRect(0, 0, W, H);
+      } else {
+        c.save(); c.globalAlpha = .1; c.strokeStyle = gold; c.lineWidth = 2.6;
+        if (patt === 0) { for (let y = 0, r = 0; y < H + 120; y += 120, r++) for (let x = (r % 2) * 60; x < W + 120; x += 120) { star8(c, x, y, 54); c.stroke(); } }
+        else if (patt === 1) { for (let y = 40, r = 0; y < H + 200; y += 150, r++) for (let x = (r % 2) * 80 - 80; x < W + 160; x += 160) { c.stroke(P2(archPath(x, x + 160, y, y + 150, y + 70))); } }
+        else { for (let y = -20, r = 0; y < H + 120; y += 78, r++) for (let x = (r % 2) * 90 - 90; x < W + 180; x += 180) { c.beginPath(); c.arc(x, y, 90, 0, 7); c.stroke(); } }
+        c.restore();
+        const gl = c.createRadialGradient(540, 900, 80, 540, 900, 860); gl.addColorStop(0, 'rgba(255,214,120,.34)'); gl.addColorStop(1, 'rgba(255,214,120,0)'); c.fillStyle = gl; c.fillRect(0, 0, W, H);
+        c.save(); c.globalCompositeOperation = 'screen'; covRays(c, 540, 900, 18, 1600, 'rgba(255,230,160,A)', .12, .12 + vi); c.restore();
+      }
+      const vg = c.createRadialGradient(540, 900, 420, 540, 960, 1300); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.5)'); c.fillStyle = vg; c.fillRect(0, 0, W, H);
+      // ---- big faint symbol behind the words (pattern cover only)
+      const symAt = (cx, cy, k, a) => { c.save(); c.globalAlpha = a; c.translate(cx, cy); c.scale(k, k); try { SYMS[sym](c, g, pal); } catch (e) { } c.restore(); };
+      if (kind === 'pattern') symAt(540, lay === 'A' ? 930 : lay === 'B' ? 790 : 560, lay === 'A' ? 1.9 : 1.5, .13);
+      // ---- ornamental frame
       c.save(); c.strokeStyle = gold; c.shadowColor = gold; c.shadowBlur = 18; c.lineWidth = 9; c.beginPath(); c.roundRect(40, 40, W - 80, H - 80, 46); c.stroke(); c.shadowBlur = 0; c.lineWidth = 3; c.globalAlpha = .8; c.beginPath(); c.roundRect(68, 68, W - 136, H - 136, 30); c.stroke(); c.restore();
       [[40, 40], [W - 40, 40], [40, H - 40], [W - 40, H - 40]].forEach(([x, y]) => { circ(c, x, y, 36, pal[0], gold, 4); c.save(); c.fillStyle = gold; star8(c, x, y, 25); c.fill(); c.restore(); });
       [[540, 40], [540, H - 40], [40, H / 2], [W - 40, H / 2]].forEach(([x, y]) => { circ(c, x, y, 24, pal[1], gold, 3); c.save(); c.fillStyle = gold; star8(c, x, y, 17); c.fill(); c.restore(); });
-      // top: source badge + logo
+      // ---- corner medal with the symbol, source badge on the other side, logo at the bottom
+      const mr = 112, mx = left ? 190 : W - 190, my = 214;
+      c.save(); c.shadowColor = gold; c.shadowBlur = 36; circ(c, mx, my, mr, pal[1]); c.restore(); circ(c, mx, my, mr, pal[0]);
+      c.save(); c.shadowColor = gold; c.shadowBlur = 16; circ(c, mx, my, mr, null, gold, 8); c.restore(); circ(c, mx, my, mr * .86, null, gold, 2.5);
+      c.save(); c.translate(mx, my); c.scale(.95 * mr / 300, .95 * mr / 300); try { SYMS[sym](c, g, pal); } catch (e) { console.warn('symbol', sym, e); } c.restore();
       const ay = (st.scenes || []).find(x => x.type === 'ayah'), isQ = ay ? !/বুখারি|হাদিস|মুসলিম|তিরমিজি|মাজাহ|মুফরাদ/.test(ay.ref || '') : true, badge = isQ ? 'কুরআনের আলোয়' : 'হাদিসের আলোয়';
-      c.save(); c.font = `400 44px TFGalada, ${FONT_FALLBACK}`; const bw = c.measureText(badge).width + 74; c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 16; rr(c, 104, 106, bw, 78, 39, V.badge); c.shadowColor = 'transparent'; rr(c, 111, 113, bw - 14, 64, 32, null, gold, 3); txt(c, badge, 104 + bw / 2, 160, 44, '#F6E6B0', 400, 'center', 'TFGalada'); c.restore();
-      if (Sx.watermark !== false) { c.save(); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 14; drawLogo(c, W - 136, 146, 92, Sx.logo || 'প্র'); c.restore(); }
-      // the medallion: glowing disc, double gold ring with a band of little stars, then the symbol
-      c.save(); c.shadowColor = gold; c.shadowBlur = 70; circ(c, CX, CY, MR, pal[1]); c.restore();
-      circ(c, CX, CY, MR, pal[0]); const dg = c.createRadialGradient(CX, CY - 40, 10, CX, CY, MR); dg.addColorStop(0, 'rgba(255,226,150,.42)'); dg.addColorStop(1, 'rgba(255,226,150,0)'); c.fillStyle = dg; c.beginPath(); c.arc(CX, CY, MR, 0, 7); c.fill();
-      c.save(); c.shadowColor = gold; c.shadowBlur = 24; circ(c, CX, CY, MR, null, gold, 12); c.restore(); circ(c, CX, CY, 262, null, gold, 3);
-      c.save(); c.fillStyle = gold; for (let i = 0; i < 16; i++) { const a = i / 16 * Math.PI * 2; star8(c, CX + Math.cos(a) * 281, CY + Math.sin(a) * 281, 13); c.fill(); } c.restore();
-      c.save(); c.translate(CX, CY); c.scale(.95, .95); try { SYMS[sym](c, g, pal); } catch (e) { console.warn('symbol', sym, e); } c.restore();
-      // sticker on the ring, strap, huge headline, divider, button
-      covChip(c, cp.sticker, 350, CY + MR - 8, 44, gold, '#1A1405', -.05, 'rgba(60,40,0,.4)');
-      let y = CY + MR + 78; if (cp.strap) { c.save(); c.font = `800 44px ${FONT_BN}, ${FONT_FALLBACK}`; const sw = Math.min(W - 160, c.measureText('“' + cp.strap + '”').width + 90); rr(c, 540 - sw / 2, y, sw, 86, 43, 'rgba(0,0,0,.35)', gold, 3); richLine(c, '“' + cp.strap + '”', 540, y + 57, 44, sw - 60, '#FFF6DE', gold, FONT_BN, 800); c.restore(); y += 108; }
-      const bot = covHeadline(c, cp.lines, 540, y, { font: V.font, weight: 700, size: 156, minSize: 70, maxW: 900, maxH: 1640 - y, mode: 'gold', hi: V.hookHi, hiTop: '#FFF7CE', hiBot: gold, glow: 'rgba(255,200,80,.65)', stroke: 'rgba(3,16,10,.96)', lh: 1.18 });
-      const dy = Math.min(Math.max(bot + 26, 1580), 1670); c.save(); c.globalAlpha = .85; line(c, 250, dy, 500, dy, gold, 3); line(c, 580, dy, 830, dy, gold, 3); c.fillStyle = gold; star8(c, 540, dy, 18); c.fill(); c.restore();
-      covCTA(c, cp.cta, 540, dy + 108, 50, gold, '#1A1405', 'rgba(60,40,0,.45)');
+      c.save(); c.font = `700 42px ${fam}, ${FONT_FALLBACK}`; const bw = c.measureText(badge).width + 70, bx = left ? W - 104 - bw : 104; c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 16; rr(c, bx, 168, bw, 74, 37, V.badge); c.shadowColor = 'transparent'; rr(c, bx + 6, 174, bw - 12, 62, 31, null, gold, 3); txt(c, badge, bx + bw / 2, 219, 42, '#F6E6B0', 700, 'center', fam); c.restore();
+      if (Sx.watermark !== false) { c.save(); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 14; drawLogo(c, left ? W - 140 : 140, 1760, 92, Sx.logo || 'প্র'); c.restore(); }
+      // ---- words
+      const hb = (lines, y, o) => covHeadline(c, lines, 540, y, Object.assign({ font: fam, weight: FW, maxW: 920, mode: 'gold', hi: V.hookHi, hiTop: '#FFF7CE', hiBot: gold, glow: 'rgba(255,200,80,.6)', stroke: 'rgba(3,12,8,.97)', strokeK: .2, lh: 1.14 }, o));
+      const dry = (lines, o) => covHeadline(document.createElement('canvas').getContext('2d'), lines, 540, 0, Object.assign({ font: fam, weight: FW, maxW: 920, mode: o.mode || 'gold', lh: 1.14 }, o));
+      const strapAt = y => { if (!cp.strap) return 0; c.save(); c.font = `700 46px ${fam}, ${FONT_FALLBACK}`; const sw = Math.min(W - 150, c.measureText('“' + cp.strap + '”').width + 90); rr(c, 540 - sw / 2, y, sw, 90, 45, 'rgba(0,0,0,.55)', gold, 3); richLine(c, '“' + cp.strap + '”', 540, y + 60, 46, sw - 60, '#FFF6DE', gold, fam, 700); c.restore(); return 112; };
+      const cta = y => covCTA(c, cp.cta, 540, y, 50, gold, '#1A1405', 'rgba(60,40,0,.45)');
+      if (lay === 'A') { // everything centred in the middle band
+        const sh0 = cp.strap ? 112 : 0, o = { size: 176, minSize: 80, maxH: 860 }, hgt = dry(cp.lines, o), blk = sh0 + hgt + 190, top = Math.max(360, 960 - blk / 2 + 20);
+        const y1 = top + strapAt(top); const bot = hb(cp.lines, y1, o);
+        covChip(c, cp.sticker, 540, bot + 60, 46, gold, '#1A1405', -.04, 'rgba(60,40,0,.4)'); cta(bot + 180);
+      } else if (lay === 'B') { // first line high, the punch line big and low, the picture / pattern in between
+        const top = hb([cp.lines[0]], 360, { size: 150, minSize: 70, maxH: 260 });
+        covChip(c, cp.sticker, 540, top + 62, 44, gold, '#1A1405', -.03, 'rgba(60,40,0,.4)');
+        const rest = cp.lines.slice(1), o = { size: 180, minSize: 80, maxH: kind === 'scene' ? 400 : 560, mode: 'box', boxFill: V.ribbon, boxLine: gold, boxText: '#fff', strokeK: .17 }, hgt = dry(rest, o), yb = Math.max(kind === 'scene' ? 1040 : 900, 1440 - hgt);
+        hb(rest, yb, o); cta(1590);
+      } else { // headline in the lower part, picture / pattern above
+        const base = kind === 'scene' ? 1050 : 860, st0 = strapAt(base); covChip(c, cp.sticker, left ? 340 : W - 340, base - 62, 44, gold, '#1A1405', left ? -.05 : .05, 'rgba(60,40,0,.4)');
+        const bot = hb(cp.lines, base + st0, { size: 178, minSize: 80, maxH: 1500 - base - st0 }); cta(Math.min(1620, Math.max(bot + 90, 1540)));
+      }
       c.restore();
     }
   }
 
   function domTweaks() {
     const ct = $('coverTheme');
-    if (ct && !ct.querySelector('option[value="islamic_sym"]')) ct.prepend(el('option', { value: 'islamic_sym', text: 'ইসলামিক প্রতীক ফ্রেম (বড় প্রতীক + আকর্ষণীয় হেডলাইন, মানুষ নেই)' }));
+    if (ct && !ct.querySelector('option[value="islamic_sym"]')) { ct.prepend(el('option', { value: 'islamic_pattern', text: 'ইসলামিক নকশা + বড় লেখা (কোণে ছোট প্রতীক)' })); ct.prepend(el('option', { value: 'islamic_scene', text: 'ভিডিওর সেরা দৃশ্য + বড় লেখা (কোণে ছোট প্রতীক)' })); ct.prepend(el('option', { value: 'islamic_sym', text: 'ইসলামিক মিক্স (দৃশ্য ও নকশা পালা করে, স্টাইল বদলালে বদলায়)' })); }
     if (ct) ct.value = S.coverTheme || 'islamic_sym';
     if (ct) { const o = ct.querySelector('option[value="islamic"]'); if (o) o.textContent = 'ইসলামিক খিলান (মিহরাব ফ্রেম + কৌতূহলী হেডলাইন)'; if (!ct.querySelector('option[value="islamic_classic"]')) ct.append(el('option', { value: 'islamic_classic', text: 'ইসলামিক আগের ধাঁচ (পূর্ণ ছবি + নিচে লেখা)' })); ct.value = S.coverTheme || 'islamic'; }
     const sel = $('sCapLook');
