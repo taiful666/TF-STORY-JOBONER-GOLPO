@@ -496,7 +496,7 @@ rafiq:crying:pray_hands চরিত্রের ভাব দেখাতে �
 শুধু কোড ব্লকটা দাও।`;
   }
   async function lifeGenerate(topic, idea) {
-    if (BUSY) { toast('একটা গল্প লেখা হচ্ছে — একটু অপেক্ষা করুন'); return; }
+    if (BUSY) { busyToast(); return; }
     const prompt = buildLifePrompt(topic, idea), ai = whichAI();
     if (ai === 'chat') { PENDING = { life: true, prompt }; const box = $('islChat'); showSrc('lib'); box.classList.remove('hidden'); $('islChatTitle').textContent = 'নতুন জীবনের গল্প — ' + topic; $('islChatIn').value = ''; box.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
     BUSY = 'life'; showSrc('lib'); islRenderLib();
@@ -511,7 +511,10 @@ rafiq:crying:pray_hands চরিত্রের ভাব দেখাতে �
     if (await loadAny(t, { libId: id })) { app.libId = id; autosave(); toast('গল্প তৈরি — দৃশ্য দেখে কণ্ঠ দিন', 'ok', 6000); }
   }
   /* ---------- library UI ---------- */
-  let BUSY = false, PENDING = null;
+  let BUSY = false, PENDING = null, CUR_TITLE = '';
+  /* batch writing: SEL = ticked stories waiting to be written, Q = the running queue */
+  const SEL = new Set(), WQ = { running: false, stop: false, total: 0, done: 0, wait: new Set() };
+  const busyToast = () => toast('এখন লেখা হচ্ছে: "' + (CUR_TITLE || 'একটা গল্প') + '"' + (WQ.running ? ` (${bn(WQ.done + 1)}/${bn(WQ.total)})` : '') + ' — শেষ হলে বাকিটা চাপুন', '', 4200);
   const genOf = id => USERLIB.slice().reverse().find(u => u.src === id) || null;
   const G_OWN = 'নিজের যোগ করা', G_LIFE = 'জীবনের গল্প';
   const PRE = () => (window.ISL_STORIES || []);
@@ -543,17 +546,25 @@ rafiq:crying:pray_hands চরিত্রের ভাব দেখাতে �
   }
   function islRenderLib() {
     const ul = $('libList'); if (!ul) return; ul.innerHTML = ''; const { all, list } = rows();
-    $('libCount').textContent = `${bn(list.length)}টা গল্প · তৈরি ${bn(all.filter(r => r.u).length)} · ব্যবহৃত ${bn(all.filter(r => usedU(r.u)).length)}`;
+    $('libCount').textContent = `${bn(list.length)}টা দেখাচ্ছে · ✅ লেখা আছে ${bn(all.filter(r => r.u).length)} · ⬜ লেখা হয়নি ${bn(all.filter(r => !r.u).length)} · ব্যবহৃত ${bn(all.filter(r => usedU(r.u)).length)}`;
     const frag = document.createDocumentFragment();
     list.forEach(r => {
-      const used = usedU(r.u);
-      const st = r.u ? el('button', { type: 'button', class: 'islst del ' + (used ? 'ok used' : 'ok'), title: used ? 'ব্যবহৃত — চাপলে টিক উঠে যাবে' : 'চাপলে ব্যবহৃত হিসেবে টিক পড়বে', text: used ? '✓ ব্যবহৃত' + (r.at ? ' · ' + dateBn(r.at) : '') : '○ টিক দিন', onclick: e => { e.stopPropagation(); toggleUsed(r.u.id); } }) : el('span', { class: 'islst', text: 'নতুন' });
+      const used = usedU(r.u), writing = BUSY === r.id, queued = WQ.wait.has(r.id), canPick = !!r.it && !r.u;
+      /* status badge: ✅ written (in the library) · ⬜ not written yet · ✍️ writing now · ⏳ waiting in the queue */
+      const badge = writing ? el('span', { class: 'islst wr', text: '✍️ লেখা হচ্ছে…' })
+        : queued ? el('span', { class: 'islst qd', text: '⏳ লাইনে আছে' })
+        : r.u ? el('span', { class: 'islst ok', text: '✅ লেখা আছে' })
+        : el('span', { class: 'islst todo', text: '⬜ লেখা হয়নি' });
+      const second = r.u
+        ? el('button', { type: 'button', class: 'islst del ' + (used ? 'ok used' : 'ok2'), title: used ? 'ব্যবহৃত — চাপলে টিক উঠে যাবে' : 'ভিডিও বানানো হলে এখানে টিক দিন', text: used ? '✓ ব্যবহৃত' + (r.at ? ' · ' + dateBn(r.at) : '') : '○ ব্যবহৃত টিক দিন', onclick: e => { e.stopPropagation(); toggleUsed(r.u.id); } })
+        : (canPick && !WQ.running ? el('label', { class: 'islst del pick' + (SEL.has(r.id) ? ' on' : ''), onclick: e => e.stopPropagation() },
+          el('input', { type: 'checkbox', checked: SEL.has(r.id), onchange: e => { e.target.checked ? SEL.add(r.id) : SEL.delete(r.id); islRenderLib(); } }), SEL.has(r.id) ? ' বাছা হয়েছে' : ' টিক দিন') : null);
       const re = r.u && r.it ? el('button', { type: 'button', class: 'islre del', title: 'নতুন করে লিখুন', 'aria-label': 'নতুন করে লিখুন', text: '↻', onclick: e => { e.stopPropagation(); islGenerate(r.it, { fresh: true }); } }) : null;
-      frag.append(el('li', { class: (r.u && app.libId === r.u.id ? 'cur' : '') + (BUSY === r.id ? ' busy' : '') + (used ? ' usedrow' : ''), onclick: e => { if (e.target.closest('.del')) return; islOpen(r); } },
-        el('span', { class: 'no', text: bn(r.n) }), el('span', { class: 't' }, el('b', { text: r.title }), el('span', { text: `${r.ref} · ${r.group}` + (r.pre ? ' · অফলাইনে তৈরি' : '') })), st, re));
+      frag.append(el('li', { class: (r.u && app.libId === r.u.id ? 'cur' : '') + (writing ? ' busy' : '') + (used ? ' usedrow' : '') + (!r.u ? ' todorow' : '') + (SEL.has(r.id) ? ' picked' : ''), onclick: e => { if (e.target.closest('.del')) return; islOpen(r); } },
+        el('span', { class: 'no', text: bn(r.n) }), el('span', { class: 't' }, el('b', { text: r.title }), el('span', { text: `${r.ref} · ${r.group}` + (r.pre ? ' · অফলাইনে তৈরি' : '') })), el('span', { class: 'islside' }, badge, second), re));
     });
     if (!list.length) frag.append(el('li', { class: 'muted', text: 'কিছু পাওয়া যায়নি' }));
-    ul.append(frag);
+    ul.append(frag); updateSelBar();
   }
   function islFillFilters() {
     const b = $('libBook'), f = $('libFilter'); const cb = b.value, cf = f.value;
@@ -563,7 +574,7 @@ rafiq:crying:pray_hands চরিত্রের ভাব দেখাতে �
     if (!f.dataset.isl) { f.innerHTML = ''; f.append(...[['all', 'সব'], ['new', 'অব্যবহৃত'], ['used', 'ব্যবহৃত'], ['hist', 'ইতিহাস (সাম্প্রতিক আগে)'], ['ready', 'তৈরি আছে'], ['todo', 'এখনো লেখা হয়নি']].map(([v, tx]) => el('option', { value: v, text: tx }))); f.dataset.isl = '1'; f.value = 'all'; } else f.value = cf || 'all';
   }
   async function islOpen(r) {
-    if (BUSY) { toast('একটা গল্প লেখা হচ্ছে — একটু অপেক্ষা করুন'); return; }
+    if (BUSY) { busyToast(); return; }
     if (r.u) { const txt = await verifyQuran(r.u.txt, r.u.id); await loadLib({ id: r.u.id, txt }); islRenderLib(); return; }
     if (r.it) islGenerate(r.it);
   }
@@ -606,8 +617,8 @@ rafiq:crying:pray_hands চরিত্রের ভাব দেখাতে �
     return has('aKey') ? 'claude' : has('gKey') ? 'gemini' : 'chat';
   }
   async function islGenerate(item, o) {
-    o = o || {}; if (BUSY) { toast('একটা গল্প লেখা হচ্ছে — একটু অপেক্ষা করুন'); return false; }
-    BUSY = item.id; islRenderLib();
+    o = o || {}; if (BUSY) { busyToast(); return false; }
+    BUSY = item.id; CUR_TITLE = item.title; islRenderLib();
     try {
       setStat('আসল লেখা ডাউনলোড হচ্ছে… (' + fullRef(item) + ')');
       const src = await fetchSource(item);
@@ -635,6 +646,32 @@ rafiq:crying:pray_hands চরিত্রের ভাব দেখাতে �
     PENDING = { item, src, prompt }; const box = $('islChat'); box.classList.remove('hidden');
     $('islChatTitle').textContent = item.title + ' — ' + fullRef(item); $('islChatIn').value = '';
     box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  /* ----- tick several unwritten stories → write them all one after another into the library ----- */
+  function updateSelBar() {
+    const bar = $('islSelBar'); if (!bar) return;
+    const { list } = rows(), todo = list.filter(r => r.it && !r.u).length, n = [...SEL].filter(id => ISL_BY_ID[id] && !genOf(id)).length;
+    bar.classList.toggle('hidden', !todo && !n && !WQ.running);
+    $('islSelInfo').textContent = WQ.running ? `✍️ ${bn(WQ.done)}/${bn(WQ.total)} লেখা হয়েছে${CUR_TITLE && BUSY ? ' — এখন: ' + CUR_TITLE : ''}` : n ? `${bn(n)}টা গল্প বাছা আছে` : `এই তালিকায় ${bn(todo)}টা গল্প এখনো লেখা হয়নি`;
+    $('islSelAll').classList.toggle('hidden', WQ.running || !todo); $('islSelClr').classList.toggle('hidden', WQ.running || !n);
+    const go = $('islSelGo'); go.classList.toggle('hidden', WQ.running || !n); go.textContent = `✍️ বাছা ${bn(n)}টা একসাথে লিখে লাইব্রেরিতে রাখুন`;
+    $('islSelStop').classList.toggle('hidden', !WQ.running);
+  }
+  async function runSelected() {
+    if (BUSY || WQ.running) { busyToast(); return; }
+    const ai = whichAI(); if (ai === 'chat') { toast('একসাথে লেখাতে সেটিংসে Claude বা Gemini key দিন', 'err', 6000); openSettings('key'); return; }
+    const items = [...SEL].map(id => ISL_BY_ID[id]).filter(it => it && !genOf(it.id)); if (!items.length) { SEL.clear(); islRenderLib(); toast('বাছা গল্পগুলো আগেই লেখা হয়ে গেছে', 'ok'); return; }
+    if (items.length > 10 && !confirm(`${bn(items.length)}টা গল্প লিখতে ${bn(items.length)}বার AI চলবে (সময় ও খরচ লাগবে)। শুরু করবেন?`)) return;
+    WQ.running = true; WQ.stop = false; WQ.total = items.length; WQ.done = 0; WQ.wait = new Set(items.map(i => i.id)); let ok = 0, fail = 0, streak = 0;
+    for (const it of items) {
+      if (WQ.stop) break; WQ.wait.delete(it.id);
+      const r = await islGenerate(it, { quiet: true, noLoad: true, ai });
+      if (r) { ok++; streak = 0; SEL.delete(it.id); } else { fail++; if (++streak >= 2) break; }
+      WQ.done++;
+    }
+    const left = WQ.wait.size; WQ.running = false; WQ.wait = new Set(); CUR_TITLE = '';
+    setStat(`✓ ${bn(ok)}টা গল্প লিখে লাইব্রেরিতে রাখা হয়েছে` + (fail ? ` · ${bn(fail)}টা হয়নি (বাছা আছে, আবার চাপুন)` : '') + (WQ.stop && left ? ` · ${bn(left)}টা বাদ দেওয়া হলো` : ''), ok && !fail ? 'ok' : 'err');
+    toast(`${bn(ok)}টা গল্প তৈরি হয়ে লাইব্রেরিতে যোগ হয়েছে`, ok ? 'ok' : 'err', 5000); islRenderLib();
   }
   async function bulk(n) {
     if (BUSY) return; const ai = whichAI(); if (ai === 'chat') { toast('একসাথে লেখাতে সেটিংসে Claude বা Gemini key দিন', 'err', 6000); openSettings('key'); return; }
@@ -664,6 +701,19 @@ rafiq:crying:pray_hands চরিত্রের ভাব দেখাতে �
       #libList li .islst.del { border:0; cursor:pointer; font:inherit; font-size:12px }
       #libList li.usedrow .t b { color:#6b7470 }
       #libList li .islst.used { background:#1f6b45; color:#fff }
+      #libList li .islside { flex:none; display:flex; flex-direction:column; align-items:flex-end; gap:5px }
+      #libList li .islside .islst { margin-left:0 }
+      #libList li .islst.ok2 { background:#fff; color:#1f6b45; border:1px dashed #9cc7ae }
+      #libList li .islst.todo { background:#fff3d6; color:#8a5a00 }
+      #libList li .islst.wr { background:#dbeafe; color:#1d4ed8 }
+      #libList li .islst.qd { background:#ede9fe; color:#6d28d9 }
+      #libList li .islst.pick { display:inline-flex; align-items:center; gap:4px; background:#fff; color:#8a5a00; border:1px dashed #e0b45a; cursor:pointer }
+      #libList li .islst.pick.on { background:#1f6b45; color:#fff; border-color:#1f6b45 }
+      #libList li .islst.pick input { width:16px; height:16px; margin:0; accent-color:#1f6b45 }
+      #libList li.todorow .t b { color:#4b5563 }
+      #libList li.picked { outline:2px solid #1f6b45; outline-offset:-2px; background:#f1f8f4 }
+      .islsel { position:sticky; top:0; z-index:5; display:grid; gap:6px; margin:8px 0; padding:10px 12px; border:1px solid #9cc7ae; border-radius:14px; background:#f1f8f4 }
+      .islsel .row { flex-wrap:wrap; gap:8px }
       .islbar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:8px 0 }
       .islbar .seg button { padding:6px 12px }
       #islChat { border:1px solid var(--line); border-radius:16px; padding:14px; margin:12px 0; background:#fff }
@@ -707,7 +757,13 @@ rafiq:crying:pray_hands চরিত্রের ভাব দেখাতে �
         el('textarea', { id: 'islChatIn', placeholder: 'AI-এর উত্তর এখানে পেস্ট করুন' }),
         el('button', { type: 'button', class: 'primary wide', text: 'গল্প বানান', onclick: async () => { if (!PENDING) return; const tx = $('islChatIn').value.trim(); if (!tx) { toast('আগে উত্তর পেস্ট করুন', 'err'); return; } try { if (PENDING.life) await saveLife(tx); else await saveAndOpen(PENDING.item, PENDING.src, tx, {}); $('islChat').classList.add('hidden'); PENDING = null; } catch (e) { toast('পড়া গেল না: ' + e.message, 'err', 7000); } } }));
       const firstRow = lib.querySelector('.row');
-      lib.insertBefore(el('div', null, how, bar, note, stat, chat), firstRow);
+      const selBar = el('div', { id: 'islSelBar', class: 'islsel hidden' }, el('span', { id: 'islSelInfo', class: 'muted sm' }),
+        el('div', { class: 'row' },
+          el('button', { type: 'button', class: 'ghost sm', id: 'islSelAll', text: '⬜ সব "লেখা হয়নি" বাছুন', onclick: () => { rows().list.filter(r => r.it && !r.u).forEach(r => SEL.add(r.id)); islRenderLib(); } }),
+          el('button', { type: 'button', class: 'ghost sm', id: 'islSelClr', text: 'বাছাই মুছুন', onclick: () => { SEL.clear(); islRenderLib(); } }),
+          el('button', { type: 'button', class: 'primary', id: 'islSelGo', onclick: runSelected }),
+          el('button', { type: 'button', class: 'ghost sm hidden', id: 'islSelStop', text: '⏹ থামান', onclick: () => { WQ.stop = true; toast('চলতি গল্পটা শেষ হলে থামবে'); } })));
+      lib.insertBefore(el('div', null, how, bar, note, stat, chat, selBar), firstRow);
       $('libRandom').textContent = 'র‍্যান্ডম একটা গল্প';
       $('libRandom').onclick = () => { const { all } = rows(); const pool = all.filter(r => !usedU(r.u) && r.it); if (!pool.length) { toast('সব গল্প ব্যবহার হয়ে গেছে'); return; } islOpen(pool[Math.floor(Math.random() * pool.length)]); };
       ['libSearch'].forEach(id => $(id).addEventListener('input', islRenderLib)); ['libBook', 'libFilter'].forEach(id => $(id).addEventListener('change', islRenderLib));

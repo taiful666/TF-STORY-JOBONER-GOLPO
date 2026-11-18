@@ -8975,7 +8975,7 @@ function initStartPick() {
 }
 function initShareSheet() {
   const dlg = $('dlgShare'), box = $('platBox');
-  const PLAT = { fb: { name: 'Facebook', pkg: 'com.facebook.katana', web: 'https://www.facebook.com/reels/create' }, yt: { name: 'YouTube', pkg: 'com.google.android.youtube', web: 'https://studio.youtube.com/' }, wa: { name: 'WhatsApp', pkg: 'com.whatsapp', web: '' }, drive: { name: 'Google Drive', pkg: 'com.google.android.apps.docs', web: 'https://drive.google.com/drive/my-drive' }, other: { name: 'অন্য অ্যাপ', pkg: '', web: '' } };
+  const PLAT = { fb: { name: 'Facebook', pkg: 'com.facebook.katana,com.facebook.lite', web: 'https://www.facebook.com/reels/create' }, yt: { name: 'YouTube', pkg: 'com.google.android.youtube', web: 'https://studio.youtube.com/' }, wa: { name: 'WhatsApp', pkg: 'com.whatsapp', web: '' }, drive: { name: 'Google Drive', pkg: 'com.google.android.apps.docs', web: 'https://drive.google.com/drive/my-drive' }, other: { name: 'অন্য অ্যাপ', pkg: '', web: '' } };
   let thumbUrl = null;
   const close = () => { try { dlg.close(); } catch (e) { } };
   const reset = () => { box.innerHTML = ''; $('shareH').textContent = 'কোথায় শেয়ার করবেন?'; $('platGrid').classList.remove('hidden'); dlg.querySelectorAll('[data-plat]').forEach(x => x.classList.remove('on')); if (thumbUrl) { URL.revokeObjectURL(thumbUrl); thumbUrl = null; } };

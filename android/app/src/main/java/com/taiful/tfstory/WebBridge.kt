@@ -56,8 +56,10 @@ class WebBridge(private val activity: MainActivity) {
             var where = ""
             if (action == "save" || action == "both") where = saveToPhone(f, name, mime)
             // "share:<package>" opens that app directly (Facebook, YouTube, WhatsApp, Drive); falls back to the share sheet
+            // "share:<pkg>[,<pkg2>…]" — one or more packages of the same service (e.g. Facebook + Facebook Lite)
             val pkg = if (action.startsWith("share:")) action.removePrefix("share:").trim() else ""
-            if (pkg.isNotEmpty() && !Regex("^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z0-9_]+)+$").matches(pkg)) return "err:bad package"
+            val pkgRe = Regex("^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z0-9_]+)+$")
+            if (pkg.isNotEmpty() && !pkg.split(",").map { it.trim() }.filter { it.isNotEmpty() }.all { pkgRe.matches(it) }) return "err:bad package"
             if (action == "share" || action == "both" || pkg.isNotEmpty()) share(f, name, mime, pkg)
             cleanupLater()
             "ok:$where"
@@ -95,7 +97,7 @@ class WebBridge(private val activity: MainActivity) {
         }
     }
 
-    private fun share(f: File, name: String, mime: String, pkg: String = "") {
+    private fun share(f: File, name: String, mime: String, pkgs: String = "") {
         val named = File(f.parentFile, name).let { if (it.absolutePath == f.absolutePath) f else { f.copyTo(it, overwrite = true); it } }
         val uri: Uri = FileProvider.getUriForFile(activity, "${activity.packageName}.files", named)
         val send = Intent(Intent.ACTION_SEND).apply {
@@ -103,12 +105,34 @@ class WebBridge(private val activity: MainActivity) {
         }
         activity.runOnUiThread {
             val chooser = Intent.createChooser(send, "শেয়ার করুন — Drive, Facebook, WhatsApp…")
-            if (pkg.isEmpty()) { activity.startActivity(chooser); return@runOnUiThread }
-            val direct = Intent(send).setPackage(pkg)
-            try { activity.startActivity(direct) }
-            catch (e: android.content.ActivityNotFoundException) {
-                Toast.makeText(activity, "অ্যাপটা ফোনে নেই — অন্য অ্যাপ বেছে নিন", Toast.LENGTH_SHORT).show()
-                activity.startActivity(chooser)
+            val wanted = pkgs.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+            if (wanted.isEmpty()) { activity.startActivity(chooser); return@runOnUiThread }
+            // which of the wanted apps (e.g. Facebook AND Facebook Lite) are really installed and can take this file
+            val pm = activity.packageManager
+            val can = pm.queryIntentActivities(Intent(send), 0).map { it.activityInfo.packageName }.toSet()
+            val found = wanted.filter { it in can }
+            fun open(p: String) {
+                try { activity.startActivity(Intent(send).setPackage(p)) }
+                catch (e: Exception) {
+                    Toast.makeText(activity, "অ্যাপটা খুলল না — অন্য অ্যাপ বেছে নিন", Toast.LENGTH_SHORT).show()
+                    activity.startActivity(chooser)
+                }
+            }
+            when {
+                found.isEmpty() -> {
+                    Toast.makeText(activity, "অ্যাপটা ফোনে নেই — অন্য অ্যাপ বেছে নিন", Toast.LENGTH_SHORT).show()
+                    activity.startActivity(chooser)
+                }
+                found.size == 1 -> open(found[0])
+                else -> {
+                    // two or more installed (Facebook + Facebook Lite…): let the person pick which one
+                    val labels = found.map { p -> try { pm.getApplicationLabel(pm.getApplicationInfo(p, 0)).toString() } catch (e: Exception) { p } }.toTypedArray()
+                    android.app.AlertDialog.Builder(activity)
+                        .setTitle("কোন অ্যাপে শেয়ার করবেন?")
+                        .setItems(labels) { _, i -> open(found[i]) }
+                        .setNegativeButton("বাতিল", null)
+                        .show()
+                }
             }
         }
     }

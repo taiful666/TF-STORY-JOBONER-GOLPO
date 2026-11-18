@@ -4571,7 +4571,7 @@ async function reelExportRec(){
 async function reelShare(){ tfShareOpen('reel'); }
 /* ===== share sheet — same platforms and flow as the Story part:
    Facebook (caption copied), YouTube (title · description · tags · thumbnail), WhatsApp (short text), Drive, other apps ===== */
-const TF_PLAT = { fb:{ name:'Facebook', pkg:'com.facebook.katana', web:'https://www.facebook.com/' }, yt:{ name:'YouTube', pkg:'com.google.android.youtube', web:'https://studio.youtube.com/' }, wa:{ name:'WhatsApp', pkg:'com.whatsapp', web:'' }, drive:{ name:'Google Drive', pkg:'com.google.android.apps.docs', web:'https://drive.google.com/drive/my-drive' }, other:{ name:'অন্য অ্যাপ', pkg:'', web:'' } };
+const TF_PLAT = { fb:{ name:'Facebook', pkg:'com.facebook.katana,com.facebook.lite', web:'https://www.facebook.com/' }, yt:{ name:'YouTube', pkg:'com.google.android.youtube', web:'https://studio.youtube.com/' }, wa:{ name:'WhatsApp', pkg:'com.whatsapp', web:'' }, drive:{ name:'Google Drive', pkg:'com.google.android.apps.docs', web:'https://drive.google.com/drive/my-drive' }, other:{ name:'অন্য অ্যাপ', pkg:'', web:'' } };
 let TFSH = null, TFSH_THUMB = null;
 const tfUniq = a => a.filter((x, i) => x && a.findIndex(y => String(y).toLowerCase() === String(x).toLowerCase()) === i);
 const tfTags = s => (String(s || '').match(/#[^\s#]+/g) || []);

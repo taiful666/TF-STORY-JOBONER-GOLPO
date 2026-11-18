@@ -12,6 +12,17 @@
 
     <uses-feature android:name="android.hardware.microphone" android:required="false" />
 
+    <!-- Android 11+ package visibility: lets the app see which share targets (Facebook, Facebook Lite, YouTube…) are installed -->
+    <queries>
+        <intent><action android:name="android.intent.action.SEND" /><data android:mimeType="video/*" /></intent>
+        <intent><action android:name="android.intent.action.SEND" /><data android:mimeType="image/*" /></intent>
+        <intent><action android:name="android.intent.action.SEND" /><data android:mimeType="*/*" /></intent>
+        <package android:name="com.facebook.katana" />
+        <package android:name="com.facebook.lite" />
+        <package android:name="com.google.android.youtube" />
+        <package android:name="com.whatsapp" />
+    </queries>
+
     <application
         android:name=".TFApp"
         android:allowBackup="false"
