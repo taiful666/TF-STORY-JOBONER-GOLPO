@@ -153,6 +153,9 @@
   function parsePlus(s) { return String(s).split('+').slice(1).map(x => { const [n, a] = x.split(':'); return { fg: false, n: 'animal', a: n + ':' + (a || '') }; }).filter(x => ANIMALS[x.a.split(':')[0]]); }
 
   /* ---------- faceless people: a soft light instead of eyes and mouth ---------- */
+  // prophets, angels and companions are never shown with a face (it can cause dispute) — decided from the name / role the script gives
+  const SACRED_RE = /\(\s*(আ|সা|সাঃ|রা|রাঃ|রাদি|রহ)\s*[.ঃ]?\s*\)|নবী|রাসূল|রসূল|ফেরেশতা|ফিরিশতা|জিবরাইল|জিব্রাইল|জিবরীল|মিকাইল|ইসরাফিল|আজরাইল|আলাইহিস|সাল্লাল্লাহু|ﷺ|prophet|angel|sahabi|nabi|rasul/i;
+  function isSacred(ch) { return SACRED_RE.test([ch.name, ch.role, ch.id].filter(Boolean).join(' ')); }
   function noFace(c, L) {
     const g = c.createRadialGradient(0, -300, 8, 0, -300, 78); g.addColorStop(0, 'rgba(255,253,246,.98)'); g.addColorStop(.7, 'rgba(255,250,238,.9)'); g.addColorStop(1, 'rgba(255,250,238,0)');
     c.save(); c.beginPath(); c.ellipse(0, -300, 70, 79, 0, 0, Math.PI * 2); c.clip(); c.fillStyle = g; c.fillRect(-80, -390, 160, 180); c.restore();
@@ -406,7 +409,16 @@
     const _la = loadAny;
     loadAny = async function (text, o) { pickVariant(true); const r = await _la(text, o); upd(); try { app.renderer._cov = null; thumbSoon(); } catch (e) { } return r; };
     // faceless people
-    drawFace = function (c, L) { noFace(c, L); };
+    // faces: ordinary people show their real face (Islamic look: cap + beard for men, hijab for women); only prophets, angels and
+    // companions (the ones it would be disputed to show) keep the soft blur
+    const _df = drawFace; drawFace = function (c, L, ...r) { if (L && L.sacred) return noFace(c, L); return _df(c, L, ...r); };
+    const _lf = lookFor; lookFor = function (ch) {
+      const L = _lf(ch); L.sacred = isSacred(ch); if (L.kid || L.sacred) return L;
+      const h = hashStr(String(ch.id) + String(ch.name)), old = ch.age === 'old' || ch.age === 'elder';
+      if (L.female) { if (L.hair !== 'hijab' && !L.teen) { L.hair = 'hijab'; L.c2 = L.c2 || '#CFC6E0'; } else if (L.teen && L.hair !== 'hijab') L.hair = 'hijab'; }
+      else { if (L.hair !== 'tupi') { L.hair = 'tupi'; L.capc = ['#FFFFFF', '#F5F2E8', '#2F6B4F', '#FFFFFF'][h % 4]; } if (!L.beard || L.beard === 'stubble') L.beard = old ? 'white_beard' : (L.teen ? '' : ((h >> 2) % 3 ? 'beard' : 'stubble')); if (old && !L.wrinkle) L.wrinkle = 1; }
+      return L;
+    };
     // captions
     const RP = StoryRenderer.prototype, _cap = RP.drawCaption;
     RP.drawCaption = function (c, t, fw, fh, u) { if ((this.settings.capLook || 'islamic') === 'islamic') return islCaption.call(this, c, t, fw, fh, u); return _cap.call(this, c, t, fw, fh, u); };
