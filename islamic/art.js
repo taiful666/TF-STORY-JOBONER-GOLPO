@@ -27,25 +27,39 @@
   } catch (e) { }
   const GOLD = '#A87A26', GREEN = '#123D26', CREAM = '#F8F1DF';
 
-  /* ---------- people in salah (faceless, simple) ---------- */
+  /* ---------- people in salah (faceless; full body: both hands with fingers, legs and feet in every pose) ---------- */
+  function hand(c, x, y, sk, ang, open, k) { // a hand: palm + thumb + fingers (ang = rotation, fingers point down at 0; k = size)
+    c.save(); c.translate(x, y); c.rotate(ang || 0); if (k) c.scale(k, k);
+    ell(c, 0, 0, 11, 13, sk);
+    if (open) { for (let i = 0; i < 4; i++) { const a = (i - 1.5) * .26; c.save(); c.rotate(a); rr(c, -3.2, 6, 6.4, 15 - Math.abs(i - 1.5) * 2.2, 3.2, sk); c.restore(); } c.save(); c.rotate(-.9); rr(c, -3.4, 2, 6.8, 13, 3.4, sk); c.restore(); }
+    else { for (let i = 0; i < 4; i++) circ(c, -7 + i * 4.6, 11, 3.6, shade(sk, -.06)); c.save(); c.rotate(-.9); rr(c, -3.4, 1, 6.8, 11, 3.4, sk); c.restore(); }
+    c.restore();
+  }
   function prayer(c, x, y, s, pose, col, cap) {
     c.save(); c.translate(x, y); c.scale(s, s);
-    const sk = '#D9AE86', face = '#F3DFC6', ln = 'rgba(40,30,20,.28)';
-    ell(c, 0, 4, 70, 9, 'rgba(0,0,0,.14)');
+    const sk = '#D9AE86', face = '#F3DFC6', ln = 'rgba(40,30,20,.28)', slv = shade(col, -.15), foot = (fx, fy, r) => ell(c, fx, fy, 15, 7, shade(sk, -.04), ln, 2);
+    ell(c, 0, 4, 78, 9, 'rgba(0,0,0,.14)');
     c.lineWidth = 3; c.strokeStyle = ln;
-    const head = (hx, hy) => { circ(c, hx, hy, 27, sk, ln, 3); const g = c.createRadialGradient(hx + 4, hy + 4, 2, hx + 4, hy + 4, 22); g.addColorStop(0, 'rgba(255,248,235,.95)'); g.addColorStop(1, 'rgba(255,248,235,0)'); c.fillStyle = g; c.fillRect(hx - 26, hy - 20, 54, 50);
+    const head = (hx, hy) => { circ(c, hx, hy, 27, sk, ln, 3); const g = c.createRadialGradient(hx + 4, hy + 4, 2, hx + 4, hy + 4, 22); g.addColorStop(0, 'rgba(255,248,235,.95)'); g.addColorStop(1, 'rgba(255,248,235,0)'); c.fillStyle = g; c.fillRect(hx - 26, hy - 26, 56, 56);
       P(c, `M${hx - 27},${hy - 4} Q${hx},${hy - 44} ${hx + 27},${hy - 4}Z`, cap || '#FFFFFF', ln, 3); };
     if (pose === 'qiyam' || pose === 'dua') {
-      P(c, 'M-34,0 L-30,-150 Q0,-170 30,-150 L34,0Z', col, 'rgba(40,30,20,.28)', 3); line(c, 0, -150, 0, -20, 'rgba(0,0,0,.08)', 4);
-      if (pose === 'qiyam') { line(c, -26, -118, 22, -126, shade(col, -.15), 14); circ(c, 22, -126, 9, sk); }
-      else { P(c, 'M-28,-150 Q-46,-120 -26,-104', null, shade(col, -.12), 14); P(c, 'M28,-150 Q46,-120 26,-104', null, shade(col, -.12), 14); ell(c, -22, -104, 12, 8, sk); ell(c, 22, -104, 12, 8, sk); }
+      foot(-17, -3); foot(17, -3);
+      P(c, 'M-34,0 L-30,-150 Q0,-170 30,-150 L34,0Z', col, ln, 3); line(c, 0, -150, 0, -20, 'rgba(0,0,0,.08)', 4);
+      ell(c, -15, -12, 13, 6, shade(sk, -.04)); ell(c, 15, -12, 13, 6, shade(sk, -.04)); // toes under the hem
+      if (pose === 'qiyam') { line(c, -26, -118, 22, -126, slv, 14); line(c, 26, -122, -8, -122, slv, 13); hand(c, 22, -126, sk, 1.3, false); hand(c, -10, -121, sk, -1.3, false); }
+      else { P(c, 'M-28,-150 Q-46,-120 -26,-104', null, slv, 14); P(c, 'M28,-150 Q46,-120 26,-104', null, slv, 14); hand(c, -22, -104, sk, 3.4, true); hand(c, 22, -104, sk, -3.4, true); }
       head(0, -186);
     } else if (pose === 'ruku') {
-      P(c, 'M-34,0 L-28,-100 L-6,-104 L-4,0Z', col, 'rgba(40,30,20,.28)', 3); P(c, 'M-34,-96 L70,-110 L74,-84 L-30,-72Z', col, 'rgba(40,30,20,.28)', 3); line(c, 40, -92, 46, -40, shade(col, -.15), 13); circ(c, 46, -38, 8, sk); head(92, -100);
+      foot(8, -3); foot(-14, -3);
+      P(c, 'M-34,0 L-28,-100 L-6,-104 L-4,0Z', col, ln, 3); P(c, 'M-34,-96 L70,-110 L74,-84 L-30,-72Z', col, ln, 3);
+      line(c, 40, -92, 46, -40, slv, 13); line(c, 56, -96, 56, -46, slv, 12); hand(c, 46, -34, sk, 3.14, true); hand(c, 57, -40, sk, 3.14, true); head(92, -100);
     } else if (pose === 'sujud') {
-      P(c, 'M-60,0 Q-70,-70 -30,-80 Q20,-70 60,-14 L60,0Z', col, 'rgba(40,30,20,.28)', 3); line(c, 40, -20, 70, -4, shade(col, -.15), 12); head(84, -18);
+      foot(-62, -4); foot(-46, -3);
+      P(c, 'M-60,0 Q-70,-70 -30,-80 Q20,-70 60,-14 L60,0Z', col, ln, 3); P(c, 'M-62,0 L-30,0 L-26,-26 L-60,-30Z', shade(col, -.08), ln, 2);
+      line(c, 40, -20, 70, -4, slv, 12); line(c, 28, -18, 54, -2, slv, 11); hand(c, 74, -5, sk, 1.2, true); hand(c, 58, -3, sk, 1.2, true); head(84, -18);
     } else { // jalsa — sitting on the knees
-      P(c, 'M-56,0 Q-60,-40 -20,-44 L-24,-140 Q0,-154 24,-140 L28,-40 Q50,-30 54,0Z', col, 'rgba(40,30,20,.28)', 3); line(c, 0, -110, 30, -54, shade(col, -.15), 13); circ(c, 32, -50, 8, sk); head(0, -172);
+      P(c, 'M-56,0 Q-60,-40 -20,-44 L-24,-140 Q0,-154 24,-140 L28,-40 Q50,-30 54,0Z', col, ln, 3); foot(-48, -3); foot(-26, -2);
+      line(c, 0, -110, 30, -54, slv, 13); line(c, -4, -108, -30, -54, slv, 12); hand(c, 32, -48, sk, 1.4, true); hand(c, -32, -48, sk, -1.4, true); head(0, -172);
     }
     c.restore();
   }
@@ -413,4 +427,6 @@
     const ct = $('coverTheme'); if (ct && !ct.querySelector('option[value="islamic"]')) { ct.prepend(el('option', { value: 'islamic', text: 'ইসলামিক আকর্ষণীয় (আবেগের মুহূর্ত + বড় শিরোনাম)' })); ct.value = S.coverTheme || 'islamic'; }
     const ms = $('mStyle'); if (ms) { ms.innerHTML = ''; Object.entries(MUSIC_STYLES).forEach(([k, v]) => ms.append(el('option', { value: k, text: v }))); ms.value = MUSIC_STYLES[S.music] ? S.music : 'isl_auto'; }
   };
+  // pieces shared with islamic/art2.js (more people animations, places, animals, long-video captions)
+  window.ISL_ART_API = { ANIMALS, beast, legs, drawAnimal, hand, prayer, poseAt, parsePlus, noFace, getVar: () => VAR, pickVariant };
 })();

@@ -30,7 +30,7 @@ Two parts in one app:
   `isl:…`, picture-card history `icd_…`), so the Firestore rules need no change. ✕ clear buttons on the text boxes.
   The app looks for a new version whenever it comes back to the screen (at most every 30 min) and in the background every 4 hours.
 - `home.html` — start screen: pick **গল্প** (the Story part, `index.html`) or **ইসলামিক** (`index.html?part=islamic`).
-- The Islamic part reuses the Story engine (`islamic/story.js`): a library of real sources (Quran passages, Sahih al-Bukhari); the app downloads the exact text, the AI writes only the retelling, and the video shows the exact quote with its reference. No people on screen. Own settings, library and project (`tf_isl_*`, IndexedDB `tf_story_studio_isl`).
+- The Islamic part reuses the Story engine (`islamic/story.js`): a library of real sources (Quran passages, Sahih al-Bukhari); the app downloads the exact text, the AI writes only the retelling, and the video shows the exact quote with its reference. People (when a script declares them) are faceless and drawn head to toe; more animations, props, animals, effects and places in `islamic/art2.js`; two caption looks (Islamic classic / long-video style). Own settings, library and project (`tf_isl_*`, IndexedDB `tf_story_studio_isl`).
 - Cards and short reels for the Islamic page: `islamic/index.html` (TF Post Maker), opened from the Islamic part.
 - Each part has a button at the top to jump to the other one; Back on the first screen of either part returns to the start screen.
 - Both parts use the same share sheet (Facebook · YouTube · WhatsApp · Drive · other apps) with separate text per platform, and the same Gemini/Claude keys (`tf_gkey`, `tf_akey`).
