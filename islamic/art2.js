@@ -40,11 +40,11 @@
     const _dl = drawLegs;
 
     /* ---- legs ---- */
-    function legsWalk(c, L, sk, ph, run) { // trousers / robe with real legs: thigh + shin + shoe, one foot lifts while the other is planted
+    function legsWalk(c, L, sk, ph, run, robe) { // trousers / robe with real legs: thigh + shin + shoe, one foot lifts while the other is planted
       const Y = LEG_LEN, gap = 22, pant = pantFor(L), shoeCol = L.female ? '#6b3a2a' : '#2b2522';
       const legs = [-1, 1].map(side => {
-        const f = Math.sin(ph + (side < 0 ? 0 : Math.PI)), lift = Math.max(0, f), hx = side * (gap + 24);
-        return { side, f, hx, kx: hx + side * 6 + f * (run ? 22 : 12), ky: 120 - lift * (run ? 52 : 30), ax: hx + side * 4 + f * (run ? 40 : 22), ay: Y - 24 - lift * (run ? 78 : 46), lift };
+        const f = Math.sin(ph + (side < 0 ? 0 : Math.PI)), lift = Math.max(0, f) * (robe ? .3 : 1), hx = side * (gap + 24);
+        return { side, f, hx, kx: hx + side * 6 + f * (robe ? 6 : run ? 22 : 12), ky: 120 - lift * (run ? 52 : 30), ax: hx + side * 4 + f * (robe ? 10 : run ? 40 : 22), ay: Y - 24 - lift * (run ? 78 : 46), lift };
       }).sort((a, b) => a.lift - b.lift); // the lifted foot is drawn last (in front)
       legs.forEach(g => {
         c.lineCap = 'round'; c.lineJoin = 'round';
@@ -65,7 +65,6 @@
         P(c, 'M-196,42 Q-130,22 40,52 Q50,64 20,76 Q-120,84 -196,60Z', shade(col, .06), dk, 3); // left shin crosses over
         P(c, 'M196,42 Q130,26 -40,56 Q-50,68 -20,78 Q120,86 196,60Z', shade(col, -.04), dk, 3);
         ell(c, -150, 66, 34, 13, shade(sk, -.04)); ell(c, 150, 66, 34, 13, shade(sk, -.04));
-        if (!ROBE.has(L.outfit)) { ell(c, -150, 66, 34, 13, shoe); ell(c, 150, 66, 34, 13, shoe); }
       }
     }
 
@@ -92,7 +91,7 @@
       if (!sitting) {
         if (walking) {
           if (ROBE.has(L.outfit) && L.outfit !== 'jubba') { c.save(); c.rotate(sw * .035); c.translate(0, Math.abs(sw) * -4); _dl(c, L, sk, false); c.restore(); }
-          else { legsWalk(c, L, sk, ph, run); if (L.outfit === 'jubba') P(c, `M-128,0 L${-120 - sw * 10},${LEG_LEN - 70} L${120 - sw * 10},${LEG_LEN - 70} L128,0Z`, L.c1); }
+          else { legsWalk(c, L, sk, ph, run, L.outfit === 'jubba'); if (L.outfit === 'jubba') { const hy = LEG_LEN - 46, hw = sw * 8; P(c, `M-128,0 L${-120 - hw},${hy} Q${hw * .5},${hy + 8 + Math.abs(sw) * 4} ${120 - hw},${hy} L128,0Z`, L.c1); P(c, `M${-120 - hw},${hy} Q${hw * .5},${hy + 8 + Math.abs(sw) * 4} ${120 - hw},${hy}`, null, shade(L.c1, -.16), 4); } }
         } else _dl(c, L, sk, feel === 'shy' || act === 'head_down');
       }
       c.save(); c.translate(0, drop);

@@ -4696,11 +4696,14 @@ function drawLegs(c, L, sk, close) {
   switch (L.outfit) {
     case 'saree': P(c, `M-128,0 L-118,${Y - 8} Q0,${Y + 6} 118,${Y - 8} L128,0Z`, c1); P(c, `M-34,10 L-44,${Y - 8} L-20,${Y - 5} L-12,10Z M4,10 L0,${Y - 5} L28,${Y - 6} L24,10Z M44,10 L40,${Y - 7} L64,${Y - 9} L62,10Z`, shade(c1, -.1)); rect(c, -118, Y - 30, 236, 14, L.c2 || C_MA); sandal(-26); sandal(30); return;
     case 'burqa': case 'abaya': P(c, `M-136,0 L-124,${Y - 6} Q0,${Y + 8} 124,${Y - 6} L136,0Z`, c1); P(c, `M-30,0 L-24,${Y - 4} M30,0 L24,${Y - 4}`, null, shade(c1, .12), 3); shoe(-34, shoeCol); shoe(38, shoeCol); return;
-    case 'vestlungi': P(c, `M-100,0 L-108,${Y - 26} L108,${Y - 26} L100,0Z`, c2); for (let i = 0; i < 5; i++) P(c, `M${-100 + i * 50},0 L${-108 + i * 54},${Y - 26}`, null, shade(c2, -.18), 3); P(c, `M-108,${Y - 70} L108,${Y - 70}`, null, shade(c2, .25), 5);
-      leg(-30, -30, 18, sk); leg(30, 30, 18, sk); P(c, `M-48,${Y - 26} L-12,${Y - 26} L-12,${Y - 50} L-48,${Y - 50}Z M12,${Y - 26} L48,${Y - 26} L48,${Y - 50} L12,${Y - 50}Z`, sk); sandal(-34); sandal(34); return;
-    case 'jubba': P(c, `M-128,0 L-120,${Y - 70} L120,${Y - 70} L128,0Z`, c1); leg(-gap - 14, -gap - 14, 24, pant); leg(gap + 14, gap + 14, 24, pant); shoe(-gap - 18, shoeCol); shoe(gap + 14, shoeCol); return;
-    case 'frock': P(c, `M-108,0 L-150,${Y * .42} L150,${Y * .42} L108,0Z`, c1); P(c, `M-150,${Y * .42} L150,${Y * .42}`, null, '#fff', 8); leg(-gap - 6, -gap - 6, 16, sk); leg(gap + 6, gap + 6, 16, sk); shoe(-gap - 10, '#C0392B'); shoe(gap + 6, '#C0392B'); return;
-    case 'salwar': case 'kurti': case 'uniform_f': P(c, `M-128,0 L-132,${Y * .4} L132,${Y * .4} L128,0Z`, c1); P(c, `M-58,${Y * .38} Q-64,${Y - 30} -48,${Y - 22} L-16,${Y - 22} Q-6,${Y * .6} -6,${Y * .38}Z M58,${Y * .38} Q64,${Y - 30} 48,${Y - 22} L16,${Y - 22} Q6,${Y * .6} 6,${Y * .38}Z`, L.outfit === 'uniform_f' ? '#ffffff' : (L.pants || c2)); sandal(-34); sandal(34); return;
+    case 'vestlungi': leg(-30, -30, 18, sk); leg(30, 30, 18, sk); sandal(-34); sandal(34); // legs first, the lungi is drawn over them
+      P(c, `M-100,0 L-108,${Y - 62} Q0,${Y - 54} 108,${Y - 62} L100,0Z`, c2); for (let i = 0; i < 5; i++) P(c, `M${-100 + i * 50},0 L${-108 + i * 54},${Y - 58}`, null, shade(c2, -.18), 3); P(c, `M-106,${Y - 92} L106,${Y - 92}`, null, shade(c2, .25), 5); P(c, `M-108,${Y - 62} Q0,${Y - 54} 108,${Y - 62}`, null, shade(c2, -.25), 4); return;
+    case 'jubba': leg(-gap - 14, -gap - 14, 24, pant); leg(gap + 14, gap + 14, 24, pant); shoe(-gap - 18, shoeCol); shoe(gap + 14, shoeCol); // legs + shoes first, the robe hangs over them (only ankles show)
+      P(c, `M-128,0 L-120,${Y - 46} Q0,${Y - 38} 120,${Y - 46} L128,0Z`, c1); P(c, `M-120,${Y - 46} Q0,${Y - 38} 120,${Y - 46}`, null, shade(c1, -.16), 4); P(c, `M0,40 L0,${Y - 40}`, null, shade(c1, -.07), 3); return;
+    case 'frock': leg(-gap - 6, -gap - 6, 16, sk); leg(gap + 6, gap + 6, 16, sk); shoe(-gap - 10, '#C0392B'); shoe(gap + 6, '#C0392B');
+      P(c, `M-108,0 L-150,${Y * .42} L150,${Y * .42} L108,0Z`, c1); P(c, `M-150,${Y * .42} L150,${Y * .42}`, null, '#fff', 8); return;
+    case 'salwar': case 'kurti': case 'uniform_f': P(c, `M-58,${Y * .3} Q-64,${Y - 30} -48,${Y - 22} L-16,${Y - 22} Q-6,${Y * .6} -6,${Y * .3}Z M58,${Y * .3} Q64,${Y - 30} 48,${Y - 22} L16,${Y - 22} Q6,${Y * .6} 6,${Y * .3}Z`, L.outfit === 'uniform_f' ? '#ffffff' : (L.pants || c2)); sandal(-34); sandal(34);
+      P(c, `M-128,0 L-132,${Y * .4} L132,${Y * .4} L128,0Z`, c1); return;
     default: leg(-gap - 22, -gap - 18, 30, pant); leg(gap + 22, gap + 18, 30, pant); shoe(-gap - 22, shoeCol); shoe(gap + 18, shoeCol);
   }
 }
