@@ -389,6 +389,7 @@ body.widepv .pv{aspect-ratio:auto}
 @keyframes pin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .topiclbl input{font-size:16px}
 .chips{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0 12px}
+.extp{margin:14px 0 12px;padding-bottom:12px}.extp .grid2{margin-top:6px}
 .chips button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-size:13.5px;cursor:pointer;color:var(--ink);min-height:34px;transition:background .15s,border-color .15s,color .15s}
 .chips button:hover{border-color:var(--g)}
 .chips button.on{background:var(--g);color:#fff;border-color:var(--g)}
@@ -619,6 +620,7 @@ dialog{border-radius:16px}.dlg{padding:24px}.dlg h3{font-size:18px}
       <div class="pane hidden" id="src-lib">
         <div class="row">
           <input id="libSearch" placeholder="খুঁজুন: টাকা, মা, বেতন, 48 Laws..." class="grow" aria-label="গল্প খুঁজুন">
+          <select id="libArea" aria-label="ক্যাটাগরি"></select>
           <select id="libBook" aria-label="বই"></select>
           <select id="libFilter" aria-label="ফিল্টার"><option value="all">সব</option><option value="new">শুধু অব্যবহৃত</option><option value="used">ব্যবহৃত</option><option value="mine">নিজের যোগ করা</option></select>
         </div>
@@ -700,7 +702,19 @@ dialog{border-radius:16px}.dlg{padding:24px}.dlg h3{font-size:18px}
           <div class="row"><button class="primary" id="btnGen">লিখে লাইব্রেরিতে যোগ করুন</button><button class="link hidden" id="btnGenStop">থামান</button></div>
           <div class="bar hidden" id="genBar"><i></i></div><p class="muted sm" id="genInfo"></p>
         </div>
-        <h4>অথবা বাইরে থেকে লেখা গল্প পেস্ট করুন</h4>
+        <div class="card2 extp" id="extPromptCard">
+          <h4 class="m0" id="xHead">অন্য যেকোনো AI দিয়ে লিখিয়ে নিন (প্রম্পট কপি)</h4>
+          <p class="muted sm" id="xSub">গল্পের বিষয়বস্তু লিখুন, প্রম্পট কপি করুন, ChatGPT / Gemini / Claude-এ পেস্ট করুন। উত্তরটা নিচের বক্সে পেস্ট করলেই গল্প লাইব্রেরিতে যোগ হবে।</p>
+          <div class="grid2">
+            <label>গল্পের বিষয়বস্তু <small class="muted">(ফাঁকা রাখলে AI নিজে বিষয় বেছে নেবে)</small><input id="xTopic" placeholder="যেমন: প্রবাসীর ভিসা প্রতারণা, ছেলেকে বিশ্বাস করে ঠকা…"></label>
+            <label>কয়টা গল্প<input type="number" id="xN" min="1" max="10" value="1"></label>
+            <label id="xMinRow">ভিডিওর দৈর্ঘ্য<select id="xMin"><option value="6">প্রায় ৬ মিনিট</option><option value="8" selected>প্রায় ৮ মিনিট</option><option value="10">প্রায় ১০ মিনিট</option><option value="12">প্রায় ১২ মিনিট</option></select></label>
+          </div>
+          <div class="chips" id="xChips" aria-label="বিষয়ের আইডিয়া"></div>
+          <div class="row"><button class="primary" id="btnXCopy"><svg><use href="#i-copy"/></svg> প্রম্পট কপি</button><a class="btn ghost" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">ChatGPT ↗</a><a class="btn ghost" href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer">Gemini ↗</a><a class="btn ghost" href="https://claude.ai/new" target="_blank" rel="noopener noreferrer">Claude ↗</a></div>
+          <p class="muted sm" id="xHint"></p>
+        </div>
+        <h4>AI-এর লেখা গল্প (বা অন্য জায়গার গল্প) এখানে পেস্ট করুন</h4>
         <p class="muted">বাইরে থেকে লেখা যত খুশি গল্প (৫, ৫০, ৫০০…) একসাথে পেস্ট করুন। প্রতিটা গল্প <b>===</b> দিয়ে শুরু হবে — অ্যাপ নিজেই আলাদা করে লাইব্রেরিতে যোগ করবে।</p>
         <textarea id="addIn" rows="10" class="mono" placeholder="=== প্রথম গল্পের শিরোনাম | ...&#10;বই: ...&#10;...&#10;&#10;=== দ্বিতীয় গল্পের শিরোনাম | ...&#10;..."></textarea>
         <div class="row"><button class="primary" id="btnAddLib">লাইব্রেরিতে যোগ করুন</button><label class="btn ghost filebtn">ফাইল থেকে (একাধিক .txt/.json)<input type="file" id="addFiles" multiple accept=".json,.txt,.tfstory,application/json,text/plain"></label></div>
@@ -3163,7 +3177,7 @@ dada:crying:hold:phone > দাদুভাই, রেডিওটা একট�
 - গল্পের লাইন: "চরিত্র:মুখের_ভাব:কাজ:হাতে [কার্ড: ঘর / ঘর] ক্যাপশন {হাইলাইট শব্দ}" — কথকের লাইনে "> " নয়; চরিত্রের নিজের মুখের সংলাপে ক্যাপশনের শুরুতে "> "।
 - জায়গা: ${placeList}
 - সময়: day, evening, night | মেজাজ: normal, happy, sad, tense, regret | আবহাওয়া: rain, fog, sunny
-- চরিত্রের role: ${Object.keys(ROLES).join(', ')}
+- চরিত্রের role: ${ROLE_LIST_FOR_PROMPT()}
 - মুখের ভাব: ${FEELS.join(', ')} | কাজ: ${ACTIONS.join(', ')} | হাতে: ${PROPS.join(', ')}
 - কার্ড: [reveal: জিনিস / ভেতরের লেখা] (টুইস্টে, ঠিক একবার) [sms: শিরোনাম / লেখা] [chat: নাম / লেখা] [call: নাম] [alert: লেখা] [calendar: লেখা] [counter: লেবেল / শুরু / শেষ / আগে-চিহ্ন] [big: লেখা] [price: লেখা] — মোট ৪-৭টা লাইনে কার্ড, বেশি নয়।
 ${many ? `সব ${bn(N)}টা গল্প একটাই কোড ব্লকে দাও, আগে-পরে কিছু লিখবে না।` : 'শুধু কোড ব্লকটা দাও, আগে-পরে কিছু লিখবে না।'}`;
@@ -3252,7 +3266,7 @@ hero:happy:give:gift [compare: জমা ছিল না / মায়ের �
 - চরিত্র নিজে মুখে যে লাইনটা বলছে (পুরো লাইনটাই তার সংলাপ, কথকের কোনো কথা মেশানো নয়), সেই লাইনের ক্যাপশনের শুরুতে "> " দাও। যেমন: "ma:sad:talk > চিন্তা করিস না বাবা। {চিন্তা করিস না}" — অ্যাপ এই লাইন ওই চরিত্রের নিজের কণ্ঠে বানাবে, বাকি সব কথকের কণ্ঠে। "মা বললেন, ..." ধরনের লাইনে "> " দেবে না। প্রতি গল্পে ৩-৬টা এমন সংলাপ রাখো।
 - জায়গা: ${placeList}
 - সময়: day, evening, night | মেজাজ: normal, happy, sad, tense, regret | আবহাওয়া: rain, fog, sunny
-- চরিত্রের role: ${Object.keys(ROLES).join(', ')}
+- চরিত্রের role: ${ROLE_LIST_FOR_PROMPT()}
 - মুখের ভাব: ${FEELS.join(', ')} | কাজ: ${ACTIONS.join(', ')} | হাতে: ${PROPS.join(', ')}
 - কার্ড: [sms: শিরোনাম / লেখা] [chat: নাম / লেখা] [price: লেখা] [counter: লেবেল / শুরু / শেষ / আগে-চিহ্ন] [check: +ঠিক / -ভুল] [compare: বাম / মান / ডান / মান] [big: লেখা] [calendar: লেখা] [progress: লেবেল / ০-১০০] [call: নাম] [alert: লেখা] — ৩০-৪০% লাইনে দাও।
 - উপমা (metaphor): ${METAPHORS.join(', ')}
@@ -5435,7 +5449,9 @@ function drawWeather(c, w, t) {
   if (w === 'fog') withA(c, .35, () => { const g = c.createLinearGradient(0, 600, 0, 1500); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(1, '#fff'); c.fillStyle = g; c.fillRect(0, 0, W, H); });
   if (w === 'sunny') withA(c, .12, () => circ(c, 900, 200, 600, '#FFE082'));
 }
-function PLACE_LIST_FOR_PROMPT() { const g = {}; Object.entries(PLACE_INDEX).forEach(([k, v]) => { (g[v.group] = g[v.group] || []).push(k); }); return Object.entries(g).map(([n, ks]) => `${n}: ${ks.join(', ')}`).join(' | '); }
+const ISL_ROLE_SET = new Set(['imam', 'hujur', 'hajji', 'muezzin', 'pious_young', 'talib', 'madrasa_boy', 'muslimah', 'hijabi_mother', 'hijabi_girl', 'alima', 'nani_hijab']);
+function ROLE_LIST_FOR_PROMPT() { return Object.keys(ROLES).filter(r => TF_ISL || !ISL_ROLE_SET.has(r)).join(', '); }
+function PLACE_LIST_FOR_PROMPT() { const g = {}; Object.entries(PLACE_INDEX).forEach(([k, v]) => { if (!TF_ISL && v.group === 'ধর্মীয়') return; (g[v.group] = g[v.group] || []).push(k); }); return Object.entries(g).map(([n, ks]) => `${n}: ${ks.join(', ')}`).join(' | '); }
 
 /* ===================== TF Story Studio — "TF Script" story format + Bangla number words ===================== */
 'use strict';
@@ -6877,20 +6893,40 @@ async function addStoriesToLib(text) {
   if (res.ok) await saveUserLib(); renderLib(); updateMyLibInfo(); return res;
 }
 function updateMyLibInfo() { const el2 = $('myLibInfo'); if (el2) el2.textContent = `নিজের যোগ করা গল্প: ${bn(USERLIB.length)}টা · মোট লাইব্রেরি: ${bn(LIB.length)}টা`; }
+function libGroup(it) { const a = (it.area || '').trim(); if (a.includes('·')) return a.split('·')[0].trim(); return it.long ? (LONG_STYLE_BN[it.lstyle] || 'অন্যান্য') : (a || 'অন্যান্য'); }
+function libSub(it) { const a = (it.area || '').trim(); return a.includes('·') ? a.split('·').slice(1).join('·').trim() : a; }
+/* ---- "add to library" pane: copy a ready prompt for any outside AI (single or many stories) ---- */
+function renderXChips() {
+  const box = $('xChips'); if (!box) return; const L = isLongMode(); const list = L ? (LONG_TOPICS[S.longStyle || 'life'] || []) : TOPIC_IDEAS;
+  box.innerHTML = ''; list.forEach(t => box.append(el('button', { type: 'button', text: t, onclick: () => { $('xTopic').value = t; } })));
+}
+function syncXCard() {
+  const L = isLongMode(); if (!$('xN')) return;
+  $('xN').max = L ? 10 : 30; if (+$('xN').value > (L ? 10 : 30)) $('xN').value = L ? 3 : 10;
+  $('xMinRow').classList.toggle('hidden', !L);
+  $('xHint').textContent = L ? 'লং গল্প অনেক বড়, তাই একবারে ৩-৫টা চাইলে AI মাঝপথে থামে না। উত্তর কেটে গেলে AI-কে লিখুন "চালিয়ে যাও" আর সব উত্তর একসাথে নিচে পেস্ট করুন। একই গল্প দুবার পেস্ট করলে অ্যাপ নিজেই বাদ দেবে।' : 'একসাথে যত গল্পের প্রম্পট চান নিন, উত্তর নিচে পেস্ট করলে সব আলাদা হয়ে লাইব্রেরিতে যাবে।';
+  renderXChips();
+}
+function externalPrompt() {
+  const L = isLongMode(), n = cl(Math.round(+$('xN').value || 1), 1, L ? 10 : 30), topic = $('xTopic').value.trim();
+  if (L) { const o = Object.assign(longOpts(), { topic, minutes: +$('xMin').value || 8, facts: '', link: '', book: '', author: '', lesson: '' }); return { n, text: n > 1 ? buildLongBulkPrompt(o, n) : buildLongPrompt(o) }; }
+  return { n, text: n > 1 ? buildStoryPrompt(promptOpts({ count: n, topic, lesson: '', book: '', author: '' })) : buildStoryPrompt(promptOpts({ topic, lesson: '', book: '', author: '' })) };
+}
 function libUsed(it) { return usedList().includes('LIB:' + it.id); }
 function renderLib() {
-  const q = $('libSearch').value.trim().toLowerCase(), bk = $('libBook').value, f = $('libFilter').value; const ul = $('libList'); ul.innerHTML = '';
+  const q = $('libSearch').value.trim().toLowerCase(), bk = $('libBook').value, ar = $('libArea').value, f = $('libFilter').value; const ul = $('libList'); ul.innerHTML = '';
   const all = libItems(), L = libKind();
-  const items = all.filter(it => (!bk || it.book === bk) && (f === 'all' || (f === 'mine' ? it.mine : f === 'new' ? !libUsed(it) : libUsed(it))) && (!q || (it.title + ' ' + it.book + ' ' + it.lesson + ' ' + it.area + ' ' + it.txt).toLowerCase().includes(q)));
+  const items = all.filter(it => (!bk || it.book === bk) && (!ar || libGroup(it) === ar) && (f === 'all' || (f === 'mine' ? it.mine : f === 'new' ? !libUsed(it) : libUsed(it))) && (!q || (it.title + ' ' + it.book + ' ' + it.lesson + ' ' + it.area + ' ' + it.txt).toLowerCase().includes(q)));
   $('libCount').textContent = `${L ? 'লং ভিডিওর লাইব্রেরি' : 'শর্ট ভিডিওর লাইব্রেরি'} · ${bn(items.length)}টা গল্প (মোট ${bn(all.length)}, অব্যবহৃত ${bn(all.filter(x => !libUsed(x)).length)}, ব্যবহৃত ${bn(all.filter(x => libUsed(x)).length)})`;
   const frag = document.createDocumentFragment();
   const list = f === 'mine' || f === 'all' ? items.filter(x => x.mine).reverse().concat(items.filter(x => !x.mine)) : items;
-  list.slice(0, 400).forEach(it => frag.append(el('li', { class: app.libId === it.id ? 'cur' : '', onclick: e => { if (e.target.closest('.del')) return; loadLib(it); } }, el('span', { class: 'no', text: bn(it.n) }), el('span', { class: 't' }, el('b', { text: it.title }), el('span', { text: `${it.long ? (LONG_STYLE_BN[it.lstyle] || 'লং ভিডিও') + ' · ' : ''}${it.book}${it.lesson ? ' · ' + it.lesson : ''} · ${bn(it.lines)} লাইন` })), it.mine ? el('span', { class: 'mine', text: 'নিজের' }) : null, libUsed(it) ? el('span', { class: 'u', text: '✓ ব্যবহৃত' }) : null, it.mine ? el('button', { class: 'del', type: 'button', title: 'লাইব্রেরি থেকে মুছুন', 'aria-label': 'মুছুন', text: '✕', onclick: async () => { if (!confirm(`"${it.title}" লাইব্রেরি থেকে মুছবেন?`)) return; USERLIB = USERLIB.filter(u => u.id !== it.id); await saveUserLib(); renderLib(); updateMyLibInfo(); fillLibFilters(); } }) : null)));
+  list.slice(0, 400).forEach(it => frag.append(el('li', { class: app.libId === it.id ? 'cur' : '', onclick: e => { if (e.target.closest('.del')) return; loadLib(it); } }, el('span', { class: 'no', text: bn(it.n) }), el('span', { class: 't' }, el('b', { text: it.title }), el('span', { text: `${it.long ? (libGroup(it) === 'প্রবাসী জীবন' ? libSub(it) : (LONG_STYLE_BN[it.lstyle] || 'লং ভিডিও')) + ' · ' : ''}${it.book}${it.lesson ? ' · ' + it.lesson : ''} · ${bn(it.lines)} লাইন` })), it.mine ? el('span', { class: 'mine', text: 'নিজের' }) : null, libUsed(it) ? el('span', { class: 'u', text: '✓ ব্যবহৃত' }) : null, it.mine ? el('button', { class: 'del', type: 'button', title: 'লাইব্রেরি থেকে মুছুন', 'aria-label': 'মুছুন', text: '✕', onclick: async () => { if (!confirm(`"${it.title}" লাইব্রেরি থেকে মুছবেন?`)) return; USERLIB = USERLIB.filter(u => u.id !== it.id); await saveUserLib(); renderLib(); updateMyLibInfo(); fillLibFilters(); } }) : null)));
   if (list.length > 400) frag.append(el('li', { class: 'muted', text: `আরও ${bn(list.length - 400)}টা — খুঁজে নিন` }));
   ul.append(frag);
 }
 async function loadLib(it) { if (await loadAny(it.txt, { libId: it.id })) { app.libId = it.id; renderLib(); autosave(); } }
-function fillLibFilters() { const cur = $('libBook').value; const books = [...new Set(libItems().map(x => x.book).filter(Boolean))].sort(); $('libBook').innerHTML = ''; $('libBook').append(el('option', { value: '', text: 'সব বই' }), ...books.map(b => el('option', { value: b, text: b }))); $('libBook').value = books.includes(cur) ? cur : ''; }
+function fillLibAreas() { const sel = $('libArea'); if (!sel) return; const cur = sel.value, cnt = {}; libItems().forEach(it => { const g = libGroup(it); cnt[g] = (cnt[g] || 0) + 1; }); const gs = Object.keys(cnt).sort((a, b) => (b === 'প্রবাসী জীবন') - (a === 'প্রবাসী জীবন') || cnt[b] - cnt[a] || a.localeCompare(b, 'bn')); sel.innerHTML = ''; sel.append(el('option', { value: '', text: 'সব ক্যাটাগরি' }), ...gs.map(g => el('option', { value: g, text: `${g} (${bn(cnt[g])})` }))); sel.value = gs.includes(cur) ? cur : ''; }
+function fillLibFilters() { fillLibAreas(); const cur = $('libBook').value; const books = [...new Set(libItems().map(x => x.book).filter(Boolean))].sort(); $('libBook').innerHTML = ''; $('libBook').append(el('option', { value: '', text: 'সব বই' }), ...books.map(b => el('option', { value: b, text: b }))); $('libBook').value = books.includes(cur) ? cur : ''; }
 
 /* ---------- AI writing (single + bulk into library) ---------- */
 function fillPromptSelects() {
@@ -7896,9 +7932,10 @@ async function init() {
   $('dlgSettings').addEventListener('close', () => { updateKeyStatus(); if (app.story) rebuild(true); else drawAt(0); });
   [$('dlgSettings'), $('dlgChars'), $('dlgHelp')].forEach(d => d.addEventListener('click', e => { if (e.target === d) d.close(); }));
   $('btnHelp').onclick = () => $('dlgHelp').showModal(); $('btnSettings').onclick = () => openSettings();
-  ['libSearch', 'libBook', 'libFilter'].forEach(id => $(id).addEventListener('input', debounce(renderLib, 150)));
+  ['libSearch', 'libArea', 'libBook', 'libFilter'].forEach(id => $(id).addEventListener('input', debounce(renderLib, 150)));
   $('libRandom').onclick = () => { const pool = libItems().filter(x => !libUsed(x)); if (!pool.length) { toast('লাইব্রেরির সব গল্প ব্যবহার হয়েছে'); return; } loadLib(pool[Math.floor(Math.random() * pool.length)]); };
   $('btnRandom').onclick = pickRandom; $('btnWrite').onclick = writeWithAI; $('btnBulkWrite').onclick = () => bulkWrite(); $('btnBulkStop').onclick = () => { if (bulkStop) { bulkStop.stop = true; toast('এখনকার গল্পগুলো শেষ হলে থামবে'); } };
+  $('btnXCopy').onclick = () => { const r = externalPrompt(); copyText(r.text, r.n > 1 ? `${bn(r.n)}টা গল্পের প্রম্পট কপি হয়েছে — AI-এর উত্তর নিচের বক্সে পেস্ট করুন` : 'প্রম্পট কপি হয়েছে — AI-তে পেস্ট করে উত্তরটা নিচের বক্সে পেস্ট করুন'); };
   $('btnCopyPrompt').onclick = () => copyText(currentPrompt(), 'প্রম্পট কপি হয়েছে — ChatGPT/Gemini/Claude-এ পেস্ট করুন');
   $('btnCopyBulkPrompt').onclick = () => { const n = cl(Math.round(+$('bulkNChat').value || 10), 2, 30); copyText(currentPrompt({ count: n, lesson: '', book: $('pBook').value !== '' ? BOOKS[$('pBook').value][0] : '' }), `${bn(n)}টা গল্পের প্রম্পট কপি হয়েছে — উত্তরটা "+ লাইব্রেরিতে যোগ"-এ পেস্ট করুন`); };
   $('gLoad').onclick = e => { e.preventDefault(); fillModels('gModel', geminiModels, 'gModel'); }; $('aLoad').onclick = e => { e.preventDefault(); fillModels('aModel', claudeModels, 'aModel'); };
@@ -8719,6 +8756,9 @@ function buildLongPrompt(o) {
 - ধরন: জীবন-ঘনিষ্ঠ, উপদেশমূলক পারিবারিক গল্প। মধ্যবিত্ত/নিম্নমধ্যবিত্ত পরিবার, চেনা জিনিস আর নির্দিষ্ট সংখ্যা (টাকা, বছর, মাইনে, কিস্তি)।
 ${book}
 - মূল চরিত্রের নাম: ${o.hero || 'তুমি বেছে নাও'}
+- লুকানো মোড় (সবচেয়ে জরুরি): গল্পের মূল থিম আর শেষ পরিণতি প্রথম অর্ধেকে কিছুতেই বোঝা যাবে না। শুরুতে এমন একটা প্রশ্ন বা রহস্য রাখো যা দর্শককে ভুল দিকে ভাবায় (ভুল সন্দেহ, ভুল চরিত্রকে দোষী ভাবা), আর আসল সত্যটা [reveal: …] দিয়ে শেষের দিকে ফাঁস করো, যাতে পুরো গল্প শোনার পরই দর্শক আসল ঘটনা বোঝে। হুকে বা রহস্যের টোপে পরিণতি আগেভাগে বলে দেবে না।
+- ধরন: সিনেমাটিক ও নাটকীয়, আবেগে ছুঁয়ে যাওয়া। চরিত্রের মুখের ভাব আর ছোট ছোট ঘটনা (চুপ করে যাওয়া, কাঁপা হাত, দেয়ালের জিনিস) দিয়ে অনুভূতি দেখাও।
+- ধর্মীয় চরিত্র, প্রতীক বা জায়গা (ইমাম, মসজিদ, মাদ্রাসা ইত্যাদি) আনবে না, গল্প হবে সবার জন্য সাধারণ জীবনের।
 
 ## গল্পের কাঠামো (ঠিক এই ক্রমে)
 1. ঠান্ডা ওপেন (প্রথম ১৫ সেকেন্ড): গল্পের সবচেয়ে খারাপ মুহূর্ত থেকে শুরু। প্রথম লাইনেই একটা চরিত্রের চিৎকার বা কঠিন সংলাপ ("> " দিয়ে), যেটায় একটা বড় সংখ্যা আর বৈপরীত্য আছে (যেমন "এক কোটি জিতেছিলে, আজ ফর্মের ২০০০ টাকাও নেই!")।
@@ -8736,7 +8776,10 @@ ${book}
 8. চরম পতন: অসুখ, প্রতারণা, নিলাম, অপমান — গল্পের সবচেয়ে কষ্টের জায়গা।
 9. রহস্যের উত্তর: সেই জিনিস খোলা হয় [reveal: জিনিস / ভেতরের লেখা বা হিসাব] — ছোট ছোট সঞ্চয় বা সিদ্ধান্তের বড় ফল।
 10. আবেগী সমাধান ও নতুন শুরু। শুরুর একটা জিনিস বা সংলাপ ফিরে এসে বৃত্ত পূর্ণ করে।
-11. শেষ কথা: সব ভুল বাক্য একসাথে আবার বলো, তারপর এক লাইনের ছন্দময় শিক্ষা।
+11. শেষ কথা, তিনটা আলাদা দৃশ্যে ("## abstract night normal | …"):
+    ক) "ভুলগুলো কোথায় ছিল": গল্পের ৪-৬টা ভুল এক লাইনে এক লাইনে, যেগুলো চরিত্রকে ভুল পথে নিয়ে গিয়ে ক্ষতি করেছে।
+    খ) "এখন আমাদের করণীয়": কীভাবে এই ভুল আর প্রতারণা থেকে বাঁচা যায়, ৩-৫টা সহজ কাজ, সাথে [check: + কাজ ১ / + কাজ ২ / + কাজ ৩ / + কাজ ৪] কার্ড। কাজগুলো বাস্তব ও নির্দিষ্ট হবে (কী করব, কখন, কীভাবে)।
+    গ) এক লাইনের ছন্দময় শিক্ষা।
 12. "## cta | প্রশ্ন | বিকল্প": শেষ লাইন: "তোমার পরিচিত এমন একজনকে ভিডিওটা আজ দেখিও। এমন আরো গল্পের জন্য চ্যানেলটা সাবস্ক্রাইব করে রাখো।"`;
   else if (style === 'thriller') body = `
 - ধরন: সত্য ঘটনা বা সাম্প্রতিক খবর, থ্রিলারের মতো করে সহজ ভাষায় ব্যাখ্যা।
@@ -8779,7 +8822,7 @@ ${book}
 ইউটিউব টাইটেল: বাংলা হুক (সংখ্যা + বৈপরীত্য)! | English Topic In Bangla
 ${style === 'life' ? 'বই: বইয়ের ইংরেজি নাম | লেখক | ধারণা | বাংলায় এক লাইনে\n' : ''}থাম্বনেল: টিজার... | উক্তির প্রথম অংশ | শেষ অংশ {লাল শব্দ} | আইকন | সংখ্যা | বক্তার id
 চরিত্র: id=নাম/role, id=নাম/role
-ক্ষেত্র: বিষয়ের ক্ষেত্র
+ক্ষেত্র: বড় বিভাগ · উপবিভাগ (যেমন: প্রবাসী জীবন · ভিসা ও দালাল প্রতারণা)
 ## জায়গা সময় মেজাজ | ব্যাজ | কারা পর্দায় (সর্বোচ্চ ৩)
 চরিত্র:মুখের_ভাব:কাজ:হাতে [কার্ড: ঘর / ঘর] কথকের লাইন {হাইলাইট}
 চরিত্র:মুখের_ভাব > চরিত্রের নিজের সংলাপ {হাইলাইট}
@@ -8793,7 +8836,7 @@ ${style === 'life' ? 'বই: বইয়ের ইংরেজি নাম | 
 \`\`\`
 - জায়গা: ${placeList}
 - সময়: day, evening, night | মেজাজ: normal, happy, sad, tense, regret | আবহাওয়া: rain, fog, sunny
-- চরিত্রের role: ${Object.keys(ROLES).join(', ')}
+- চরিত্রের role: ${ROLE_LIST_FOR_PROMPT()}
 - মুখের ভাব: ${FEELS.join(', ')} | কাজ: ${ACTIONS.join(', ')} | হাতে: ${PROPS.join(', ')}
 - কার্ড (মোট ১২-২৫টা, ছড়িয়ে): [reveal: জিনিস / লেখা] [sms: শিরোনাম / লেখা] [chat: নাম / লেখা] [call: নাম] [alert: লেখা] [date: তারিখ] [doc: শিরোনাম / লেখা] [source: সূত্র / কী বলেছে] [counter: লেবেল / শুরু / শেষ / আগে-চিহ্ন] [compare: বাম / মান / ডান / মান] [check: + কাজ / + কাজ] [price: লেখা] [big: লেখা] [progress: লেবেল / শতাংশ] [scene: ধরন / লেখা১ / লেখা২]${style === 'thriller' ? ' [statement: ছোট লাইন / বড় সোনালি লেখা] [label: সূত্র: নাম]' : style === 'life' ? ' [tag: ✗ লেখা / ✓ লেখা] [hud: লেবেল / আগে → এখন] [label: ছোট লেখা]' : ' [label: ছোট লেখা]'}
 - অ্যানিমেটেড কনসেপ্ট ছবি (পুরো পর্দা জুড়ে, ক্যারেক্টার ছাড়া; ১০-২০টা, যেখানে সংখ্যা/তারিখ/জায়গা/নথি/তালা/ফোন/চার্ট বোঝানো দরকার): [scene: ধরন / লেখা১ / লেখা২]। ধরন: calendar(তারিখ), skyline, building(স্কুল/ব্যাংক/অফিস), chart_line(লেখা, up/down/crash), chart_bars, counter, doc, email, money, people, route(দেশ১ / দেশ২), magnifier, lock(লেখা, lock/open), phone(মেসেজ...), balance, timeline, question, network, files, clock, alert। যেমন: [scene: chart_line / ১০১ মিলিয়ন ডলার / crash]
@@ -8811,9 +8854,30 @@ ${style === 'life' ? 'বই: বইয়ের ইংরেজি নাম | 
   return head + link + body + fmt;
 }
 
+/* the bulk long-story prompt: N different long scripts in one answer (each in its own code block) */
+function buildLongBulkPrompt(o, n) {
+  const style = o.longStyle || 'life', pool = (LONG_TOPICS[style] || []).slice();
+  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  const topicBlock = o.topic ? `- সবগুলো গল্পের বিষয়বস্তু: "${o.topic}" — একই বিষয় হলেও প্রতিটা গল্পের ঘটনা, চরিত্র, দেশ/জায়গা, সংখ্যা, মোড় আর শিক্ষা সম্পূর্ণ আলাদা হবে।` : `- বিষয়ের তালিকা (প্রতিটা গল্পে একটা করে, তালিকা শেষ হলে নিজে নতুন বিষয় বেছে নাও): ${pool.slice(0, n).join(' | ') || 'তুমি বেছে নাও'}`;
+  const one = buildLongPrompt(Object.assign({}, o, { topic: '' }));
+  const lead = `তুমি একসাথে ${bn(n)}টা সম্পূর্ণ আলাদা লং ভিডিওর স্ক্রিপ্ট লিখবে। নিচে একটা স্ক্রিপ্টের পূর্ণ নির্দেশ আছে, সেটা প্রতিটা গল্পের জন্য আলাদা করে মানবে।
+
+## একসাথে ${bn(n)}টা গল্পের নিয়ম
+${topicBlock}
+- প্রতিটা গল্প সম্পূর্ণ আলাদা: আলাদা শিরোনাম, চরিত্রের নাম, বই বা ধারণা, "ক্ষেত্র", সংখ্যা, মোড় আর পরিণতি। একটার ছাঁচ আরেকটায় নকল করবে না।
+- প্রতিটা গল্প নিজের আলাদা কোড ব্লকে ("===" দিয়ে শুরু, "হ্যাশট্যাগ:" দিয়ে শেষ), কোড ব্লকের বাইরে কিছু লিখবে না, গল্পগুলোর মাঝে শুধু একটা ফাঁকা লাইন।
+- কোনো গল্প অর্ধেক রেখে দেবে না। উত্তর কেটে গেলে আমি "চালিয়ে যাও" লিখব, তখন ঠিক যেখানে থেমেছিলে সেখান থেকে একই ফরম্যাটে বাকিটা দেবে।
+- গল্পগুলো হবে সিনেমাটিক, নাটকীয়, আবেগে ছুঁয়ে যাওয়া, আর প্রতিটার মূল মোড় শেষ পর্যন্ত লুকানো থাকবে।
+
+---
+## প্রতিটা গল্পের পূর্ণ নির্দেশ
+`;
+  return lead + one.replace(/\nশুধু কোড ব্লকটা দাও, আগে-পরে কিছু লিখবে না।\s*$/, '\n');
+}
+
 /* ---------- long video: UI (format picker, style, length, facts) ---------- */
 const LONG_TOPICS = {
-  life: ['লটারির নেশা', 'লোক দেখানো বিয়ে', 'কিস্তির ফাঁদ', 'মধ্যবিত্তের টাকার ৫ ভুল', 'যৌতুকের দাম', 'প্রবাসীর পাঠানো টাকা', 'জমি নিয়ে ভাইয়ে ভাইয়ে', 'অনলাইন জুয়া', 'এমএলএম স্কিম', 'ক্রেডিট কার্ডের ফাঁদ', 'কাল থেকে পড়বো', 'সিগারেটের হিসাব'],
+  life: ['প্রবাসীর ভিসা ও দালাল প্রতারণা', 'দেশে পাঠানো টাকা ও আস্থার ফাঁদ', 'প্রবাসী পরিবারের দূরত্ব ও নীরবতা', 'ফিরে এসে ব্যবসার ধোঁকা', 'প্রবাসে অসুখ লুকানোর ভুল', 'অনলাইন প্রেম ও ক্রিপ্টো প্রতারণা', 'সবাইকে ধার দেওয়ার ফাঁদ', 'কর্মস্থলে পাসপোর্ট আটকানো', 'ছোট ছোট খরচের অভ্যাস', 'লটারির নেশা', 'লোক দেখানো বিয়ে', 'কিস্তির ফাঁদ', 'মধ্যবিত্তের টাকার ৫ ভুল', 'যৌতুকের দাম', 'প্রবাসীর পাঠানো টাকা', 'জমি নিয়ে ভাইয়ে ভাইয়ে', 'অনলাইন জুয়া', 'এমএলএম স্কিম', 'ক্রেডিট কার্ডের ফাঁদ', 'কাল থেকে পড়বো', 'সিগারেটের হিসাব'],
   thriller: ['সাম্প্রতিক বড় খবর', 'বিখ্যাত কোম্পানির পতন', 'বড় একটা স্ক্যামের গল্প', 'রহস্যময় দুর্ঘটনা', 'বিখ্যাত মানুষের উত্থান-পতন', 'ব্যাংক জালিয়াতি', 'হ্যাকিংয়ের ঘটনা'],
   guide: ['৩০ দিনে ইংরেজিতে কথা বলা', 'ফ্রিল্যান্সিং শুরু করা', 'প্রথম চাকরির প্রস্তুতি', 'মাসে সঞ্চয়ের অভ্যাস', 'পড়ায় মন বসানো', 'ফোনের নেশা কমানো', 'ছোট ব্যবসা শুরু']
 };
@@ -8845,7 +8909,7 @@ function syncLongUI() {
   $('longMin').value = String(S.longMin || 10); $('longWeb').checked = S.longWeb !== false;
   $('pTopic').placeholder = !L ? 'যেমন: প্রথম বেতন, মায়ের ত্যাগ, বন্ধুর ধার' : ls === 'thriller' ? 'যেমন: কোন ঘটনা বা খবর (যত নির্দিষ্ট, তত ভালো)' : ls === 'guide' ? 'যেমন: ৩০ দিনে ইংরেজিতে কথা বলা' : 'যেমন: লটারির নেশা, লোক দেখানো বিয়ে, কিস্তির ফাঁদ';
   const want = L ? 'L:' + ls : 'S'; if ($('topicChips').dataset.set !== want) { $('topicChips').dataset.set = want; renderTopicChips(L ? LONG_TOPICS[ls] : TOPIC_IDEAS); }
-  $('btnWrite').textContent = L ? 'লং ভিডিওর স্ক্রিপ্ট লিখে খুলুন' : 'একটা গল্প লিখে খুলুন';
+  $('btnWrite').textContent = L ? 'লং ভিডিওর স্ক্রিপ্ট লিখে খুলুন' : 'একটা গল্প লিখে খুলুন'; syncXCard();
   { const b = document.querySelector('#srcPick [data-pick="lib"] span'); if (b) b.textContent = L ? 'লং ভিডিওর তৈরি গল্প থেকে বেছে নিন' : 'তৈরি গল্পের তালিকা থেকে বেছে নিন'; }
   { const g = $('genN'); if (g) { g.max = L ? 10 : 100; if (L && +g.value > 10) g.value = 3; } const gl = $('genLen'); if (gl) gl.closest('label').classList.toggle('hidden', L); const gh = document.querySelector('#src-add .aigen h4'); if (gh) gh.textContent = L ? 'AI দিয়ে লং স্ক্রিপ্ট লিখে লং লাইব্রেরিতে যোগ (একবারে সর্বোচ্চ ১০টা)' : 'AI দিয়ে লিখে সরাসরি লাইব্রেরিতে যোগ'; }
   $('s1Sub').textContent = L ? 'লং ভিডিও (ইউটিউব ১৬:৯) — নিচের যেকোনো একটা উপায় বেছে নিন।' : 'নিচের তিনটার যেকোনো একটা বেছে নিন।';
