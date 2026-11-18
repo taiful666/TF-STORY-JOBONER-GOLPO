@@ -13,7 +13,7 @@
   window.ISL_ART_PATCH = function () {
     if (_patch) _patch();
     const A = window.ISL_ART_API; if (!A) { console.warn('ISL_ART_API missing'); return; }
-    [patchPeople, patchProps, patchResources, patchCaptions].forEach(f => { try { f(A); } catch (e) { console.error('isl art2:', f.name, e); } });
+    [patchPeople, patchProps, patchResources, patchCaptions, patchCover].forEach(f => { try { f(A); } catch (e) { console.error('isl art2:', f.name, e); } });
   };
   window.ISL_ART_DOM = function () { if (_dom) _dom(); try { domTweaks(); } catch (e) { console.error(e); } };
 
@@ -353,7 +353,57 @@
     try { if (!localStorage.getItem('tf_isl_v4')) { S.capLook = 'longkt'; saveSettings(); localStorage.setItem('tf_isl_v4', '1'); } } catch (e) { }
   }
 
+
+  /* =========================================================================================
+     5. THUMBNAIL — the scene inside a mihrab arch with noor light, gold ornaments, a curiosity strap and a huge headline
+     ========================================================================================= */
+  const PAL = { 'সবুজ-সোনালি': ['#0D4430', '#041A11', '#F2C14E'], 'রাতের নীল': ['#14295A', '#050B1E', '#9FD3FF'], 'পুরোনো পার্চমেন্ট': ['#58361A', '#1E1008', '#FFC46B'], 'কাচের কালো': ['#1A1A1A', '#050505', '#F2C14E'], 'ভোরের আলো': ['#86331F', '#2B100A', '#FFB38A'], 'পান্না': ['#0B5442', '#031B15', '#E9C46A'] };
+  function star8(c, x, y, r) { c.beginPath(); for (let k = 0; k < 16; k++) { const a = k * Math.PI / 8 - Math.PI / 2, rr0 = k % 2 ? r * .62 : r; k ? c.lineTo(x + Math.cos(a) * rr0, y + Math.sin(a) * rr0) : c.moveTo(x + Math.cos(a) * rr0, y + Math.sin(a) * rr0); } c.closePath(); }
+  function archPath(x0, x1, yTop, yBot, shoulder) { const m = (x0 + x1) / 2, w = x1 - x0; return `M${x0},${yBot} L${x0},${shoulder} C${x0},${shoulder - w * .26} ${x0 + w * .24},${yTop + (shoulder - yTop) * .42} ${m},${yTop} C${x1 - w * .24},${yTop + (shoulder - yTop) * .42} ${x1},${shoulder - w * .26} ${x1},${shoulder} L${x1},${yBot}Z`; }
+  function patchCover(A) {
+    const _dc = drawCover;
+    function pickShot(st, tl) { return A.pickCoverShot ? A.pickCoverShot(st, tl) : { si: 0, t: 0 }; }
+    drawCover = function (c, R, k) { const key = k || S.coverTheme; if (key === 'islamic') return coverIsl(c, R); if (key === 'islamic_classic' && A.drawCoverClassic) return A.drawCoverClassic(c, R); return _dc(c, R, k); };
+    function coverIsl(c, R) {
+      const st = R.story, tl = R.tl; if (!st || !tl) return; const d = coverData(st), Sx = (typeof S !== 'undefined' ? S : {}), cp = coverCopy(st, d, 'isl');
+      const V = A.getVar(), pal = PAL[V.name] || PAL['সবুজ-সোনালি'], gold = pal[2], P0 = pickShot(st, tl), sc = st.scenes[P0.si] || {}, people = (sc.cast || []).length;
+      c.save();
+      // background: deep colour, khatam star lattice, vignette
+      const bg = c.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, pal[0]); bg.addColorStop(1, pal[1]); c.fillStyle = bg; c.fillRect(0, 0, W, H);
+      c.save(); c.globalAlpha = .07; c.strokeStyle = gold; c.lineWidth = 2.4; for (let y = 0, r = 0; y < H + 120; y += 120, r++) for (let x = (r % 2) * 60; x < W + 120; x += 120) { star8(c, x, y, 54); c.stroke(); } c.restore();
+      const vg = c.createRadialGradient(540, 700, 260, 540, 960, 1300); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.6)'); c.fillStyle = vg; c.fillRect(0, 0, W, H);
+      // the arch window with the scene
+      const AX0 = 90, AX1 = 990, AY = 215, AB = 1090, SH = 640, ap = archPath(AX0, AX1, AY, AB, SH), p2 = P2(ap);
+      c.save(); c.shadowColor = gold; c.shadowBlur = 60; c.fillStyle = pal[1]; c.fill(p2); c.restore();
+      const off = document.createElement('canvas'); off.width = W; off.height = H; const oc = off.getContext('2d', { alpha: false });
+      R._camOverride = clampCam({ x: 540, y: people ? 1260 : 1010, z: people ? 1.0 : 1.12 }); try { R.drawScene(oc, P0.si, P0.t); } catch (e) { rect(oc, 0, 0, W, H, pal[0]); } R._camOverride = null;
+      c.save(); c.clip(p2); const sy = people ? 760 : 560; c.filter = 'saturate(1.25) contrast(1.08)'; c.drawImage(off, 0, sy, 1080, 1045, AX0, AY, AX1 - AX0, AB - AY); c.filter = 'none';
+      c.save(); c.globalCompositeOperation = 'soft-light'; c.fillStyle = V.grade; c.fillRect(AX0, AY, AX1 - AX0, AB - AY); c.restore();
+      c.save(); c.globalCompositeOperation = 'screen'; covRays(c, 540, AY - 20, 12, 1300, 'rgba(255,236,170,A)', .2, Math.PI / 2 - .55); c.restore();
+      const ag = c.createLinearGradient(0, AY, 0, AB); ag.addColorStop(0, 'rgba(0,0,0,.28)'); ag.addColorStop(.5, 'rgba(0,0,0,0)'); ag.addColorStop(1, 'rgba(0,0,0,.55)'); c.fillStyle = ag; c.fillRect(AX0, AY, AX1 - AX0, AB - AY); c.restore();
+      // gold double border + apex crescent and star
+      c.save(); c.strokeStyle = gold; c.lineWidth = 12; c.shadowColor = gold; c.shadowBlur = 22; c.stroke(p2); c.shadowColor = 'transparent';
+      c.lineWidth = 3; c.globalAlpha = .8; c.save(); c.translate(540, (AY + AB) / 2); c.scale(.93, .94); c.translate(-540, -(AY + AB) / 2 + 12); c.stroke(P2(ap)); c.restore(); c.restore();
+      c.save(); c.translate(540, AY - 34); c.fillStyle = gold; c.shadowColor = gold; c.shadowBlur = 26; c.beginPath(); c.arc(0, 0, 34, 0, 7); c.clip(); c.beginPath(); c.rect(-40, -40, 80, 80); c.arc(14, -6, 30, 0, 7, true); c.fill('evenodd'); c.restore();
+      c.save(); c.fillStyle = gold; star8(c, 584, AY - 52, 13); c.fill(); c.restore();
+      // top: source badge + logo
+      const ay = st.scenes.find(x => x.type === 'ayah'), isQ = ay ? !/বুখারি|হাদিস|মুসলিম|তিরমিজি|মাজাহ|মুফরাদ/.test(ay.ref || '') : true, badge = isQ ? 'কুরআনের আলোয়' : 'হাদিসের আলোয়';
+      c.save(); c.font = `400 44px TFGalada, ${FONT_FALLBACK}`; const bw = c.measureText(badge).width + 74; c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 16; rr(c, 70, 70, bw, 78, 39, V.badge); c.shadowColor = 'transparent'; rr(c, 77, 77, bw - 14, 64, 32, null, gold, 3); txt(c, badge, 70 + bw / 2, 124, 44, '#F6E6B0', 400, 'center', 'TFGalada'); c.restore();
+      if (Sx.watermark !== false) { c.save(); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 14; drawLogo(c, W - 118, 112, 92, Sx.logo || 'প্র'); c.restore(); }
+      // sticker over the arch's lower corner, strap, headline, button
+      covChip(c, cp.sticker, 330, AB - 36, 44, gold, '#1A1405', -.05, 'rgba(60,40,0,.4)');
+      let y = AB + 52; if (cp.strap) { c.save(); c.font = `800 44px ${FONT_BN}, ${FONT_FALLBACK}`; const sw = Math.min(W - 80, c.measureText('“' + cp.strap + '”').width + 90); rr(c, 540 - sw / 2, y, sw, 86, 43, 'rgba(0,0,0,.35)', gold, 3); richLine(c, '“' + cp.strap + '”', 540, y + 57, 44, sw - 60, '#FFF6DE', gold, FONT_BN, 800); c.restore(); y += 112; }
+      const bot = covHeadline(c, cp.lines, 540, y, { font: V.font, weight: 700, size: 150, minSize: 70, maxW: 940, maxH: 1620 - y, mode: 'gold', hi: V.hookHi, hiTop: '#FFF7CE', hiBot: gold, glow: 'rgba(255,200,80,.65)', stroke: 'rgba(3,16,10,.96)', lh: 1.2 });
+      // ornamental divider + button
+      const dy = Math.min(Math.max(bot + 30, 1560), 1660); c.save(); c.strokeStyle = gold; c.lineWidth = 3; c.globalAlpha = .85; line(c, 250, dy, 500, dy, gold, 3); line(c, 580, dy, 830, dy, gold, 3); c.fillStyle = gold; star8(c, 540, dy, 18); c.fill(); c.restore();
+      covCTA(c, cp.cta, 540, dy + 110, 50, gold, '#1A1405', 'rgba(60,40,0,.45)');
+      c.restore();
+    }
+  }
+
   function domTweaks() {
+    const ct = $('coverTheme');
+    if (ct) { const o = ct.querySelector('option[value="islamic"]'); if (o) o.textContent = 'ইসলামিক খিলান (মিহরাব ফ্রেম + কৌতূহলী হেডলাইন)'; if (!ct.querySelector('option[value="islamic_classic"]')) ct.append(el('option', { value: 'islamic_classic', text: 'ইসলামিক আগের ধাঁচ (পূর্ণ ছবি + নিচে লেখা)' })); ct.value = S.coverTheme || 'islamic'; }
     const sel = $('sCapLook');
     if (sel && !sel.querySelector('option[value="longkt"]')) { sel.prepend(el('option', { value: 'longkt', text: 'লং ভিডিও স্টাইল (বড় শব্দ, একটা একটা করে, সোনালি হাইলাইট)' })); sel.value = S.capLook || 'longkt'; }
   }

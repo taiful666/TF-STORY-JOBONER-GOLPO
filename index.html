@@ -793,7 +793,7 @@ dialog{border-radius:16px}.dlg{padding:24px}.dlg h3{font-size:18px}
         <h4>রেজোলিউশন</h4>
         <nav class="seg sub small" id="resPick"><button data-res="720">720p<span class="mo"> (দ্রুত)</span></button><button data-res="1080" class="on">1080p<span class="mo"> (সেরা)</span></button><button data-res="1440">2K</button><button data-res="2160">4K<span class="mo"> (ধীর)</span></button></nav>
         <h4>থাম্বনেল (কভার)</h4>
-        <div class="thumbrow"><canvas id="thumbPv" width="180" height="320" aria-label="থাম্বনেল প্রিভিউ"></canvas><div class="grow"><label>থাম্বনেলের বড় লেখা<input id="thumbText" placeholder="খালি রাখলে গল্পের শিরোনাম"></label><p class="muted sm">ভিডিওর প্রথম ফ্রেমেও এটাই থাকবে।</p><label>থাম্বনেলের ডিজাইন<select id="coverTheme"><option value="golpo">গল্প-উক্তি (লাল টিজার + বক্তার উক্তি কার্ড)</option><option value="jibonpath">জীবনপাঠ (পেজের লোগো ও রং)</option><option value="indigo">কাঁথা নীল</option><option value="terracotta">মাটির রং</option><option value="dusk">সাঁঝবাতি</option></select></label><button class="ghost sm" id="btnThumbDl" type="button"><svg><use href="#i-down"/></svg> থাম্বনেল ছবি ফোনে সেভ</button></div></div>
+        <div class="thumbrow"><canvas id="thumbPv" width="180" height="320" aria-label="থাম্বনেল প্রিভিউ"></canvas><div class="grow"><label>থাম্বনেলের বড় লেখা<input id="thumbText" placeholder="খালি রাখলে গল্পের শিরোনাম"></label><p class="muted sm">ভিডিওর প্রথম ফ্রেমেও এটাই থাকবে।</p><label>থাম্বনেলের ডিজাইন<select id="coverTheme"><option value="golpo">গল্প (বড় মুখ + আলোর রশ্মি + কৌতূহলী হেডলাইন)</option><option value="golpoquote">গল্প-উক্তি (লাল টিজার + সাদা উক্তি কার্ড)</option><option value="jibonpath">জীবনপাঠ (পেজের লোগো ও রং)</option><option value="indigo">কাঁথা নীল</option><option value="terracotta">মাটির রং</option><option value="dusk">সাঁঝবাতি</option></select></label><button class="ghost sm" id="btnThumbDl" type="button"><svg><use href="#i-down"/></svg> থাম্বনেল ছবি ফোনে সেভ</button></div></div>
         <label class="chk"><input type="checkbox" id="sAutoThumb"> এক্সপোর্ট শেষ হলে থাম্বনেল ছবিও অটো সেভ</label>
         <p class="muted center" id="expInfo"></p>
         <p class="muted center" id="expLine"></p>
@@ -7048,6 +7048,7 @@ function drawCoverHeadline(c, s, y, size, maxW, baseCol) {
 }
 const COVER_THEMES = {
   golpo: { name: 'গল্প-উক্তি', golpo: true },
+  golpoquote: { name: 'গল্প-উক্তি (সাদা কার্ড)', golpo: true, quote: true },
   jibonpath: { name: 'জীবনপাঠ', emblem: true, bg1: '#2C4D3B', bg2: '#0F241B', stitch: '#F3EBD6', head: '#FFF8EC', gold: '#F6BE4F', ctx: '#EADFC4', frame: '#E9B04A', badge: '#E9B04A', badgeText: '#14301F' },
   indigo: { name: 'কাঁথা নীল', bg1: '#25307A', bg2: '#141A4A', stitch: '#F7EBD3', head: '#FFF6E6', gold: '#FFB627', ctx: '#FF9EB1', frame: '#FFB627', badge: '#FFB627', badgeText: '#141A4A' },
   terracotta: { name: 'মাটির রং', bg1: '#8C3A22', bg2: '#56200F', stitch: '#FBE3C8', head: '#FFF4E4', gold: '#FFD23F', ctx: '#FFC9A3', frame: '#FFD23F', badge: '#FFD23F', badgeText: '#56200F' },
@@ -7112,7 +7113,7 @@ function drawStars(c, th, seed) {
 function drawCover(c, renderer, themeKey) {
   const st = renderer.story, tl = renderer.tl; if (!st || !tl) return;
   const th = COVER_THEMES[themeKey || (typeof S !== 'undefined' && S.coverTheme) || 'jibonpath'] || COVER_THEMES.jibonpath;
-  if (th.golpo) return drawCoverGolpo(c, renderer);
+  if (th.golpo) return th.quote ? drawCoverGolpoQuote(c, renderer) : drawCoverGolpo(c, renderer);
   const d = coverData(st);
   c.save();
   const bg = c.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, th.bg1); bg.addColorStop(1, th.bg2); c.fillStyle = bg; c.fillRect(0, 0, W, H);
@@ -7175,7 +7176,7 @@ function coverQuote(st, tl) {
   if (!l1) { const w = String(qln.cap || st.title || '').split(/\s+/); const cut = Math.ceil(w.length / 2); l1 = w.slice(0, cut).join(' '); l2 = w.slice(cut).join(' '); }
   return { who, l1, l2, si: qsh.si, t: qsh.start + Math.min(.6, qsh.dur * .4) };
 }
-function drawCoverGolpo(c, renderer) {
+function drawCoverGolpoQuote(c, renderer) {
   const st = renderer.story, tl = renderer.tl, d = coverData(st), q = coverQuote(st, tl), Sx = (typeof S !== 'undefined' ? S : {});
   c.save();
   const sc = st.scenes[q.si] || {}, n = Math.min(3, (sc.cast || []).length || 1), z = n === 1 ? 1.3 : 1.18;
@@ -7197,6 +7198,93 @@ function drawCoverGolpo(c, renderer) {
     txt(c, cr.ch.name, 540, top + r + 52, 40, '#B3261E', 700, 'center', FONT_BN, 700); y = top + r + 70; }
   lines.forEach((l, i) => richLine(c, l, 540, y + size * (i + .9) * 1.12, size, W - 200, '#2A1C14', '#B3261E', 'TFSerif', 700));
   if (Sx.watermark !== false) { c.save(); c.globalAlpha = .9; c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 12; drawLogo(c, W - 120, 285, 92, Sx.logo || 'TF'); c.restore(); }
+  c.restore();
+}
+/* ===================== thumbnail kit (shared by the Story and the Islamic covers) =====================
+   One big idea per thumbnail: a strong face/figure, light rays, a curiosity strap, a huge headline with sticker-style
+   highlights and a "watch" button. Everything important stays inside the middle 4:5 band, so a feed that crops the 9:16 cover still shows it. */
+function covParts(s) { const parts = []; String(s || '').split(/(\{[^}]*\})/).forEach(p => { if (!p) return; const h = p[0] === '{'; p.replace(/[{}]/g, '').split(/\s+/).filter(Boolean).forEach(w => parts.push({ w, h })); }); return parts; }
+/* the words on the cover: headline lines (open loop, never the ending), a curiosity strap, a sticker and the button text */
+function coverCopy(st, d, kind) {
+  const isl = kind === 'isl', h = hashStr(String(st.title || d.l1 || '') + kind);
+  const stickers = isl ? ['শেষটা হৃদয় ছুঁয়ে যায়', 'চোখ ভিজে যাবে', 'এই শিক্ষা বদলে দেবে', 'ঈমান জাগানো গল্প', 'একটু থামুন, শুনুন', 'মন ভালো হয়ে যাবে'] : ['শেষটা কেউ ভাবেনি', 'এরপর যা হলো…', 'চোখ ভিজে যাবে', 'মন ছুঁয়ে যাবে', 'ভাবতে বাধ্য করবে', 'এই গল্প থেকে যাবে'];
+  const ctas = isl ? ['শেষ পর্যন্ত দেখুন', 'পুরোটা দেখুন', 'শেষটা জানুন'] : ['শেষটা না দেখলে মিস করবেন', 'শেষ পর্যন্ত দেখুন', 'এরপর কী হলো দেখুন'];
+  let l1 = String(d.l1 || '').trim(), l2 = String(d.l2 || '').trim();
+  if (!l1 && !l2) { const w = String(st.title || '').replace(/[{}]/g, '').split(/\s+/).filter(Boolean); const cut = Math.ceil(w.length / 2); l1 = w.slice(0, cut).join(' '); l2 = w.slice(cut).join(' '); }
+  if (!/\{/.test(l1 + l2)) { const tgt = l2 || l1, w = tgt.split(/\s+/); const k = w.length > 2 ? 2 : 1; const m = w.slice(0, w.length - k).join(' ') + (w.length > k ? ' ' : '') + '{' + w.slice(w.length - k).join(' ') + '}'; if (l2) l2 = m; else l1 = m; }
+  const lines = [covParts(l1), covParts(l2)].filter(l => l.length);
+  const last = lines[lines.length - 1], lp = last[last.length - 1]; lp.w = lp.w.replace(/[।.…]+$/, '');
+  if (!/[?!…]$/.test(lp.w)) lp.w += (/কেন|কী|কি|কোথায়|কীভাবে|কে$|কত/.test(lines.flat().map(p => p.w).join(' ')) ? '?' : '…');
+  return { lines, strap: String(d.ctx || '').replace(/[{}]/g, '').trim(), sticker: stickers[h % stickers.length], cta: ctas[(h >>> 3) % ctas.length], q: /\?$/.test(lp.w) };
+}
+function covRays(c, cx, cy, n, len, col, alpha, rot) {
+  c.save(); c.translate(cx, cy); c.rotate(rot || 0); const g = c.createRadialGradient(0, 0, 40, 0, 0, len); g.addColorStop(0, col.replace('A', String(alpha))); g.addColorStop(1, col.replace('A', '0')); c.fillStyle = g;
+  for (let i = 0; i < n; i++) { const a0 = i * 2 * Math.PI / n, a1 = a0 + Math.PI / n * .8; c.beginPath(); c.moveTo(0, 0); c.lineTo(Math.cos(a0) * len, Math.sin(a0) * len); c.lineTo(Math.cos(a1) * len, Math.sin(a1) * len); c.closePath(); c.fill(); } c.restore();
+}
+/* headline: huge, outlined, key words on a tilted sticker (mode 'box') or glowing gold (mode 'gold'); returns the bottom y */
+function covHeadline(c, lines, cx, y, o) {
+  const font = o.font || FONT_BN, weight = o.weight || 800; let size = o.size; const size0 = o.size;
+  const meas = sz => { c.font = `${weight} ${sz}px ${font}, ${FONT_FALLBACK}`; const sp = c.measureText(' ').width * .85; return lines.map(l => { const ws = l.map(p => c.measureText(p.w).width); return { sp, ws, tot: ws.reduce((a, b) => a + b, 0) + sp * (ws.length - 1) + (o.mode === 'box' ? l.filter(p => p.h).length * sz * .3 : 0) }; }); };
+  const lhK = o.lh || 1.2, maxH = o.maxH || 1e9; let M = meas(size); const fits = (m, sz, n) => Math.max(...m.map(q => q.tot)) <= o.maxW && n * sz * lhK <= maxH;
+  while (!fits(M, size, lines.length) && size > size0 * .74 && size > (o.minSize || 56)) { size -= 4; M = meas(size); } // 1) keep the lines as written, a bit smaller
+  if (!fits(M, size, lines.length)) { // 2) too long: re-wrap the words into more lines and keep the letters big
+    const all = lines.flat(), maxL = o.maxLines || 3; let best = null;
+    for (let sz = size0; sz >= (o.minSize || 56) && !best; sz -= 4) { c.font = `${weight} ${sz}px ${font}, ${FONT_FALLBACK}`; const sp = c.measureText(' ').width * .85, padW = p => o.mode === 'box' && p.h ? sz * .3 : 0, rows = [[]]; let w0 = 0, ok = true;
+      all.forEach(p => { const ww = c.measureText(p.w).width + padW(p); if (ww > o.maxW) ok = false; if (rows[rows.length - 1].length && w0 + sp + ww > o.maxW) { rows.push([]); w0 = 0; } rows[rows.length - 1].push(p); w0 += (w0 ? sp : 0) + ww; });
+      if (ok && rows.length <= maxL && rows.length * sz * lhK <= maxH) best = { sz, rows }; }
+    if (!best) { const sz = o.minSize || 56; best = { sz, rows: [all] }; }
+    lines = best.rows; size = best.sz; M = meas(size); }
+  const lh = size * (o.lh || 1.2); c.save(); c.textAlign = 'left'; c.lineJoin = 'round'; c.miterLimit = 2;
+  lines.forEach((l, li) => { const m = M[li], base = y + lh * li + size * .88; let x = cx - m.tot / 2;
+    l.forEach((p, i) => { const w = m.ws[i];
+      if (p.h && o.mode === 'box') { const pad = size * .15, rot = (li % 2 ? .02 : -.025); c.save(); c.translate(x + pad + w / 2, base - size * .3); c.rotate(rot);
+        c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 18; c.shadowOffsetY = 8; rr(c, -w / 2 - pad, -size * .62, w + pad * 2, size * 1.06, size * .16, o.boxFill); c.shadowColor = 'transparent'; rr(c, -w / 2 - pad, -size * .62, w + pad * 2, size * 1.06, size * .16, null, o.boxLine || 'rgba(255,255,255,.85)', Math.max(3, size * .035));
+        c.font = `${weight} ${size}px ${font}, ${FONT_FALLBACK}`; c.lineWidth = size * .08; c.strokeStyle = 'rgba(0,0,0,.35)'; c.strokeText(p.w, -w / 2, size * .3); c.fillStyle = o.boxText || '#fff'; c.fillText(p.w, -w / 2, size * .3); c.restore(); x += w + pad * 2 + m.sp; return; }
+      c.font = `${weight} ${size}px ${font}, ${FONT_FALLBACK}`; c.save();
+      c.lineWidth = size * (o.strokeK || .17); c.strokeStyle = o.stroke || 'rgba(0,0,0,.95)'; c.strokeText(p.w, x, base);
+      if (p.h && o.mode === 'gold') { const g = c.createLinearGradient(0, base - size * .85, 0, base + size * .1); g.addColorStop(0, o.hiTop || '#FFF3B0'); g.addColorStop(.55, o.hi || '#FFD15C'); g.addColorStop(1, o.hiBot || '#E09B1F'); c.shadowColor = o.glow || 'rgba(255,200,80,.7)'; c.shadowBlur = size * .35; c.fillStyle = g; }
+      else { c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 10; c.shadowOffsetY = 5; c.fillStyle = o.text || '#fff'; }
+      c.fillText(p.w, x, base); c.restore();
+      if (p.h && o.mode === 'gold' && o.underline !== false) { c.save(); c.fillStyle = o.hi || '#FFD15C'; c.beginPath(); c.moveTo(x - 4, base + size * .1); c.quadraticCurveTo(x + w / 2, base + size * .26, x + w + 4, base + size * .08); c.quadraticCurveTo(x + w / 2, base + size * .2, x - 4, base + size * .1); c.fill(); c.restore(); }
+      x += w + m.sp; }); });
+  c.restore(); return y + lh * lines.length;
+}
+function covChip(c, text, cx, cy, size, bg, fg, rot, line) {
+  c.save(); c.font = `800 ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; const w = c.measureText(text).width + size * 1.3, h = size * 1.55; c.translate(cx, cy); c.rotate(rot || 0);
+  c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 20; c.shadowOffsetY = 8; rr(c, -w / 2, -h / 2, w, h, h * .28, bg); c.shadowColor = 'transparent'; if (line) rr(c, -w / 2 + 6, -h / 2 + 6, w - 12, h - 12, h * .22, null, line, 2.5);
+  c.fillStyle = fg; c.textAlign = 'center'; c.fillText(text, 0, size * .36); c.restore(); return w;
+}
+function covCTA(c, text, cx, cy, size, bg, fg, ring) {
+  c.save(); c.font = `800 ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; const tw0 = c.measureText(text).width, w = tw0 + size * 2.9, h = size * 1.9, x = cx - w / 2, y = cy - h / 2;
+  c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 24; c.shadowOffsetY = 10; rr(c, x, y, w, h, h / 2, bg); c.shadowColor = 'transparent'; if (ring) rr(c, x + 6, y + 6, w - 12, h - 12, h / 2 - 6, null, ring, 3);
+  const px = x + h * .62, py = cy; circ(c, px, py, h * .3, fg); P(c, `M${px - h * .08},${py - h * .16} L${px + h * .17},${py} L${px - h * .08},${py + h * .16}Z`, bg);
+  c.fillStyle = fg; c.textAlign = 'left'; c.fillText(text, x + h * 1.1, cy + size * .36); P(c, `M${x + w - h * .62},${cy - h * .14} l${h * .14},${h * .14} l${-h * .14},${h * .14}`, null, fg, 5); c.restore();
+}
+/* ---------- গল্প cover (short videos): the most emotional moment in close-up, light burst, curiosity strap, huge headline, watch button ---------- */
+function drawCoverGolpo(c, renderer) {
+  const st = renderer.story, tl = renderer.tl, d = coverData(st), Sx = (typeof S !== 'undefined' ? S : {}), cp = coverCopy(st, d, 'story');
+  const pick = coverPickShot(st, tl), sc = st.scenes[pick.si] || {}, cast = sc.cast || [], n = Math.min(3, cast.length || 1);
+  let who = cast[0]; try { const sh = tl.shots[renderer.shotAt(pick.t)], ln = sh && sc.lines[sh.li]; if (ln && ln.who && cast.includes(ln.who)) who = ln.who; } catch (e) { }
+  const i = Math.max(0, cast.indexOf(who)), pos = CAST_POS[n] || CAST_POS[1], P0 = pos[i] || pos[0], cr = who && renderer.chars[who], kf = cr ? (cr.L.kid ? .74 : cr.L.teen ? .92 : 1) : 1;
+  const z = cast.length ? (n === 1 ? 1.72 : 1.6) : 1.12, headY = P0[1] - 300 * P0[2] * kf;
+  c.save();
+  const off = document.createElement('canvas'); off.width = W; off.height = H; const oc = off.getContext('2d', { alpha: false });
+  renderer._camOverride = clampCam(cast.length ? { x: P0[0], y: headY + 330 / z, z } : { x: 540, y: 1000, z }); try { renderer.drawScene(oc, pick.si, pick.t); } catch (e) { rect(oc, 0, 0, W, H, '#E9D9BE'); } renderer._camOverride = null;
+  c.filter = 'saturate(1.32) contrast(1.12)'; c.drawImage(off, 0, 0, W, H); c.filter = 'none';
+  // warm light burst behind the face + dark edges so the face and the words pop
+  c.save(); c.globalCompositeOperation = 'soft-light'; c.fillStyle = 'rgba(255,170,90,.34)'; c.fillRect(0, 0, W, H); c.restore();
+  c.save(); c.globalCompositeOperation = 'screen'; covRays(c, 540, 600, 14, 1500, 'rgba(255,226,150,A)', .17, .2); c.restore();
+  const vg = c.createRadialGradient(540, 640, 260, 540, 900, 1250); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(10,2,0,.55)'); c.fillStyle = vg; c.fillRect(0, 0, W, H);
+  const g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(18,6,2,.5)'); g.addColorStop(.2, 'rgba(18,6,2,0)'); g.addColorStop(.46, 'rgba(18,6,2,.08)'); g.addColorStop(.64, 'rgba(18,6,2,.78)'); g.addColorStop(1, 'rgba(12,4,1,.95)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+  // sticker (top-left) + logo (top-right)
+  covChip(c, cp.sticker, 80 + 250, 170, 44, '#FFD23F', '#2A1500', -.05, 'rgba(120,60,0,.35)');
+  if (Sx.watermark !== false) { c.save(); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 14; drawLogo(c, W - 120, 170, 96, Sx.logo || 'TF'); c.restore(); }
+  // question mark when the hook is a question
+  if (cp.q) { c.save(); c.translate(900, 560); c.rotate(.2); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 24; circ(c, 0, 0, 92, '#E5281E', '#fff', 10); c.shadowColor = 'transparent'; txt(c, '?', 0, 52, 150, '#fff', 800, 'center', FONT_EN); c.restore(); }
+  // strap (the script's teaser) just above the headline
+  let y = 960; if (cp.strap) { c.save(); c.font = `800 46px ${FONT_BN}, ${FONT_FALLBACK}`; const sw = Math.min(W - 90, c.measureText('“' + cp.strap + '”').width + 90); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 20; c.shadowOffsetY = 8; rr(c, 540 - sw / 2, y, sw, 92, 18, '#B3261E'); c.shadowColor = 'transparent'; rr(c, 540 - sw / 2 + 7, y + 7, sw - 14, 78, 12, null, 'rgba(255,220,170,.5)', 2.5); richLine(c, '“' + cp.strap + '”', 540, y + 61, 46, sw - 60, '#FFF3E0', '#FFC857', FONT_BN, 800); c.restore(); y += 120; }
+  const bot = covHeadline(c, cp.lines, 540, y + 6, { size: 150, minSize: 84, maxW: 940, maxH: 1500 - y, mode: 'box', boxFill: '#E5281E', lh: 1.17 });
+  covCTA(c, cp.cta, 540, Math.max(bot + 90, 1560), 52, '#FFD23F', '#2A1500', 'rgba(120,60,0,.4)');
   c.restore();
 }
 /* thumbnail / cover */

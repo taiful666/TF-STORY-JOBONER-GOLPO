@@ -428,5 +428,5 @@
     const ms = $('mStyle'); if (ms) { ms.innerHTML = ''; Object.entries(MUSIC_STYLES).forEach(([k, v]) => ms.append(el('option', { value: k, text: v }))); ms.value = MUSIC_STYLES[S.music] ? S.music : 'isl_auto'; }
   };
   // pieces shared with islamic/art2.js (more people animations, places, animals, long-video captions)
-  window.ISL_ART_API = { ANIMALS, beast, legs, drawAnimal, hand, prayer, poseAt, parsePlus, noFace, getVar: () => VAR, pickVariant };
+  window.ISL_ART_API = { pickCoverShot, drawCoverClassic: drawCoverIslamic, ANIMALS, beast, legs, drawAnimal, hand, prayer, poseAt, parsePlus, noFace, getVar: () => VAR, pickVariant };
 })();
