@@ -6113,6 +6113,7 @@ async function mixWindow(story, tl, audio, S, w0, w1, nch) {
       else play('pop', t0);
     }
   });
+  if (window.TF_MOTION_SFX) { try { window.TF_MOTION_SFX(story, tl, S, play); } catch (e) { console.error('motion sfx', e); } }
   return await ctx.startRendering();
 }
 function audioBufferToWav(buf) {
@@ -8790,6 +8791,7 @@ function initShareSheet() {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
 </script>
+<script src="fx/motion.js"></script>
 
 </body>
 </html>
