@@ -13,7 +13,7 @@
   window.ISL_ART_PATCH = function () {
     if (_patch) _patch();
     const A = window.ISL_ART_API; if (!A) { console.warn('ISL_ART_API missing'); return; }
-    [patchPeople, patchProps, patchResources, patchCaptions, patchCover].forEach(f => { try { f(A); } catch (e) { console.error('isl art2:', f.name, e); } });
+    [patchPeople, patchProps, patchResources, patchCaptions, patchCover, patchCoverSymbol].forEach(f => { try { f(A); } catch (e) { console.error('isl art2:', f.name, e); } });
   };
   window.ISL_ART_DOM = function () { if (_dom) _dom(); try { domTweaks(); } catch (e) { console.error(e); } };
 
@@ -392,8 +392,122 @@
     }
   }
 
+  /* =========================================================================================
+     5b. THUMBNAIL "প্রতীক ফ্রেম" — no people at all: one big Islamic symbol (Kaaba / mosque / Quran / lantern / crescent)
+         in a glowing gold medallion, an ornamental gold frame around the whole card and a huge hook headline.
+     ========================================================================================= */
+  const SYM_RULES = [
+    ['kaaba', /কাবা|কা'বা|হজ্জ?|ওমরা|মক্কা|তাওয়াফ|হাজরে|kaaba|hajj|umrah/i],
+    ['mosque', /মসজিদ|নামাজ|সালাত|আজান|জামাত|জামা'আত|ইমাম|মিম্বর|জুমা|মিনার|mosque|masjid|salah|azan/i],
+    ['lantern', /রমজান|রমাদান|রোজা|ইফতার|সেহরি|তারাবি|কদর|ঈদ|ramadan|iftar|sehri|eid/i],
+    ['quran', /কুরআন|কোরআন|আয়াত|সূরা|তিলাওয়াত|হাফেজ|quran/i]
+  ];
+  function pickSymbol(st) {
+    const ov = st.cover && st.cover.symbol; if (ov && SYMS[ov]) return ov;
+    const bag = []; const add = (s, w) => { if (s) bag.push([String(s), w]); };
+    add(st.title, 4); add(st.thumb, 4); if (st.cover) add([st.cover.l1, st.cover.l2, st.cover.ctx].join(' '), 4);
+    (st.scenes || []).forEach(sc => { add(sc.place, 1); add(sc.ref, 1); (sc.lines || []).forEach(l => add(l.cap || l.text, 1)); });
+    let best = 'crescent', bs = 0;
+    SYM_RULES.forEach(([k, re]) => { const g = new RegExp(re.source, 'gi'); let s = 0; bag.forEach(([t, w]) => { s += (t.match(g) || []).length * w; }); if (s > bs) { bs = s; best = k; } });
+    return best;
+  }
+  function star5(c, x, y, r, rot) { c.beginPath(); for (let k = 0; k < 10; k++) { const a = (rot || 0) + k * Math.PI / 5 - Math.PI / 2, q = k % 2 ? r * .42 : r; k ? c.lineTo(x + Math.cos(a) * q, y + Math.sin(a) * q) : c.moveTo(x + Math.cos(a) * q, y + Math.sin(a) * q); } c.closePath(); }
+  function miniCrescent(c, x, y, r, fill) { c.save(); c.translate(x, y); c.fillStyle = fill; c.beginPath(); c.arc(0, 0, r, 0, 7); c.clip(); c.beginPath(); c.rect(-r * 2, -r * 2, r * 4, r * 4); c.arc(r * .55, -r * .25, r * .84, 0, 7, true); c.fill('evenodd'); c.restore(); }
+  /* every symbol is drawn around (0,0) inside a box of about ±250; g = { gold, grad(y0,y1) }, pal = palette */
+  const SYMS = {
+    crescent(c, g, pal) {
+      c.save(); c.translate(-30, 0); c.shadowColor = g.gold; c.shadowBlur = 30; c.fillStyle = g.grad(-215, 215);
+      c.save(); c.beginPath(); c.arc(0, 0, 215, 0, 7); c.clip(); c.beginPath(); c.rect(-300, -300, 600, 600); c.arc(82, -26, 184, 0, 7, true); c.fill('evenodd'); c.restore();
+      c.fillStyle = g.grad(-100, 60); star5(c, 130, -26, 68, .2); c.fill(); c.restore();
+    },
+    mosque(c, g, pal) {
+      const gr = g.grad(-210, 200); c.save(); c.shadowColor = g.gold; c.shadowBlur = 24;
+      [-1, 1].forEach(s => { const x = s * 172; rr(c, x - 19, -70, 38, 260, 4, gr); rr(c, x - 31, -82, 62, 16, 6, gr); P(c, `M${x - 21},-82 L${x},-196 L${x + 21},-82Z`, gr); circ(c, x, -204, 7, gr); });
+      rr(c, -135, 70, 270, 120, 6, gr); P(c, 'M-125,72 C-125,-52 -62,-112 0,-112 C62,-112 125,-52 125,72Z', gr);
+      line(c, 0, -112, 0, -164, g.gold, 8); miniCrescent(c, -4, -190, 34, g.gold); c.restore();
+      line(c, -125, 72, 125, 72, 'rgba(0,0,0,.3)', 5);
+      P(c, archPath(-38, 38, 108, 190, 140), pal[1]);
+      [-108, -62, 62, 108].forEach(x => P(c, archPath(x - 15, x + 15, 100, 160, 120), '#FFE7A0'));
+      [-40, 0, 40].forEach(x => P(c, archPath(x - 11, x + 11, -44, 20, -22), '#FFE7A0'));
+    },
+    kaaba(c, g, pal) {
+      c.save(); for (let i = 0; i < 4; i++) ell(c, 0, 172, 150 + i * 38, 34 + i * 9, null, `rgba(255,240,200,${.4 - i * .09})`, 4); c.restore();
+      const fg = c.createLinearGradient(0, -60, 0, 170); fg.addColorStop(0, '#2E2E2E'); fg.addColorStop(1, '#0A0A0A');
+      c.save(); c.shadowColor = g.gold; c.shadowBlur = 28;
+      P(c, 'M-150,-60 L50,-60 L165,-105 L-35,-105Z', '#3C3C3C', g.gold, 5);
+      P(c, 'M-150,-60 L50,-60 L50,170 L-150,170Z', fg, g.gold, 5);
+      P(c, 'M50,-60 L165,-105 L165,125 L50,170Z', '#121212', g.gold, 5); c.restore();
+      P(c, 'M-150,-18 L50,-18 L50,26 L-150,26Z', g.grad(-18, 26)); P(c, 'M50,-18 L165,-63 L165,-19 L50,26Z', g.grad(-60, 26));
+      for (let i = 0; i < 9; i++) rr(c, -140 + i * 21, -8, 11, 24, 3, 'rgba(90,50,0,.55)');
+      P(c, archPath(-104, -34, 62, 170, 100), g.grad(62, 170)); P(c, archPath(-92, -46, 80, 170, 108), 'rgba(60,30,0,.55)');
+    },
+    quran(c, g, pal) {
+      c.save(); c.globalCompositeOperation = 'screen'; covRays(c, 0, 10, 12, 310, 'rgba(255,236,170,A)', .4, .1); c.restore();
+      c.save(); c.shadowColor = g.gold; c.shadowBlur = 36; c.fillStyle = g.grad(-230, -70); star8(c, 0, -150, 80); c.fill(); c.restore();
+      star8(c, 0, -150, 46); c.fillStyle = 'rgba(255,255,255,.4)'; c.fill();
+      P(c, 'M-100,198 L100,198 L66,252 L-66,252Z', g.grad(198, 252));
+      c.save(); c.shadowColor = g.gold; c.shadowBlur = 20; P(c, 'M-176,52 C-110,26 -48,32 0,62 C48,32 110,26 176,52 L176,194 C110,170 48,176 0,212 C-48,176 -110,170 -176,194Z', '#0E5B3B', g.gold, 5); c.restore();
+      const pg = c.createLinearGradient(0, 40, 0, 200); pg.addColorStop(0, '#FFF9E8'); pg.addColorStop(1, '#EBD9A8');
+      P(c, 'M-6,56 C-56,24 -116,22 -162,40 L-162,176 C-116,158 -56,160 -6,200Z', pg); P(c, 'M6,56 C56,24 116,22 162,40 L162,176 C116,158 56,160 6,200Z', pg);
+      for (let i = 0; i < 6; i++) { const y = 78 + i * 18, e = i === 5 ? 70 : 0; line(c, -146, y, -26 - e, y + 6, i === 0 ? '#B8860B' : 'rgba(90,60,20,.55)', i === 0 ? 6 : 4); line(c, 26 + e, y + 6, 146, y, i === 0 ? '#B8860B' : 'rgba(90,60,20,.55)', i === 0 ? 6 : 4); }
+      line(c, 0, 62, 0, 208, g.gold, 5);
+    },
+    lantern(c, g, pal) {
+      const gl = c.createRadialGradient(0, 0, 10, 0, 0, 250); gl.addColorStop(0, 'rgba(255,214,120,.55)'); gl.addColorStop(1, 'rgba(255,214,120,0)'); c.fillStyle = gl; c.fillRect(-260, -260, 520, 520);
+      const gr = g.grad(-230, 240); line(c, 0, -262, 0, -222, g.gold, 6); circ(c, 0, -264, 9, null, g.gold, 5);
+      c.save(); c.shadowColor = g.gold; c.shadowBlur = 22;
+      P(c, 'M-78,-168 L-34,-222 L34,-222 L78,-168Z', gr); rr(c, -88, -170, 176, 26, 8, gr);
+      const bg = c.createRadialGradient(0, 0, 10, 0, 0, 150); bg.addColorStop(0, '#FFF4C2'); bg.addColorStop(.6, '#FFC857'); bg.addColorStop(1, '#E08A1E');
+      P(c, 'M-84,-144 L-112,10 L-84,150 L84,150 L112,10 L84,-144Z', bg, g.gold, 6); c.restore();
+      [-40, 40].forEach(x => P(c, `M${x},-144 Q${x * 1.3},10 ${x},150`, null, '#8A4B0E', 5)); [-60, 70].forEach(y => line(c, -96, y, 96, y, '#8A4B0E', 5));
+      star8(c, 0, 4, 52); c.fillStyle = '#B5540F'; c.fill(); star8(c, 0, 4, 28); c.fillStyle = '#FFE9A0'; c.fill();
+      c.save(); c.shadowColor = g.gold; c.shadowBlur = 18; rr(c, -92, 150, 184, 24, 8, gr); P(c, 'M-92,174 L-44,226 L44,226 L92,174Z', gr); circ(c, 0, 240, 13, gr); c.restore();
+    }
+  };
+  function patchCoverSymbol(A) {
+    const _dc = drawCover;
+    drawCover = function (c, R, k) { const key = k || S.coverTheme; if (key === 'islamic_sym') return coverSym(c, R); return _dc(c, R, k); };
+    try { if (!localStorage.getItem('tf_isl_v5')) { S.coverTheme = 'islamic_sym'; S.coverFirstFrame = true; saveSettings(); localStorage.setItem('tf_isl_v5', '1'); } } catch (e) { }
+    function coverSym(c, R) {
+      const st = R.story; if (!st) return; const d = coverData(st), Sx = (typeof S !== 'undefined' ? S : {}), cp = coverCopy(st, d, 'isl');
+      const V = A.getVar(), pal = PAL[V.name] || PAL['সবুজ-সোনালি'], gold = '#F2C14E', sym = pickSymbol(st);
+      const g = { gold, grad: (y0, y1) => { const q = c.createLinearGradient(0, y0, 0, y1); q.addColorStop(0, '#FFF3B8'); q.addColorStop(.5, gold); q.addColorStop(1, '#A8691A'); return q; } };
+      const CX = 540, CY = 610, MR = 300;
+      c.save();
+      // background: deep colour, khatam star lattice, glow behind the medallion, rays, vignette
+      const bg = c.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, pal[0]); bg.addColorStop(1, pal[1]); c.fillStyle = bg; c.fillRect(0, 0, W, H);
+      c.save(); c.globalAlpha = .08; c.strokeStyle = gold; c.lineWidth = 2.4; for (let y = 0, r = 0; y < H + 120; y += 120, r++) for (let x = (r % 2) * 60; x < W + 120; x += 120) { star8(c, x, y, 54); c.stroke(); } c.restore();
+      const gl = c.createRadialGradient(CX, CY, 80, CX, CY, 760); gl.addColorStop(0, 'rgba(255,214,120,.42)'); gl.addColorStop(1, 'rgba(255,214,120,0)'); c.fillStyle = gl; c.fillRect(0, 0, W, H);
+      c.save(); c.globalCompositeOperation = 'screen'; covRays(c, CX, CY, 16, 1500, 'rgba(255,230,160,A)', .15, .12); c.restore();
+      const vg = c.createRadialGradient(540, 760, 380, 540, 960, 1300); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.55)'); c.fillStyle = vg; c.fillRect(0, 0, W, H);
+      // ornamental frame around the whole card
+      c.save(); c.strokeStyle = gold; c.shadowColor = gold; c.shadowBlur = 18; c.lineWidth = 9; c.beginPath(); c.roundRect(40, 40, W - 80, H - 80, 46); c.stroke(); c.shadowBlur = 0; c.lineWidth = 3; c.globalAlpha = .8; c.beginPath(); c.roundRect(68, 68, W - 136, H - 136, 30); c.stroke(); c.restore();
+      [[40, 40], [W - 40, 40], [40, H - 40], [W - 40, H - 40]].forEach(([x, y]) => { circ(c, x, y, 36, pal[0], gold, 4); c.save(); c.fillStyle = gold; star8(c, x, y, 25); c.fill(); c.restore(); });
+      [[540, 40], [540, H - 40], [40, H / 2], [W - 40, H / 2]].forEach(([x, y]) => { circ(c, x, y, 24, pal[1], gold, 3); c.save(); c.fillStyle = gold; star8(c, x, y, 17); c.fill(); c.restore(); });
+      // top: source badge + logo
+      const ay = (st.scenes || []).find(x => x.type === 'ayah'), isQ = ay ? !/বুখারি|হাদিস|মুসলিম|তিরমিজি|মাজাহ|মুফরাদ/.test(ay.ref || '') : true, badge = isQ ? 'কুরআনের আলোয়' : 'হাদিসের আলোয়';
+      c.save(); c.font = `400 44px TFGalada, ${FONT_FALLBACK}`; const bw = c.measureText(badge).width + 74; c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 16; rr(c, 104, 106, bw, 78, 39, V.badge); c.shadowColor = 'transparent'; rr(c, 111, 113, bw - 14, 64, 32, null, gold, 3); txt(c, badge, 104 + bw / 2, 160, 44, '#F6E6B0', 400, 'center', 'TFGalada'); c.restore();
+      if (Sx.watermark !== false) { c.save(); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 14; drawLogo(c, W - 136, 146, 92, Sx.logo || 'প্র'); c.restore(); }
+      // the medallion: glowing disc, double gold ring with a band of little stars, then the symbol
+      c.save(); c.shadowColor = gold; c.shadowBlur = 70; circ(c, CX, CY, MR, pal[1]); c.restore();
+      circ(c, CX, CY, MR, pal[0]); const dg = c.createRadialGradient(CX, CY - 40, 10, CX, CY, MR); dg.addColorStop(0, 'rgba(255,226,150,.42)'); dg.addColorStop(1, 'rgba(255,226,150,0)'); c.fillStyle = dg; c.beginPath(); c.arc(CX, CY, MR, 0, 7); c.fill();
+      c.save(); c.shadowColor = gold; c.shadowBlur = 24; circ(c, CX, CY, MR, null, gold, 12); c.restore(); circ(c, CX, CY, 262, null, gold, 3);
+      c.save(); c.fillStyle = gold; for (let i = 0; i < 16; i++) { const a = i / 16 * Math.PI * 2; star8(c, CX + Math.cos(a) * 281, CY + Math.sin(a) * 281, 13); c.fill(); } c.restore();
+      c.save(); c.translate(CX, CY); c.scale(.95, .95); try { SYMS[sym](c, g, pal); } catch (e) { console.warn('symbol', sym, e); } c.restore();
+      // sticker on the ring, strap, huge headline, divider, button
+      covChip(c, cp.sticker, 350, CY + MR - 8, 44, gold, '#1A1405', -.05, 'rgba(60,40,0,.4)');
+      let y = CY + MR + 78; if (cp.strap) { c.save(); c.font = `800 44px ${FONT_BN}, ${FONT_FALLBACK}`; const sw = Math.min(W - 160, c.measureText('“' + cp.strap + '”').width + 90); rr(c, 540 - sw / 2, y, sw, 86, 43, 'rgba(0,0,0,.35)', gold, 3); richLine(c, '“' + cp.strap + '”', 540, y + 57, 44, sw - 60, '#FFF6DE', gold, FONT_BN, 800); c.restore(); y += 108; }
+      const bot = covHeadline(c, cp.lines, 540, y, { font: V.font, weight: 700, size: 156, minSize: 70, maxW: 900, maxH: 1640 - y, mode: 'gold', hi: V.hookHi, hiTop: '#FFF7CE', hiBot: gold, glow: 'rgba(255,200,80,.65)', stroke: 'rgba(3,16,10,.96)', lh: 1.18 });
+      const dy = Math.min(Math.max(bot + 26, 1580), 1670); c.save(); c.globalAlpha = .85; line(c, 250, dy, 500, dy, gold, 3); line(c, 580, dy, 830, dy, gold, 3); c.fillStyle = gold; star8(c, 540, dy, 18); c.fill(); c.restore();
+      covCTA(c, cp.cta, 540, dy + 108, 50, gold, '#1A1405', 'rgba(60,40,0,.45)');
+      c.restore();
+    }
+  }
+
   function domTweaks() {
     const ct = $('coverTheme');
+    if (ct && !ct.querySelector('option[value="islamic_sym"]')) ct.prepend(el('option', { value: 'islamic_sym', text: 'ইসলামিক প্রতীক ফ্রেম (বড় প্রতীক + আকর্ষণীয় হেডলাইন, মানুষ নেই)' }));
+    if (ct) ct.value = S.coverTheme || 'islamic_sym';
     if (ct) { const o = ct.querySelector('option[value="islamic"]'); if (o) o.textContent = 'ইসলামিক খিলান (মিহরাব ফ্রেম + কৌতূহলী হেডলাইন)'; if (!ct.querySelector('option[value="islamic_classic"]')) ct.append(el('option', { value: 'islamic_classic', text: 'ইসলামিক আগের ধাঁচ (পূর্ণ ছবি + নিচে লেখা)' })); ct.value = S.coverTheme || 'islamic'; }
     const sel = $('sCapLook');
     if (sel && !sel.querySelector('option[value="longkt"]')) { sel.prepend(el('option', { value: 'longkt', text: 'লং ভিডিও স্টাইল (বড় শব্দ, একটা একটা করে, সোনালি হাইলাইট)' })); sel.value = S.capLook || 'longkt'; }
