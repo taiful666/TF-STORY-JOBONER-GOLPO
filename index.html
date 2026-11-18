@@ -4884,6 +4884,57 @@ function drawProp(c, kind, s, t, big) {
   c.restore();
 }
 
+/* ===================== MORE PROPS (food, containers, daily things, story objects) ===================== */
+const PROPS_EXTRA = ['box', 'chest', 'rasgulla', 'jilapi', 'laddu', 'cake', 'tray', 'rice_plate', 'glass', 'bottle', 'teapot', 'pot', 'diya', 'umbrella', 'suitcase', 'newspaper', 'notebook', 'id_card', 'calculator', 'clock', 'torch', 'hammer', 'fan', 'bucket', 'mango', 'apple', 'banana', 'milk', 'honey', 'sword', 'shield', 'flag', 'crown', 'lock', 'trophy', 'heart', 'wallet', 'tiffin', 'shopping_bag', 'lota', 'topi', 'map'];
+PROPS_EXTRA.forEach(k => { if (!PROPS.includes(k)) PROPS.push(k); });
+const PROP_BN_EXTRA = { box: 'বাক্স / পার্সেল', chest: 'ধনসম্পদের সিন্দুক', rasgulla: 'মিষ্টির বাটি (রসগোল্লা)', jilapi: 'জিলাপি', laddu: 'লাড্ডু / মিষ্টি', cake: 'কেক', tray: 'খাবারের ট্রে', rice_plate: 'ভাতের থালা', glass: 'পানির গ্লাস', bottle: 'পানির বোতল', teapot: 'চায়ের কেটলি', pot: 'হাঁড়ি', diya: 'প্রদীপ', umbrella: 'ছাতা', suitcase: 'সুটকেস', newspaper: 'খবরের কাগজ', notebook: 'খাতা', id_card: 'আইডি / এনআইডি কার্ড', calculator: 'ক্যালকুলেটর', clock: 'ঘড়ি', torch: 'টর্চ', hammer: 'হাতুড়ি', fan: 'হাতপাখা', bucket: 'বালতি', mango: 'আম', apple: 'আপেল', banana: 'কলা', milk: 'দুধের গ্লাস', honey: 'মধুর বোতল', sword: 'তলোয়ার', shield: 'ঢাল', flag: 'পতাকা', crown: 'মুকুট', lock: 'তালা', trophy: 'ট্রফি', heart: 'হৃদয়', wallet: 'টাকার পার্স', tiffin: 'টিফিন বক্স', shopping_bag: 'কেনাকাটার ব্যাগ', lota: 'বদনা / লোটা', topi: 'টুপি', map: 'মানচিত্র' };
+const PX = {
+  box(c) { rr(c, -70, -38, 140, 94, 6, '#C99A5B', '#9A6F3A', 4); rr(c, -76, -54, 152, 28, 6, '#D9AE72', '#9A6F3A', 4); rect(c, -13, -54, 26, 110, '#EBD8A8'); rr(c, 26, 10, 36, 30, 3, '#fff', '#bbb', 2); line(c, 31, 21, 57, 21, '#999', 3); line(c, 31, 30, 51, 30, '#999', 3); },
+  chest(c, t) { rr(c, -72, -8, 144, 66, 8, '#7A4A24', '#4E2E14', 4); P(c, 'M-72,-8 Q-72,-68 0,-68 Q72,-68 72,-8Z', '#8F5A2C', '#4E2E14', 4); rect(c, -72, -14, 144, 12, '#C9A24A'); rect(c, -8, -68, 16, 126, '#C9A24A'); rr(c, -13, -18, 26, 30, 5, '#E3C36A', '#9A7A2A', 3); circ(c, 0, -3, 4, '#4E2E14'); sparkle(c, 46, -62, 14, t || 0); sparkle(c, -52, -50, 10, t || 0, 2); },
+  rasgulla(c) { P(c, 'M-62,-8 Q-56,48 0,52 Q56,48 62,-8Z', '#F6F1E6', '#D8CDB5', 4); ell(c, 0, -8, 62, 13, '#F3D98A'); [[-30, -14], [0, -18], [30, -14], [-15, -32], [15, -32]].forEach(([x, y]) => circ(c, x, y, 19, '#FFFDF4', '#E8DFC8', 2)); },
+  jilapi(c) { ell(c, 0, 24, 84, 22, '#fff', '#d8d2c4', 4);[[-40, 6], [0, 8], [40, 6], [-20, -16], [20, -16]].forEach(([x, y]) => { circ(c, x, y, 21, null, '#F08A24', 9); circ(c, x, y, 9, null, '#F6A93B', 6); }); },
+  laddu(c) { ell(c, 0, 28, 84, 22, '#fff', '#d8d2c4', 4);[[-38, 8], [0, 10], [38, 8], [-19, -14], [19, -14], [0, -36]].forEach(([x, y]) => { circ(c, x, y, 19, '#F2B33D', '#D98E1F', 2); [[-6, -5], [5, 3], [-2, 8]].forEach(([dx, dy]) => circ(c, x + dx, y + dy, 2.5, '#D98E1F')); }); },
+  cake(c, t) { rr(c, -64, 4, 128, 52, 10, '#F6D9C1', '#D9B89A', 3); rr(c, -64, 4, 128, 16, 8, '#E86A92'); rr(c, -48, -30, 96, 38, 10, '#FFF1E4', '#E6CDB6', 3); for (let i = 0; i < 5; i++) P(c, `M${-44 + i * 22},-30 q4,14 8,0`, '#E86A92'); circ(c, 0, -36, 9, '#C0392B'); [-24, 24].forEach((x, i) => { rr(c, x - 4, -62, 8, 26, 3, i ? '#7FB3D5' : '#F4D35E'); P(c, `M${x},-64 Q${x - 6 + Math.sin((t || 0) * 9 + i) * 2},-76 ${x},-90 Q${x + 6},-76 ${x},-64Z`, '#FFB22E'); }); },
+  tray(c, t) { rr(c, -84, 26, 168, 16, 8, '#8A5A34', '#5E3B1F', 3); ell(c, -36, 22, 38, 11, '#fff', '#d8d2c4', 3); ell(c, -36, 15, 24, 7, '#E8B04B'); P(c, 'M30,-12 L64,-12 L58,20 L36,20Z', '#fff', '#d8d2c4', 3); line(c, 64, -4, 76, 4, '#d8d2c4', 5); steam(c, 47, -22, t || 0); },
+  rice_plate(c, t) { ell(c, 0, 14, 84, 28, '#E7E3DC', '#B9B3A6', 5); ell(c, 0, 14, 66, 20, '#fff'); P(c, 'M-36,14 Q-32,-26 0,-30 Q32,-26 36,14Z', '#FFFDF6', '#E4DFD0', 3); ell(c, 52, 12, 18, 8, '#D98E1F'); ell(c, -54, 12, 16, 7, '#6E9E48'); steam(c, 0, -34, t || 0); },
+  glass(c) { P(c, 'M-28,-52 L28,-52 L21,54 L-21,54Z', 'rgba(205,232,246,.55)', '#9CC3D8', 4); P(c, 'M-24,-22 L24,-22 L19,52 L-19,52Z', 'rgba(110,175,215,.75)'); line(c, -16, -40, -12, 30, 'rgba(255,255,255,.7)', 4); },
+  bottle(c) { rr(c, -22, -20, 44, 84, 10, 'rgba(190,225,245,.75)', '#8BB8D0', 4); rr(c, -12, -44, 24, 28, 6, 'rgba(190,225,245,.75)', '#8BB8D0', 4); rr(c, -14, -56, 28, 14, 4, '#2E86DE'); rr(c, -22, 6, 44, 26, 3, '#fff'); line(c, -12, 19, 12, 19, '#2E86DE', 4); },
+  teapot(c, t) { P(c, 'M-48,0 Q-52,-40 0,-40 Q52,-40 48,0 Q48,40 0,44 Q-48,40 -48,0Z', '#C0392B', '#8E2A20', 4); rr(c, -16, -52, 32, 14, 6, '#8E2A20'); P(c, 'M44,-6 Q82,-8 74,-40', null, '#C0392B', 12); P(c, 'M-48,-14 Q-86,-10 -74,24 Q-66,34 -46,24', null, '#8E2A20', 9); line(c, -30, -10, 30, -10, '#E8B04B', 5); steam(c, 0, -62, t || 0); },
+  pot(c, t) { P(c, 'M-56,-20 Q-72,40 -34,56 L34,56 Q72,40 56,-20Z', '#7E4A2F', '#4E2E1D', 4); ell(c, 0, -20, 56, 12, '#5A3320'); rr(c, -64, -26, 128, 10, 5, '#4E2E1D'); steam(c, -18, -34, t || 0); steam(c, 22, -34, (t || 0) + .5); },
+  diya(c, t) { const g = c.createRadialGradient(46, -8, 4, 46, -8, 90); g.addColorStop(0, 'rgba(255,190,80,.55)'); g.addColorStop(1, 'rgba(255,190,80,0)'); c.fillStyle = g; c.fillRect(-60, -100, 220, 200); P(c, 'M-54,10 Q-30,50 20,40 Q54,34 62,6 Q0,26 -54,10Z', '#C9753A', '#8A4A22', 4); const w = Math.sin((t || 0) * 8) * 3; P(c, `M50,6 Q34,-14 ${50 + w},-48 Q66,-14 50,6Z`, '#FFB22E'); P(c, `M50,2 Q42,-10 ${50 + w},-28 Q58,-10 50,2Z`, '#FFE48A'); },
+  umbrella(c) { P(c, 'M-80,0 Q-70,-70 0,-80 Q70,-70 80,0 Q56,-14 40,0 Q20,-14 0,0 Q-20,-14 -40,0 Q-56,-14 -80,0Z', '#D5483A', '#9E2F25', 4); P(c, 'M0,-80 L-40,0 M0,-80 L40,0 M0,-80 L0,0', null, '#9E2F25', 3); line(c, 0, 0, 0, 62, '#4E3520', 7); P(c, 'M0,62 Q0,84 -18,78', null, '#4E3520', 7); line(c, 0, -80, 0, -94, '#4E3520', 5); },
+  suitcase(c) { rr(c, -68, -38, 136, 98, 12, '#8E5E3C', '#5A3A20', 4); P(c, 'M-24,-38 Q-24,-64 0,-64 Q24,-64 24,-38', null, '#5A3A20', 7); rect(c, -68, -6, 136, 8, '#6B4423'); rr(c, -42, -12, 16, 20, 3, '#E3C36A'); rr(c, 26, -12, 16, 20, 3, '#E3C36A'); },
+  newspaper(c) { rr(c, -62, -76, 124, 152, 4, '#EFEAD9', '#BDB59A', 3); rect(c, -50, -64, 100, 22, '#333'); rect(c, -50, -30, 44, 38, '#9AA6AE'); for (let i = 0; i < 4; i++) line(c, 0, -26 + i * 12, 50, -26 + i * 12, '#8d8872', 4); for (let i = 0; i < 4; i++) line(c, -50, 20 + i * 14, 50 - (i % 2) * 18, 20 + i * 14, '#8d8872', 4); },
+  notebook(c) { rr(c, -52, -76, 104, 152, 6, '#2E5E8C', '#1E3F60', 3); rr(c, -38, -56, 80, 42, 4, '#F4EFE6'); line(c, -28, -40, 30, -40, '#9aa', 3); line(c, -28, -28, 20, -28, '#9aa', 3); for (let i = 0; i < 7; i++) circ(c, -52, -62 + i * 22, 5, '#DDD'); },
+  id_card(c) { rr(c, -78, -48, 156, 96, 10, '#F4F7FB', '#9DB2C8', 4); rr(c, -78, -48, 156, 22, 10, '#1F7A4D'); rr(c, -64, -14, 42, 52, 4, '#C9D6E2'); circ(c, -43, 2, 10, '#8FA3B5'); P(c, 'M-60,36 Q-43,12 -26,36Z', '#8FA3B5'); for (let i = 0; i < 3; i++) line(c, -8, -8 + i * 18, 60 - i * 10, -8 + i * 18, '#9DB2C8', 5); },
+  calculator(c) { rr(c, -44, -68, 88, 136, 10, '#2B3037'); rr(c, -34, -58, 68, 28, 4, '#9CD6B0'); for (let r = 0; r < 4; r++) for (let i = 0; i < 3; i++) rr(c, -32 + i * 24, -18 + r * 22, 18, 16, 4, r === 3 && i === 2 ? '#E8A33A' : '#5B6470'); },
+  clock(c, t) { circ(c, 0, 0, 56, '#fff', '#6B4A2B', 8); for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6; line(c, Math.sin(a) * 44, -Math.cos(a) * 44, Math.sin(a) * 50, -Math.cos(a) * 50, '#555', 3); } const m = (t || 0) * .8, h = m / 12; line(c, 0, 0, Math.sin(h) * 26, -Math.cos(h) * 26, '#222', 6); line(c, 0, 0, Math.sin(m) * 40, -Math.cos(m) * 40, '#222', 4); circ(c, 0, 0, 5, '#C0392B'); },
+  torch(c) { c.save(); c.rotate(-.5); withA(c, .35, () => P(c, 'M-24,-40 L-120,-190 L120,-190 L24,-40Z', '#FFF4AA')); rr(c, -14, -10, 28, 84, 6, '#444'); P(c, 'M-14,-10 L-26,-38 L26,-38 L14,-10Z', '#666'); ell(c, 0, -38, 26, 8, '#FFF3B0'); rr(c, -16, 20, 32, 8, 3, '#E8A33A'); c.restore(); },
+  hammer(c) { c.rotate(.5); rr(c, -8, -14, 16, 96, 4, '#8A5A34', '#5E3B1F', 3); rr(c, -42, -40, 84, 30, 6, '#8E959C', '#5F666D', 3); },
+  fan(c) { rr(c, -6, 20, 12, 54, 4, '#8A5A34'); circ(c, 0, -16, 52, '#E7C27A', '#B68C3C', 5); circ(c, 0, -16, 34, null, '#B68C3C', 3); for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; line(c, 0, -16, Math.cos(a) * 52, -16 + Math.sin(a) * 52, '#B68C3C', 2); } },
+  bucket(c) { P(c, 'M-48,-30 L48,-30 L38,56 L-38,56Z', '#4A90C2', '#2F6A94', 4); ell(c, 0, -30, 48, 10, '#2F6A94'); P(c, 'M-48,-30 Q0,-96 48,-30', null, '#555', 5); rect(c, -44, 4, 88, 8, 'rgba(255,255,255,.35)'); },
+  mango(c) { P(c, 'M0,-46 Q46,-40 44,10 Q38,56 -6,56 Q-44,48 -42,4 Q-40,-36 0,-46Z', '#F2B632', '#D98E1F', 3); P(c, 'M0,-44 Q40,-34 40,0 Q20,-8 0,-44Z', '#E5883A'); P(c, 'M2,-46 Q24,-72 48,-62 Q30,-44 2,-46Z', '#4C8F43'); line(c, 0, -46, 0, -56, '#5A3A20', 4); },
+  apple(c) { circ(c, -14, 4, 34, '#D9382E'); circ(c, 14, 4, 34, '#D9382E'); P(c, 'M-34,-6 Q0,-30 34,-6 L34,30 L-34,30Z', '#D9382E'); line(c, 0, -26, 4, -52, '#5A3A20', 5); P(c, 'M4,-44 Q26,-62 40,-46 Q22,-34 4,-44Z', '#4C8F43'); ell(c, -22, -8, 7, 13, 'rgba(255,255,255,.35)'); },
+  banana(c) { P(c, 'M-52,-34 Q-22,42 52,30 Q58,44 40,52 Q-32,62 -64,-22Z', '#F2D14E', '#C9A92E', 3); P(c, 'M-52,-34 L-58,-48 L-48,-46Z', '#5A3A20'); circ(c, 50, 42, 5, '#5A3A20'); },
+  milk(c) { P(c, 'M-28,-46 L28,-46 L21,54 L-21,54Z', '#FFFFFF', '#CFE0EA', 4); P(c, 'M-26,-30 L26,-30 L20,52 L-20,52Z', '#FBFBF6'); ell(c, 0, -46, 28, 6, '#EEF3F6', '#CFE0EA', 3); line(c, -16, -24, -12, 30, 'rgba(180,200,215,.6)', 4); },
+  honey(c) { rr(c, -36, -24, 72, 80, 16, '#E3A22B', '#B77B12', 4); rr(c, -40, -40, 80, 18, 6, '#8A5A34'); rr(c, -24, 0, 48, 32, 4, '#FFF6D8'); circ(c, 0, 16, 8, '#E3A22B'); P(c, 'M-36,-24 q10,24 20,0', '#F6C65B'); },
+  sword(c) { c.rotate(-.7); P(c, 'M0,-104 L10,-78 L10,40 L-10,40 L-10,-78Z', '#CFD6DC', '#8D969D', 3); line(c, 0, -80, 0, 36, '#AEB6BD', 3); rr(c, -32, 38, 64, 11, 4, '#C9A24A'); rr(c, -6, 49, 12, 42, 4, '#6B3E1F'); circ(c, 0, 94, 9, '#C9A24A'); },
+  shield(c) { P(c, 'M-56,-60 L56,-60 L56,0 Q56,50 0,78 Q-56,50 -56,0Z', '#2E5E4E', '#C9A24A', 6); circ(c, 0, -8, 22, '#C9A24A'); circ(c, 8, -10, 18, '#2E5E4E'); },
+  flag(c, t) { const s = Math.sin((t || 0) * 4) * 6; line(c, -52, 76, -52, -72, '#8A5A34', 7); P(c, `M-49,-68 Q0,${-86 + s} 32,-66 Q56,${-50 - s} 76,-62 L76,-8 Q56,${-2 - s} 32,-14 Q0,${-30 + s} -49,-12Z`, '#2E8B57'); circ(c, 12, -38 + s * .3, 15, '#D9382E'); },
+  crown(c) { P(c, 'M-58,40 L-66,-34 L-30,-6 L0,-54 L30,-6 L66,-34 L58,40Z', '#F2C14E', '#B58B1F', 4); rr(c, -58, 28, 116, 18, 4, '#E3A92E'); circ(c, 0, 8, 8, '#C0392B'); circ(c, -30, 12, 6, '#2E86DE'); circ(c, 30, 12, 6, '#2E86DE'); circ(c, 0, -58, 6, '#F2C14E'); },
+  lock(c) { rr(c, -36, -6, 72, 62, 10, '#E3B341', '#9A7A1F', 4); P(c, 'M-22,-6 L-22,-34 Q0,-64 22,-34 L22,-6', null, '#9AA3AB', 9); circ(c, 0, 22, 8, '#4A3A10'); line(c, 0, 26, 0, 42, '#4A3A10', 6); },
+  trophy(c, t) { P(c, 'M-34,-54 L34,-54 Q34,6 0,14 Q-34,6 -34,-54Z', '#F2C14E', '#B58B1F', 4); P(c, 'M-34,-44 Q-64,-44 -54,-14 Q-46,-2 -30,-4', null, '#F2C14E', 7); P(c, 'M34,-44 Q64,-44 54,-14 Q46,-2 30,-4', null, '#F2C14E', 7); rect(c, -8, 12, 16, 28, '#E3A92E'); rr(c, -34, 38, 68, 16, 4, '#8A5A34'); sparkle(c, 50, -50, 12, t || 0); },
+  heart(c, t) { const k = 1 + .05 * Math.sin((t || 0) * 5); c.scale(k, k); P(c, 'M0,50 Q-72,0 -46,-34 Q-22,-56 0,-26 Q22,-56 46,-34 Q72,0 0,50Z', '#E0364F', '#B0233A', 3); ell(c, -26, -26, 9, 14, 'rgba(255,255,255,.35)'); },
+  wallet(c) { rr(c, -40, -52, 80, 28, 3, '#7FB77E'); rr(c, -60, -34, 120, 80, 10, '#7A4B2A', '#4E2E14', 4); P(c, 'M-60,-34 L60,-34 L60,-2 Q0,20 -60,-2Z', '#8E5E3C', '#4E2E14', 3); circ(c, 0, 12, 8, '#E3C36A'); },
+  tiffin(c) { rr(c, -42, 26, 84, 30, 6, '#B9C2CA', '#7F8A93', 3); rr(c, -42, -6, 84, 30, 6, '#CFD6DC', '#7F8A93', 3); rr(c, -42, -38, 84, 30, 6, '#B9C2CA', '#7F8A93', 3); rr(c, -36, -52, 72, 14, 6, '#9AA5AE', '#7F8A93', 3); P(c, 'M-46,-30 Q0,-100 46,-30', null, '#6F7A83', 5); },
+  shopping_bag(c) { rr(c, -50, -30, 100, 92, 6, '#E67E22', '#B35C11', 3); P(c, 'M-24,-30 Q-24,-66 0,-66 Q24,-66 24,-30', null, '#B35C11', 6); rect(c, -50, 6, 100, 10, 'rgba(255,255,255,.35)'); circ(c, 0, 38, 10, 'rgba(255,255,255,.5)'); },
+  lota(c) { P(c, 'M-34,-8 Q-50,32 -28,54 L28,54 Q50,32 34,-8Z', '#C9CED3', '#8A9299', 4); rr(c, -13, -38, 26, 32, 6, '#C9CED3', '#8A9299', 4); rr(c, -20, -46, 40, 12, 5, '#AEB5BB', '#8A9299', 3); P(c, 'M30,6 Q68,0 70,-30', null, '#AEB5BB', 9); line(c, -22, 10, 22, 10, '#9AA1A8', 3); },
+  topi(c) { P(c, 'M-52,16 Q-48,-42 0,-46 Q48,-42 52,16Z', '#F4F1EA', '#CFC8B6', 4); rr(c, -54, 8, 108, 18, 8, '#E9E4D8', '#CFC8B6', 3); for (let i = 0; i < 4; i++) P(c, `M${-34 + i * 22},-30 Q${-30 + i * 22},-10 ${-34 + i * 22},6`, null, '#D8D2C4', 3); },
+  map(c) { rr(c, -72, -52, 144, 104, 4, '#EAD9AE', '#B79B5A', 3); P(c, 'M-72,-12 L-24,-52 M24,52 L72,12', null, '#C9B27A', 3); P(c, 'M-50,30 Q-20,-30 10,10 T52,-24', null, '#B0462F', 4); c.setLineDash && 0; circ(c, -50, 30, 7, '#2E86DE'); line(c, 44, -32, 60, -16, '#C0392B', 6); line(c, 60, -32, 44, -16, '#C0392B', 6); }
+};
+const _drawPropBase = drawProp;
+drawProp = function (c, kind, s, t, big) { const f = PX[kind]; if (!f) return _drawPropBase(c, kind, s, t, big); c.save(); c.scale(s, s); f(c, t, big); c.restore(); };
+
 /* ===================== BACKGROUNDS ===================== */
 function skyCols(time) { return time === 'night' ? ['#0f1726', '#1d2a44'] : time === 'evening' ? ['#F6A35C', '#F7D9A8'] : ['#BFE3F2', '#E9F6FA']; }
 function windowBox(c, x, y, w, h, time, t) {
@@ -7007,6 +7058,7 @@ function placeSelect(cur, onchange) { const s = el('select', { onchange }); cons
 const FEEL_BN = { neutral: 'স্বাভাবিক', happy: 'খুশি', sad: 'দুঃখী', worried: 'চিন্তিত', surprised: 'অবাক', angry: 'রাগী', crying: 'কাঁদছে', tired: 'ক্লান্ত', proud: 'গর্বিত', shy: 'লাজুক' };
 const DO_BN = { idle: 'দাঁড়িয়ে', talk: 'কথা বলছে', phone: 'ফোন দেখছে', raise_phone: 'ফোন তুলে দেখাচ্ছে', give: 'কিছু দিচ্ছে', cup: 'চা হাতে', point: 'আঙুল দেখাচ্ছে', arms_crossed: 'হাত ভাঁজ', wave: 'হাত নাড়ছে', head_down: 'মাথা নিচু', hold: 'কিছু ধরে আছে', pray_hands: 'দুই হাত জোড়', hands_on_head: 'মাথায় হাত' };
 const PROP_BN = { phone: 'ফোন', envelope: 'খাম', money: 'টাকা', cup: 'কাপ', book: 'বই', paper: 'কাগজ', sweets: 'মিষ্টির বাক্স', bag: 'ব্যাগ', gift: 'উপহার', laptop: 'ল্যাপটপ', medicine: 'ওষুধ', key: 'চাবি', flower: 'ফুল', ring: 'আংটি', plate: 'প্লেট' };
+Object.assign(PROP_BN, PROP_BN_EXTRA);
 const TIME_BN = { day: 'দিন', evening: 'সন্ধ্যা', night: 'রাত' }, MOOD_BN = { normal: 'স্বাভাবিক', happy: 'আনন্দ', sad: 'দুঃখ', tense: 'টেনশন', regret: 'আফসোস (সাদাকালো)' }, WEATHER_BN = { '': 'স্বাভাবিক', rain: 'বৃষ্টি', fog: 'কুয়াশা', sunny: 'রোদ' };
 const TYPE_BN = { story: 'গল্প', rewind: 'রিওয়াইন্ড', book: 'বই', takeaways: 'শিক্ষা', metaphor: 'উপমা', cta: 'শেষ', chapter: 'অধ্যায়' };
 const ROLE_BN = Object.fromEntries(Object.entries(ROLES).map(([k, v]) => [k, v.bn]));
@@ -7946,6 +7998,103 @@ const LW = 1920, LH = 1080;
 const LONG_STYLE_BN = { life: 'জীবনের গল্প', thriller: 'সত্য ঘটনা থ্রিলার', guide: 'ধাপে ধাপে গাইড' };
 const KT_PUNCT = /[।,.!?“”"'‘’:;()]/g;
 /* per-word timing inside a line (shared by the picture and the sound, so every pop lands on its word) */
+/* ===================== CAPTION VARIETY (shared by every caption look that uses word-by-word chunks) =====================
+   Ten different looks (box + the way the words arrive). They are dealt out like a shuffled deck, so two chunks in a row never
+   look the same and the whole video keeps changing — the same animation on every line is what makes videos look "templated". */
+const KT_STYLES = [
+  { id: 'blur', box: 'pill', boxIn: 'pop', anim: 'blur' },       // dark box, words come out of a blur
+  { id: 'rise', box: 'pill', boxIn: 'rise', anim: 'rise' },      // dark box slides up, words rise with a little overshoot
+  { id: 'slam', box: 'none', boxIn: 'none', anim: 'slam' },      // no box, huge outlined words slam in (with a small shake)
+  { id: 'type', box: 'glass', boxIn: 'wipe', anim: 'type' },     // glass box wipes open, letters are typed with a cursor
+  { id: 'drop', box: 'paper', boxIn: 'rise', anim: 'drop' },     // cream paper card, words drop in and bounce
+  { id: 'flip', box: 'pill', boxIn: 'pop', anim: 'flip' },       // words flip open like cards
+  { id: 'side', box: 'marker', boxIn: 'none', anim: 'side' },    // words fly in from left / right, key words get a highlighter
+  { id: 'elastic', box: 'gold', boxIn: 'pop', anim: 'elastic' }, // gold box, springy pop-up words
+  { id: 'glitch', box: 'glass', boxIn: 'pop', anim: 'glitch' },  // RGB-split glitch that settles
+  { id: 'sweep', box: 'bar', boxIn: 'none', anim: 'fade' }       // no box, words fade in and a coloured bar sweeps under the line
+];
+const ktBack = x => { const s = 1.70158; x -= 1; return x * x * ((s + 1) * x + s) + 1; };
+const ktBounce = x => { const n = 7.5625, d = 2.75; if (x < 1 / d) return n * x * x; if (x < 2 / d) { x -= 1.5 / d; return n * x * x + .75; } if (x < 2.5 / d) { x -= 2.25 / d; return n * x * x + .9375; } x -= 2.625 / d; return n * x * x + .984375; };
+const ktElastic = x => x <= 0 ? 0 : x >= 1 ? 1 : Math.pow(2, -10 * x) * Math.sin((x * 10 - .75) * (2 * Math.PI) / 3) + 1;
+const _ktGraph = {};
+function ktGraphemes(s) { if (_ktGraph[s]) return _ktGraph[s]; let a; try { a = (typeof Intl !== 'undefined' && Intl.Segmenter) ? Array.from(new Intl.Segmenter('bn', { granularity: 'grapheme' }).segment(s), x => x.segment) : Array.from(s); } catch (e) { a = Array.from(s); } return (_ktGraph[s] = a); }
+/* which of the looks a chunk gets (k = shot, j = chunk in the shot); getCh(k) gives that shot's chunks */
+function ktStyleOf(R, k, j, getCh) {
+  if (R.settings && R.settings.capAnim === 'same') return 0;
+  const tl = R.tl;
+  if (!R._ktSeq || R._ktSeq.tl !== tl) {
+    const seq = { tl, m: {} }; let seed = 7; const str = String((R.story && R.story.title) || '') + ':' + tl.shots.length; for (let i = 0; i < str.length; i++) seed = (seed * 31 + str.charCodeAt(i)) >>> 0;
+    const rnd = () => { seed = (seed + 0x6D2B79F5) >>> 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = (t + Math.imul(t ^ t >>> 7, 61 | t)) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+    let bag = [], last = -1;
+    tl.shots.forEach((sh, kk) => {
+      const sc = R.story.scenes[sh.si]; if (!sc || sc.type !== 'story') return; let ch; try { ch = getCh(kk); } catch (e) { ch = null; } if (!ch) return;
+      ch.forEach((_, jj) => {
+        let st;
+        if (sh.si === R.firstStory && sh.li === 0 && jj === 0) st = 2; // the hook line always slams in
+        else {
+          if (!bag.length) { bag = KT_STYLES.map((_, i) => i); for (let i = bag.length - 1; i > 0; i--) { const r = Math.floor(rnd() * (i + 1)); [bag[i], bag[r]] = [bag[r], bag[i]]; } }
+          st = bag.pop(); if (st === last) { if (bag.length) { const alt = bag.pop(); bag.push(st); st = alt; } else st = (st + 1) % KT_STYLES.length; }
+        }
+        last = st; seq.m[kk + ':' + jj] = st;
+      });
+    });
+    R._ktSeq = seq;
+  }
+  const v = R._ktSeq.m[k + ':' + j]; return v == null ? 0 : v;
+}
+/* paints one caption chunk: box + words. g = { t, ch, words, M:{ws,sp}, size, u, bx, by, bw, bh, padX, y, font:(sz)=>css font, pal:{dark,stroke,bar,key}, style } */
+function ktPaint(c, g) {
+  const { t, ch, words, M, size, u, bx, by, bw, bh, padX, y, pal } = g, ST = KT_STYLES[g.style] || KT_STYLES[0], lt = t - ch.t0, e0 = eo(cl(lt / .14));
+  const boxT = ST.box, T = { pill: { txt: '#FFFFFF', key: pal.key, ul: pal.key }, paper: { txt: '#2A1C14', key: '#D2361F', ul: '#D2361F' }, gold: { txt: '#1A1405', key: '#7A1410', ul: '#1A1405' }, glass: { txt: '#FFFFFF', key: pal.key, ul: pal.key }, none: { txt: '#FFFFFF', key: pal.key, ul: null }, marker: { txt: '#FFFFFF', key: '#1A1405', ul: null }, bar: { txt: '#FFFFFF', key: pal.key, ul: null } }[boxT];
+  // ---- the box ----
+  if (boxT === 'pill' || boxT === 'paper' || boxT === 'gold' || boxT === 'glass') {
+    c.save(); const cx = bx + bw / 2, cy = by + bh / 2;
+    if (ST.boxIn === 'pop') { const z = .93 + .07 * e0; c.translate(cx, cy); c.scale(z, z); c.translate(-cx, -cy); }
+    else if (ST.boxIn === 'rise') c.translate(0, (1 - e0) * size * .55);
+    else if (ST.boxIn === 'wipe') { c.beginPath(); c.rect(bx - 20 * u, by - 30 * u, (bw + 40 * u) * eo(cl(lt / .22)), bh + 60 * u); c.clip(); }
+    c.save(); c.shadowColor = boxT === 'paper' ? 'rgba(60,30,10,.3)' : 'rgba(0,0,0,.5)'; c.shadowBlur = 18 * u; c.shadowOffsetY = 6 * u;
+    rr(c, bx, by, bw, bh, boxT === 'paper' ? 20 * u : 14 * u, boxT === 'paper' ? '#FBF1DF' : boxT === 'gold' ? pal.key : boxT === 'glass' ? 'rgba(8,12,18,.62)' : pal.dark); c.restore();
+    if (boxT === 'pill') { rr(c, bx, by, bw, bh, 14 * u, null, pal.stroke, 2 * u); if (pal.bar) rect(c, bx + 18 * u, by, bw - 36 * u, 4 * u, pal.bar); }
+    else if (boxT === 'glass') { rr(c, bx, by, bw, bh, 14 * u, null, 'rgba(255,255,255,.22)', 2 * u); rr(c, bx + 8 * u, by + 10 * u, 8 * u, bh - 20 * u, 4 * u, pal.key); }
+    else if (boxT === 'paper') rr(c, bx, by, bw, bh, 20 * u, null, 'rgba(120,80,40,.3)', 2 * u);
+    c.restore();
+  }
+  // ---- the words ----
+  const fx = boxT === 'glass' ? 8 * u : 0; let x = bx + padX + fx, maxX = x; const A = ST.anim, strokeW = (boxT === 'none' || boxT === 'marker' || boxT === 'bar') ? size * .17 : 0;
+  ch.ix.forEach((i, j) => {
+    const w = words[i], ww = M.ws[j], wl = t - w.t0;
+    if (wl >= 0) {
+      const key = w.hl || w.num, col = key ? T.key : T.txt, e = eo(cl(wl / .17)), cx = x + ww / 2, cy = y - size * .3;
+      let dx = 0, dy = 0, sx = 1, sy = 1, al = 1, bl = 0, rot = 0, txtv = w.w, cursor = false, rgb = 0;
+      if (A === 'blur') { al = e; bl = (1 - e) * 10 * u; sx = sy = 1 + .1 * Math.sin(Math.PI * cl(wl / .28)); }
+      else if (A === 'rise') { al = cl(wl / .1); dy = (1 - ktBack(cl(wl / .24))) * size * .75; }
+      else if (A === 'slam') { const k0 = eo(cl(wl / .12)); al = cl(wl / .05); sx = sy = 1 + (1 - k0) * 1.5; dx = Math.sin(wl * 70) * (1 - cl(wl / .22)) * 5 * u; dy = Math.cos(wl * 63) * (1 - cl(wl / .22)) * 4 * u; }
+      else if (A === 'drop') { al = cl(wl / .05); dy = -(1 - ktBounce(cl(wl / .42))) * size * 1.3; }
+      else if (A === 'flip') { al = cl(wl / .06); sy = Math.max(.001, ktBack(cl(wl / .26))); }
+      else if (A === 'side') { al = cl(wl / .08); dx = (i % 2 ? 1 : -1) * (1 - eo(cl(wl / .22))) * size * 2.2; }
+      else if (A === 'elastic') { al = cl(wl / .05); sx = sy = Math.max(0, ktElastic(cl(wl / .5))); rot = (1 - cl(wl / .3)) * (i % 2 ? .12 : -.12); }
+      else if (A === 'glitch') { al = cl(wl / .05); rgb = (1 - cl(wl / .3)) * 11 * u; dx = Math.sin(wl * 90 + i) * rgb * .5; if (wl < .3 && Math.floor(wl * 40) % 2) dy = -2 * u; }
+      else if (A === 'fade') { al = e; dy = (1 - e) * 14 * u; }
+      else if (A === 'type') { const gs = ktGraphemes(w.w), n = Math.min(gs.length, Math.ceil(wl * 24)); txtv = gs.slice(0, n).join(''); al = 1; cursor = n < gs.length || (wl < .5 && Math.floor(t * 6) % 2 === 0); }
+      c.save(); c.globalAlpha *= al; c.font = g.font(size); c.textAlign = 'left'; c.lineJoin = 'round';
+      if (bl > .4) c.filter = `blur(${bl.toFixed(1)}px)`;
+      c.translate(cx + dx, cy + dy); c.rotate(rot); c.scale(sx, sy); c.translate(-cx, -cy);
+      if (boxT === 'marker' && key) { const hw = (ww + 14 * u) * eo(cl((wl - .02) / .2)); rr(c, x - 7 * u, y - size * .86, hw, size * 1.08, 6 * u, pal.key); }
+      if (A === 'glitch' && rgb > .5) { c.save(); c.globalCompositeOperation = 'lighter'; c.fillStyle = 'rgba(255,40,80,.85)'; c.fillText(txtv, x - rgb, y); c.fillStyle = 'rgba(40,220,255,.85)'; c.fillText(txtv, x + rgb, y); c.restore(); }
+      else {
+        if (strokeW) { c.strokeStyle = 'rgba(0,0,0,.92)'; c.lineWidth = strokeW; c.strokeText(txtv, x, y); }
+        c.shadowColor = boxT === 'paper' ? 'rgba(0,0,0,0)' : 'rgba(0,0,0,.45)'; c.shadowBlur = (strokeW ? 10 : 4) * u; c.shadowOffsetY = 2 * u; c.fillStyle = col; c.fillText(txtv, x, y);
+      }
+      if (cursor) { c.shadowColor = 'transparent'; const cwid = c.measureText(txtv).width; rect(c, x + cwid + 3 * u, y - size * .78, 5 * u, size * .95, pal.key); }
+      c.restore();
+      if (key && T.ul) { const ue = eo(cl((wl - .08) / .22)); if (ue > 0) rect(c, x, y + size * .2, ww * ue, (boxT === 'gold' ? 6 : 5) * u, T.ul); }
+      maxX = Math.max(maxX, x + ww);
+    }
+    x += ww + M.sp;
+  });
+  if (boxT === 'bar') { const L = maxX - (bx + padX); if (L > 0) { c.save(); c.shadowColor = pal.key; c.shadowBlur = 12 * u; rr(c, bx + padX, y + size * .24, L, 7 * u, 4 * u, pal.key); c.restore(); } }
+}
+
 function ktWords(ln, sh) {
   const words = String(ln.cap || '').split(/\s+/).filter(Boolean);
   const hl = new Set(); String(ln.hl || '').split('|').forEach(h => h.split(/\s+/).forEach(w => { w = w.replace(KT_PUNCT, ''); if (w) hl.add(w); }));
@@ -8303,12 +8452,8 @@ class LongRenderer extends StoryRenderer {
     const lt = t - ch.t0, e0 = eo(cl(lt / .14)), out = cl((ch.t1 + .02 - t) / .08);
     c.save(); c.globalAlpha *= e0 * out;
     if (ln.speak && ln.who && this.chars[ln.who]) { const nm = this.chars[ln.who].ch.name, q = this.land ? 1 : 1.35; c.font = `700 ${30 * u * q}px ${FONT_BN}, ${FONT_FALLBACK}`; const nw = c.measureText(nm).width + 26 * u * q; rr(c, bx, by - 46 * u * q, nw, 40 * u * q, 5 * u, 'rgba(255,210,63,.95)'); txt(c, nm, bx + 13 * u * q, by - 16 * u * q, 30 * u * q, '#111', 700, 'left', FONT_BN); }
-    c.save(); c.translate(bx + bw / 2, by + bh / 2); const z = .96 + .04 * e0; c.scale(z, z); c.translate(-(bx + bw / 2), -(by + bh / 2)); c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 16 * u; c.shadowOffsetY = 5 * u; rr(c, bx, by, bw, bh, 12 * u, 'rgba(12,14,20,.8)'); c.restore(); rr(c, bx, by, bw, bh, 12 * u, null, 'rgba(255,255,255,.07)', 1.5 * u); c.restore();
-    let x = bx + padX; const y = by + bh * .66;
-    ch.ix.forEach((i, j) => { const w = words[i], ww = M.ws[j], wl = t - w.t0; if (wl >= 0) { const e = eo(cl(wl / .17)), key = w.hl || w.num, col = key ? '#FFB224' : '#FFFFFF';
-        c.save(); c.globalAlpha *= e; const bl = (1 - e) * 9 * u; if (bl > .4) c.filter = `blur(${bl.toFixed(1)}px)`; c.font = `700 ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; c.textAlign = 'left'; c.fillStyle = col; c.fillText(w.w, x, y); c.restore();
-        if (key) { const ue = eo(cl((wl - .08) / .22)); if (ue > 0) rect(c, x, y + size * .2, ww * ue, 4 * u, '#FFB224'); } }
-      x += ww + M.sp; });
+    const sIdx = ktStyleOf(this, k, chs.indexOf(ch), kk => this.ktChunks(kk));
+    ktPaint(c, { t, ch, words, M, size, u, bx, by, bw, bh, padX, y: by + bh * .66, font: sz => `700 ${sz}px ${FONT_BN}, ${FONT_FALLBACK}`, pal: { dark: 'rgba(12,14,20,.8)', stroke: 'rgba(255,255,255,.07)', bar: null, key: '#FFB224' }, style: sIdx });
     c.restore();
   }
   /* second-video captions: the whole sentence in a cream pill at the bottom, key words red; a character's own words in a speech bubble above the head */

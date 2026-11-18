@@ -335,16 +335,8 @@
       const lt = t - chk.t0, e0 = eo(cl(lt / .14)), out = cl((chk.t1 + .02 - t) / .08);
       c.save(); c.globalAlpha *= e0 * out;
       if (ln.speak && ln.who && R.chars[ln.who]) { const nm = R.chars[ln.who].ch.name, q = land ? 1 : 1.3; c.font = `700 ${30 * u * q}px ${FONT_BN}, ${FONT_FALLBACK}`; const nw = c.measureText(nm).width + 28 * u * q; rr(c, bx, by - 48 * u * q, nw, 42 * u * q, 6 * u, 'rgba(242,193,78,.96)'); txt(c, nm, bx + 14 * u * q, by - 16 * u * q, 30 * u * q, '#1A1405', 700, 'left', FONT_BN); }
-      c.save(); c.translate(bx + bw / 2, by + bh / 2); const z = .94 + .06 * e0; c.scale(z, z); c.translate(-(bx + bw / 2), -(by + bh / 2));
-      c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 20 * u; c.shadowOffsetY = 6 * u; rr(c, bx, by, bw, bh, 14 * u, 'rgba(10,26,20,.84)'); c.restore();
-      rr(c, bx, by, bw, bh, 14 * u, null, 'rgba(233,196,106,.55)', 2 * u); rect(c, bx + 18 * u, by, bw - 36 * u, 4 * u, 'rgba(233,196,106,.9)'); c.restore();
-      let x = bx + padX; const y = by + bh * .68;
-      chk.ix.forEach((i, j) => { const w = words[i], ww = M.ws[j], wl = t - w.t0;
-        if (wl >= 0) { const e = eo(cl(wl / .17)), key = w.hl || w.num, col = key ? '#FFC93C' : '#FFFFFF', pop = 1 + .1 * Math.sin(Math.PI * cl(wl / .28));
-          c.save(); c.globalAlpha *= e; const bl = (1 - e) * 10 * u; if (bl > .4) c.filter = `blur(${bl.toFixed(1)}px)`; c.font = `800 ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; c.textAlign = 'left';
-          c.translate(x + ww / 2, y - size * .3); c.scale(pop, pop); c.translate(-(x + ww / 2), -(y - size * .3)); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 4 * u; c.shadowOffsetY = 2 * u; c.fillStyle = col; c.fillText(w.w, x, y); c.restore();
-          if (key) { const ue = eo(cl((wl - .08) / .22)); if (ue > 0) rect(c, x, y + size * .2, ww * ue, 5 * u, '#FFC93C'); } }
-        x += ww + M.sp; });
+      const sIdx = ktStyleOf(R, k, D.ch.indexOf(chk), kk => chunksOf(R, kk).ch);
+      ktPaint(c, { t, ch: chk, words, M, size, u, bx, by, bw, bh, padX, y: by + bh * .68, font: sz => `800 ${sz}px ${FONT_BN}, ${FONT_FALLBACK}`, pal: { dark: 'rgba(10,26,20,.84)', stroke: 'rgba(233,196,106,.55)', bar: 'rgba(233,196,106,.9)', key: '#FFC93C' }, style: sIdx });
       c.restore();
     }
     RP.drawCaption = function (c, t, fw, fh, u) { if ((this.settings.capLook || 'islamic') === 'longkt') return ktCap.call(this, c, t, fw, fh, u); return _cap.call(this, c, t, fw, fh, u); };
