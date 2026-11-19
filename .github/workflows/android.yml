@@ -10,6 +10,7 @@ on:
       - 'cloud-core.js'
       - 'home.html'
       - 'islamic/**'
+      - 'explainer/**'
       - 'manifest.webmanifest'
       - 'icon-*.png'
       - 'android/**'
@@ -20,6 +21,7 @@ on:
       - 'index.html'
       - 'home.html'
       - 'islamic/**'
+      - 'explainer/**'
       - 'android/**'
       - '.github/workflows/android.yml'
   workflow_dispatch:
@@ -69,6 +71,7 @@ jobs:
           # start screen + the Islamic part (TF Post Maker)
           cp home.html android/app/src/main/assets/www/
           cp -r islamic android/app/src/main/assets/www/
+          cp -r explainer android/app/src/main/assets/www/
 
       - name: Prepare signing key (from encrypted GitHub secrets — never stored in the repo)
         id: sign

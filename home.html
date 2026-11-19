@@ -23,6 +23,7 @@ h1{font-size:24px;line-height:1.3;margin:12px 0 6px;font-weight:800}
 .part:focus-visible{outline:2px solid var(--g);outline-offset:2px}
 .part .ic{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:26px;flex:none;background:var(--g)}
 .part.isl .ic{background:var(--isl)}
+.part.exp .ic{background:#1C2B4B}
 .part .tx{flex:1;min-width:0}
 .part b{display:block;font-size:19px;line-height:1.3}
 .part p{margin:2px 0 0;font-size:14px;line-height:1.45;color:var(--sub)}
@@ -62,6 +63,10 @@ footer{text-align:center;color:var(--sub);font-size:12px;padding:6px 16px 18px}
     <span class="ic" aria-hidden="true">🕋</span>
     <span class="tx"><b>ইসলামিক</b><p>কুরআন-হাদিসের গল্প, আয়াত ও বাণী</p></span>
   </a>
+  <a class="part exp" id="goExplainer" href="index.html?part=explainer">
+    <span class="ic" aria-hidden="true">📊</span>
+    <span class="tx"><b>এক্সপ্লেনারি ভিডিও</b><p>ব্যবসা ও চলমান বিষয়ের হিসাব, কাগজের বোর্ডে লেখা-অ্যানিমেশনে</p></span>
+  </a>
   <section class="acct" id="acct" aria-label="অ্যাকাউন্ট">
     <span class="av" id="acAv" aria-hidden="true">👤</span>
     <div class="who"><b id="acName">Gmail দিয়ে লগইন</b><small id="acSub">সব ডিভাইসে আপনার গল্প থাকবে</small></div>
@@ -76,11 +81,12 @@ footer{text-align:center;color:var(--sub);font-size:12px;padding:6px 16px 18px}
 (function(){
   const $ = id => document.getElementById(id);
   let last = ''; try{ last = localStorage.getItem('tf_suite_last') || ''; }catch(e){}
-  const tag = { story:'goStory', islamic:'goIslamic' }[last];
+  const tag = { story:'goStory', islamic:'goIslamic', explainer:'goExplainer' }[last];
   if(tag){ const b = document.createElement('span'); b.className = 'last'; b.textContent = 'শেষবার'; $(tag).append(b); }
   const remember = k => { try{ localStorage.setItem('tf_suite_last', k); }catch(e){} };
   $('goStory').addEventListener('click', () => remember('story'));
   $('goIslamic').addEventListener('click', () => remember('islamic'));
+  $('goExplainer').addEventListener('click', () => remember('explainer'));
   /* the one login for the whole app */
   const C = window.TFCloud, btn = $('acBtn'), err = m => { $('acErr').textContent = m || ''; $('acErr').hidden = !m; };
   const paint = u => {

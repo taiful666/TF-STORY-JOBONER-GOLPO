@@ -751,6 +751,7 @@ details.more2>summary{min-height:40px;display:flex;align-items:center;cursor:poi
               <button type="button" data-ls="life" class="on"><b>জীবনের গল্প</b><span>পরিবার, টাকা, অভ্যাস — শেষে লুকানো সত্য</span></button>
               <button type="button" data-ls="thriller"><b>সত্য ঘটনা থ্রিলার</b><span>সাম্প্রতিক খবর, তারিখ ও সূত্রসহ</span></button>
               <button type="button" data-ls="guide"><b>ধাপে ধাপে গাইড</b><span>"৩০ দিনে…" রোডম্যাপ</span></button>
+              <button type="button" data-ls="explainer" class="hidden"><b>এক্সপ্লেনারি</b><span>কাগজের বোর্ডে লেখা-অ্যানিমেশন, ব্যবসার হিসাব</span></button>
             </nav>
             <div class="grid2">
               <label>ভিডিওর দৈর্ঘ্য<select id="longMin"><option value="5">প্রায় ৫ মিনিট</option><option value="8">প্রায় ৮ মিনিট</option><option value="10">প্রায় ১০ মিনিট</option><option value="12">প্রায় ১২ মিনিট</option><option value="15">প্রায় ১৫ মিনিট</option></select></label>
@@ -3035,6 +3036,7 @@ If you want to offset all timestamps of a track such that the first one is zero,
 })();
 if (typeof module === "object" && typeof module.exports === "object") Object.assign(module.exports, Mp4Muxer)
 </script>
+<script>if (/[?&]part=explainer\b/.test(location.search)) document.write('<script src="explainer/paper.js"><\/script><script src="explainer/part.js"><\/script>');</script>
 <script>if (/[?&]part=islamic\b/.test(location.search)) document.write('<script src="islamic/story.js"><\/script><script src="islamic/art.js"><\/script><script src="islamic/art2.js"><\/script><script src="islamic/stories-1.js"><\/script><script src="islamic/stories-2.js"><\/script><script src="islamic/stories-3.js"><\/script>');</script>
 <script src="long-library.js"></script>
 <script src="long-visuals.js"></script>
@@ -3042,7 +3044,8 @@ if (typeof module === "object" && typeof module.exports === "object") Object.ass
 'use strict';
 /* two parts share this engine: the Story part (index.html) and the Islamic part (index.html?part=islamic, see islamic/story.js) — each keeps its own settings, logo, used list and library */
 const TF_ISL = /[?&]part=islamic\b/.test(location.search);
-const LK = k => TF_ISL ? String(k).replace(/^tf_(settings|logo|used)$/, 'tf_isl_$1') : k;
+const TF_EXP = /[?&]part=explainer\b/.test(location.search); /* third part: explainer videos (paper-board text animation, see explainer/) */
+const LK = k => TF_ISL ? String(k).replace(/^tf_(settings|logo|used)$/, 'tf_isl_$1') : TF_EXP ? String(k).replace(/^tf_(settings|logo|used)$/, 'tf_exp_$1') : k;
 const APP_VERSION = '5.1.0';
 const STORY_LIBRARY = [];
 const FORMAT_VERSION = 1;
@@ -5653,7 +5656,7 @@ function parseTFScript(text) {
     if ((m = ln.match(head('বর্ণনা|description')))) { raw.youtube.description = m[2]; continue; }
     if ((m = ln.match(head('হ্যাশট্যাগ|hashtags?')))) { raw.youtube.hashtags = m[2].split(/\s+/).filter(Boolean); continue; }
     if ((m = ln.match(head('ক্ষেত্র|area')))) { raw.area = m[2]; continue; }
-    if ((m = ln.match(head('ফরম্যাট|format')))) { const p = m[2].split(/[|,\s]+/).map(x => x.trim().toLowerCase()).filter(Boolean); if (p.includes('long') || p.includes('লং')) raw.fmt = 'long'; const ls = p.find(x => ['life', 'thriller', 'guide'].includes(x)); if (ls) raw.longStyle = ls; continue; }
+    if ((m = ln.match(head('ফরম্যাট|format')))) { const p = m[2].split(/[|,\s]+/).map(x => x.trim().toLowerCase()).filter(Boolean); if (p.includes('long') || p.includes('লং')) raw.fmt = 'long'; const ls = p.find(x => ['life', 'thriller', 'guide', 'explainer'].includes(x)); if (ls) raw.longStyle = ls; continue; }
     if ((m = ln.match(head('ইউটিউব টাইটেল|youtube title|yt title')))) { raw.youtube.title = m[2].trim(); continue; }
     if ((m = ln.match(head('থাম্বনেল|thumbnail|cover')))) { const p = m[2].split('|').map(x => x.trim()); raw.cover = { ctx: p[0] || '', l1: p[1] || '', l2: p[2] || '', icon: (p[3] || '').toLowerCase(), sym: p[4] || '', who: p[5] || '' }; continue; }
     if ((m = ln.match(/^##\s*(.*)$/))) {
@@ -5751,7 +5754,7 @@ function normalizeStory(raw, hero) {
   const warn = [];
   const st = { title: str(raw.title) || 'নতুন গল্প', thumb: str(raw.thumb), area: str(raw.area), voiceMap: (raw.voiceMap && typeof raw.voiceMap === 'object') ? Object.fromEntries(Object.entries(raw.voiceMap).filter(([k, v]) => typeof v === 'string').map(([k, v]) => [String(k).slice(0, 40), v.slice(0, 80)])) : {}, cover: (raw.cover && typeof raw.cover === 'object') ? { ctx: str(raw.cover.ctx), l1: str(raw.cover.l1), l2: str(raw.cover.l2), icon: PROPS.includes(str(raw.cover.icon)) ? str(raw.cover.icon) : '', sym: str(raw.cover.sym).slice(0, 4), symFull: str(raw.cover.sym).slice(0, 18), who: str(raw.cover.who) } : null, book: raw.book || {}, youtube: raw.youtube || {}, characters: [], scenes: [] };
   st.book = { title: str(st.book.title), author: str(st.book.author), lesson: str(st.book.lesson), lesson_bn: str(st.book.lesson_bn) };
-  if (str(raw.fmt) === 'long') { st.fmt = 'long'; st.longStyle = oneOf(raw.longStyle, ['life', 'thriller', 'guide'], 'life'); }
+  if (str(raw.fmt) === 'long') { st.fmt = 'long'; st.longStyle = oneOf(raw.longStyle, ['life', 'thriller', 'guide', 'explainer'], 'life'); }
   const ids = new Set(); const roleCount = {};
   (Array.isArray(raw.characters) ? raw.characters : []).forEach((ch, i) => {
     let id = str(ch.id) || ('c' + (i + 1)); while (ids.has(id)) id += '_'; ids.add(id);
@@ -6304,7 +6307,7 @@ const SR = 48000;
 /* ---------- IndexedDB (audio cache + project autosave) ---------- */
 const IDB = {
   db: null,
-  open() { if (this.db) return Promise.resolve(this.db); return new Promise((res, rej) => { const r = indexedDB.open(TF_ISL ? 'tf_story_studio_isl' : 'tf_story_studio', 1); r.onupgradeneeded = () => { const d = r.result; if (!d.objectStoreNames.contains('audio')) d.createObjectStore('audio'); if (!d.objectStoreNames.contains('kv')) d.createObjectStore('kv'); }; r.onsuccess = () => { this.db = r.result; res(this.db); }; r.onerror = () => rej(r.error); }); },
+  open() { if (this.db) return Promise.resolve(this.db); return new Promise((res, rej) => { const r = indexedDB.open(TF_ISL ? 'tf_story_studio_isl' : TF_EXP ? 'tf_story_studio_exp' : 'tf_story_studio', 1); r.onupgradeneeded = () => { const d = r.result; if (!d.objectStoreNames.contains('audio')) d.createObjectStore('audio'); if (!d.objectStoreNames.contains('kv')) d.createObjectStore('kv'); }; r.onsuccess = () => { this.db = r.result; res(this.db); }; r.onerror = () => rej(r.error); }); },
   async get(store, key) { try { const d = await this.open(); return await new Promise((res, rej) => { const q = d.transaction(store).objectStore(store).get(key); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); } catch (e) { return undefined; } },
   async set(store, key, val) { try { const d = await this.open(); return await new Promise((res, rej) => { const tx = d.transaction(store, 'readwrite'); tx.objectStore(store).put(val, key); tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); }); } catch (e) { console.warn('IDB set failed', e); } },
   async del(store, key) { try { const d = await this.open(); return await new Promise(res => { const tx = d.transaction(store, 'readwrite'); tx.objectStore(store).delete(key); tx.oncomplete = () => res(); }); } catch (e) { } }
@@ -6972,10 +6975,10 @@ function setSeg(navId, attr, val) { $(navId).querySelectorAll('button').forEach(
 function usedList() { try { return JSON.parse(localStorage.getItem(LK('tf_used')) || '[]'); } catch (e) { return []; } }
 function addUsed(s) { const u = usedList(); if (!u.includes(s)) { u.push(s); try { localStorage.setItem(LK('tf_used'), JSON.stringify(u.slice(-5000))); } catch (e) { } Cloud.addUsed(s); } updateUsedInfo(); }
 function updateUsedInfo() { const n = usedList().filter(x => !x.startsWith('LIB:')).length, total = BOOKS.reduce((a, b) => a + b[2].length, 0); $('usedInfo').textContent = `ব্যবহৃত শিক্ষা ${bn(n)} / ${bn(total)}`; }
-function libMeta(txt, id, n, mine) { const title = (txt.match(/^\s*===\s*(.*)$/m) || [, ''])[1].split('|')[0].trim(); const bk = (txt.match(/^\s*বই:\s*(.*)$/m) || [, ''])[1].split('|').map(s => s.trim()); const area = (txt.match(/^\s*ক্ষেত্র:\s*(.*)$/m) || [, ''])[1].trim(); const lines = txt.split('\n').filter(l => l.trim() && !/^(===|##|বই:|থাম্বনেল:|চরিত্র:|বর্ণনা:|হ্যাশট্যাগ:|ক্ষেত্র:|```)/.test(l.trim())).length; return { id, n, txt, title: title || 'শিরোনামহীন', book: bk[0] || '', author: bk[1] || '', lesson: bk[2] || '', area, lines, mine, long: /^\s*(ফরম্যাট|format)\s*[:：]\s*(long|লং)/im.test(txt), lstyle: ((txt.match(/^\s*(?:ফরম্যাট|format)\s*[:：].*?\b(life|thriller|guide)\b/im) || [])[1] || 'life') }; }
+function libMeta(txt, id, n, mine) { const title = (txt.match(/^\s*===\s*(.*)$/m) || [, ''])[1].split('|')[0].trim(); const bk = (txt.match(/^\s*বই:\s*(.*)$/m) || [, ''])[1].split('|').map(s => s.trim()); const area = (txt.match(/^\s*ক্ষেত্র:\s*(.*)$/m) || [, ''])[1].trim(); const lines = txt.split('\n').filter(l => l.trim() && !/^(===|##|বই:|থাম্বনেল:|চরিত্র:|বর্ণনা:|হ্যাশট্যাগ:|ক্ষেত্র:|```)/.test(l.trim())).length; return { id, n, txt, title: title || 'শিরোনামহীন', book: bk[0] || '', author: bk[1] || '', lesson: bk[2] || '', area, lines, mine, long: /^\s*(ফরম্যাট|format)\s*[:：]\s*(long|লং)/im.test(txt), lstyle: ((txt.match(/^\s*(?:ফরম্যাট|format)\s*[:：].*?\b(life|thriller|guide|explainer)\b/im) || [])[1] || 'life') }; }
 const BUILTIN = (typeof STORY_LIBRARY !== 'undefined' ? STORY_LIBRARY : []).map((txt, i) => libMeta(txt, 'lb3_' + (i + 1), i + 1, false));
 let USERLIB = []; let LIB = BUILTIN.slice();
-const BUILTIN_LONG = (typeof LONG_LIBRARY !== 'undefined' && !TF_ISL ? LONG_LIBRARY : []).map((txt, i) => libMeta(txt, 'll_' + (i + 1), i + 1, false));
+const BUILTIN_LONG = (TF_EXP ? (window.EXPLAINER_LIBRARY || []) : (typeof LONG_LIBRARY !== 'undefined' && !TF_ISL ? LONG_LIBRARY : [])).map((txt, i) => libMeta(txt, (TF_EXP ? 'ex_' : 'll_') + (i + 1), i + 1, false));
 function rebuildLIB() { // short and long libraries are numbered on their own
   const mine = USERLIB.map(u => libMeta(u.txt, u.id, 0, true)); let ns = BUILTIN.length, nl = BUILTIN_LONG.length;
   mine.forEach(m => { m.n = m.long ? ++nl : ++ns; }); LIB = BUILTIN.concat(BUILTIN_LONG, mine); }
@@ -7857,9 +7860,10 @@ const TF_CLOUD = { apiKey: 'AIzaSyAfZ29i4FwMlsDKoXqLvVpKN4uZWkJ4Edw', authDomain
 /* one Gmail login for the whole app: the Story part, the Islamic story-video part and the Islamic picture-card part all use
    the same account. They share users/{uid}: library docs of the Islamic part start with "isl_", its used-list entries with
    "isl:", and the picture-card part keeps its history in "icd_" docs (see cloud-core.js) — so no part ever sees another's. */
-const CPFX = TF_ISL ? 'isl_' : '', UPFX = TF_ISL ? 'isl:' : '';
-const cloudMine = id => TF_ISL ? id.startsWith('isl_') : !/^(isl_|icd_)/.test(id);
-const usedMine = x => TF_ISL ? x.startsWith('isl:') : !x.startsWith('isl:');
+const TF_PART = TF_ISL ? 'isl' : TF_EXP ? 'exp' : '';
+const CPFX = TF_PART ? TF_PART + '_' : '', UPFX = TF_PART ? TF_PART + ':' : '';
+const cloudMine = id => TF_PART ? id.startsWith(CPFX) : !/^(isl_|exp_|icd_)/.test(id);
+const usedMine = x => TF_PART ? x.startsWith(UPFX) : !/^(isl|exp):/.test(x);
 const Cloud = {
   user: null, auth: null, db: null, unsub: [], remoteIds: null, seen: { lib: false, used: false }, meta: {}, errText: '',
   configured() { return !!(TF_CLOUD.apiKey && TF_CLOUD.authDomain && TF_CLOUD.projectId && TF_CLOUD.appId); },
@@ -7926,7 +7930,7 @@ const Cloud = {
   },
   // signed out somewhere else in the app (home screen or the other part): drop this part's copy of the account's data
   forgetLocal() {
-    let had = false; try { Object.keys(localStorage).forEach(k => { if (k.startsWith('tf_cloud_merged_' + CPFX) && (CPFX || !/^tf_cloud_merged_(isl|icd)_/.test(k))) { localStorage.removeItem(k); had = true; } }); } catch (e) { }
+    let had = false; try { Object.keys(localStorage).forEach(k => { if (k.startsWith('tf_cloud_merged_' + CPFX) && (CPFX || !/^tf_cloud_merged_(isl|exp|icd)_/.test(k))) { localStorage.removeItem(k); had = true; } }); } catch (e) { }
     if (!had) return; USERLIB = []; IDB.set('kv', 'userLib', []); try { localStorage.removeItem(LK('tf_used')); } catch (e) { }
     rebuildLIB(); renderLib(); updateMyLibInfo(); updateUsedInfo();
   },
@@ -8110,7 +8114,7 @@ async function init() {
   // installable app (PWA) when served from https (GitHub Pages); later wrapped as an Android APK
   if (!IS_ANDROID && 'serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => { });
   // Android Back button: close dialog → previous step → (app asks to press again to exit)
-  try { localStorage.setItem('tf_suite_last', TF_ISL ? 'islamic' : 'story'); } catch (e) { }
+  try { localStorage.setItem('tf_suite_last', TF_ISL ? 'islamic' : TF_EXP ? 'explainer' : 'story'); } catch (e) { }
   window.TFBack = () => { const d = document.querySelector('dialog[open]'); if (d) { d.close(); return true; } if (curStep > 1) { goStep(curStep - 1); return true; } if (IS_ANDROID) { location.href = 'home.html'; return true; } return false; };
   if (IS_ANDROID) { document.body.classList.add('in-app'); const v = (() => { try { return window.TFAndroid.appVersion(); } catch (e) { return ''; } })(); $('appInfo').classList.remove('hidden'); $('appVer').textContent = 'অ্যাপ ভার্সন: ' + v; $('btnCheckUpdate').onclick = () => window.TFAndroid.checkUpdate(); $('shareHint').textContent = 'ভিডিও ফোনের গ্যালারিতে (Movies › TF Story Studio) সেভ হয়েছে। "শেয়ার" চাপলে Drive, Facebook Reels/পোস্ট, WhatsApp — যেকোনোটা বেছে নিন।'; }
   try { await Promise.all(['400 40px TFBody', '700 40px TFBody', '400 40px TFKalp', '400 40px TFAdorsho', '400 40px TFBensen', '700 40px TFCap', '700 40px TFDisp', '800 40px TFDisp', '700 40px TFAtma', '700 40px TFMina', '400 40px TFTiro', '700 40px TFSerif', '400 40px TFGalada', '700 40px TFPlay'].map(f => document.fonts.load(f, 'অআকখ২৫ Ab'))); } catch (e) { }
@@ -8237,6 +8241,7 @@ function ktWords(ln, sh) {
 /* life style: a number in the highlighted words becomes a paper "stamp" on screen */
 function ktStamp(ln) { if (!ln || ln.card || !ln.hl) return ''; const h = String(ln.hl).split('|')[0].trim(); return /[০-৯\d৳]/.test(h) && h.length <= 26 ? h : ''; }
 function longSfx(st, tl, S, play) {
+  if (st.longStyle === 'explainer' && window.XP) return window.XP.sfx(st, tl, S, play);
   const kt = st.longStyle !== 'life', pops = S.pops !== false;
   st.scenes.forEach(sc => { if (sc.type !== 'chapter') return; if (sc.start > 1.4) play('riser', sc.start - 1.22); play(kt ? 'boom' : 'bell', sc.start + .02); play('whoosh', sc.start + .4); });
   const first = st.scenes.findIndex(x => x.type === 'story');
@@ -8346,7 +8351,7 @@ class LongRenderer extends StoryRenderer {
   posFor(sc) { const n = Math.min(3, sc.cast.length || 1); return this.land && !placeHasFg(sc.place) ? FULL_POS[n] : (CAST_POS[n] || CAST_POS[1]); }
   load(story, timeline, settings) {
     super.load(story, timeline, settings);
-    this.isLong = true; this.longFmt = story.fmt === 'long'; this.style = this.longFmt ? (story.longStyle || 'life') : 'life'; this.kt = this.style !== 'life';
+    this.isLong = true; this.longFmt = story.fmt === 'long'; this.style = this.longFmt ? (story.longStyle || 'life') : 'life'; this.kt = this.style !== 'life'; this.xp = this.style === 'explainer' && !!window.XP; this._xl = {}; this._xm = {};
     this.settings = Object.assign({}, settings, { capLook: this.kt ? (settings.capLook || 'news') : 'golpo' });
     this.cine2 = true; this.golpo = false; this.jump = story.scenes.map(() => ''); this._bgL = new Map(); this._ktL = {}; this._lcov = null; this._bb = {};
     this.P = this.kt
@@ -8455,6 +8460,7 @@ class LongRenderer extends StoryRenderer {
 
   render(c, t, opt) {
     if (!this.story) return;
+    if (this.xp) return window.XP.render(this, c, t, opt); /* explainer: paper board (explainer/paper.js) */
     const FW = this.FW, FH = this.FH, th = this.tl.thumb || 0;
     if (th > 0 && t < th) { this.drawThumb(c); return; }
     const si = this.sceneAt(t), sc = this.story.scenes[si], lt = t - sc.start, kind = this.trans[si] || 'fadezoom', TR = kind === 'whip' ? .32 : kind === 'dip' ? .5 : .45;
@@ -8765,6 +8771,7 @@ class LongRenderer extends StoryRenderer {
   /* thumbnail: bold colour + burst, the story's key picture in a tilted card, the main character as a white-outlined sticker
      (shocked, hands on head — or happy and pointing), a red arrow, and a huge two-line headline (line 2 in a yellow/red box) */
   drawThumbInto(c) {
+    if (this.xp && window.XP.thumb) return window.XP.thumb(this, c); /* explainer: paper-board cover */
     if (typeof LV === 'undefined' || !LV.card) return this.drawThumbClassic(c);
     const st = this.story, FW = this.FW, FH = this.FH, u = this.u, land = this.land, port = this.port, kt = this.kt, d = coverData(st);
     const raw1 = (st.thumb || '').trim() ? st.thumb.split('|')[0] : (st.cover && st.cover.l1) || d.l1, raw2 = (st.thumb || '').trim() ? (st.thumb.split('|')[1] || '') : (st.cover && st.cover.l2) || d.l2;
@@ -8845,6 +8852,7 @@ class LongRenderer extends StoryRenderer {
 }
 /* the long-video story prompt (works in Gemini, Claude, ChatGPT) */
 function buildLongPrompt(o) {
+  if ((o.longStyle || '') === 'explainer' && window.EXP_PROMPT) return window.EXP_PROMPT(o);
   const style = o.longStyle || 'life', mins = Math.max(4, Math.min(20, +o.minutes || 10)), lines = Math.round(mins * 16), lo = Math.round(lines * .9), hi = Math.round(lines * 1.1);
   const chapN = style === 'guide' ? '৩-৫টা ধাপ (সপ্তাহ/ধাপ)' : style === 'thriller' ? '৩-৬টা অধ্যায় (যেমন দিন ধরে কাউন্টডাউন, বা ঘটনার পর্ব)' : '৩-৫টা "ফাঁদ" বা "ভুল" (প্রতিটা একটা চেনা বাক্যের পেছনে লুকানো)';
   const placeList = (typeof PLACE_LIST_FOR_PROMPT === 'function') ? PLACE_LIST_FOR_PROMPT() : Object.keys(PLACES).join(', ');
@@ -8988,7 +8996,7 @@ const LONG_TOPICS = {
   thriller: ['সাম্প্রতিক বড় খবর', 'বিখ্যাত কোম্পানির পতন', 'বড় একটা স্ক্যামের গল্প', 'রহস্যময় দুর্ঘটনা', 'বিখ্যাত মানুষের উত্থান-পতন', 'ব্যাংক জালিয়াতি', 'হ্যাকিংয়ের ঘটনা'],
   guide: ['৩০ দিনে ইংরেজিতে কথা বলা', 'ফ্রিল্যান্সিং শুরু করা', 'প্রথম চাকরির প্রস্তুতি', 'মাসে সঞ্চয়ের অভ্যাস', 'পড়ায় মন বসানো', 'ফোনের নেশা কমানো', 'ছোট ব্যবসা শুরু']
 };
-function isLongMode() { return !TF_ISL && S.vidFmt === 'long'; }
+function isLongMode() { return !TF_ISL && (TF_EXP || S.vidFmt === 'long'); }
 /* ratio per video kind: short and long remember their own; changing it re-frames the story (characters and text are laid out again) */
 function curFmtLong() { return app.story ? app.story.fmt === 'long' : isLongMode(); }
 function setRatio(v) {
@@ -9100,6 +9108,7 @@ window.TFStudio = {
   app, LIB
 };
 if (TF_ISL && window.ISL_PATCH) window.ISL_PATCH();
+if (TF_EXP && window.EXP_PATCH) window.EXP_PATCH();
 init();
 /* ===================== v3.9 — start chooser, AI write flow, clean share sheet ===================== */
 const SRC_TITLES = { lib: 'লাইব্রেরি থেকে গল্প বাছুন', paste: 'নিজের গল্প পেস্ট করুন', ai: 'AI দিয়ে নতুন গল্প লিখুন', add: 'অনেক গল্প একসাথে লাইব্রেরিতে যোগ' };

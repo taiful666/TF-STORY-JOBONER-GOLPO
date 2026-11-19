@@ -37,14 +37,14 @@ class MainActivity : AppCompatActivity() {
 
     // the app is served from a secure https origin inside the APK (works offline; storage + microphone allowed)
     private val origin = "https://appassets.androidplatform.net"
-    // start screen: pick "গল্প" (index.html) or "ইসলামিক" (islamic/index.html)
+    // start screen: pick "গল্প" (index.html), "ইসলামিক" (islamic/index.html) or "এক্সপ্লেনারি" (index.html?part=explainer)
     private val startUrl = "$origin/assets/www/home.html"
     private val storyUrl = "$origin/assets/www/index.html"
 
     /** which page to open first: the start screen, or (automatic tests only) a page given with --es tf_page */
     private fun firstUrl(): String {
         val page = intent?.getStringExtra("tf_page")
-        if (page != null && Regex("^[a-z0-9_-]+(/[a-z0-9_-]+)?\\.html(\\?part=islamic)?$").matches(page)) return "$origin/assets/www/$page"
+        if (page != null && Regex("^[a-z0-9_-]+(/[a-z0-9_-]+)?\\.html(\\?part=(islamic|explainer))?$").matches(page)) return "$origin/assets/www/$page"
         return if (intent?.getBooleanExtra("tf_selftest", false) == true) storyUrl else startUrl
     }
 
