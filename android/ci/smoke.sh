@@ -7,7 +7,7 @@ adb install -r -g "$APK"
 adb shell pm grant com.taiful.tfstory android.permission.POST_NOTIFICATIONS 2>/dev/null || true
 adb logcat -c
 adb shell am start -W -n com.taiful.tfstory/.MainActivity --ez tf_selftest true
-for i in $(seq 1 24); do
+for i in $(seq 1 36); do
   if adb logcat -d -s TFWeb:* | grep -q "SELFTEST"; then echo "web app ready after $((i*5))s"; break; fi
   sleep 5
 done
@@ -15,7 +15,7 @@ done
 if ! adb logcat -d -s TFWeb:* | grep -q "SELFTEST"; then
   echo "no web app yet: relaunching once"
   adb shell am start -W -S -n com.taiful.tfstory/.MainActivity --ez tf_selftest true
-  for i in $(seq 1 24); do adb logcat -d -s TFWeb:* | grep -q "SELFTEST" && { echo "web app ready after relaunch, $((i*5))s"; break; }; sleep 5; done
+  for i in $(seq 1 36); do adb logcat -d -s TFWeb:* | grep -q "SELFTEST" && { echo "web app ready after relaunch, $((i*5))s"; break; }; sleep 5; done
 fi
 sleep 3
 PID=$(adb shell pidof com.taiful.tfstory | tr -d '\r')
@@ -41,7 +41,7 @@ adb exec-out screencap -p > screen.png
 echo "---- Islamic part (islamic/index.html) ----"
 adb logcat -c
 adb shell am start -W -S -n com.taiful.tfstory/.MainActivity --es tf_page islamic/index.html --ez tf_selftest true
-for i in $(seq 1 24); do
+for i in $(seq 1 36); do
   if adb logcat -d -s TFWeb:* | grep -q "SELFTEST"; then echo "Islamic part ready after $((i*5))s"; break; fi
   sleep 5
 done
