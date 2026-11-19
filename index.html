@@ -554,6 +554,112 @@ dialog{border-radius:16px}.dlg{padding:24px}.dlg h3{font-size:18px}
 }
 </style>
 
+<style id="v7">
+/* ===== v7 — clean minimal layer (all screen sizes). Fewer words, one calm surface, 44px tap targets. App logic untouched. ===== */
+:root{--bg:#F6F7F4;--ink:#17201B;--sub:#66706A;--line:#E2E6E1;--soft:#EEF1EC;--g:#1E3A2F;--g2:#2A4D3E;--go:#E9B949;--ok:#2E7D4F}
+html,body{background:var(--bg);color:var(--ink)}
+:focus-visible{outline:2px solid var(--g);outline-offset:2px}
+button,a,label,summary,select{touch-action:manipulation}
+html{-webkit-tap-highlight-color:transparent}
+
+/* hint sentences become small ⓘ tips everywhere (desktop already did this) */
+.hx{display:none!important}
+.mo{display:none!important}.dk{display:inline!important}
+.tip{display:inline-grid;place-items:center;position:relative;width:22px;height:22px;min-height:0;padding:0;margin-left:8px;border-radius:50%;border:1px solid #cdd4ce;background:#fff;color:#6f7a74;font:italic 700 12px/1 Georgia,serif;cursor:pointer;flex:none;vertical-align:middle}
+.tip::after{content:"";position:absolute;inset:-11px}
+.tip[hidden]{display:none!important}
+label{position:relative}
+label>.tip{position:absolute;right:0;top:-2px;margin:0}
+#step1 .stephead .tip,.note,#srcPickMore,#ratioQuick,#s1Sub,#srcTabs{display:none!important}
+
+/* ---------- header: one tidy row, extra tools live in the ⋯ menu ---------- */
+.toolmenu{display:contents}
+#btnMore{display:none}
+@media (max-width:1099px){
+  .top{background:#fff;border-bottom:1px solid var(--line)}
+  .tools{position:relative;gap:6px}
+  #btnMore{display:inline-grid;font-size:20px;line-height:1;letter-spacing:1px}
+  .toolmenu{display:none;position:absolute;right:0;top:calc(100% + 8px);z-index:60;min-width:224px;padding:6px;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 40px rgba(20,30,25,.16)}
+  .tools.open .toolmenu{display:flex}
+  .toolmenu .icon{display:flex!important;align-items:center;justify-content:flex-start;gap:12px;width:100%;height:46px;padding:0 12px;border:0;border-radius:10px;background:transparent;font-size:17px;text-decoration:none;color:var(--ink)}
+  .toolmenu .icon::after{content:attr(aria-label);font-size:15px;font-weight:600;font-style:normal}
+  .toolmenu .icon:hover{background:var(--soft)}
+  /* phone & tablet: no empty preview before a story is chosen */
+  body.v7-empty .right{display:none}
+}
+
+/* ---------- step 1: format switch + three clear choices ---------- */
+.fmtpick{display:inline-flex!important;width:auto;gap:2px;padding:3px;margin:0 0 4px;background:var(--soft);border-radius:12px;grid-template-columns:none}
+.fmtpick.hidden{display:none!important}
+.fmtpick button{display:block;min-height:38px;padding:6px 18px;border:0!important;border-radius:9px;background:transparent;box-shadow:none!important;color:var(--sub);cursor:pointer}
+.fmtpick button b{font-size:14.5px;font-weight:700}
+.fmtpick button span{display:none!important}
+.fmtpick button.on{background:#fff;color:var(--g);box-shadow:0 1px 2px rgba(0,0,0,.08)!important}
+#step1 .stephead{margin:18px 0 12px}
+.stephead h2{font-size:22px;font-weight:800;letter-spacing:0;line-height:1.3}
+.startpick{display:flex!important;flex-direction:column;gap:10px}
+.startpick.hidden{display:none!important}
+.startpick button{display:flex!important;flex-direction:row!important;align-items:center;gap:14px;width:100%;min-height:72px;padding:14px 16px!important;border:1px solid var(--line);border-radius:16px;background:#fff;color:var(--ink);text-align:left;box-shadow:none!important;cursor:pointer;transition:border-color .15s,background-color .15s}
+.startpick button:hover{border-color:var(--g)}
+.startpick button:active{background:#FAFBF9}
+.startpick i{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--soft);color:var(--g);font-style:normal;flex:none}
+.startpick i svg{width:22px;height:22px}
+.startpick button[data-pick="ai"] i{background:var(--g);color:var(--go)}
+.startpick b{flex:1;font-size:16.5px;font-weight:700;line-height:1.35}
+.startpick span{display:none!important}
+.startpick button::after{content:"›";font-size:26px;line-height:1;color:#9AA39D}
+
+/* source panes */
+.srcback{display:flex;align-items:center;gap:10px;margin:14px 0 12px}
+.srcback b{font-size:17px}
+.pane{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:none}
+.pane textarea{font-family:inherit;font-size:15px}
+.link.filebtn{display:inline-flex;align-items:center;min-height:44px;cursor:pointer}
+
+/* library: search on its own row, two simple filters below */
+#libBook{display:none}
+#src-lib .row:has(#libSearch){display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#src-lib .row:has(#libSearch) #libSearch{grid-column:1/-1;min-width:0}
+#src-lib .row:has(#libSearch) select{width:100%}
+#libCount{font-size:13px}
+
+/* AI pane: two ways, both end in the library */
+.aiway{display:flex!important;width:100%;margin:0 0 6px}
+.aiway button{flex:1 1 0!important;min-height:40px;white-space:nowrap}
+#topicChips button:nth-child(n+7){display:none}
+#addResult li.ok{display:none}
+#addResult{margin-top:6px}
+#xHint{margin:14px 0 0}
+#way-ext:has(#xMinRow.hidden) #xHint{display:none}
+.waynote{margin:0 0 16px;color:var(--sub);font-size:13.5px;line-height:1.5}
+.way{margin-top:4px}
+.way .primary.wide{min-height:48px;font-size:16px}
+#btnGenStop{margin-top:6px}
+.extsteps{list-style:none;counter-reset:s;margin:4px 0 0;padding:0;display:flex;flex-direction:column;gap:20px}
+.extsteps>li{counter-increment:s;position:relative;padding-left:38px}
+.extsteps>li::before{content:counter(s,bengali);position:absolute;left:0;top:0;width:26px;height:26px;border-radius:50%;background:var(--soft);color:var(--g);font-weight:700;font-size:13px;display:grid;place-items:center}
+.extsteps>li>b{display:block;margin:1px 0 8px;font-size:15px}
+.extsteps .row{margin:0 0 8px}
+label.inl{flex-direction:row;align-items:center;gap:8px;margin:0;font-size:14px}
+label.inl input,label.inl select{width:auto!important;min-width:84px}
+.ailinks .btn{min-height:40px;padding:6px 14px}
+.added{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:18px;padding:12px 14px;border-radius:14px;background:#EEF5F0;border:1px solid #D5E5DA}
+.added.hidden{display:none}
+.added span{display:flex;align-items:center;gap:8px;color:var(--ok)}
+.added b{color:var(--ink);font-weight:700}
+details.more2>summary{min-height:40px;display:flex;align-items:center;cursor:pointer;color:var(--sub);font-weight:600}
+
+/* steps 2–4: calmer surfaces */
+.nextbar{background:#fff;border:1px solid var(--line)}
+.keystat{border-radius:10px}
+@media (max-width:699px){
+  .wrap{padding-top:14px}
+  .pane{padding:14px}
+  .aiway button{font-size:14px;padding:5px 8px}
+  .startpick button{min-height:68px}
+}
+@media (prefers-reduced-motion:reduce){.startpick button{transition:none}}
+</style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -607,13 +713,13 @@ dialog{border-radius:16px}.dlg{padding:24px}.dlg h3{font-size:18px}
         <button type="button" data-fmt="long"><b>লং ভিডিও</b><span>ইউটিউব · ৫-১৫ মিনিট</span></button>
       </nav>
       <div class="ratioquick hidden" id="ratioQuick" aria-label="ভিডিওর মাপ"><span class="muted sm">মাপ:</span><button type="button" data-r="9:16">৯:১৬</button><button type="button" data-r="4:5">৪:৫</button><button type="button" data-r="1:1">১:১</button><button type="button" data-r="16:9">১৬:৯</button><span class="muted sm rqnote">পরে এক্সপোর্টেও বদলানো যাবে</span></div>
-      <div class="stephead"><h2 id="s1Head">নতুন গল্প কীভাবে শুরু করবেন?</h2><p class="muted" id="s1Sub">নিচের তিনটার যেকোনো একটা বেছে নিন।</p></div>
+      <div class="stephead"><h2 id="s1Head">গল্প বেছে নিন</h2><p class="muted" id="s1Sub">নিচের যেকোনো একটা বেছে নিন।</p></div>
       <div class="startpick" id="srcPick">
         <button type="button" data-pick="lib"><i><svg><use href="#i-book"/></svg></i><b>লাইব্রেরি থেকে নিন</b><span>তৈরি গল্পের তালিকা থেকে বেছে নিন</span></button>
         <button type="button" data-pick="paste"><i><svg><use href="#i-paste"/></svg></i><b>নিজের গল্প পেস্ট করুন</b><span>লেখা গল্প পেস্ট করুন বা ফাইল দিন</span></button>
-        <button type="button" data-pick="ai"><i><svg><use href="#i-spark"/></svg></i><b>AI দিয়ে নতুন গল্প লিখুন</b><span>বিষয় বা টাইটেল দিন — AI লিখে দেবে</span></button>
+        <button type="button" data-pick="ai"><i><svg><use href="#i-spark"/></svg></i><b>AI দিয়ে নতুন গল্প লিখুন</b><span>লিখে লাইব্রেরিতে রাখুন, পরে সেখান থেকে বাছুন</span></button>
       </div>
-      <p class="center pickmore" id="srcPickMore"><button type="button" class="link" data-pick="add">অনেক গল্প একসাথে লাইব্রেরিতে যোগ করুন</button></p>
+      <p class="center pickmore hidden" id="srcPickMore"></p>
       <div class="srcback hidden" id="srcBack"><button type="button" class="backbtn" id="btnSrcBack"><svg><use href="#i-back"/></svg> অন্য উপায়</button><b id="srcTitle"></b></div>
       <nav class="seg sub hidden" id="srcTabs"><button class="on" data-src="lib">লাইব্রেরি</button><button data-src="ai">AI দিয়ে লিখুন</button><button data-src="paste">পেস্ট / ফাইল</button><button data-src="add">+ লাইব্রেরিতে যোগ</button></nav>
 
@@ -622,105 +728,106 @@ dialog{border-radius:16px}.dlg{padding:24px}.dlg h3{font-size:18px}
           <input id="libSearch" placeholder="খুঁজুন: টাকা, মা, বেতন, 48 Laws..." class="grow" aria-label="গল্প খুঁজুন">
           <select id="libArea" aria-label="ক্যাটাগরি"></select>
           <select id="libBook" aria-label="বই"></select>
-          <select id="libFilter" aria-label="ফিল্টার"><option value="all">সব</option><option value="new">শুধু অব্যবহৃত</option><option value="used">ব্যবহৃত</option><option value="mine">নিজের যোগ করা</option></select>
+          <select id="libFilter" aria-label="ফিল্টার"><option value="all">সব</option><option value="new">শুধু অব্যবহৃত</option><option value="used">ব্যবহৃত</option><option value="mine">AI ও নিজের লেখা</option></select>
         </div>
         <div class="row between"><span class="muted" id="libCount"></span><button class="link" id="libRandom">র‍্যান্ডম অব্যবহৃত গল্প</button></div>
         <ul class="list" id="libList"></ul>
       </div>
 
       <div class="pane hidden" id="src-ai">
-        <label class="topiclbl">গল্পের বিষয় বা টাইটেল <small class="muted">(নিজে লিখুন, অথবা নিচ থেকে বাছুন)</small><input id="pTopic" placeholder="যেমন: প্রথম বেতন, মায়ের ত্যাগ, বন্ধুর ধার"></label>
-        <div class="chips" id="topicChips" aria-label="বিষয় বাছুন"></div>
-        <div class="longbox hidden" id="longBox">
-          <h4 class="m0">লং ভিডিওর ধরন</h4>
-          <nav class="aiways longways" id="longStyles">
-            <button type="button" data-ls="life" class="on"><b>জীবনের গল্প</b><span>পরিবার, টাকা, অভ্যাস — ফাঁদ ধরে ধরে, শেষে লুকানো সত্য</span></button>
-            <button type="button" data-ls="thriller"><b>সত্য ঘটনা থ্রিলার</b><span>সাম্প্রতিক খবর — তারিখ, সূত্র, শব্দে শব্দে লেখা ও সাউন্ড</span></button>
-            <button type="button" data-ls="guide"><b>ধাপে ধাপে গাইড</b><span>"৩০ দিনে…" রোডম্যাপ — সপ্তাহ ধরে কাজ</span></button>
+        <div id="aiNew">
+          <nav class="seg aiway" id="aiWay" aria-label="কীভাবে লেখাবেন">
+            <button type="button" class="on" data-way="app">এই অ্যাপে লিখুন</button>
+            <button type="button" data-way="ext">অন্য AI থেকে আনুন</button>
           </nav>
-          <div class="grid2">
-            <label>ভিডিওর দৈর্ঘ্য<select id="longMin"><option value="5">প্রায় ৫ মিনিট</option><option value="8">প্রায় ৮ মিনিট</option><option value="10">প্রায় ১০ মিনিট</option><option value="12">প্রায় ১২ মিনিট</option><option value="15">প্রায় ১৫ মিনিট</option></select></label>
-            <label class="chk" id="longWebRow"><input type="checkbox" id="longWeb"> AI নিজে ইন্টারনেটে খবর খুঁজে লিখুক (অ্যাপেই লেখালে)</label>
+          <p class="waynote" id="wayNote"></p>
+
+          <label class="topiclbl">গল্পের বিষয় <small class="muted">(ফাঁকা রাখলে AI নিজে বাছবে)</small><input id="pTopic" name="topic" autocomplete="off" placeholder="যেমন: প্রথম বেতন, মায়ের ত্যাগ…"></label>
+          <div class="chips" id="topicChips" aria-label="বিষয়ের আইডিয়া"></div>
+
+          <div class="longbox hidden" id="longBox">
+            <h4 class="m0">লং ভিডিওর ধরন</h4>
+            <nav class="aiways longways" id="longStyles">
+              <button type="button" data-ls="life" class="on"><b>জীবনের গল্প</b><span>পরিবার, টাকা, অভ্যাস — শেষে লুকানো সত্য</span></button>
+              <button type="button" data-ls="thriller"><b>সত্য ঘটনা থ্রিলার</b><span>সাম্প্রতিক খবর, তারিখ ও সূত্রসহ</span></button>
+              <button type="button" data-ls="guide"><b>ধাপে ধাপে গাইড</b><span>"৩০ দিনে…" রোডম্যাপ</span></button>
+            </nav>
+            <div class="grid2">
+              <label>ভিডিওর দৈর্ঘ্য<select id="longMin"><option value="5">প্রায় ৫ মিনিট</option><option value="8">প্রায় ৮ মিনিট</option><option value="10">প্রায় ১০ মিনিট</option><option value="12">প্রায় ১২ মিনিট</option><option value="15">প্রায় ১৫ মিনিট</option></select></label>
+              <label class="chk" id="longWebRow"><input type="checkbox" id="longWeb"> AI ইন্টারনেটে খবর খুঁজে লিখুক</label>
+            </div>
+            <label>ইউটিউব লিংক বা ঘটনা <small class="muted">(ঐচ্ছিক)</small><input id="longLink" name="longlink" autocomplete="off" spellcheck="false" placeholder="https://youtu.be/… অথবা ঘটনার এক লাইন…"></label>
+            <label id="longFactsRow">তথ্য বা নোট <small class="muted">(ঐচ্ছিক — এর বাইরে AI কিছু বানাবে না)</small><textarea id="longFacts" rows="3" name="longfacts" autocomplete="off" placeholder="কী ঘটেছে, কবে, কোন সংখ্যাগুলো জরুরি…"></textarea></label>
+            <p class="muted sm m0" id="longNote">ভিডিও হবে ১৬:৯ (ইউটিউব)।</p>
           </div>
-          <label>ইউটিউব ভিডিওর লিংক বা চলমান ঘটনা <small class="muted">(ঐচ্ছিক — দিলে পুরো স্ক্রিপ্ট এটাকে কেন্দ্র করে লেখা হবে)</small><input id="longLink" placeholder="https://youtu.be/… অথবা ঘটনার এক লাইনের বিবরণ"></label>
-          <label id="longFactsRow">তথ্য, খবরের লিংক বা নোট <small class="muted">(ঐচ্ছিক — যা দেবেন তার বাইরে AI কিছু বানাবে না)</small><textarea id="longFacts" rows="4" placeholder="যেমন: কী ঘটেছে, কবে, কোন পত্রিকা কী বলেছে, কোন সংখ্যাগুলো জরুরি…"></textarea></label>
-          <p class="muted sm m0" id="longNote">ভিডিও হবে ১৬:৯ (ইউটিউব)। অ্যাপেই লেখালে ১-৩ মিনিট লাগতে পারে।</p>
-        </div>
-        <div class="grid2">
-          <label>জীবনের ক্ষেত্র<select id="pArea"></select></label>
-          <label>গল্পের ধরন<select id="pStyle"><option value="twist">টুইস্ট গল্প (কঠিন সংলাপ → লুকানো সত্য → শেষে বই)</option><option value="classic">দুই অঙ্কের গল্প (আগের ধরন)</option></select></label>
-        </div>
-        <details class="more2"><summary><span class="mo">আরও বাছাই — বই, শিক্ষা, নায়কের নাম, দৈর্ঘ্য (ঐচ্ছিক)</span><span class="dk">আরও বাছাই</span></summary>
-        <div class="grid2">
-          <label>বই<select id="pBook"></select></label>
-          <label>শিক্ষা<select id="pLesson"></select></label>
-          <label>নায়কের নাম<input id="pHero" placeholder="তানিম"></label>
-          <label>গল্পের দৈর্ঘ্য<select id="pLen"><option value="s">ছোট (১৮–২৪ লাইন)</option><option value="m" selected>মাঝারি (২৪–৩০ লাইন)</option><option value="l">বড় (৩০–৪০ লাইন)</option></select></label>
-        </div>
-        <div class="row"><button class="link" id="btnRandom">অব্যবহৃত শিক্ষা বেছে দাও</button><span class="muted" id="usedInfo"></span></div>
-        </details>
-        <h4 class="howh">কীভাবে লেখাবেন?</h4>
-        <nav class="aiways" id="aiTabs"><button class="on" data-ai="chat"><b>প্রম্পট কপি করে</b><span>ChatGPT · Gemini · Claude-এ লিখিয়ে এখানে পেস্ট</span></button><button data-ai="gemini"><b>অ্যাপেই — Gemini</b><span>নিজের Gemini API key দিয়ে</span></button><button data-ai="claude"><b>অ্যাপেই — Claude</b><span>নিজের Claude API key দিয়ে</span></button></nav>
-        <div class="aip" id="ai-api">
-          <p class="keystat" id="aiKeyStat"></p>
-          <div class="card2">
-            <div class="row"><button class="primary" id="btnWrite">একটা গল্প লিখে খুলুন</button><span class="muted" id="aiStatus"></span></div>
-            <details class="more2"><summary>একসাথে অনেক গল্প লিখে লাইব্রেরিতে রাখুন</summary><div class="row bulkrow"><span>একসাথে</span><input type="number" id="bulkN" min="1" max="100" value="10" class="num" aria-label="কয়টা গল্প"><span>টা গল্প লিখে</span><button class="ghost" id="btnBulkWrite">লাইব্রেরিতে যোগ করুন</button><button class="link hidden" id="btnBulkStop">থামান</button></div>
-            <div class="bar hidden" id="bulkBar"><i></i></div><p class="muted sm" id="bulkInfo"></p></details>
+
+          <!-- way 1: write inside the app (Gemini / Claude key) -->
+          <div class="way" id="way-app">
+            <div class="grid2">
+              <label>কোন AI লিখবে<select id="genAI"><option value="gemini">Gemini</option><option value="claude">Claude</option></select></label>
+              <label>কয়টা গল্প<input type="number" id="genN" name="count" autocomplete="off" min="1" max="100" value="1" inputmode="numeric"></label>
+            </div>
+            <p class="keystat" id="genKeyStat"></p>
+            <button class="primary wide" id="btnGen" type="button">লিখে লাইব্রেরিতে যোগ করুন</button>
+            <button class="link hidden" id="btnGenStop" type="button">থামান</button>
+            <div class="bar hidden" id="genBar"><i></i></div><p class="muted sm" id="genInfo"></p>
+            <details class="more2"><summary>আরও বাছাই</summary>
+              <div class="grid2">
+                <label>জীবনের ক্ষেত্র<select id="genArea"></select></label>
+                <label>বই<select id="genBook"></select></label>
+                <label>দৈর্ঘ্য<select id="genLen"><option value="s">ছোট</option><option value="m" selected>মাঝারি</option><option value="l">বড়</option></select></label>
+                <label>গল্পের ধরন<select id="pStyle"><option value="twist">টুইস্ট গল্প</option><option value="classic">দুই অঙ্কের গল্প</option></select></label>
+                <label>নায়কের নাম<input id="pHero" name="hero" autocomplete="off" placeholder="তানিম…"></label>
+              </div>
+            </details>
+          </div>
+
+          <!-- way 2: write with ChatGPT / Gemini / Claude website, paste back -->
+          <div class="way hidden" id="way-ext">
+            <ol class="extsteps">
+              <li><b>প্রম্পট কপি করুন</b>
+                <div class="row"><label class="inl">কয়টা গল্প<input type="number" id="xN" name="xcount" autocomplete="off" min="1" max="30" value="1" class="num" inputmode="numeric"></label><label class="inl hidden" id="xMinRow">দৈর্ঘ্য<select id="xMin"><option value="6">৬ মিনিট</option><option value="8" selected>৮ মিনিট</option><option value="10">১০ মিনিট</option><option value="12">১২ মিনিট</option></select></label></div>
+                <button class="primary" id="btnXCopy" type="button"><svg><use href="#i-copy"/></svg> প্রম্পট কপি</button></li>
+              <li><b>যেকোনো AI-তে পেস্ট করুন</b>
+                <div class="row ailinks"><a class="btn ghost" href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer">Gemini</a><a class="btn ghost" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">ChatGPT</a><a class="btn ghost" href="https://claude.ai/new" target="_blank" rel="noopener noreferrer">Claude</a></div></li>
+              <li><b>উত্তরটা এখানে পেস্ট করুন</b>
+                <textarea id="addIn" rows="7" name="aianswer" autocomplete="off" placeholder="AI যা লিখেছে, পুরোটা এখানে পেস্ট করুন…"></textarea>
+                <div class="row"><button class="primary" id="btnAddLib" type="button">লাইব্রেরিতে যোগ করুন</button><button class="ghost" type="button" id="btnAddPaste">ক্লিপবোর্ড থেকে পেস্ট</button><label class="link filebtn">ফাইল থেকে<input type="file" id="addFiles" multiple accept=".json,.txt,.tfstory,application/json,text/plain"></label></div>
+                <ul class="warn" id="addResult"></ul></li>
+            </ol>
+            <p class="muted sm" id="xHint"></p>
+          </div>
+
+          <div class="added hidden" id="addedBox" role="status">
+            <span><svg><use href="#i-check"/></svg> <b id="addedText"></b></span>
+            <button class="primary" type="button" id="btnSeeLib">লাইব্রেরিতে দেখুন</button>
+          </div>
+
+          <!-- kept for the app's logic; not shown -->
+          <div class="hidden" aria-hidden="true">
+            <input id="genTopic"><input id="xTopic"><div id="xChips"></div><b id="xHead"></b><span id="xSub"></span><div id="extPromptCard"></div>
+            <select id="pArea"></select><select id="pBook"></select><select id="pLesson"></select>
+            <select id="pLen"><option value="s">ছোট</option><option value="m" selected>মাঝারি</option><option value="l">বড়</option></select>
+            <button id="btnRandom" type="button"></button><span id="usedInfo"></span>
+            <nav id="aiTabs"><button type="button" data-ai="chat">chat</button><button type="button" data-ai="gemini">gemini</button><button type="button" data-ai="claude">claude</button></nav>
+            <div id="ai-api"><p id="aiKeyStat"></p><button id="btnWrite" type="button"></button><span id="aiStatus"></span>
+              <details><input type="number" id="bulkN" value="10"><button id="btnBulkWrite" type="button"></button><button id="btnBulkStop" type="button"></button><div id="bulkBar"><i></i></div><p id="bulkInfo"></p></details></div>
+            <div id="ai-chat"><button id="btnCopyPrompt" type="button"></button><textarea id="chatIn"></textarea><button id="btnChatParse" type="button"></button><button id="btnChatPaste" type="button"></button>
+              <details><input type="number" id="bulkNChat" value="10"><button id="btnCopyBulkPrompt" type="button"></button></details></div>
           </div>
         </div>
-        <div class="aip hidden" id="ai-chat">
-          <ol class="chatsteps">
-            <li><b>প্রম্পট কপি করুন</b><div class="row"><button class="primary" id="btnCopyPrompt"><svg><use href="#i-copy"/></svg> প্রম্পট কপি</button></div></li>
-            <li><b>যেকোনো একটা AI খুলে পেস্ট করুন</b><div class="row ailinks"><a class="btn ghost" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">ChatGPT ↗</a><a class="btn ghost" href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer">Gemini ↗</a><a class="btn ghost" href="https://claude.ai/new" target="_blank" rel="noopener noreferrer">Claude ↗</a></div></li>
-            <li><b>AI-এর উত্তর এখানে পেস্ট করুন</b><textarea id="chatIn" rows="7" class="mono" placeholder="AI যা লিখেছে, পুরোটা এখানে পেস্ট করুন"></textarea>
-              <div class="row"><button class="primary" id="btnChatParse">দৃশ্য সাজাও <svg><use href="#i-arrow"/></svg></button><button class="ghost" type="button" id="btnChatPaste">ক্লিপবোর্ড থেকে পেস্ট</button></div></li>
-          </ol>
-          <details class="more2"><summary><span class="mo">একসাথে অনেক গল্পের প্রম্পট (লাইব্রেরির জন্য)</span><span class="dk">একসাথে অনেক প্রম্পট</span></summary><div class="row"><input type="number" id="bulkNChat" min="2" max="30" value="10" class="num" aria-label="কয়টা গল্প"><button class="ghost" id="btnCopyBulkPrompt">টা গল্পের প্রম্পট কপি</button></div><p class="muted sm">অনেক গল্পের উত্তর "অনেক গল্প একসাথে লাইব্রেরিতে যোগ করুন"-এ পেস্ট করবেন।</p></details>
-        </div>
-        <p class="note">🔒 API key শুধু আপনার ব্রাউজারে থাকে (সেটিংসে)। কোনো এক্সপোর্ট/শেয়ার ফাইলে key থাকে না।</p>
       </div>
 
       <div class="pane hidden" id="src-paste">
-        <textarea id="storyIn" rows="10" class="mono" placeholder="ChatGPT / Gemini / Claude-এর উত্তর (TF Script বা JSON) এখানে পেস্ট করুন"></textarea>
-        <label class="chk"><input type="checkbox" id="pasteKeep" checked> লাইব্রেরিতেও রেখে দাও</label>
-        <div class="row"><button class="primary" id="btnParse">দৃশ্য সাজাও</button><label class="btn ghost filebtn">ফাইল খুলুন (.tfstory.json / .txt)<input type="file" id="fileImport" accept=".json,.txt,.tfstory,application/json,text/plain"></label><button class="link" id="btnCopyScript">বর্তমান গল্প TF Script হিসেবে কপি</button></div>
+        <textarea id="storyIn" name="story" autocomplete="off" rows="10" placeholder="আপনার গল্প এখানে পেস্ট করুন…"></textarea>
+        <input type="checkbox" id="pasteKeep" checked hidden>
+        <div class="row"><button class="primary" id="btnParse" type="button">দৃশ্য সাজাও</button><label class="link filebtn">ফাইল খুলুন<input type="file" id="fileImport" accept=".json,.txt,.tfstory,application/json,text/plain"></label><button class="hidden" id="btnCopyScript" type="button"></button></div>
       </div>
 
       <div class="pane hidden" id="src-add">
-        <div class="card2 aigen">
-          <h4 class="m0">AI দিয়ে লিখে সরাসরি লাইব্রেরিতে যোগ</h4>
-          <div class="grid2">
-            <label>কোন AI দিয়ে লিখবে<select id="genAI"><option value="gemini">Gemini (Google)</option><option value="claude">Claude (Anthropic)</option></select></label>
-            <label>কয়টা গল্প<input type="number" id="genN" min="1" max="100" value="10"></label>
-            <label>গল্পের বিষয়<input id="genTopic" placeholder="যেমন: টাকা-পয়সা, মা-বাবা, অফিস, ইসলামিক জীবন"></label>
-            <label>জীবনের ক্ষেত্র<select id="genArea"></select></label>
-            <label>বই (ঐচ্ছিক)<select id="genBook"></select></label>
-            <label>দৈর্ঘ্য<select id="genLen"><option value="s">ছোট</option><option value="m" selected>মাঝারি</option><option value="l">বড়</option></select></label>
-          </div>
-          <p class="keystat" id="genKeyStat"></p>
-          <div class="row"><button class="primary" id="btnGen">লিখে লাইব্রেরিতে যোগ করুন</button><button class="link hidden" id="btnGenStop">থামান</button></div>
-          <div class="bar hidden" id="genBar"><i></i></div><p class="muted sm" id="genInfo"></p>
-        </div>
-        <div class="card2 extp" id="extPromptCard">
-          <h4 class="m0" id="xHead">অন্য যেকোনো AI দিয়ে লিখিয়ে নিন (প্রম্পট কপি)</h4>
-          <p class="muted sm" id="xSub">গল্পের বিষয়বস্তু লিখুন, প্রম্পট কপি করুন, ChatGPT / Gemini / Claude-এ পেস্ট করুন। উত্তরটা নিচের বক্সে পেস্ট করলেই গল্প লাইব্রেরিতে যোগ হবে।</p>
-          <div class="grid2">
-            <label>গল্পের বিষয়বস্তু <small class="muted">(ফাঁকা রাখলে AI নিজে বিষয় বেছে নেবে)</small><input id="xTopic" placeholder="যেমন: প্রবাসীর ভিসা প্রতারণা, ছেলেকে বিশ্বাস করে ঠকা…"></label>
-            <label>কয়টা গল্প<input type="number" id="xN" min="1" max="10" value="1"></label>
-            <label id="xMinRow">ভিডিওর দৈর্ঘ্য<select id="xMin"><option value="6">প্রায় ৬ মিনিট</option><option value="8" selected>প্রায় ৮ মিনিট</option><option value="10">প্রায় ১০ মিনিট</option><option value="12">প্রায় ১২ মিনিট</option></select></label>
-          </div>
-          <div class="chips" id="xChips" aria-label="বিষয়ের আইডিয়া"></div>
-          <div class="row"><button class="primary" id="btnXCopy"><svg><use href="#i-copy"/></svg> প্রম্পট কপি</button><a class="btn ghost" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">ChatGPT ↗</a><a class="btn ghost" href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer">Gemini ↗</a><a class="btn ghost" href="https://claude.ai/new" target="_blank" rel="noopener noreferrer">Claude ↗</a></div>
-          <p class="muted sm" id="xHint"></p>
-        </div>
-        <h4>AI-এর লেখা গল্প (বা অন্য জায়গার গল্প) এখানে পেস্ট করুন</h4>
-        <p class="muted">বাইরে থেকে লেখা যত খুশি গল্প (৫, ৫০, ৫০০…) একসাথে পেস্ট করুন। প্রতিটা গল্প <b>===</b> দিয়ে শুরু হবে — অ্যাপ নিজেই আলাদা করে লাইব্রেরিতে যোগ করবে।</p>
-        <textarea id="addIn" rows="10" class="mono" placeholder="=== প্রথম গল্পের শিরোনাম | ...&#10;বই: ...&#10;...&#10;&#10;=== দ্বিতীয় গল্পের শিরোনাম | ...&#10;..."></textarea>
-        <div class="row"><button class="primary" id="btnAddLib">লাইব্রেরিতে যোগ করুন</button><label class="btn ghost filebtn">ফাইল থেকে (একাধিক .txt/.json)<input type="file" id="addFiles" multiple accept=".json,.txt,.tfstory,application/json,text/plain"></label></div>
-        <ul class="warn" id="addResult"></ul>
-        <div class="row between mt"><span class="muted" id="myLibInfo"></span><span><button class="link" id="btnLibExport">নিজের গল্পগুলো ব্যাকআপ</button> <button class="link" id="btnLibClear">নিজের সব গল্প মুছুন</button></span></div>
+        <div class="hidden"><span id="myLibInfo"></span><button id="btnLibExport" type="button"></button><button id="btnLibClear" type="button"></button></div>
       </div>
+
       <ul class="warn" id="warnList"></ul>
       <div class="nextbar hidden" id="next1"><span><svg><use href="#i-check"/></svg> গল্প তৈরি</span><button class="primary" data-go="2">পরের ধাপ: দৃশ্য দেখুন <svg><use href="#i-arrow"/></svg></button></div>
     </div>
@@ -9232,6 +9339,82 @@ function initShareSheet() {
 
   function init() { setupTips(); setupPub(); sidebarBtn(); summaries(); setInterval(summaries, 1000); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+<script id="v7js">
+/* v7 — clean flow: AI writing always goes to the library first, ⋯ menu for extra tools, no empty preview on phones. Uses the existing app functions. */
+(function () {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const has = k => { try { return !!getKey(k); } catch (e) { return false; } };
+
+  /* ---- ⋯ menu: home, Islamic part, characters, help, settings ---- */
+  const tools = document.querySelector('.top .tools');
+  if (tools && !$('btnMore')) {
+    const menu = document.createElement('div'); menu.className = 'toolmenu'; menu.id = 'toolMenu';
+    ['btnHome', 'btnSuite', 'btnGallery', 'btnHelp', 'btnSettings'].forEach(id => { const b = $(id); if (b) menu.appendChild(b); });
+    const more = document.createElement('button'); more.type = 'button'; more.className = 'icon'; more.id = 'btnMore';
+    more.textContent = '⋯'; more.setAttribute('aria-label', 'আরও'); more.setAttribute('aria-haspopup', 'true'); more.setAttribute('aria-expanded', 'false'); more.setAttribute('aria-controls', 'toolMenu');
+    tools.append(menu, more);
+    const close = () => { tools.classList.remove('open'); more.setAttribute('aria-expanded', 'false'); };
+    more.addEventListener('click', e => { e.stopPropagation(); const o = tools.classList.toggle('open'); more.setAttribute('aria-expanded', String(o)); });
+    menu.addEventListener('click', close);
+    document.addEventListener('click', e => { if (!tools.contains(e.target)) close(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+  }
+
+  /* ---- phones: hide the empty preview until a story is open ---- */
+  const empty = $('pvEmpty');
+  if (empty) { const sync = () => document.body.classList.toggle('v7-empty', !empty.classList.contains('hidden')); sync(); new MutationObserver(sync).observe(empty, { attributes: true, attributeFilter: ['class'] }); }
+
+  if (!$('aiWay')) return;
+
+  /* ---- AI pane: "write in this app" or "bring from another AI" — both add to the library ---- */
+  const NOTES = { app: 'আপনার Gemini বা Claude key দিয়ে অ্যাপ নিজেই লিখবে।', ext: 'ChatGPT, Gemini বা Claude-এর ওয়েবসাইটে লিখিয়ে উত্তরটা এখানে আনুন।' };
+  let way = ''; try { way = localStorage.getItem('tf_aiway') || ''; } catch (e) { }
+  if (way !== 'app' && way !== 'ext') way = has('gKey') || has('aKey') ? 'app' : 'ext';
+  function setWay(w) {
+    way = w; try { localStorage.setItem('tf_aiway', w); } catch (e) { }
+    $('aiWay').querySelectorAll('button').forEach(b => { const on = b.dataset.way === w; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
+    $('way-app').classList.toggle('hidden', w !== 'app'); $('way-ext').classList.toggle('hidden', w !== 'ext');
+    $('wayNote').textContent = NOTES[w];
+  }
+  $('aiWay').addEventListener('click', e => { const b = e.target.closest('button[data-way]'); if (b) setWay(b.dataset.way); });
+  setWay(way);
+  try { if (S.aiTab === 'claude' || S.aiTab === 'gemini') $('genAI').value = S.aiTab; else if (!has('gKey') && has('aKey')) $('genAI').value = 'claude'; } catch (e) { }
+  $('genAI').addEventListener('change', () => { try { S.aiTab = $('genAI').value; saveSettings(); updateKeyStatus(); } catch (e) { } });
+
+  /* one topic box feeds both ways (capture runs before the app's own click handlers) */
+  $('btnGen').addEventListener('click', () => { $('genTopic').value = $('pTopic').value.trim(); added = 0; }, true);
+  $('btnXCopy').addEventListener('click', () => { $('xTopic').value = $('pTopic').value.trim(); }, true);
+  $('btnAddLib').addEventListener('click', () => { added = 0; }, true);
+  $('btnAddPaste').addEventListener('click', async () => {
+    try { const t = await navigator.clipboard.readText(); if (t) { $('addIn').value = t; toast('পেস্ট হয়েছে', 'ok'); } else toast('ক্লিপবোর্ড খালি'); }
+    catch (e) { toast('বক্সে চেপে ধরে "Paste" চাপুন', '', 5000); $('addIn').focus(); }
+  });
+
+  /* after anything is added from this pane, offer the way to the library */
+  let added = 0;
+  const box = $('addedBox');
+  function showAdded() { if (!added || app.srcView !== 'ai') return; $('addedText').textContent = `${bn(added)}টা গল্প লাইব্রেরিতে যোগ হয়েছে`; box.classList.remove('hidden'); }
+  const origAdd = addStoriesToLib;
+  addStoriesToLib = async function () { const r = await origAdd.apply(this, arguments); if (r && r.ok) { added += r.ok; showAdded(); } return r; };
+  $('btnSeeLib').addEventListener('click', () => {
+    box.classList.add('hidden'); added = 0;
+    try { $('libFilter').value = 'mine'; $('libSearch').value = ''; fillLibFilters(); } catch (e) { }
+    showSrc('lib'); try { renderLib(); } catch (e) { }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  /* old "add many" entry now lives inside the AI pane */
+  const origShow = showSrc;
+  showSrc = function (v) {
+    if (v === 'add') { v = 'ai'; setWay('ext'); }
+    if (v === 'ai') { box.classList.add('hidden'); added = 0; }
+    const r = origShow.call(this, v);
+    $('s1Head').textContent = app.story ? 'আরেকটা গল্প বাছুন' : 'গল্প বেছে নিন';
+    return r;
+  };
 })();
 </script>
 <script src="fx/motion.js"></script>
