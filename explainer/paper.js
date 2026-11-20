@@ -147,20 +147,21 @@ window.XP = (() => {
   }
 
   /* ---------- text board: the line itself, large, with an optional doodle icon ---------- */
-  function pickMode(r, k, ln, words, icon) {
+  function pickMode(r, k, ln, words, icon, stage) {
     r._xm = r._xm || {}; if (r._xm[k]) return r._xm[k];
     const hlw = words.filter(w => w.hl), numHl = hlw.some(w => w.num), n = words.length, h = hash(r.story.title + ':' + k), prev = r._xm[k - 1] || '';
     let m;
     if (numHl && n >= 3 && n <= 14) m = 'hero';
-    else if (hlw.length && n >= 4 && hlw.length <= 3 && h % 5 < 2) m = 'hero';
+    else if (hlw.length && n >= 4 && hlw.length <= 3 && h % 5 < 2 && !stage) m = 'hero';
+    else if (stage) m = 'stage';
     else if (r.land && icon && h % 3 !== 0) m = 'side';
     else m = 'center';
-    if (m === prev && m !== 'center') m = 'center'; else if (m === 'center' && prev === 'center' && icon && r.land) m = 'side';
+    if (m !== 'stage') { if (m === prev && m !== 'center') m = 'center'; else if (m === 'center' && prev === 'center' && icon && r.land) m = 'side'; }
     return (r._xm[k] = m);
   }
   function textBoard(r, c, k, t, o) {
     o = o || {}; const FW = r.FW, FH = r.FH, u = r.u, land = r.land, sh = r.tl.shots[k], sc = r.story.scenes[sh.si], ln = sc.lines[sh.li], words = r.words[k], lt = t - sh.start;
-    const icon = o.icon || iconFor(ln.cap + ' ' + (ln.hl || '')), mode = pickMode(r, k, ln, words, icon);
+    const icon = o.icon || iconFor(ln.cap + ' ' + (ln.hl || '')), stg = o.stage || null, mode = pickMode(r, k, ln, words, icon, !!stg);
     const key = k + ':' + r.fkey + ':' + mode; r._xl = r._xl || {}; let B = r._xl[key];
     if (!B) {
       if (mode === 'hero') {
@@ -173,8 +174,8 @@ window.XP = (() => {
         const restL = rest.length ? layout(r, rest, (land ? 70 : 68) * u, FW * (land ? .74 : .86), land ? 3 : 4, 40 * u) : null;
         B = { mode, a, b, hs, hw, restL, restIdx: words.map((w, i) => i).filter(i => i < a || i > b) };
       } else {
-        const side = mode === 'side', maxW = FW * (side ? .5 : (land ? .74 : .86)), base = (land ? (side ? 92 : 108) : 100) * u;
-        B = { mode, L: layout(r, words, base, maxW, land ? 3 : 5, 44 * u) };
+        const side = mode === 'side', stage = mode === 'stage', maxW = FW * (stage ? (land ? .43 : .86) : side ? .5 : (land ? .74 : .86)), base = (land ? (stage ? 84 : side ? 92 : 108) : (stage ? 84 : 100)) * u;
+        B = { mode, L: layout(r, words, base, maxW, stage && land ? 5 : land ? 3 : 5, 40 * u) };
       }
       r._xl[key] = B; const ks = Object.keys(r._xl); if (ks.length > 60) delete r._xl[ks[0]];
     }
@@ -195,6 +196,12 @@ window.XP = (() => {
       return;
     }
     const L = B.L, hgt = L.rows.length * L.size * 1.34;
+    if (B.mode === 'stage') {
+      if (land) { const onLeft = !!(stg && stg.left), left = onLeft ? FW * .5 : FW * .07, top = FH * .5 - hgt / 2;
+        drawWords(r, c, k, t, L, left, top, { align: 'left' }); wobble(c, left, top + hgt + 14 * u, left + 220 * u * eo((lt - .5) / .5), top + hgt + 14 * u, 1, P.acc, 7 * u, 'l' + k); }
+      else { const top = FH * .13 + Math.max(0, (FH * .36 - hgt) / 2); drawWords(r, c, k, t, L, FW / 2, top, { align: 'center' }); }
+      return;
+    }
     if (B.mode === 'side') {
       const left = FW * .08, top = (o.cy != null ? o.cy : FH * .5) - hgt / 2; drawWords(r, c, k, t, L, left, top, { align: 'left' });
       if (icon) sticker(c, FW * .79, FH * .47, Math.min(FH * .24, 230 * u), icon, lt, .15);
@@ -322,14 +329,131 @@ window.XP = (() => {
   /* ---------- one line of narration ---------- */
   const CARD_BOARDS = { counter: statBoard, stat: statBoard, bars: barsBoard, timeline: timelineBoard, split: splitBoard, flow: flowBoard, compare: compareBoard, check: checkBoard, progress: progressBoard, date: dateBoard };
   const HERO_CARDS = new Set(['statement', 'big', 'reveal', 'doc', 'alert', 'sms', 'chat', 'call', 'quote']);
+
+  /* ---------- stage: characters + the place, drawn straight onto the paper board ----------
+     Narration lines: the place (a hand-drawn paper scenery) and the story's characters stand on one side of the board,
+     the animated text on the other. Card / giant-number lines: the characters shrink into the corner and keep reacting.
+     Characters are the app's own (drawPerson), so they blink, breathe, hold a phone, look worried ... from the words. */
+  const NOPLACE = /^(board|abstract|)$/;
+  function stageScene(r, si) {
+    r._xsc = r._xsc || {}; if (si in r._xsc) return r._xsc[si];
+    const sc = r.story.scenes[si]; let ok = false;
+    try { ok = !!(sc && sc.type === 'story' && sc.cast && sc.cast.length && !NOPLACE.test(sc.place || '') && r.chars && typeof drawPerson === 'function' && (typeof PLACE_INDEX === 'undefined' || PLACE_INDEX[sc.place] || (typeof PLACES !== 'undefined' && PLACES[sc.place]))); } catch (e) { ok = false; }
+    return (r._xsc[si] = ok);
+  }
+  /* which scenery a place key gets */
+  function sceneryKind(key) {
+    key = String(key || '');
+    if (/mall/.test(key)) return 'mall'; if (/tea_stall|cafe|biryani|street_food|canteen|fastfood|rooftop_cafe|restaurant/.test(key)) return 'tea';
+    if (/mobile_shop/.test(key)) return 'phoneshop'; if (/clothing|tailor/.test(key)) return 'clothshop';
+    if (/bank|atm|post_office|court/.test(key)) return 'bank'; if (/market_street|bazar|village_market|fruit|super_shop/.test(key)) return 'market';
+    if (/office|cubicle|startup|conference|reception|hr_|it_|factory|garments|warehouse|govt|lobby|interview|youtube/.test(key)) return 'office';
+    if (/road|street|alley|rickshaw|bus_|cng|traffic|footbridge|night_city|station|airport/.test(key)) return 'road';
+    if (/home|living|bedroom|kitchen|dining|drawing|balcony|room|house|staircase|hostel|study/.test(key)) return 'home';
+    return 'shop';
+  }
+  function placeName(sc) { try { return (PLACE_INDEX[sc.place] && PLACE_INDEX[sc.place].bn) || ''; } catch (e) { return ''; } }
+  const stk = (c, f, lw) => { if (f) { c.fillStyle = f; c.fill(); } c.lineWidth = lw; c.stroke(); };
+  /* scenery is drawn in a 760 x 640 box, origin = bottom centre (the ground line) */
+  function sign(c, label, x, y, w, h) { c.beginPath(); c.roundRect(x - w / 2, y - h / 2, w, h, 12); stk(c, P.ink, 5); c.fillStyle = '#FFF6E2'; c.font = font(800, Math.min(h * .56, 46), DISP); c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(label, x, y + 3, w - 30); }
+  const SCENERY = {
+    shop(c, o) { const w = 560; c.beginPath(); c.roundRect(-w / 2, -430, w, 430, 8); stk(c, P.card, 5);
+      c.beginPath(); c.roundRect(-w / 2 + 40, -270, 300, 190, 6); stk(c, '#CFE6F5', 5); for (let i = 0; i < 3; i++) { c.beginPath(); c.roundRect(-w / 2 + 62 + i * 92, -150, 70, 52, 6); stk(c, [P.acc2, '#CDE9BE', '#F7C6C6'][i], 4); }
+      c.beginPath(); c.roundRect(w / 2 - 190, -300, 130, 300, 6); stk(c, '#E8C48A', 5); c.beginPath(); c.arc(w / 2 - 80, -150, 7, 0, 7); c.fillStyle = P.ink; c.fill();
+      for (let i = 0; i < 8; i++) { c.beginPath(); c.moveTo(-w / 2 - 20 + i * 76, -430); c.lineTo(-w / 2 + 56 + i * 76, -430); c.lineTo(-w / 2 + 70 + i * 76, -350); c.lineTo(-w / 2 - 6 + i * 76, -350); c.closePath(); stk(c, i % 2 ? '#fff' : P.red, 4); }
+      sign(c, o.label || 'দোকান', 0, -500, 360, 70); },
+    phoneshop(c, o) { SCENERY.shop(c, { label: o.label }); c.save(); c.translate(-280 + 62, -200); for (let i = 0; i < 4; i++) { c.beginPath(); c.roundRect(i * 66, -34 + (i % 2) * 6, 44, 76, 7); stk(c, ['#7CC4F0', '#FFCB45', '#B79BE8', '#8FD9A8'][i], 4); } c.restore(); },
+    clothshop(c, o) { SCENERY.shop(c, { label: o.label }); c.save(); c.translate(-280 + 70, -230); c.lineWidth = 4; for (let i = 0; i < 3; i++) { const x = i * 88; c.beginPath(); c.moveTo(x, -4); c.lineTo(x + 28, 6); c.lineTo(x + 56, -4); c.stroke(); c.beginPath(); c.moveTo(x + 8, 6); c.lineTo(x - 6, 80); c.lineTo(x + 50, 80); c.lineTo(x + 36, 6); c.closePath(); stk(c, [P.red, '#5B8DEF', '#F2B84B'][i], 4); } c.restore(); },
+    mall(c, o) { const w = 520; c.beginPath(); c.roundRect(-w / 2, -540, w, 540, 10); stk(c, '#E7EEF5', 5);
+      for (let r = 0; r < 4; r++) for (let q = 0; q < 5; q++) { c.beginPath(); c.roundRect(-w / 2 + 28 + q * 96, -490 + r * 96, 78, 70, 6); stk(c, (r + q) % 3 === 0 ? '#FFE9A8' : '#BFE0F5', 4); }
+      c.beginPath(); c.roundRect(-110, -130, 220, 130, 8); stk(c, '#9FD0EE', 5); c.beginPath(); c.moveTo(0, -130); c.lineTo(0, 0); c.stroke();
+      c.beginPath(); c.moveTo(-150, -135); c.lineTo(150, -135); c.lineTo(130, -170); c.lineTo(-130, -170); c.closePath(); stk(c, P.red, 5);
+      sign(c, o.label || 'শপিং মল', 0, -585, 380, 76); [-1, 1].forEach(sd => { c.beginPath(); c.moveTo(sd * (w / 2 - 20), -540); c.lineTo(sd * (w / 2 - 20), -640); c.stroke(); c.beginPath(); c.moveTo(sd * (w / 2 - 20), -640); c.lineTo(sd * (w / 2 - 70), -620); c.lineTo(sd * (w / 2 - 20), -600); c.closePath(); stk(c, P.acc, 3); }); },
+    tea(c, o) { c.beginPath(); c.moveTo(-300, -330); c.lineTo(300, -330); c.lineTo(270, -400); c.lineTo(-270, -400); c.closePath(); stk(c, '#9A8F7B', 5); [-250, 250].forEach(x => { c.beginPath(); c.moveTo(x, -330); c.lineTo(x, 0); c.lineWidth = 9; c.stroke(); c.lineWidth = 5; });
+      c.beginPath(); c.roundRect(-230, -150, 460, 150, 8); stk(c, '#E8C48A', 5); c.beginPath(); c.roundRect(-230, -170, 460, 30, 6); stk(c, '#C99A5B', 5);
+      c.beginPath(); c.moveTo(-130, -170); c.lineTo(-130, -220); c.quadraticCurveTo(-130, -250, -90, -250); c.lineTo(-40, -250); c.lineTo(-30, -220); c.lineTo(-30, -170); c.closePath(); stk(c, '#B8C2CC', 5);
+      for (let i = 0; i < 3; i++) { const yy = -250 - ((o.t * 26 + i * 30) % 90); c.save(); c.globalAlpha *= .5 * (1 - ((o.t * 26 + i * 30) % 90) / 90); c.strokeStyle = P.ink2; c.lineWidth = 4; c.beginPath(); c.moveTo(-90 + i * 14, yy); c.quadraticCurveTo(-80 + i * 14, yy - 14, -90 + i * 14, yy - 28); c.stroke(); c.restore(); }
+      [70, 130, 190].forEach((x, i) => { c.beginPath(); c.roundRect(x - 18, -212, 36, 42, [4, 4, 12, 12]); stk(c, '#fff', 4); });
+      sign(c, o.label || 'চায়ের দোকান', 0, -455, 380, 66); },
+    bank(c, o) { const w = 520; c.beginPath(); c.moveTo(-w / 2 - 20, -380); c.lineTo(0, -500); c.lineTo(w / 2 + 20, -380); c.closePath(); stk(c, P.acc2, 5);
+      for (let i = 0; i < 5; i++) { c.beginPath(); c.roundRect(-w / 2 + 14 + i * 100, -370, 60, 330, 6); stk(c, '#fff', 5); }
+      c.beginPath(); c.roundRect(-w / 2 - 20, -40, w + 40, 40, 6); stk(c, P.ink2, 5); sign(c, o.label || 'ব্যাংক', 0, -430, 250, 56); },
+    office(c, o) { const w = 400; c.beginPath(); c.roundRect(-w / 2, -600, w, 600, 8); stk(c, '#E7EEF5', 5);
+      for (let r = 0; r < 6; r++) for (let q = 0; q < 4; q++) { c.beginPath(); c.roundRect(-w / 2 + 28 + q * 90, -570 + r * 84, 62, 56, 5); stk(c, (r * 3 + q) % 5 === 0 ? '#FFE9A8' : '#BFE0F5', 4); }
+      c.beginPath(); c.roundRect(-50, -90, 100, 90, 6); stk(c, '#9FD0EE', 5); sign(c, o.label || 'অফিস', 0, -640, 260, 56); },
+    home(c, o) { const w = 520; c.beginPath(); c.roundRect(-w / 2, -300, w, 300, 8); stk(c, '#F5E3C3', 5); c.beginPath(); c.moveTo(-w / 2 - 30, -300); c.lineTo(0, -470); c.lineTo(w / 2 + 30, -300); c.closePath(); stk(c, '#D9694F', 5);
+      c.beginPath(); c.roundRect(-45, -200, 90, 200, 6); stk(c, '#8A5A33', 5); [-160, 160].forEach(x => { c.beginPath(); c.roundRect(x - 50, -230, 100, 90, 6); stk(c, '#BFE0F5', 5); c.beginPath(); c.moveTo(x, -230); c.lineTo(x, -140); c.moveTo(x - 50, -185); c.lineTo(x + 50, -185); c.stroke(); });
+      c.beginPath(); c.arc(w / 2 + 60, -230, 62, 0, 7); stk(c, '#8FD9A8', 5); c.beginPath(); c.moveTo(w / 2 + 60, -170); c.lineTo(w / 2 + 60, 0); c.lineWidth = 12; c.stroke(); c.lineWidth = 5; },
+    market(c, o) { [[-200, P.red], [0, '#F2B84B'], [200, '#5B8DEF']].forEach(([x, col], i) => { c.beginPath(); c.moveTo(x - 110, -300); c.quadraticCurveTo(x, -400, x + 110, -300); c.closePath(); stk(c, col, 5); c.beginPath(); c.moveTo(x, -350); c.lineTo(x, 0); c.lineWidth = 8; c.stroke(); c.lineWidth = 5;
+        c.beginPath(); c.roundRect(x - 90, -100, 180, 100, 6); stk(c, '#E8C48A', 5); [-45, 0, 45].forEach(dx => { c.beginPath(); c.arc(x + dx, -118, 22, 0, 7); stk(c, [P.red, '#F2B84B', '#8FD9A8'][(i + dx / 45 + 3) % 3 | 0], 4); }); });
+      sign(c, o.label || 'বাজার', 0, -470, 300, 60); },
+    road(c, o) { c.beginPath(); c.roundRect(-380, -60, 760, 60, 6); stk(c, '#6B7280', 5); for (let i = 0; i < 6; i++) { c.fillStyle = '#FFF6E2'; c.fillRect(-360 + i * 130, -34, 70, 8); }
+      c.beginPath(); c.moveTo(-300, -60); c.lineTo(-300, -420); c.quadraticCurveTo(-300, -470, -240, -470); c.lineTo(-190, -470); c.lineWidth = 12; c.stroke(); c.lineWidth = 5; c.beginPath(); c.arc(-190, -452, 20, 0, 7); stk(c, '#FFE27A', 4);
+      c.beginPath(); c.roundRect(130, -360, 200, 300, 6); stk(c, '#F5E3C3', 5); [0, 1, 2].forEach(i => { c.beginPath(); c.roundRect(150, -330 + i * 90, 60, 60, 5); stk(c, '#BFE0F5', 4); c.beginPath(); c.roundRect(240, -330 + i * 90, 60, 60, 5); stk(c, '#BFE0F5', 4); });
+      sign(c, o.label || 'রাস্তা', 0, -520, 300, 56); }
+  };
+  /* where the characters stand for a mode; the first array element belongs to the first cast member */
+  function stagePose(r, si, n, mode) {
+    const FW = r.FW, FH = r.FH, u = r.u, land = r.land, right = si % 2 === 1, out = [];
+    if (mode === 'full') {
+      if (land) { const cx = right ? FW * .75 : FW * .25, ground = FH * .9, H0 = FH * (n === 1 ? .52 : n === 2 ? .47 : .41), sp = n === 1 ? [0] : n === 2 ? [-.5, .5] : [-1, 0, 1], gap = (n === 2 ? 270 : 215) * u;
+        sp.forEach(d => out.push({ x: cx + d * gap, y: ground, h: H0 })); return { pose: out, sx: cx, sg: FH * .875, sw: FW * .4, sh: FH * .8, text: right ? 'left' : 'right' }; }
+      const cx = FW / 2, ground = FH * .93, H0 = FH * (n === 1 ? .32 : n === 2 ? .3 : .27), sp = n === 1 ? [0] : n === 2 ? [-.5, .5] : [-1, 0, 1], gap = 330 * u;
+      sp.forEach(d => out.push({ x: cx + d * gap, y: ground, h: H0 })); return { pose: out, sx: cx, sg: FH * .915, sw: FW * .96, sh: FH * .46, text: 'top' };
+    }
+    const cx = land ? FW - 175 * u - (n - 1) * 70 * u : FW - 140 * u - (n - 1) * 60 * u, ground = (land ? .43 : .36) * FH, H0 = FH * (land ? .27 : .17), gap = 120 * u;
+    for (let i = 0; i < n; i++) out.push({ x: cx + (i - (n - 1) / 2) * gap + (n - 1) * 50 * u, y: ground, h: H0 }); return { pose: out, sx: cx, sg: ground, sw: 0, sh: 0, text: 'none' };
+  }
+  const fidOf = ln => ln.who || ln.focus || '';
+  function stageDraw(r, c, si, k, t, mode) {
+    const sc = r.story.scenes[si], sh = r.tl.shots[k], ln = sc.lines[sh.li], lt = t - sh.start, slt = t - sc.start, u = r.u, n = Math.min(3, sc.cast.length || 1);
+    r._xmd = r._xmd || {}; const key = si + ':' + k;
+    if (!r._xmd[key]) { const pk = r.tl.shots[k - 1]; r._xmd[key] = { prevMode: pk && pk.si === si ? (r._xmd[si + ':' + (k - 1)] || {}).mode || mode : mode, mode }; }
+    const pm = r._xmd[key].prevMode, A = stagePose(r, si, n, pm), B = stagePose(r, si, n, mode), e = pm === mode ? 1 : eio(lt / .5), mix = (a, b) => a + (b - a) * e;
+    const st = r.state && r.state[k], showScene = mode === 'full' ? e : 1 - e; // scenery fades with the mode
+    const wasFull = pm === 'full', sceneA = (mode === 'full' ? 1 : 0) * e + (wasFull ? 1 : 0) * (1 - e);
+    // scenery (behind the characters)
+    const sa = Math.max(0, Math.min(1, pm === mode ? (mode === 'full' ? 1 : 0) : sceneA)), skk = bk(slt, .05, .55);
+    if (sa > 0 && skk > 0) { const g = sa < 1 || true ? B : B; const L = mode === 'full' ? B : A, bw = L.sw, bh = L.sh; if (bw > 0) alpha(c, sa, () => { c.save(); const sc0 = Math.min(bw / 760, bh / 640) * (r.land ? 1.06 : 1); c.translate(L.sx + (si % 2 ? -1 : 1) * 10 * u, L.sg); c.scale(sc0 * (.82 + .18 * cl(skk)), sc0 * (.82 + .18 * cl(skk))); O(c, 5);
+        // soft paper blob behind the scenery
+        c.save(); c.fillStyle = 'rgba(240,127,29,.10)'; c.beginPath(); c.ellipse(0, -240, 400, 310, 0, 0, 7); c.fill(); c.restore();
+        try { SCENERY[sceneryKind(sc.place)](c, { label: placeName(sc), t }); } catch (e2) { }
+        c.restore(); }); }
+    // ground scribble
+    if (sa > 0) alpha(c, sa * .9, () => { const L = mode === 'full' ? B : A; if (L.sw > 0) { const gx = L.sx, gy = L.sg - 4 * u, w2 = L.sw * .52 * eo(slt / .6); wobble(c, gx - w2, gy, gx + w2, gy + 2 * u, 1, P.ink, 5 * u, 'g' + si); } });
+    // characters
+    const cast = sc.cast.slice(0, 3);
+    cast.forEach((id, i) => {
+      const cr = r.chars[id]; if (!cr) return; const a0 = A.pose[i] || A.pose[0], b0 = B.pose[i] || B.pose[0]; const x = mix(a0.x, b0.x), y = mix(a0.y, b0.y), h = mix(a0.h, b0.h);
+      const kf = cr.L.kid ? .74 : cr.L.teen ? .92 : 1, ks = h / 722 * (1 + (fidOf(ln) === id ? .035 * Math.min(1, lt / .3) : 0)), m = (st && st.mem && st.mem[id]) || { feel: 'neutral', act: 'idle' };
+      const ent = eo((slt - .08 - i * .16) / .5); if (ent <= 0) return; const side = x < r.FW / 2 ? -1 : 1;
+      const fid = ln.who || ln.focus; let eye = 0; if (fid && fid !== id) { const wi = sc.cast.indexOf(fid); eye = wi > i ? 1 : wi >= 0 ? -1 : 0; } if (m.act === 'phone') eye = 0;
+      const talking = !!ln.who && ln.who === id && lt > .1 && lt < sh.dur - .15;
+      c.save(); c.globalAlpha *= cl(ent * 1.5); c.translate(side * (1 - ent) * 160 * u, (1 - ent) * 70 * u);
+      const foot = (LEG_LEN + 16) * ks * kf; // drawPerson's anchor is the hip
+      c.translate(0, 0); drawPerson(c, { L: cr.L, x, y: y - foot, s: ks, flip: n > 1 && i === n - 1 ? true : false, feel: m.feel, act: m.act, hold: m.hold, talk: talking, t, seed: cr.seed, eye, tear: m.feel === 'crying' });
+      c.restore();
+      if (mode === 'full' && e >= 1) { const nm = (cr.ch && cr.ch.name) || ''; const tg = bk(slt, .55 + i * .12, .4); if (nm && tg > 0) { c.font = font(700, 30 * u); const tw = c.measureText(nm).width + 44 * u, ty = y + 22 * u; pop(c, x, ty + 22 * u, tg, () => { rrect(c, x - tw / 2, ty, tw, 46 * u, 23 * u, P.ink); say(c, nm, x, ty + 24 * u, 28 * u, '#FFF6E2', 700, 'center', HEAD, tw); }); } }
+    });
+    return { text: B.text, sx: B.sx, sw: B.sw, side: B.text === 'left' ? 1 : -1, left: B.text === 'right' };
+  }
+
+  const FW0 = r => r.FW;
   function drawLine(r, c, si, k, t) {
     const sh = r.tl.shots[k], sc = r.story.scenes[si], ln = sc.lines[sh.li], lt = t - sh.start, card = ln.card, dur = sh.dur + .2;
     const ex = 1 - eo((lt - (dur - .26)) / .26), ent = fin(lt, 0, .12), A = Math.min(ex, .15 + ent * .85);
     c.save(); c.globalAlpha *= cl(A); c.translate(0, (1 - ex) * -14 * r.u);
-    const ty = card && card.type;
-    if (ty && CARD_BOARDS[ty]) { CARD_BOARDS[ty](r, c, card, lt, k); caption(r, c, k, t); }
-    else if (ty && HERO_CARDS.has(ty)) { heroBoard(r, c, card, lt, k, t); if (ty !== 'statement' && ty !== 'big') caption(r, c, k, t); }
-    else { textBoard(r, c, k, t, { icon: ty === 'icon' ? String(card.text || '').trim() : '' }); if (ty === 'source') sourceChip(r, c, card, lt); else if (ty === 'label') labelChip(r, c, card, lt); }
+    const ty = card && card.type, hasStage = stageScene(r, si);
+    if (ty && CARD_BOARDS[ty]) { if (hasStage) stageDraw(r, c, si, k, t, 'pip'); CARD_BOARDS[ty](r, c, card, lt, k); caption(r, c, k, t); }
+    else if (ty && HERO_CARDS.has(ty)) { if (hasStage && ty !== 'statement' && ty !== 'big') stageDraw(r, c, si, k, t, 'pip'); heroBoard(r, c, card, lt, k, t); if (ty !== 'statement' && ty !== 'big') caption(r, c, k, t); }
+    else {
+      const icon = ty === 'icon' ? String(card.text || '').trim() : '';
+      if (hasStage) {
+        const words = r.words[k], ic = icon || iconFor(ln.cap + ' ' + (ln.hl || '')), m = pickMode(r, k, ln, words, ic, true), mode = m === 'hero' ? 'pip' : 'full', bx = stageDraw(r, c, si, k, t, mode);
+        textBoard(r, c, k, t, { icon, stage: { left: bx.left, text: bx.text }, noIcon: m === 'hero' });
+        if (m === 'stage' && ic && r.land) sticker(c, bx.sx + (bx.left ? -1 : 1) * bx.sw * .36, r.FH * .2, 64 * r.u, ic, lt, .35);
+      } else textBoard(r, c, k, t, { icon });
+      if (ty === 'source') sourceChip(r, c, card, lt); else if (ty === 'label') labelChip(r, c, card, lt); }
     c.restore();
   }
 
