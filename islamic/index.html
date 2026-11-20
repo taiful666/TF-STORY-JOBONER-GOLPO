@@ -606,6 +606,33 @@ details:not(.sect)>summary{font-size:14px!important;color:var(--muted)}
 .tfsh-main{width:100%;min-height:46px;font-weight:700}
 @media (max-width:420px){.tfswitch span{display:none}.tfswitch{padding:0 10px}}
 </style>
+<style id="v8">
+/* ===== v8 — unslop polish for the Islamic part. Header icons are drawn, buttons share one icon set, the phone header never overlaps. Posts, cards and saved data untouched. ===== */
+.top .in{min-width:0}
+.brand{min-width:0}
+.brand b{font-family:'Hind Siliguri',system-ui,sans-serif!important;font-weight:600!important;letter-spacing:0!important;overflow:hidden;text-overflow:ellipsis}
+.brand .tfsub{font-weight:500;color:var(--muted)}
+.tfswitch{height:40px;border-radius:10px;font-weight:500;gap:8px;transition:background-color .15s,border-color .15s}
+.tfswitch:hover{background:var(--surface-2)}
+.tfswitch i{display:grid;place-items:center}
+.tfswitch svg.i,.icobtn.acct svg.i{width:20px;height:20px}
+.icobtn.acct{color:var(--text)}
+#newPostBtn{color:var(--text)}
+#showKeyBtn,#showCKeyBtn,#hPrevBtn,#hNextBtn,#aNextBtn,#installX,#pasteX,#rvClose,#tfShX{display:inline-grid;place-items:center}
+#showKeyBtn svg.i,#showCKeyBtn svg.i,#hPrevBtn svg.i,#hNextBtn svg.i,#aNextBtn svg.i{width:18px;height:18px}
+#installX svg.i,#pasteX svg.i,#rvClose svg.i,#tfShX svg.i{width:16px;height:16px}
+#hPrevBtn,#hNextBtn,#aNextBtn{min-width:44px;padding-left:0;padding-right:0}
+@media (max-width:600px){
+  .brand b{display:none!important}
+  .tfswitch{width:40px;padding:0;justify-content:center;border-color:transparent;background:transparent}
+  .tfswitch span{display:none}
+  /* hadith / ayah pickers: main action on its own row, the rest in one row */
+  .row:has(> #hPrevBtn),.row:has(> #aNextBtn){display:grid;gap:8px}
+  .row:has(> #hPrevBtn){grid-template-columns:1fr 1fr 44px 44px}
+  .row:has(> #aNextBtn){grid-template-columns:1fr 1fr 44px}
+  #hTodayBtn,#aTodayBtn{grid-column:1/-1}
+}
+</style>
 <script src="../cloud-core.js"></script>
 </head>
 <body>
@@ -613,11 +640,11 @@ details:not(.sect)>summary{font-size:14px!important;color:var(--muted)}
   <div class="in">
     <div class="brand"><img src="icon-192.png" alt=""><b>TF Story <span class="tfsub">ইসলামিক</span></b></div>
     <div class="ctrls">
-      <a class="tfswitch" id="tfToHome" href="../home.html" title="শুরুর পাতা: গল্প / ইসলামিক অংশ বাছুন"><i>🏠</i><span>শুরু</span></a>
-      <a class="tfswitch" id="tfToStory" href="../index.html?part=islamic" title="ইসলামিক গল্প-ভিডিও (কুরআন ও হাদিসের গল্প)"><i>🎬</i><span>গল্প-ভিডিও</span></a>
+      <a class="tfswitch" id="tfToHome" href="../home.html" title="শুরুর পাতা: গল্প / ইসলামিক অংশ বাছুন"><i><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></svg></i><span>শুরু</span></a>
+      <a class="tfswitch" id="tfToStory" href="../index.html?part=islamic" title="ইসলামিক গল্প-ভিডিও (কুরআন ও হাদিসের গল্প)"><i><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18M7 5v4M12 5v4M17 5v4"/><path d="m10.5 12.2 3.6 2.1-3.6 2.1z"/></svg></i><span>গল্প-ভিডিও</span></a>
       <button type="button" class="btn primary hidden install-ui" id="installBtn"><span data-i18n="install"></span></button>
       <button type="button" class="icobtn" id="newPostBtn" title="New post" aria-label="New post"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></button>
-      <button type="button" class="icobtn acct" id="acctBtn" title="Gmail দিয়ে লগইন (সব অংশে একই অ্যাকাউন্ট)" aria-label="অ্যাকাউন্ট">👤</button>
+      <button type="button" class="icobtn acct" id="acctBtn" title="Gmail দিয়ে লগইন (সব অংশে একই অ্যাকাউন্ট)" aria-label="অ্যাকাউন্ট"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5"/></svg></button>
       <button type="button" class="icobtn" id="v2Theme" title="Theme" aria-label="Theme"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
       <button type="button" class="icobtn" id="v2MenuBtn" title="Menu" aria-label="Menu"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button>
       <button type="button" class="btn desk-only" id="langBtn">বাংলা</button>
@@ -625,6 +652,7 @@ details:not(.sect)>summary{font-size:14px!important;color:var(--muted)}
     </div>
   </div>
 
+</header>
 <main class="app">
   <!-- ===== STAGE: mode, live card, the few actions used on every post ===== -->
   <section class="stage card">
@@ -658,7 +686,7 @@ details:not(.sect)>summary{font-size:14px!important;color:var(--muted)}
     <!-- WRITE -->
     <div class="pane" id="p-text">
       <div class="newrow"><button type="button" class="btn" id="newPostBtn2" data-i18n="newPost2"></button><small data-i18n="newPostHint"></small></div>
-      <div class="banner hidden install-ui" id="installBanner"><b data-i18n="installBannerText"></b><button type="button" class="btn primary sm" id="installBtn2" data-i18n="install"></button><button type="button" class="btn sm" id="installX" aria-label="close">✕</button></div>
+      <div class="banner hidden install-ui" id="installBanner"><b data-i18n="installBannerText"></b><button type="button" class="btn primary sm" id="installBtn2" data-i18n="install"></button><button type="button" class="btn sm" id="installX" aria-label="close"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
       <div class="warn hidden" id="brandNudge"><b data-i18n="nudgeTitle"></b><span class="row" style="margin-top:6px;gap:6px"><input type="text" id="nudgeName" data-i18n-ph="nudgePh" style="flex:1 1 160px"><button type="button" class="btn primary sm" id="nudgeSave" data-i18n="save"></button></span></div>
       <div class="seg full v3seg" id="genSeg" role="tablist">
         <button type="button" data-gen="quick" data-v3t="genQuick"></button>
@@ -729,8 +757,8 @@ details:not(.sect)>summary{font-size:14px!important;color:var(--muted)}
           <button type="button" class="btn primary" id="hTodayBtn" data-i18n="hToday"></button>
           <button type="button" class="btn" id="hRandBtn" data-i18n="hRandom"></button>
           <button type="button" class="btn" id="hGetBtn" data-i18n="hGet"></button>
-          <button type="button" class="btn" id="hPrevBtn">◀</button>
-          <button type="button" class="btn" id="hNextBtn">▶</button>
+          <button type="button" class="btn" id="hPrevBtn" aria-label="আগের"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
+          <button type="button" class="btn" id="hNextBtn" aria-label="পরের"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
         </div>
         <div class="row">
           <label class="chk"><input type="checkbox" id="hArabic"> <span data-i18n="hWithArabic"></span></label>
@@ -754,7 +782,7 @@ details:not(.sect)>summary{font-size:14px!important;color:var(--muted)}
           <button type="button" class="btn primary" id="aTodayBtn" data-i18n="aToday"></button>
           <button type="button" class="btn" id="aRandBtn" data-i18n="hRandom"></button>
           <button type="button" class="btn" id="aGetBtn" data-i18n="hGet"></button>
-          <button type="button" class="btn" id="aNextBtn">▶</button>
+          <button type="button" class="btn" id="aNextBtn" aria-label="পরের"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
         </div>
         <label class="chk"><input type="checkbox" id="aArabic" checked> <span data-i18n="hWithArabic"></span></label>
         <span class="status hidden" id="aStatus" style="margin-top:8px"><span class="spin"></span><span data-i18n="loading"></span></span>
@@ -936,10 +964,10 @@ details:not(.sect)>summary{font-size:14px!important;color:var(--muted)}
       <div class="sect"><h4><span data-i18n="appLook"></span></h4>
         <div class="row"><button type="button" class="btn" id="langBtn2"></button><button type="button" class="btn" id="themeBtn2"></button><button type="button" class="btn primary install-ui" id="installBtn3" data-i18n="installHow"></button></div>
       </div>
-      <div class="okbox" style="margin:0 0 12px">🔗 এই key গুলো <b>গল্প</b> ও <b>ইসলামিক</b> — দুই অংশেই একসাথে কাজ করে। একবার দিলেই হবে; গল্পের সেটিংসে দেওয়া key এখানে আপনাআপনি চলে আসে।</div>
+      <div class="okbox" style="margin:0 0 12px">এই key গুলো <b>গল্প</b> ও <b>ইসলামিক</b> — দুই অংশেই একসাথে কাজ করে। একবার দিলেই হবে; গল্পের সেটিংসে দেওয়া key এখানে আপনাআপনি চলে আসে।</div>
       <div class="sect" id="claudeSect" style="border:2px solid var(--accent)"><h4><span data-i18n="cTitle"></span></h4>
         <p class="note" style="margin:0 0 8px" data-i18n="cIntro"></p>
-        <label class="fld"><span>Claude API key</span><span class="row" style="gap:6px"><input type="password" id="cKey" placeholder="sk-ant-..." autocomplete="off" spellcheck="false" style="flex:1"><button type="button" class="btn" id="showCKeyBtn">👁️</button></span></label>
+        <label class="fld"><span>Claude API key</span><span class="row" style="gap:6px"><input type="password" id="cKey" placeholder="sk-ant-..." autocomplete="off" spellcheck="false" style="flex:1"><button type="button" class="btn" id="showCKeyBtn" aria-label="দেখাও"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/></svg></button></span></label>
         <label class="fld"><span data-i18n="cModel"></span><select id="cModelSel"><option value="claude-sonnet-5-5" data-i18n="cmSonnet"></option><option value="claude-opus-5-5" data-i18n="cmOpus"></option><option value="claude-haiku-5-5" data-i18n="cmHaiku"></option></select></label>
         <label class="chk hidden" style="margin-bottom:8px"><input type="checkbox" id="cUse" checked> <span data-i18n="cUse"></span></label>
         <div class="row"><button type="button" class="btn primary" id="saveCKeyBtn" data-i18n="save"></button><button type="button" class="btn" id="testCKeyBtn" data-i18n="test"></button><button type="button" class="btn" id="rmCKeyBtn" data-i18n="remove"></button><span class="status" id="cKeyState"></span></div>
@@ -951,7 +979,7 @@ details:not(.sect)>summary{font-size:14px!important;color:var(--muted)}
         <div class="warn" data-i18n="cSec"></div>
       </div>
       <div class="sect"><h4><span data-i18n="setAi"></span></h4>
-        <label class="fld"><span>Google Gemini API key</span><span class="row" style="gap:6px"><input type="password" id="gKey" placeholder="AIza..." autocomplete="off" spellcheck="false" style="flex:1"><button type="button" class="btn" id="showKeyBtn">👁️</button></span></label>
+        <label class="fld"><span>Google Gemini API key</span><span class="row" style="gap:6px"><input type="password" id="gKey" placeholder="AIza..." autocomplete="off" spellcheck="false" style="flex:1"><button type="button" class="btn" id="showKeyBtn" aria-label="দেখাও"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/></svg></button></span></label>
         <div class="grid2">
           <label class="fld"><span data-i18n="setTextModel"></span><input type="text" id="gModel" placeholder="gemini-3.8-flash" spellcheck="false"></label>
           <label class="fld"><span data-i18n="setImgModel"></span><input type="text" id="iModel" placeholder="gemini-3.1-flash-image-preview" spellcheck="false"></label>
@@ -1007,10 +1035,10 @@ details:not(.sect)>summary{font-size:14px!important;color:var(--muted)}
   <p class="note" style="margin:0" data-i18n="shWhy"></p>
   <div class="row" style="justify-content:flex-end"><button type="button" class="btn" id="shCancel" data-i18n="cancel"></button></div>
 </div></div>
-<div id="pasteBar" class="hidden"><span id="pasteTxt"></span><span class="row" style="gap:6px;flex:none"><button type="button" class="btn sm" id="pasteAgain" data-i18n="shCopyAgain"></button><button type="button" class="btn sm" id="pasteX" aria-label="close">✕</button></span></div>
+<div id="pasteBar" class="hidden"><span id="pasteTxt"></span><span class="row" style="gap:6px;flex:none"><button type="button" class="btn sm" id="pasteAgain" data-i18n="shCopyAgain"></button><button type="button" class="btn sm" id="pasteX" aria-label="close"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span></div>
 <div id="updateBar" class="hidden"><span data-i18n="updateText"></span><button type="button" class="btn sm" id="updateBtn" data-i18n="reload"></button></div>
 <div id="reelSheet" class="reel hidden" role="dialog" aria-modal="true">
-  <div class="rhead"><b data-i18n="rTitle"></b><span class="rmode" id="rvMode"></span><button type="button" class="btn" id="rvClose" aria-label="close">✕</button></div>
+  <div class="rhead"><b data-i18n="rTitle"></b><span class="rmode" id="rvMode"></span><button type="button" class="btn" id="rvClose" aria-label="close"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
   <div class="rbody">
     <div class="rleft">
       <div class="rstage" id="rvStage"><canvas id="rvCv" width="360" height="640"></canvas><span class="rplay hidden" id="rvPlayBig">▶</span></div>
@@ -1026,7 +1054,7 @@ details:not(.sect)>summary{font-size:14px!important;color:var(--muted)}
       </div>
       <div class="sect">
         <h4 data-i18n="rSize"></h4>
-        <div class="seg full" id="rvRatio"><button type="button" data-r="9:16">📱 9:16</button><button type="button" data-r="4:5">4:5</button><button type="button" data-r="1:1">1:1</button><button type="button" data-r="16:9">16:9</button></div>
+        <div class="seg full" id="rvRatio"><button type="button" data-r="9:16">9:16</button><button type="button" data-r="4:5">4:5</button><button type="button" data-r="1:1">1:1</button><button type="button" data-r="16:9">16:9</button></div>
         <div class="seg full" id="rvLayout" style="margin-top:8px"><button type="button" data-l="fill" data-i18n="rFill"></button><button type="button" data-l="frame" data-i18n="rFrame"></button></div>
         <h4 style="margin-top:14px" data-i18n="rLen"></h4>
         <div class="seg full" id="rvDur"><button type="button" data-d="6">6s</button><button type="button" data-d="8">8s</button><button type="button" data-d="10">10s</button><button type="button" data-d="15">15s</button><button type="button" data-d="20">20s</button></div>
@@ -1082,7 +1110,7 @@ details:not(.sect)>summary{font-size:14px!important;color:var(--muted)}
   <button type="button" class="v2item install-ui" id="v2Install"><span class="ic"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M12 7v7M9 11l3 3 3-3M10 18h4"/></svg></span><span data-v2t="install"></span></button>
 </div></div>
 <div id="tfShare" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="tfShH"><div class="modal-box tfsh">
-  <div class="tfsh-h"><b id="tfShH">কোথায় শেয়ার করবেন?</b><button type="button" class="btn sm" id="tfShX" aria-label="বন্ধ">✕</button></div>
+  <div class="tfsh-h"><b id="tfShH">কোথায় শেয়ার করবেন?</b><button type="button" class="btn sm" id="tfShX" aria-label="বন্ধ"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
   <div class="tfsh-what" id="tfShWhat"></div>
   <div class="tfsh-grid" id="tfShGrid">
     <button type="button" data-plat="fb"><i class="pi fb">f</i><b>Facebook</b><span>ক্যাপশন অটো কপি</span></button>
@@ -4749,7 +4777,7 @@ const ICD = { CH: 180000, seen: false, sig: {}, libIds: null, timer: 0, unsub: n
     C.on(u => this.onUser(u)); C.start();
     $('acctBtn').addEventListener('click', () => this.button());
   },
-  paint(){ const C = window.TFCloud, b = $('acctBtn'); if(!b) return; const u = C && C.user; b.textContent = u ? '✓' : '👤'; b.title = u ? 'লগইন: ' + (u.email || '') + ' — হিস্ট্রি সিঙ্ক হচ্ছে' : 'Gmail দিয়ে লগইন (সব অংশে একই অ্যাকাউন্ট)'; b.classList.toggle('on', !!u); },
+  paint(){ const C = window.TFCloud, b = $('acctBtn'); if(!b) return; const u = C && C.user; b.innerHTML = u ? '<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="8" r="4"/><path d="M3 20c1.4-3.4 4-5 7-5 1.3 0 2.5.3 3.5.8"/><path d="m15.5 18 2 2 4-4.5"/></svg>' : '<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5"/></svg>'; b.title = u ? 'লগইন: ' + (u.email || '') + ' — হিস্ট্রি সিঙ্ক হচ্ছে' : 'Gmail দিয়ে লগইন (সব অংশে একই অ্যাকাউন্ট)'; b.classList.toggle('on', !!u); },
   async button(){
     const C = window.TFCloud; if(!C.usable()){ toast('অ্যাপ আপডেট করলে Gmail লগইন চালু হবে'); return; }
     if(C.user){ if(confirm((C.user.email || '') + ' দিয়ে লগইন করা আছে — সব অংশে এই অ্যাকাউন্ট চালু।\n\nলগআউট করবেন? (সব অংশ থেকেই লগআউট হবে, হিস্ট্রি ক্লাউডে থাকবে)')) { await this.flush(); await C.signOut(); } return; }
