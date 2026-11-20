@@ -392,50 +392,37 @@ window.XP = (() => {
       c.beginPath(); c.roundRect(130, -360, 200, 300, 6); stk(c, '#F5E3C3', 5); [0, 1, 2].forEach(i => { c.beginPath(); c.roundRect(150, -330 + i * 90, 60, 60, 5); stk(c, '#BFE0F5', 4); c.beginPath(); c.roundRect(240, -330 + i * 90, 60, 60, 5); stk(c, '#BFE0F5', 4); });
       sign(c, o.label || 'রাস্তা', 0, -520, 300, 56); }
   };
-  /* where the characters stand for a mode; the first array element belongs to the first cast member */
-  function stagePose(r, si, n, mode) {
-    const FW = r.FW, FH = r.FH, u = r.u, land = r.land, right = si % 2 === 1, out = [];
-    if (mode === 'full') {
-      if (land) { const cx = right ? FW * .75 : FW * .25, ground = FH * .9, H0 = FH * (n === 1 ? .52 : n === 2 ? .47 : .41), sp = n === 1 ? [0] : n === 2 ? [-.5, .5] : [-1, 0, 1], gap = (n === 2 ? 270 : 215) * u;
-        sp.forEach(d => out.push({ x: cx + d * gap, y: ground, h: H0 })); return { pose: out, sx: cx, sg: FH * .875, sw: FW * .4, sh: FH * .8, text: right ? 'left' : 'right' }; }
-      const cx = FW / 2, ground = FH * .93, H0 = FH * (n === 1 ? .32 : n === 2 ? .3 : .27), sp = n === 1 ? [0] : n === 2 ? [-.5, .5] : [-1, 0, 1], gap = 330 * u;
-      sp.forEach(d => out.push({ x: cx + d * gap, y: ground, h: H0 })); return { pose: out, sx: cx, sg: FH * .915, sw: FW * .96, sh: FH * .46, text: 'top' };
-    }
-    const cx = land ? FW - 175 * u - (n - 1) * 70 * u : FW - 140 * u - (n - 1) * 60 * u, ground = (land ? .43 : .36) * FH, H0 = FH * (land ? .27 : .17), gap = 120 * u;
-    for (let i = 0; i < n; i++) out.push({ x: cx + (i - (n - 1) / 2) * gap + (n - 1) * 50 * u, y: ground, h: H0 }); return { pose: out, sx: cx, sg: ground, sw: 0, sh: 0, text: 'none' };
+  /* who is on screen for this line: the cast members the words are about (they stay a little longer); first line of a scene shows everyone */
+  function stageWho(r, si, k) {
+    const sc = r.story.scenes[si], sh = r.tl.shots[k], cast = sc.cast.slice(0, 3); r._xwho = r._xwho || {}; if (r._xwho[k]) return r._xwho[k];
+    const named = li => { const ln = sc.lines[li]; if (!ln) return []; const txt = ln.cap || '', out = [];
+      cast.forEach(id => { const cr = r.chars && r.chars[id]; const nm = cr && cr.ch && cr.ch.name; if (nm && txt.indexOf(nm) >= 0) out.push(id); });
+      if (ln.who && cast.includes(ln.who) && !out.includes(ln.who)) out.push(ln.who); if (!out.length && ln.focus && cast.includes(ln.focus) && cast.length === 1) out.push(ln.focus); return out; };
+    let ids = named(sh.li); if (!ids.length && sh.li > 0) ids = named(sh.li - 1); if (!ids.length && sh.li > 1 && (sh.li % 3 !== 0)) ids = named(sh.li - 2);
+    if (!ids.length && sh.li === 0) ids = cast.slice();
+    if (!ids.length && cast.length === 1 && sh.li % 3 === 1) ids = cast.slice();
+    return (r._xwho[k] = ids);
   }
-  const fidOf = ln => ln.who || ln.focus || '';
-  function stageDraw(r, c, si, k, t, mode) {
-    const sc = r.story.scenes[si], sh = r.tl.shots[k], ln = sc.lines[sh.li], lt = t - sh.start, slt = t - sc.start, u = r.u, n = Math.min(3, sc.cast.length || 1);
-    r._xmd = r._xmd || {}; const key = si + ':' + k;
-    if (!r._xmd[key]) { const pk = r.tl.shots[k - 1]; r._xmd[key] = { prevMode: pk && pk.si === si ? (r._xmd[si + ':' + (k - 1)] || {}).mode || mode : mode, mode }; }
-    const pm = r._xmd[key].prevMode, A = stagePose(r, si, n, pm), B = stagePose(r, si, n, mode), e = pm === mode ? 1 : eio(lt / .5), mix = (a, b) => a + (b - a) * e;
-    const st = r.state && r.state[k], showScene = mode === 'full' ? e : 1 - e; // scenery fades with the mode
-    const wasFull = pm === 'full', sceneA = (mode === 'full' ? 1 : 0) * e + (wasFull ? 1 : 0) * (1 - e);
-    // scenery (behind the characters)
-    const sa = Math.max(0, Math.min(1, pm === mode ? (mode === 'full' ? 1 : 0) : sceneA)), skk = bk(slt, .05, .55);
-    if (sa > 0 && skk > 0) { const g = sa < 1 || true ? B : B; const L = mode === 'full' ? B : A, bw = L.sw, bh = L.sh; if (bw > 0) alpha(c, sa, () => { c.save(); const sc0 = Math.min(bw / 760, bh / 640) * (r.land ? 1.06 : 1); c.translate(L.sx + (si % 2 ? -1 : 1) * 10 * u, L.sg); c.scale(sc0 * (.82 + .18 * cl(skk)), sc0 * (.82 + .18 * cl(skk))); O(c, 5);
-        // soft paper blob behind the scenery
-        c.save(); c.fillStyle = 'rgba(240,127,29,.10)'; c.beginPath(); c.ellipse(0, -240, 400, 310, 0, 0, 7); c.fill(); c.restore();
-        try { SCENERY[sceneryKind(sc.place)](c, { label: placeName(sc), t }); } catch (e2) { }
-        c.restore(); }); }
-    // ground scribble
-    if (sa > 0) alpha(c, sa * .9, () => { const L = mode === 'full' ? B : A; if (L.sw > 0) { const gx = L.sx, gy = L.sg - 4 * u, w2 = L.sw * .52 * eo(slt / .6); wobble(c, gx - w2, gy, gx + w2, gy + 2 * u, 1, P.ink, 5 * u, 'g' + si); } });
-    // characters
-    const cast = sc.cast.slice(0, 3);
+  function stageDraw(r, c, si, k, t, big, tmode) {
+    const sc = r.story.scenes[si], sh = r.tl.shots[k], ln = sc.lines[sh.li], lt = t - sh.start, slt = t - sc.start, u = r.u, FW = r.FW, FH = r.FH, land = r.land, cast = sc.cast.slice(0, 3), n = cast.length;
+    const st = r.state && r.state[k], now = stageWho(r, si, k), pk = r.tl.shots[k - 1], before = pk && pk.si === si ? stageWho(r, si, k - 1) : [];
+    // the place: a big, faint paper drawing behind everything, so the whole frame stays "in the story"
+    const skk = bk(slt, .05, .7);
+    if (skk > 0) alpha(c, (big ? .2 : .1) * cl(skk), () => { c.save(); const sw = land ? FW * .62 : FW * 1.2, sc0 = Math.min(sw / 760, FH * (land ? .86 : .5) / 640); c.translate(FW / 2 + Math.sin(t * .15 + si) * 14 * u, FH * (land ? .97 : .9)); c.scale(sc0, sc0); O(c, 5);
+      try { SCENERY[sceneryKind(sc.place)](c, { label: placeName(sc), t }); } catch (e) { } c.restore(); });
+    // characters: pop in at the bottom corners when the words are about them, slide out afterwards
     cast.forEach((id, i) => {
-      const cr = r.chars[id]; if (!cr) return; const a0 = A.pose[i] || A.pose[0], b0 = B.pose[i] || B.pose[0]; const x = mix(a0.x, b0.x), y = mix(a0.y, b0.y), h = mix(a0.h, b0.h);
-      const kf = cr.L.kid ? .74 : cr.L.teen ? .92 : 1, ks = h / 722 * (1 + (fidOf(ln) === id ? .035 * Math.min(1, lt / .3) : 0)), m = (st && st.mem && st.mem[id]) || { feel: 'neutral', act: 'idle' };
-      const ent = eo((slt - .08 - i * .16) / .5); if (ent <= 0) return; const side = x < r.FW / 2 ? -1 : 1;
-      const fid = ln.who || ln.focus; let eye = 0; if (fid && fid !== id) { const wi = sc.cast.indexOf(fid); eye = wi > i ? 1 : wi >= 0 ? -1 : 0; } if (m.act === 'phone') eye = 0;
-      const talking = !!ln.who && ln.who === id && lt > .1 && lt < sh.dur - .15;
-      c.save(); c.globalAlpha *= cl(ent * 1.5); c.translate(side * (1 - ent) * 160 * u, (1 - ent) * 70 * u);
-      const foot = (LEG_LEN + 16) * ks * kf; // drawPerson's anchor is the hip
-      c.translate(0, 0); drawPerson(c, { L: cr.L, x, y: y - foot, s: ks, flip: n > 1 && i === n - 1 ? true : false, feel: m.feel, act: m.act, hold: m.hold, talk: talking, t, seed: cr.seed, eye, tear: m.feel === 'crying' });
-      c.restore();
-      if (mode === 'full' && e >= 1) { const nm = (cr.ch && cr.ch.name) || ''; const tg = bk(slt, .55 + i * .12, .4); if (nm && tg > 0) { c.font = font(700, 30 * u); const tw = c.measureText(nm).width + 44 * u, ty = y + 22 * u; pop(c, x, ty + 22 * u, tg, () => { rrect(c, x - tw / 2, ty, tw, 46 * u, 23 * u, P.ink); say(c, nm, x, ty + 24 * u, 28 * u, '#FFF6E2', 700, 'center', HEAD, tw); }); } }
+      const cr = r.chars[id]; if (!cr) return; const isNow = now.includes(id), wasThere = before.includes(id);
+      let v = isNow ? (wasThere ? 1 : eo((lt - .05) / .45)) : (before.includes(id) ? 1 - eo(lt / .3) : 0);
+      if (sh.li === 0 && isNow) v = Math.min(v, eo((slt - .15 - i * .14) / .5)); if (v <= .01) return;
+      const kf = cr.L.kid ? .74 : cr.L.teen ? .92 : 1, h = FH * (land ? (tmode === 'side' ? .36 : big ? .5 : .36) : (big ? .3 : .22)), ks = h / 722, m = (st && st.mem && st.mem[id]) || { feel: 'neutral', act: 'idle' };
+      const slot = tmode === 'side' && land ? (n === 1 ? .9 : [.72, .92, .56][i]) : n === 1 ? (si % 2 ? .1 : .9) : i === 0 ? .1 : i === 1 ? .9 : .23, x0 = FW * (land ? slot : (slot < .5 ? .2 : .8)), side = x0 < FW / 2 ? -1 : 1;
+      const fid = ln.who || ln.focus; let eye = 0; if (fid && fid !== id) { const wi = cast.indexOf(fid); eye = wi > i ? 1 : wi >= 0 ? -1 : 0; } if (m.act === 'phone') eye = 0;
+      const talking = !!ln.who && ln.who === id && lt > .1 && lt < sh.dur - .15, ground = FH * (land ? 1.0 : .98), foot = (LEG_LEN + 16) * ks * kf, emph = ln.focus === id || ln.who === id ? 1 + .03 * Math.min(1, lt / .3) : 1;
+      c.save(); c.globalAlpha *= cl(v * 1.4); c.translate(side * (1 - v) * 120 * u, (1 - v) * h * .55);
+      drawPerson(c, { L: cr.L, x: x0, y: ground - foot, s: ks * emph, flip: side > 0, feel: m.feel, act: m.act, hold: m.hold, talk: talking, t, seed: cr.seed, eye, tear: m.feel === 'crying' }); c.restore();
+      if (isNow && lt < 1.6 && v > .6) { const nm = (cr.ch && cr.ch.name) || '', tg = bk(lt, .1, .35) * cl((1.6 - lt) / .3); if (nm && tg > 0) { c.font = font(700, 30 * u); const tw = c.measureText(nm).width + 44 * u, ty = ground - h - 24 * u; pop(c, x0, ty, tg, () => { rrect(c, x0 - tw / 2, ty - 23 * u, tw, 46 * u, 23 * u, P.ink); say(c, nm, x0, ty + 1 * u, 28 * u, '#FFF6E2', 700, 'center', HEAD, tw); }); } }
     });
-    return { text: B.text, sx: B.sx, sw: B.sw, side: B.text === 'left' ? 1 : -1, left: B.text === 'right' };
   }
 
   const FW0 = r => r.FW;
@@ -443,17 +430,12 @@ window.XP = (() => {
     const sh = r.tl.shots[k], sc = r.story.scenes[si], ln = sc.lines[sh.li], lt = t - sh.start, card = ln.card, dur = sh.dur + .2;
     const ex = 1 - eo((lt - (dur - .26)) / .26), ent = fin(lt, 0, .12), A = Math.min(ex, .15 + ent * .85);
     c.save(); c.globalAlpha *= cl(A); c.translate(0, (1 - ex) * -14 * r.u);
-    const ty = card && card.type, hasStage = stageScene(r, si);
-    if (ty && CARD_BOARDS[ty]) { if (hasStage) stageDraw(r, c, si, k, t, 'pip'); CARD_BOARDS[ty](r, c, card, lt, k); caption(r, c, k, t); }
-    else if (ty && HERO_CARDS.has(ty)) { if (hasStage && ty !== 'statement' && ty !== 'big') stageDraw(r, c, si, k, t, 'pip'); heroBoard(r, c, card, lt, k, t); if (ty !== 'statement' && ty !== 'big') caption(r, c, k, t); }
-    else {
-      const icon = ty === 'icon' ? String(card.text || '').trim() : '';
-      if (hasStage) {
-        const words = r.words[k], ic = icon || iconFor(ln.cap + ' ' + (ln.hl || '')), m = pickMode(r, k, ln, words, ic, true), mode = m === 'hero' ? 'pip' : 'full', bx = stageDraw(r, c, si, k, t, mode);
-        textBoard(r, c, k, t, { icon, stage: { left: bx.left, text: bx.text }, noIcon: m === 'hero' });
-        if (m === 'stage' && ic && r.land) sticker(c, bx.sx + (bx.left ? -1 : 1) * bx.sw * .36, r.FH * .2, 64 * r.u, ic, lt, .35);
-      } else textBoard(r, c, k, t, { icon });
-      if (ty === 'source') sourceChip(r, c, card, lt); else if (ty === 'label') labelChip(r, c, card, lt); }
+    const ty = card && card.type, hasStage = stageScene(r, si), isCard = !!(ty && (CARD_BOARDS[ty] || (HERO_CARDS.has(ty) && ty !== 'statement' && ty !== 'big')));
+    let tmode = ''; if (hasStage && !ty || ty === 'icon' || ty === 'source' || ty === 'label') { try { tmode = pickMode(r, k, ln, r.words[k], ty === 'icon' ? String(card.text || '').trim() : iconFor(ln.cap + ' ' + (ln.hl || ''))); } catch (e) { } }
+    if (hasStage && !(ty === 'statement' || ty === 'big')) stageDraw(r, c, si, k, t, !isCard, tmode);
+    if (ty && CARD_BOARDS[ty]) { CARD_BOARDS[ty](r, c, card, lt, k); caption(r, c, k, t); }
+    else if (ty && HERO_CARDS.has(ty)) { heroBoard(r, c, card, lt, k, t); if (ty !== 'statement' && ty !== 'big') caption(r, c, k, t); }
+    else { textBoard(r, c, k, t, { icon: ty === 'icon' ? String(card.text || '').trim() : '' }); if (ty === 'source') sourceChip(r, c, card, lt); else if (ty === 'label') labelChip(r, c, card, lt); }
     c.restore();
   }
 
