@@ -546,19 +546,20 @@ rafiq:crying:pray_hands চরিত্রের ভাব দেখাতে �
   }
   function islRenderLib() {
     const ul = $('libList'); if (!ul) return; ul.innerHTML = ''; const { all, list } = rows();
+    { const nU = all.filter(r => usedU(r.u)).length, a = $('libNewN'), b = $('libUsedN'); if (a) a.textContent = bn(all.length - nU); if (b) b.textContent = bn(nU); document.querySelectorAll('#libChips .lchip[data-lt]').forEach(c => { const on = c.dataset.lt === ($('libFilter').value === 'used' || $('libFilter').value === 'hist' ? 'used' : 'new'); c.classList.toggle('on', on); c.setAttribute('aria-pressed', on); }); }
     $('libCount').textContent = `${bn(list.length)}টা দেখাচ্ছে · ✅ লেখা আছে ${bn(all.filter(r => r.u).length)} · ⬜ লেখা হয়নি ${bn(all.filter(r => !r.u).length)} · ব্যবহৃত ${bn(all.filter(r => usedU(r.u)).length)}`;
     const frag = document.createDocumentFragment();
     list.forEach(r => {
       const used = usedU(r.u), writing = BUSY === r.id, queued = WQ.wait.has(r.id), canPick = !!r.it && !r.u;
       /* status badge: ✅ written (in the library) · ⬜ not written yet · ✍️ writing now · ⏳ waiting in the queue */
-      const badge = writing ? el('span', { class: 'islst wr', text: '✍️ লেখা হচ্ছে…' })
-        : queued ? el('span', { class: 'islst qd', text: '⏳ লাইনে আছে' })
-        : r.u ? el('span', { class: 'islst ok', text: '✅ লেখা আছে' })
-        : el('span', { class: 'islst todo', text: '⬜ লেখা হয়নি' });
+      const badge = writing ? el('span', { class: 'islst wr', text: '✍', title: 'লেখা হচ্ছে' })
+        : queued ? el('span', { class: 'islst qd', text: '⏳', title: 'লাইনে আছে' })
+        : r.u ? null
+        : el('span', { class: 'islst todo', text: '○', title: 'লেখা হয়নি' });
       const second = r.u
-        ? el('button', { type: 'button', class: 'islst del ' + (used ? 'ok used' : 'ok2'), title: used ? 'ব্যবহৃত — চাপলে টিক উঠে যাবে' : 'ভিডিও বানানো হলে এখানে টিক দিন', text: used ? '✓ ব্যবহৃত' + (r.at ? ' · ' + dateBn(r.at) : '') : '○ ব্যবহৃত টিক দিন', onclick: e => { e.stopPropagation(); toggleUsed(r.u.id); } })
+        ? el('button', { type: 'button', class: 'islst del ' + (used ? 'ok used' : 'ok2'), title: used ? 'ব্যবহৃত — চাপলে টিক উঠে যাবে' : 'ভিডিও বানানো হলে এখানে টিক দিন', text: used ? '✓' : '○', onclick: e => { e.stopPropagation(); toggleUsed(r.u.id); } })
         : (canPick && !WQ.running ? el('label', { class: 'islst del pick' + (SEL.has(r.id) ? ' on' : ''), onclick: e => e.stopPropagation() },
-          el('input', { type: 'checkbox', checked: SEL.has(r.id), onchange: e => { e.target.checked ? SEL.add(r.id) : SEL.delete(r.id); islRenderLib(); } }), SEL.has(r.id) ? ' বাছা হয়েছে' : ' টিক দিন') : null);
+          el('input', { type: 'checkbox', checked: SEL.has(r.id), onchange: e => { e.target.checked ? SEL.add(r.id) : SEL.delete(r.id); islRenderLib(); } }), '') : null);
       const re = r.u && r.it ? el('button', { type: 'button', class: 'islre del', title: 'নতুন করে লিখুন', 'aria-label': 'নতুন করে লিখুন', text: '↻', onclick: e => { e.stopPropagation(); islGenerate(r.it, { fresh: true }); } }) : null;
       frag.append(el('li', { class: (r.u && app.libId === r.u.id ? 'cur' : '') + (writing ? ' busy' : '') + (used ? ' usedrow' : '') + (!r.u ? ' todorow' : '') + (SEL.has(r.id) ? ' picked' : ''), onclick: e => { if (e.target.closest('.del')) return; islOpen(r); } },
         el('span', { class: 'no', text: bn(r.n) }), el('span', { class: 't' }, el('b', { text: r.title }), el('span', { text: `${r.ref} · ${r.group}` + (r.pre ? ' · অফলাইনে তৈরি' : '') })), el('span', { class: 'islside' }, badge, second), re));
@@ -570,7 +571,7 @@ rafiq:crying:pray_hands চরিত্রের ভাব দেখাতে �
     const b = $('libBook'), f = $('libFilter'); const cb = b.value, cf = f.value;
     const cats = Array.from(new Set(PRE().map(x => x.cat)));
     const groups = [[G_LIFE, `${G_LIFE} (তৈরি, অফলাইন)`]].concat(cats.map(c => [G_LIFE + ' · ' + c, '— ' + c]), [[G_PROPHET, G_PROPHET], [G_QURAN, G_QURAN], [G_HADITH, G_HADITH], [G_OWN, G_OWN]]);
-    b.innerHTML = ''; b.append(el('option', { value: '', text: 'সব ধরন' }), ...groups.map(([v, tx]) => el('option', { value: v, text: tx }))); b.value = groups.some(g => g[0] === cb) ? cb : '';
+    b.className = 'lchip'; b.removeAttribute('aria-hidden'); b.tabIndex = 0; b.style.display = 'inline-flex'; const ch = $('libChips'); if (ch && b.parentNode !== ch) ch.append(b); const ar = $('libArea'); if (ar) ar.style.display = 'none'; b.innerHTML = ''; b.append(el('option', { value: '', text: 'সব ধরন' }), ...groups.map(([v, tx]) => el('option', { value: v, text: tx }))); b.value = groups.some(g => g[0] === cb) ? cb : '';
     if (!f.dataset.isl) { f.innerHTML = ''; f.append(...[['all', 'সব'], ['new', 'অব্যবহৃত'], ['used', 'ব্যবহৃত'], ['hist', 'ইতিহাস (সাম্প্রতিক আগে)'], ['ready', 'তৈরি আছে'], ['todo', 'এখনো লেখা হয়নি']].map(([v, tx]) => el('option', { value: v, text: tx }))); f.dataset.isl = '1'; f.value = 'all'; } else f.value = cf || 'all';
   }
   async function islOpen(r) {
@@ -764,7 +765,6 @@ rafiq:crying:pray_hands চরিত্রের ভাব দেখাতে �
           el('button', { type: 'button', class: 'primary', id: 'islSelGo', onclick: runSelected }),
           el('button', { type: 'button', class: 'ghost sm hidden', id: 'islSelStop', text: '⏹ থামান', onclick: () => { WQ.stop = true; toast('চলতি গল্পটা শেষ হলে থামবে'); } })));
       lib.insertBefore(el('div', null, how, bar, note, stat, chat, selBar), firstRow);
-      $('libRandom').textContent = 'র‍্যান্ডম একটা গল্প';
       $('libRandom').onclick = () => { const { all } = rows(); const pool = all.filter(r => !usedU(r.u) && r.it); if (!pool.length) { toast('সব গল্প ব্যবহার হয়ে গেছে'); return; } islOpen(pool[Math.floor(Math.random() * pool.length)]); };
       ['libSearch'].forEach(id => $(id).addEventListener('input', islRenderLib)); ['libBook', 'libFilter'].forEach(id => $(id).addEventListener('change', islRenderLib));
     }

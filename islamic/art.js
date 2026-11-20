@@ -357,6 +357,8 @@
       #islStepNav button:disabled{opacity:.35}
       #islStepNav span{flex:none;font-size:12.5px;color:#6b7470;min-width:46px;text-align:center}
       @media (min-width:1100px){#islStepNav{bottom:18px}}
+      @media (max-width:1023px){#islStepNav{display:none!important}}
+      #islStepNav button{min-height:38px;padding:0 12px;font-size:14px}
       body.isl main, body.isl .wrap{padding-bottom:150px}`;
     document.head.append(css);
     const prev = el('button', { type: 'button', id: 'islPrev', 'aria-label': 'আগের ধাপ', onclick: () => goStep(Math.max(1, curStep - 1)) }, '‹ আগের');
