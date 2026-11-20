@@ -210,6 +210,7 @@ svg{width:18px;height:18px;flex:none}
 .gal .tagI{font-size:10.5px;color:#fff;background:var(--g);border-radius:5px;padding:0 6px}
 button:focus-visible,.btn:focus-visible,a:focus-visible{outline:2px solid var(--go);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.thumbfields{display:grid;gap:6px;margin:8px 0}.thumbfields label{display:grid;gap:2px;font-size:.78rem}.thumbfields input,.thumbfields select{width:100%;min-width:0}.thumbfields .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .thumbrow{display:flex;gap:14px;align-items:flex-start;margin-bottom:10px}.thumbrow canvas{width:110px;height:auto;border-radius:10px;background:#111;flex:none;box-shadow:0 4px 14px rgba(0,0,0,.15)}
 dialog{max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain}.dlg>.row.end{position:sticky;bottom:-20px;background:#fff;margin:8px -22px -20px;padding:12px 22px 16px;border-top:1px solid var(--line)}
 .aigen{margin-bottom:18px;padding:14px 16px;background:linear-gradient(180deg,#fff,#fbfaf6)}.aigen h4{margin-bottom:10px}
@@ -358,6 +359,14 @@ summary{font-weight:700}
 .ratioquick button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;min-height:34px;font-weight:700;cursor:pointer;color:var(--ink)}
 .ratioquick button.on{background:var(--g);color:#fff;border-color:var(--g)}
 .ratioquick .rqnote{margin-left:4px}
+.pvratio{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;margin:8px 0 2px}
+.pvratio button{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 12px;min-height:34px;font-weight:700;cursor:pointer;color:var(--ink)}
+.pvratio button i{display:block;height:14px;border:2px solid currentColor;border-radius:3px;opacity:.7}
+.pvratio button.on{background:var(--g);color:#fff;border-color:var(--g)}
+body.ed .ed-stage .pvratio{width:100%;max-width:880px;margin:0 auto}
+body.ed .ed-stage .pvratio .muted{color:var(--e-mon-sub)!important}
+body.ed .ed-stage .pvratio button{background:transparent;color:var(--e-mon-ink);border-color:rgba(255,255,255,.2);min-height:32px}
+body.ed .ed-stage .pvratio button.on{background:var(--e-go);color:#111513;border-color:var(--e-go)}
 body.widepv .pv{aspect-ratio:auto}
 @media (max-width:699px){body.widepv .pv{width:100%}}
 .longonly{display:none}body.longfmt .longonly{display:block}body.longfmt #lenTabs,body.longfmt #lenFixedRow{display:none!important}
@@ -1107,7 +1116,12 @@ body.ed #lineInfo{margin:0!important;min-height:18px;color:var(--e-mon-sub)!impo
         <h4>রেজোলিউশন</h4>
         <nav class="seg sub small" id="resPick"><button data-res="720">720p<span class="mo"> (দ্রুত)</span></button><button data-res="1080" class="on">1080p<span class="mo"> (সেরা)</span></button><button data-res="1440">2K</button><button data-res="2160">4K<span class="mo"> (ধীর)</span></button></nav>
         <h4>থাম্বনেল (কভার)</h4>
-        <div class="thumbrow"><canvas id="thumbPv" width="180" height="320" aria-label="থাম্বনেল প্রিভিউ"></canvas><div class="grow"><label>থাম্বনেলের বড় লেখা<input id="thumbText" placeholder="খালি রাখলে গল্পের শিরোনাম"></label><p class="muted sm">ভিডিওর প্রথম ফ্রেমেও এটাই থাকবে।</p><label>থাম্বনেলের ডিজাইন<select id="coverTheme"><option value="golpo">গল্প (বড় মুখ + আলোর রশ্মি + কৌতূহলী হেডলাইন)</option><option value="golpoquote">গল্প-উক্তি (লাল টিজার + সাদা উক্তি কার্ড)</option><option value="jibonpath">জীবনপাঠ (পেজের লোগো ও রং)</option><option value="indigo">কাঁথা নীল</option><option value="terracotta">মাটির রং</option><option value="dusk">সাঁঝবাতি</option></select></label><button class="ghost sm" id="btnThumbDl" type="button"><svg><use href="#i-down"/></svg> থাম্বনেল ছবি ফোনে সেভ</button></div></div>
+        <div class="thumbrow"><canvas id="thumbPv" width="180" height="320" aria-label="থাম্বনেল প্রিভিউ"></canvas><div class="grow"><label>থাম্বনেলের বড় লেখা<input id="thumbText" placeholder="খালি রাখলে গল্পের শিরোনাম"></label><p class="muted sm">ভিডিওর প্রথম ফ্রেমেও এটাই থাকবে।</p><div class="thumbfields" id="thumbFields"><b class="sm">প্রতিটা লেখা আলাদা করে বদলান <span class="muted">(লাল করতে শব্দ {এভাবে} লিখুন)</span></b>
+<label>টিজার (উপরের ছোট লেখা)<input data-tf="ctx" placeholder="যেমন: কেউ তোমাকে বলবে না…"></label>
+<label>১ম লাইন<input data-tf="l1"></label>
+<label>২য় লাইন (বড়, লাল শব্দসহ)<input data-tf="l2"></label>
+<div class="row2"><label>আইকন<select data-tf="icon"></select></label><label>চিহ্ন / সংখ্যা<input data-tf="sym" maxlength="4" placeholder="৳"></label></div>
+<button type="button" class="link" id="btnThumbReset">↺ গল্পের মূল লেখায় ফিরুন</button></div><label>থাম্বনেলের ডিজাইন<select id="coverTheme"><option value="golpo">গল্প (বড় মুখ + আলোর রশ্মি + কৌতূহলী হেডলাইন)</option><option value="golpoquote">গল্প-উক্তি (লাল টিজার + সাদা উক্তি কার্ড)</option><option value="jibonpath">জীবনপাঠ (পেজের লোগো ও রং)</option><option value="indigo">কাঁথা নীল</option><option value="terracotta">মাটির রং</option><option value="dusk">সাঁঝবাতি</option></select></label><button class="ghost sm" id="btnThumbDl" type="button"><svg><use href="#i-down"/></svg> থাম্বনেল ছবি ফোনে সেভ</button></div></div>
         <label class="chk"><input type="checkbox" id="sAutoThumb"> এক্সপোর্ট শেষ হলে থাম্বনেল ছবিও অটো সেভ</label>
         <p class="muted center" id="expInfo"></p>
         <p class="muted center" id="expLine"></p>
@@ -1158,6 +1172,7 @@ body.ed #lineInfo{margin:0!important;min-height:18px;color:var(--e-mon-sub)!impo
       <button class="bigplay" id="btnBigPlay" aria-label="চালাও">▶</button>
       <div class="empty" id="pvEmpty"><div class="logo-xl" id="pvLogo"><img src="data:image/webp;base64,UklGRsoMAABXRUJQVlA4WAoAAAAwAAAAnwAAnwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZBTFBISwIAAA2Qg///+UafpUxyypOp9v/sq2Y3+yFT7f7bxbZtZqr2838+27Uzna0xzvX/2e5pREwA7Hkg9Ljg56FWOGHn/vv9vWFt/tm9D/gHI7VRftj5nRRqDz/heOiadPmWY3kl6iCvp6O0min9lsMcE6Mgw8G6RKnnuUN4VIZBrpPEu7UG+xVkQ87TCge67BTUB5l3bTyUu2SP84WQ/5jG1jnblR0Fg6qxFw226gaL9cp82wyBR1HItEU3mMwQ8q0rA5eissGa80fJQP2LOcuCCkHnWOuSRX3gU9WYa0kBGI051GXOI5sSNA4YzFSCU9fCWlPHwkhB2t3nJkTQKvYYeUXxkiRtAUgEsYl6ADpmdFNAJJgN1tyClhpoLyOKmyjpgB83p9dCQW7ocXaOC+wIfuz4ebDjoWZHrWBH4cSOE3b9v+v/Xf//D/2vEzl/vyvI+f5eTc57gwc5hjU/ctbmBXLmnx0n59m9UHLufVg7Tc0jQIqiRgIua6m5DNzSBBOz+BbAlI6YKQDQJxKjN9qSkmiZhMkekZYeU8/vppEyCrO1ha6U/Go1ZxhopKQUFnYdiiHkxmtLkNuoouNrKSxeah2jIxVWzr2oJ6McVjcoRSp6vlmHfCGDiOF52DJTEGnomYdt85X1JJR/g60bXoypCPiaCjvOtTbGyN6NUth1KfdQo6us/Sp9DXt3DRSmydhoKxzQUHtXTJKpyR446PMeKVEXLDuLU3o48JZ+SqONOi0jj6TLb+Hoty5La6HHBT8PtcJpB/v7/b1hbf7ZPdgTAFZQOCCICAAAECwAnQEqoACgAD4pEohDIaEhEaptPBgChLK3bq+TVqjMs292/I32lbY/Qfwt+PPLzIH66fwH3gfNT0M/lX/c+4B+mv9m/kv4edzXzAfxL+l/sB7zHod9AD+0/4brLvQA8s79w/hN/a/9qPgH/W//v6yv0w7Rv7ZyofsBnFvtb+Q8pO8H396BP8m/ve8x1O9AL0m+R/5H7duc7ji7wYwH/veVD6N/7X+T+AP+V/03/cf3D2vPXj6Hf6zf/8i/OHSYmES63xvFdMOkx3R9Oh10g1y8ILukWg1A/159hJlgw1l5g+XNCzyRBj3GW0l7BaY+M1AuqG5Ev4ZkjID/hXecVBXItup8K6s6yOhSTqWf936hbeXgM6m8WlnZRw8iyJ14LhoWofadqzTlGA6cs9KvB5wnNc/bNbl9yVT8Fn7gvP3gxScYPI6yzY76nLswax6pzNdlKrnmZSKFmTMKV2ioKD0flqYBQkOQgAD+/nUP/+Ll//FbP/+GHILv93IQTTWZTY1WfNulrAeU2cqy1m4JP/DgLAA5wVskBMz/hv9px06x8Z8aHrrIw6b3FeFop67i8csPveJMMfxDulMAAEgg3/5cf0noC3pnRIX1SbqwQqNVJfktotXIGSJjXf6vSd/NEX6bALMqes9soxGFtAzVLLRtE3ChIM6exuuXAxAyPko6p10yD/8Ge2uFHkcbg8+EfviIBz4OpgcRykjykj60sgWowoYsXGSM4RYZbuJDaT20RE/eSwxTung4y211aqUdeM2WRQzABE5L3WdEM62qvlnmncPs5dZedb+zvt8Ms5P8EaEGEeYfqjw+uvSUyVn/nwcANp9nOBLH4LEEbsMEtk8GvBT5BAsdYpPUOW7fp1VM64bgYMIZVyr/XduP/1zOeNsHvUKOLDhmj3ELlZtn7M4evzhT8K8Rx6aC6Z+OshAf/tecm8x0Odo2qOA5q/HYDz5XYWMVvFYTuj2frQx3BlGj41Uz7cdpZu+mIthw7kKRJGzB9HYY8vNFsQ7fmxO1naJaixH5kUabVk7Dut+TwBXiH0wD50JTdGcr9awi4fjlQ8UJjepMDZYEP03c+yGboKLIy/LJzzn9DMMIUW2IehznqbCu+4aK38X8eCdaghy0ldn0NBNeNTvLrJvjjvoKO5faoiLPIEDkblthEWvlIPtqnybyS10idJxsOL0C5RKQm7gg3kliBwg+myrPZfK/UFxFXApDyAO8qlnQEEXEfEI5AEfklGsXIe7GmcfNwruKZ/L5IPjtgMkBHcx7u+pz8THShQS+2+4zC0/1OpJlHr6BDPqXIV75HXuMXWT54h7TA7Na/xHANBs0REbGwUy7gaLBfX5VMeLmz76v0f2ODDyoeS0wv9ocQ6gk85btfgtjh99xMuvOSnbYFxDc1AM+GIpZkhCp6frvkLn6vnDckLAWd62dTxcrmTUD46b6rdgXbqm4n6YHMSTy6RGCu3MxQFBNoBGLu67HDAzQDupu+wLFJbxFNqvCq4v/v4D7nv+lOyvUwqdf3iPPiBa/VAt4k5KRJ0bg2fLYttnZ11IMFQA5uYj918b08GHmzbRBvKtf4HITsBibaP6sJG8kWf0FEob4NKPe38ZbgSCW6AGUZ9giZ/TqVDjqOhuBSKugQ0i3FqW4/SDMaBis3cusfCG4NH6txLTD/YRTNYeXbD4RiZ/epI7a5zcmj4FOmBmceM465QyBO225W0s3tk4hftB7NWo14INyXsk65+rb3P779Qtmf7CwzPUzM67aq/dUfDJX+KdE7r9+Osm32N15lw/CbjGDcO2eKlN9oOI6koweP0UzmMtnrZfeHLUF4r26T/c3jaC0pzRdr/+WVDQXBomAqOW5kpZkBEH4lAPjRWnxZGGGbjP1xfZs2FZ3a7ALG26lNgaV+tG84PK1UoQlJk0Hj8f6aqUeG6wkSs8tygTq2bmux/Tfw7t/cV6BKCl/D2AbfMjLd1U8piAAohtwQmwXQjgThwi79yEEoOnMoSFMj7oei0mQgMlFzqDcWcmP9YFnRZlgbKANtkU3OiItGVGpFK5zHO8ewWWdlzZJg7UQQ5HFajxnVXHNegHxA7kOSWaFfhijgN5HpFkIsPvKxpnvU7clTwQn3KoITOabTU729nT3XXffFBVy3HnN8R8IUT7OVlU4lUoDsL9rAYpYf8u+Jt+eBCURxeoym1ojlnq0JksrV+I2NcjJUKgtMMR8DP+Llm8OaK5gUvMe2+YJ1SkiinTtGJiEvgnsba8nrRpc69saqHSvyl3e5jOOYR7Jnia3QhmFGjNcibcyjT1F2r0c+QQfAQu0jbC5d+ytY4FNghgy0i+RVgfH9a/VFhWFL30PqwhZW29OV2eZCs9sYAgM3xauwC4XV387O77YZnipcL6IdEvnitIZD7AguMGdu6+EfqrSs0LNUxJXAzHeaIaktFxlKowJCo+fFcrLe+01EKIjnkQXpGXEminFgp1BrWWhOTgrYUkGVbQuLxxrDo9Z8lYkd0TEv2FZPqMPuQBqE+lg5+jMtwXWIRxeNNpfDMdUWdOm8zNTm0/j50HtPx92r10CPYgdhQ8FBdrrSdPFHjA5vVOStocicL/HkX0BpQZH/iMZCJ1wQf45vIyeVH6j/xoE8esRWY7pa5zaa/DwEGXVJ1l/sQg2vKB5cPr6buC+Bktw12+6OuO/7w2w/2NEf7btzMpBbQ7gIiCNz8vlKOyg9yVAtXRCVeLP/k2Ztnl/uSY58AChPzrH1gnVrVqr+JbIpEb5wT/cAdaWrELumilnHJGYuWNlG/+W7WWnjng8t6VL5teHg7lxgOQmoQj8viFqAAD2bQetuehv/SfEro6bTLig87o2hhE5+xoUcMrxMnJgU4dAH2eAmB4/bonQpsGGyy6ltTAl+5WNGI4SSOuDNzIRJAAA" alt="TF Story Studio"></div><p>একটা গল্প বেছে নিন</p></div>
     </div>
+    <div class="pvratio" id="pvRatio" role="group" aria-label="ভিডিওর মাপ (যেকোনো সময় বদলান)"><span class="muted sm">মাপ</span><button type="button" data-r="9:16" title="Shorts · Reels · TikTok"><i style="aspect-ratio:9/16"></i>৯:১৬</button><button type="button" data-r="4:5" title="ফেসবুক/ইনস্টা পোস্ট"><i style="aspect-ratio:4/5"></i>৪:৫</button><button type="button" data-r="1:1" title="স্কয়ার পোস্ট"><i style="aspect-ratio:1/1"></i>১:১</button><button type="button" data-r="16:9" title="ইউটিউব ভিডিও"><i style="aspect-ratio:16/9"></i>১৬:৯</button></div>
     <div class="ctrl">
       <button class="icon dark" id="btnPlay" aria-label="চালাও/থামাও">▶</button>
       <input type="range" id="seek" min="0" max="1000" value="0" aria-label="সময়">
@@ -7103,6 +7118,7 @@ const pv = $('pv'); const pctx = pv.getContext('2d', { alpha: false }); let pvCo
 function sizeCanvas() {
   const [a, b] = RATIOS[S.expRatio] || RATIOS['9:16']; const box = pv.parentElement; box.style.aspectRatio = a + '/' + b; box.style.setProperty('--ar', (a / b).toFixed(4));
   const dpr = Math.min(2, window.devicePixelRatio || 1); const cw = pv.clientWidth || 340; if (!pv.clientWidth && pvComp) return; const w = Math.round(Math.min(a < b ? 1080 : 1280, cw * dpr)) & ~1;
+  try { document.querySelectorAll('#pvRatio button').forEach(x => x.classList.toggle('on', x.dataset.r === (S.expRatio || '9:16'))); } catch (e) { }
   pv.width = w; pv.height = Math.round(w * b / a) & ~1; pvComp = new FrameComposer(app.renderer, pv.width, pv.height); drawAt(app.t);
 }
 function drawAt(t) { if (!app.story || !app.tl) { pctx.setTransform(1, 0, 0, 1, 0, 0); pctx.fillStyle = '#f3f2ed'; pctx.fillRect(0, 0, pv.width, pv.height); return; } if (!pvComp || pvComp.w !== pv.width || pvComp.h !== pv.height) pvComp = new FrameComposer(app.renderer, pv.width, pv.height); pctx.setTransform(1, 0, 0, 1, 0, 0); pctx.fillStyle = '#000'; pctx.fillRect(0, 0, pv.width, pv.height); pvComp.draw(pctx, t); }
@@ -7312,7 +7328,7 @@ async function loadAny(text, o) {
   const n = app.story.scenes.reduce((a, s) => a + s.lines.length, 0);
   showWarnings(app.warnings.filter(w => !/চেনা নেই|ধরা হলো/.test(w)), `${app.story.title} — ${bn(app.story.scenes.length)}টা দৃশ্য, ${bn(n)}টা লাইন${parts.length > 1 ? ` (আরও ${bn(parts.length - 1)}টা গল্প "+ লাইব্রেরিতে যোগ" দিয়ে রাখুন)` : ''}`);
   if (!TF_ISL) { const want = app.story.fmt === 'long' ? 'long' : 'short'; if (S.vidFmt !== want) { S.vidFmt = want; if (app.story.longStyle) S.longStyle = app.story.longStyle; saveSettings(); try { syncLongUI(); } catch (e) { } } }
-  app.t = 0; recIdx = 0; $('thumbText').value = app.story.thumb || ''; buildEditors(); rebuild(); renderMarkers(); $('aiNotes').value = app.notes || '';
+  app.t = 0; recIdx = 0; $('thumbText').value = app.story.thumb || ''; thumbFieldsFill(); buildEditors(); rebuild(); renderMarkers(); $('aiNotes').value = app.notes || '';
   return true;
 }
 async function loadPackage(pkg) {
@@ -7926,6 +7942,24 @@ function drawCoverGolpo(c, renderer) {
 /* thumbnail / cover */
 const thumbSoon = debounce(drawThumbPv, 200);
 function drawThumbPv() { const cv = $('thumbPv'); if (!cv || !app.story || !app.tl) return; if (app.renderer.isLong) { const r = app.renderer; r.setFrame(S.expRatio); cv.width = 180; cv.height = Math.round(180 * r.FH / r.FW); const c = cv.getContext('2d'); c.setTransform(180 / r.FW, 0, 0, cv.height / r.FH, 0, 0); app.renderer.drawThumb(c); c.setTransform(1, 0, 0, 1, 0, 0); return; } const [a, b] = RATIOS[S.expRatio] || RATIOS['9:16']; cv.width = 180; cv.height = Math.round(180 * b / a); const c = cv.getContext('2d'); c.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0); drawCover(c, app.renderer); c.setTransform(1, 0, 0, 1, 0, 0); }
+
+/* thumbnail per-field editor (works in all 3 parts): cover.{ctx,l1,l2,icon,sym} + story.thumb = "l1 | l2" */
+const TF_KEYS = ['ctx', 'l1', 'l2', 'icon', 'sym'];
+function thumbFieldsFill() {
+  const box = $('thumbFields'); if (!box || !app.story) return; let d; try { d = coverData(app.story); } catch (e) { d = { ctx: '', l1: '', l2: '', icon: 'book', sym: '৳' }; }
+  const cv = app.story.cover || {}, sel = box.querySelector('[data-tf=icon]');
+  if (!sel.options.length || sel.dataset.n !== String(((window.XP && window.XP.ICONS) ? Object.keys(window.XP.ICONS).length : 0))) {
+    const keys = [...new Set([...(typeof PROPS !== 'undefined' ? PROPS : []), ...((window.XP && window.XP.ICONS) ? Object.keys(window.XP.ICONS) : [])])];
+    sel.innerHTML = keys.map(k => `<option value="${k}">${k}</option>`).join(''); sel.dataset.n = String((window.XP && window.XP.ICONS) ? Object.keys(window.XP.ICONS).length : 0);
+  }
+  const vals = { ctx: cv.ctx || d.ctx || '', l1: cv.l1 || d.l1 || '', l2: cv.l2 || d.l2 || '', icon: cv.icon || d.icon, sym: cv.sym || d.sym };
+  TF_KEYS.forEach(k => { const e = box.querySelector(`[data-tf=${k}]`); if (!e) return; if (k === 'icon' && ![...e.options].some(o => o.value === vals.icon)) e.insertAdjacentHTML('beforeend', `<option>${vals.icon}</option>`); e.value = vals[k] || ''; });
+}
+function thumbFieldsApply() {
+  const box = $('thumbFields'); if (!box || !app.story) return; const v = {}; TF_KEYS.forEach(k => v[k] = (box.querySelector(`[data-tf=${k}]`) || {}).value || '');
+  app.story.cover = Object.assign({}, app.story.cover || {}, v); app.story.thumb = (v.l1.trim() + ' | ' + v.l2.trim()).replace(/^ \| $/, '');
+  $('thumbText').value = app.story.thumb; thumbSoon(); try { drawAt(app.t); } catch (e) { } autosave();
+}
 async function thumbBlob() { if (app.renderer.isLong) { const r = app.renderer; r.setFrame(S.expRatio); const cv = document.createElement('canvas'); cv.width = r.FW; cv.height = r.FH; app.renderer.drawThumb(cv.getContext('2d', { alpha: false })); return await new Promise(r => cv.toBlob(r, 'image/jpeg', .92)); } const { w, h } = frameSize(S.expRatio, 1080); const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const c = cv.getContext('2d', { alpha: false }); cv.width = W; cv.height = H; const c2 = cv.getContext('2d', { alpha: false }); drawCover(c2, app.renderer); return await new Promise(r => cv.toBlob(r, 'image/jpeg', .92)); }
 function renderMarkers() { const ul = $('markerList'); ul.innerHTML = ''; app.markers.forEach((m, i) => ul.append(el('li', null, el('b', { text: `📍 ${fmtT(m.t)} · দৃশ্য ${bn(m.si + 1)}, লাইন ${bn(m.li + 1)}` }), el('input', { value: m.note, placeholder: 'কী ভুল?', oninput: e => { m.note = e.target.value; autosave(); } }), el('button', { class: 'link', type: 'button', text: 'যাও', onclick: () => { stopPlay(true); app.t = m.t; drawAt(app.t); updateTime(); } }), el('button', { class: 'link', type: 'button', text: '✕', onclick: () => { app.markers.splice(i, 1); renderMarkers(); autosave(); } })))); }
 function addMarker() { if (!app.story) return; const sh = app.tl.shots[app.renderer.shotAt(app.t)]; app.markers.push({ t: app.t, si: sh.si, li: sh.li, cap: app.story.scenes[sh.si].lines[sh.li].cap, note: '' }); renderMarkers(); autosave(); toast(`📍 ${fmtT(app.t)} মার্ক হয়েছে — এক্সপোর্ট পাতায় লিখুন কী ভুল`, 'ok'); }
@@ -8294,8 +8328,9 @@ async function init() {
   initShareSheet();
   { const at = $('sAutoThumb'); at.checked = S.autoThumb !== false; at.onchange = () => { S.autoThumb = at.checked; saveSettings(); }; }
   $('btnSaveAgain').onclick = () => app.lastExport && downloadBlob(app.lastExport.blob, app.lastExport.name);
-  $('thumbText').addEventListener('input', e => { if (!app.story) return; app.story.thumb = e.target.value.trim(); thumbSoon(); drawAt(app.t); autosave(); });
+  $('thumbText').addEventListener('input', e => { if (!app.story) return; app.story.thumb = e.target.value.trim(); if (app.story.cover) { const p = app.story.thumb.split('|'); if (p.length > 1) { app.story.cover.l1 = p[0].trim(); app.story.cover.l2 = p[1].trim(); } } thumbFieldsFill(); thumbSoon(); drawAt(app.t); autosave(); });
   { const ct = $('coverTheme'); if (ct) { ct.value = S.coverTheme || 'jibonpath'; ct.onchange = () => { S.coverTheme = ct.value; saveSettings(); thumbSoon(); }; } }
+  { const box = $('thumbFields'); if (box) { box.addEventListener('input', thumbFieldsApply); $('btnThumbReset').onclick = () => { if (!app.story) return; app.story.thumb = ''; if (app.story.cover) { ['ctx', 'l1', 'l2', 'icon', 'sym'].forEach(k => delete app.story.cover[k]); } $('thumbText').value = ''; thumbFieldsFill(); thumbSoon(); try { drawAt(app.t); } catch (e) { } autosave(); }; } }
   $('btnThumbDl').onclick = async () => { if (!app.story) return; const b = await thumbBlob(); downloadBlob(b, safeName(app.story.title) + '_thumbnail.jpg'); };
   $('btnAI').onclick = saveForClaude; $('btnBackup').onclick = saveBackup; $('aiNotes').addEventListener('input', () => { app.notes = $('aiNotes').value; autosave(); });
   $('btnCopyYT').onclick = () => copyText($('ytText').value); document.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => copyText($(b.dataset.copy).value)); $('btnWav').onclick = async () => { if (!app.story) return; const m = await ensureMix(); downloadBlob(audioBufferToWav(m), safeName(app.story.title) + '.wav'); };
@@ -9197,6 +9232,7 @@ function setRatio(v) {
   setSeg('ratioPick', 'r', v); syncRatioQuick();
   if (app.story) rebuild(true); sizeCanvas(); thumbSoon(); updateExpInfo();
 }
+document.addEventListener('click', e => { const b = e.target.closest('#pvRatio button[data-r]'); if (b) setRatio(b.dataset.r); });
 function syncRatioQuick() { const box = $('ratioQuick'); if (!box) return; const cur = curFmtLong() ? (S.ratioLong || '16:9') : (S.ratioShort || '9:16'); box.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.r === cur)); }
 function longOpts() {
   const bi = $('pBook').value, b = bi !== '' ? BOOKS[bi] : null, les = $('pLesson').value;
