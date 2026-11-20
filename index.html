@@ -998,6 +998,15 @@ select.lchip{-webkit-appearance:none;appearance:none;width:auto!important;max-wi
 .nextbar{justify-content:flex-end}
 @media (max-width:1023px){body.ed .ed-panel .nextbar .primary{flex:1}}
 </style>
+<style id="v12">
+/* v12: settings + dialogs — labels only, no explanatory paragraphs */
+#dlgSettings p.muted.sm:not(:has(button)),#dlgChars p.muted.sm,#dlgAccount p.muted.sm:not(:has(button)),.logobox p.muted{display:none!important}
+#dlgSettings .dlg{gap:10px}
+#dlgSettings h4{margin:10px 0 2px;font-size:13px;opacity:.75}
+#dlgSettings .logobox{gap:10px;align-items:center}
+#dlgSettings .logobox .tip{display:none}
+@media(max-width:699px){#dlgSettings .grid2{grid-template-columns:1fr 1fr;gap:8px}#dlgSettings .grid2 label{font-size:12px}#dlgSettings .chk{font-size:13px}}
+</style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -1353,7 +1362,7 @@ select.lchip{-webkit-appearance:none;appearance:none;width:auto!important;max-wi
     <div class="logobox">
       <div class="logoprev" id="logoPrev">TF</div>
       <div>
-        <div class="row"><label class="btn ghost filebtn">লোগো ছবি দিন (PNG/JPG)<input type="file" id="sLogoFile" accept="image/png,image/jpeg,image/webp"></label><button type="button" class="link" id="btnLogoClear">ছবি সরান</button></div>
+        <div class="row"><label class="btn ghost filebtn">লোগো ছবি<input type="file" id="sLogoFile" accept="image/png,image/jpeg,image/webp"></label><button type="button" class="link" id="btnLogoClear">ছবি সরান</button></div>
         <p class="muted sm">ছবি না দিলে নিচের অক্ষর দিয়ে লোগো বানানো হবে।</p>
       </div>
     </div>
@@ -1361,11 +1370,11 @@ select.lchip{-webkit-appearance:none;appearance:none;width:auto!important;max-wi
       <label>চ্যানেলের নাম<input id="sSeries" placeholder="আপনার চ্যানেলের নাম"></label>
       <label>ট্যাগলাইন<input id="sTagline"></label>
       <label>লোগোর অক্ষর<input id="sLogo" maxlength="3"></label>
-      <label>নায়কের ডিফল্ট নাম<input id="sHero"></label>
+      <label>নায়ক<input id="sHero"></label>
     </div>
-    <label>শেষে দর্শকদের যা বলবে (লাইক/সাবস্ক্রাইব)<input id="sOutro" placeholder="ভালো লাগলে লাইক দিন, শেয়ার করুন, চ্যানেলটি ফলো করে রাখুন"></label>
-    <label class="chk"><input type="checkbox" id="sWatermark" checked> পুরো ভিডিওতে লোগো ও চ্যানেলের নাম (হালকা ছায়াসহ)</label>
-    <label>ওয়াটারমার্ক কতটা স্পষ্ট <output id="sWmOut">70</output><input type="range" id="sWm" min="25" max="100" value="70"></label>
+    <label>শেষ লাইন<input id="sOutro" placeholder="ভালো লাগলে লাইক দিন, শেয়ার করুন, চ্যানেলটি ফলো করে রাখুন"></label>
+    <label class="chk"><input type="checkbox" id="sWatermark" checked> ওয়াটারমার্ক</label>
+    <label>স্পষ্টতা <output id="sWmOut">70</output><input type="range" id="sWm" min="25" max="100" value="70"></label>
   </div>
   <div class="stp hidden" id="st-key">
     <p class="muted sm">key শুধু এই ব্রাউজারে থাকে, সরাসরি Google/Anthropic/Cartesia-তে যায়। কোনো ফাইল বা শেয়ারে key যায় না।</p>
@@ -1391,26 +1400,26 @@ select.lchip{-webkit-appearance:none;appearance:none;width:auto!important;max-wi
     <div class="row"><button type="button" class="link" id="btnForgetKey">সব সেভ করা key মুছুন</button></div>
   </div>
   <div class="stp hidden" id="st-vid">
-    <h4 class="m0">সাবটাইটেলের ফন্ট (সাধারণ লেখা)</h4>
+    <h4 class="m0">সাবটাইটেল ফন্ট</h4>
     <div class="fgrid" id="capFontPick"></div>
-    <h4>দৃশ্যের লেখা — শিরোনাম, কার্ড, থাম্বনেল</h4>
+    <h4>শিরোনাম ফন্ট</h4>
     <div class="fgrid" id="titleFontPick"></div>
-    <h4>ক্যালিগ্রাফি ছোঁয়া — রিওয়াইন্ড প্রশ্ন, "যা শিখলাম", বইয়ের শিক্ষা, শেষের লাইন</h4>
+    <h4>ক্যালিগ্রাফি ফন্ট</h4>
     <div class="fgrid" id="accFontPick"></div>
     <div class="row"><label class="btn ghost filebtn">+ নিজের ফন্ট দিন (TTF/OTF)<input type="file" id="sFontFile" accept=".ttf,.otf,.woff,.woff2,font/ttf,font/otf,font/woff,font/woff2"></label><span class="muted sm">যেমন আপনার কাছে থাকা অন্য কোনো বাংলা ফন্ট</span></div>
     <div class="grid2">
       <label>সাবটাইটেলের ডিজাইন<select id="sCapLook"><option value="golpo">উক্তি-কার্ড (ক্রিম কার্ড, বক্তার মুখ ও নাম)</option><option value="news">নিউজ ব্যান্ড (সোনালি দাগসহ)</option><option value="outline">কালো বর্ডারের লেখা (রিলস স্টাইল)</option><option value="box">গোল কালো বক্স</option></select></label>
       <label>সাবটাইটেলের ধরন<select id="sCapStyle"><option value="karaoke">শব্দে শব্দে (কথার সাথে সাথে)</option><option value="line">পুরো লাইন একসাথে</option></select></label>
       <label>সাবটাইটেলের সাইজ <output id="sCapOut">58</output><input type="range" id="sCap" min="46" max="76" value="58"></label>
-      <label>লাইনের মাঝে বিরতি (সেকেন্ড)<input type="number" id="sGap" min="0" max="1" step="0.01" value="0.22"></label>
+      <label>লাইনের বিরতি (সে.)<input type="number" id="sGap" min="0" max="1" step="0.01" value="0.22"></label>
     </div>
-    <label class="chk"><input type="checkbox" id="sCaptions" checked> সাবটাইটেল দেখাও</label>
-    <label class="chk"><input type="checkbox" id="sProgress" checked> উপরে পাতলা প্রগ্রেস বার</label>
+    <label class="chk"><input type="checkbox" id="sCaptions" checked> সাবটাইটেল</label>
+    <label class="chk"><input type="checkbox" id="sProgress" checked> প্রগ্রেস বার</label>
     <label>অ্যানিমেশন স্টাইল<select id="sAnimStyle"><option value="golpo">গল্প-টুইস্ট (উষ্ণ রং, উক্তি-কার্ড, টুইস্টে ফ্ল্যাশ, শেষে বইয়ের পাতা)</option><option value="jibonpath">জীবনপাঠ সিনেমাটিক (বড় চরিত্র, ঝাপসা পটভূমি, ফোন-কার্ড, ফলাফল কার্ড)</option><option value="shadow">ছায়া-পুতুল থিয়েটার (প্রদীপের আলোয় কাপড়ের পর্দা, কালো কাটআউট পুতুল, লাঠি ও কাটওয়ার্ক)</option><option value="classic">সাধারণ (আগের মতো)</option></select></label>
-    <label class="chk"><input type="checkbox" id="sHookCard" checked> গল্পের শুরুতে হুক কার্ড (সবুজ বক্সে শিরোনাম)</label>
-    <label class="chk"><input type="checkbox" id="sCinema" checked> সিনেমাটিক লুক (আলো-ছায়া, ক্যামেরা মুভ)</label>
-    <label class="chk"><input type="checkbox" id="sCtxBg" checked> কথা অনুযায়ী ব্যাকগ্রাউন্ড বদলাও (হাসপাতাল, অফিস, বাজার, মসজিদ, রাত/সকাল…)</label>
-    <label class="chk"><input type="checkbox" id="sThumb" checked> ভিডিওর প্রথম ফ্রেমে থাম্বনেল (ফেসবুক/ইউটিউব এটাকেই কভার দেখাবে)</label>
+    <label class="chk"><input type="checkbox" id="sHookCard" checked> হুক কার্ড</label>
+    <label class="chk"><input type="checkbox" id="sCinema" checked> সিনেমাটিক লুক</label>
+    <label class="chk"><input type="checkbox" id="sCtxBg" checked> কথা অনুযায়ী ব্যাকগ্রাউন্ড</label>
+    <label class="chk"><input type="checkbox" id="sThumb" checked> প্রথম ফ্রেমে থাম্বনেল</label>
   </div>
   <div class="stp hidden" id="st-data">
     <div class="row"><button type="button" class="ghost" id="btnClearCache">কণ্ঠ/রেকর্ডিং ক্যাশ মুছুন</button><button type="button" class="ghost" id="btnClearUsed">ব্যবহৃত তালিকা মুছুন</button></div>
