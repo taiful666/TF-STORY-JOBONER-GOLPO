@@ -660,9 +660,28 @@ details.more2>summary{min-height:40px;display:flex;align-items:center;cursor:poi
 }
 @media (prefers-reduced-motion:reduce){.startpick button{transition:none}}
 </style>
+<style id="v8">
+/* ===== v8 — unslop polish (all screen sizes). Last emoji buttons become line icons, chevrons are drawn, hover is calm. App logic and saved data untouched. ===== */
+:root{--ease:cubic-bezier(.2,.7,.2,1);--line2:rgba(23,32,27,.16)}
+.suitebtn svg,.icon.sm svg{width:19px;height:19px}
+.icon.sm svg{width:17px;height:17px}
+.tip{font:600 12px/1 TFBody,system-ui,sans-serif!important;font-style:normal!important}
+.startpick button{transition:border-color .15s var(--ease),background-color .15s var(--ease),transform .1s var(--ease)}
+.startpick button:hover{border-color:var(--line2)}
+.startpick button:active{transform:scale(.995)}
+.startpick button::after{content:"";width:18px;height:18px;flex:none;background:#8A938D;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 6 6 6-6 6'/%3E%3C/svg%3E") center/18px no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 6 6 6-6 6'/%3E%3C/svg%3E") center/18px no-repeat;transition:transform .15s var(--ease)}
+.startpick button:hover::after{transform:translateX(2px)}
+.list li:hover{border-color:var(--line2)}
+.list li.cur{border-color:var(--g)}
+@media (prefers-reduced-motion:reduce){.startpick button,.startpick button::after{transition:none}}
+</style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></g></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 4.5a7.5 7.5 0 1 0 4 13.8A8.5 8.5 0 0 1 15.5 4.5Z"/></g></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.3"/></g></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/></g></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
   <symbol id="i-gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></g></symbol>
   <symbol id="i-help" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M9.3 9.2a2.8 2.8 0 0 1 5.4 1c0 1.9-2.7 2.5-2.7 4"/><circle cx="12" cy="17.6" r=".6" fill="currentColor"/></g></symbol>
@@ -694,8 +713,8 @@ details.more2>summary{min-height:40px;display:flex;align-items:center;cursor:poi
     <button data-step="4"><i><svg><use href="#i-share"/></svg><em>✓</em></i><span class="lbl"><b class="lf">এক্সপোর্ট</b><b class="ls">এক্সপোর্ট</b><small class="sn">ভিডিও ও শেয়ার</small></span></button>
   </nav>
   <div class="tools">
-    <a class="icon suitebtn" id="btnHome" href="home.html" title="শুরুর পাতা: গল্প / ইসলামিক অংশ বাছুন" aria-label="শুরুর পাতা">🏠</a>
-    <a class="icon suitebtn" id="btnSuite" href="islamic/index.html" title="ইসলামিক অংশে যান (কুরআন-হাদিসের গল্প, আয়াত, বাণী)" aria-label="ইসলামিক অংশ">🕋</a>
+    <a class="icon suitebtn" id="btnHome" href="home.html" title="শুরুর পাতা: গল্প / ইসলামিক অংশ বাছুন" aria-label="শুরুর পাতা"><svg aria-hidden="true"><use href="#i-home"/></svg></a>
+    <a class="icon suitebtn" id="btnSuite" href="islamic/index.html" title="ইসলামিক অংশে যান (কুরআন-হাদিসের গল্প, আয়াত, বাণী)" aria-label="ইসলামিক অংশ"><svg aria-hidden="true"><use href="#i-moon"/></svg></a>
     <button class="icon acbtn" id="btnAccount" type="button" title="Gmail লগইন ও ক্লাউড সিঙ্ক" aria-label="Gmail অ্যাকাউন্ট"><svg aria-hidden="true"><use href="#i-user"/></svg><img id="acBtnPhoto" class="hidden" alt="" width="42" height="42" referrerpolicy="no-referrer"><i class="acdot hidden" id="acDot" aria-hidden="true"></i></button>
     <button class="icon" id="btnGallery" title="সব চরিত্র দেখুন" aria-label="সব চরিত্র"><svg><use href="#i-users"/></svg></button>
     <button class="icon" id="btnHelp" title="সাহায্য" aria-label="সাহায্য"><svg><use href="#i-help"/></svg></button>
@@ -951,7 +970,7 @@ details.more2>summary{min-height:40px;display:flex;align-items:center;cursor:poi
       <details class="more">
         <summary>ভুল ঠিক করা ও অন্যান্য</summary>
         <h4>Save for Claude</h4>
-        <p class="muted">প্রিভিউতে ভুলের জায়গায় "📍 মার্ক" চাপুন, নিচে লিখুন, তারপর ফাইলটা Claude-কে দিন। ঠিক হওয়া ফাইল আবার খুললে শুধু বদলানো লাইনের কণ্ঠ নতুন করে লাগবে।</p>
+        <p class="muted">প্রিভিউতে ভুলের জায়গায় "মার্ক" চাপুন, নিচে লিখুন, তারপর ফাইলটা Claude-কে দিন। ঠিক হওয়া ফাইল আবার খুললে শুধু বদলানো লাইনের কণ্ঠ নতুন করে লাগবে।</p>
         <textarea id="aiNotes" rows="3" placeholder="কী ভুল আছে?"></textarea>
         <ul class="markers" id="markerList"></ul>
         <label class="chk"><input type="checkbox" id="aiSheet"> সাথে ছোট প্রিভিউ ছবি</label>
@@ -970,7 +989,7 @@ details.more2>summary{min-height:40px;display:flex;align-items:center;cursor:poi
       <button class="icon dark" id="btnPlay" aria-label="চালাও/থামাও">▶</button>
       <input type="range" id="seek" min="0" max="1000" value="0" aria-label="সময়">
       <span class="time" id="tLabel">০:০০ / ০:০০</span>
-      <button class="icon" id="btnMark" title="এখানে ভুল — মার্ক করুন">📍</button>
+      <button class="icon" id="btnMark" title="এখানে ভুল — মার্ক করুন" aria-label="এখানে ভুল — মার্ক করুন"><svg aria-hidden="true"><use href="#i-pin"/></svg></button>
       <button class="icon pvtoggle" id="btnPvMin" title="প্রিভিউ ছোট/বড়" aria-label="প্রিভিউ লুকান/দেখান">▴</button>
     </div>
     <p class="muted center sm" id="lineInfo"></p>
@@ -990,7 +1009,7 @@ details.more2>summary{min-height:40px;display:flex;align-items:center;cursor:poi
 </div></dialog>
 
 <dialog id="dlgSettings"><form method="dialog" novalidate class="dlg">
-  <div class="row between"><h3 class="m0">সেটিংস</h3><button type="submit" class="icon" value="x" aria-label="বন্ধ">✕</button></div>
+  <div class="row between"><h3 class="m0">সেটিংস</h3><button type="submit" class="icon" value="x" aria-label="বন্ধ"><svg aria-hidden="true"><use href="#i-x"/></svg></button></div>
   <nav class="seg sub small" id="setTabs"><button type="button" class="on" data-st="ch">চ্যানেল ও লোগো</button><button type="button" data-st="key">API key</button><button type="button" data-st="vid">ভিডিও</button><button type="button" data-st="data">ডেটা</button></nav>
   <div class="stp" id="st-ch">
     <div class="logobox">
@@ -1011,23 +1030,23 @@ details.more2>summary{min-height:40px;display:flex;align-items:center;cursor:poi
     <label>ওয়াটারমার্ক কতটা স্পষ্ট <output id="sWmOut">70</output><input type="range" id="sWm" min="25" max="100" value="70"></label>
   </div>
   <div class="stp hidden" id="st-key">
-    <p class="muted sm">🔒 key শুধু এই ব্রাউজারে থাকে, সরাসরি Google/Anthropic/Cartesia-তে যায়। কোনো ফাইল বা শেয়ারে key যায় না।</p>
-    <p class="muted sm">🔗 Gemini ও Claude key <b>গল্প</b> ও <b>ইসলামিক</b> — দুই অংশেই একসাথে কাজ করে। একবার দিলেই হবে।</p>
+    <p class="muted sm">key শুধু এই ব্রাউজারে থাকে, সরাসরি Google/Anthropic/Cartesia-তে যায়। কোনো ফাইল বা শেয়ারে key যায় না।</p>
+    <p class="muted sm">Gemini ও Claude key <b>গল্প</b> ও <b>ইসলামিক</b> — দুই অংশেই একসাথে কাজ করে। একবার দিলেই হবে।</p>
     <h4>Gemini (গল্প লেখা)</h4>
     <div class="grid2">
-      <label>Gemini API key<div class="keyrow"><input id="gKey" type="password" autocomplete="off" spellcheck="false" placeholder="AIza..."><button type="button" class="icon sm" data-eye="gKey" aria-label="দেখাও">👁</button></div></label>
+      <label>Gemini API key<div class="keyrow"><input id="gKey" type="password" autocomplete="off" spellcheck="false" placeholder="AIza..."><button type="button" class="icon sm" data-eye="gKey" aria-label="দেখাও"><svg aria-hidden="true"><use href="#i-eye"/></svg></button></div></label>
       <label>মডেল<div class="keyrow"><select id="gModel"><option value="gemini-2.5-flash">gemini-2.5-flash</option></select><button type="button" class="icon sm" id="gLoad" title="মডেল তালিকা আনুন">↻</button></div></label>
     </div>
     <label class="chk"><input type="checkbox" id="gRemember"> এই ব্রাউজারে মনে রাখো</label>
     <h4>Claude (গল্প লেখা)</h4>
     <div class="grid2">
-      <label>Claude API key<div class="keyrow"><input id="aKey" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-..."><button type="button" class="icon sm" data-eye="aKey" aria-label="দেখাও">👁</button></div></label>
+      <label>Claude API key<div class="keyrow"><input id="aKey" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-..."><button type="button" class="icon sm" data-eye="aKey" aria-label="দেখাও"><svg aria-hidden="true"><use href="#i-eye"/></svg></button></div></label>
       <label>মডেল<div class="keyrow"><select id="aModel"><option value="claude-sonnet-5-5">claude-sonnet-5-5</option><option value="claude-opus-5-5">claude-opus-5-5</option><option value="claude-haiku-5-5">claude-haiku-5-5</option></select><button type="button" class="icon sm" id="aLoad" title="মডেল তালিকা আনুন">↻</button></div></label>
     </div>
     <label class="chk"><input type="checkbox" id="aRemember"> এই ব্রাউজারে মনে রাখো</label>
     <h4>Cartesia (কণ্ঠ)</h4>
     <div class="grid2">
-      <label>Cartesia API key<div class="keyrow"><input id="cKey" type="password" autocomplete="off" spellcheck="false" placeholder="sk_car_..."><button type="button" class="icon sm" data-eye="cKey" aria-label="দেখাও">👁</button></div></label>
+      <label>Cartesia API key<div class="keyrow"><input id="cKey" type="password" autocomplete="off" spellcheck="false" placeholder="sk_car_..."><button type="button" class="icon sm" data-eye="cKey" aria-label="দেখাও"><svg aria-hidden="true"><use href="#i-eye"/></svg></button></div></label>
       <label>মডেল<select id="cModel"><option value="sonic-3.6">sonic-3.6</option><option value="sonic-3.5">sonic-3.5</option><option value="sonic-3">sonic-3</option></select></label>
     </div>
     <label class="chk"><input type="checkbox" id="cRemember"> এই ব্রাউজারে মনে রাখো</label>
@@ -1065,7 +1084,7 @@ details.more2>summary{min-height:40px;display:flex;align-items:center;cursor:poi
 </form></dialog>
 
 <dialog id="dlgAccount" aria-labelledby="acTitle"><form method="dialog" novalidate class="dlg">
-  <div class="row between"><h3 class="m0" id="acTitle">Gmail অ্যাকাউন্ট ও ক্লাউড সিঙ্ক</h3><button type="submit" class="icon" value="x" aria-label="বন্ধ">✕</button></div>
+  <div class="row between"><h3 class="m0" id="acTitle">Gmail অ্যাকাউন্ট ও ক্লাউড সিঙ্ক</h3><button type="submit" class="icon" value="x" aria-label="বন্ধ"><svg aria-hidden="true"><use href="#i-x"/></svg></button></div>
   <div id="acOff" class="keystat bad hidden" role="status">ক্লাউড সেটআপ এখনো বাকি। রিপোর <b>FIREBASE-SETUP.md</b> ফাইলের ধাপগুলো শেষ করে কনফিগ বসালে লগইন চালু হবে।</div>
   <div id="acApp" class="keystat hidden" role="status">অ্যাপে Gmail লগইন পরের আপডেটে আসছে। এখন ব্রাউজারে <b>taiful666.github.io</b> খুলে লগইন করুন।</div>
   <div id="acOut" class="hidden">
@@ -1089,7 +1108,7 @@ details.more2>summary{min-height:40px;display:flex;align-items:center;cursor:poi
 </form></dialog>
 
 <dialog id="dlgChars"><form method="dialog" novalidate class="dlg wide">
-  <div class="row between"><h3 class="m0" id="galTitle">সব চরিত্র</h3><button type="submit" class="icon" value="x" aria-label="বন্ধ">✕</button></div>
+  <div class="row between"><h3 class="m0" id="galTitle">সব চরিত্র</h3><button type="submit" class="icon" value="x" aria-label="বন্ধ"><svg aria-hidden="true"><use href="#i-x"/></svg></button></div>
   <p class="muted sm" id="galHint">মোট চরিত্রের তালিকা — গল্পের কোনো চরিত্র বদলাতে দৃশ্য ধাপে "চেহারা বদলান" চাপুন।</p>
   <nav class="seg sub small" id="galFilter"><button type="button" class="on" data-gf="all">সব</button><button type="button" data-gf="m">পুরুষ</button><button type="button" data-gf="f">নারী</button><button type="button" data-gf="kid">শিশু/কিশোর</button><button type="button" data-gf="old">বয়স্ক</button><button type="button" data-gf="islamic">ইসলামিক</button></nav>
   <div class="gal" id="galGrid"></div>

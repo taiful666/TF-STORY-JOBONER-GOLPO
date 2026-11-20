@@ -3,76 +3,235 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#1E3A2F">
-<title>TF Story Studio — কী বানাবেন আজ?</title>
+<meta name="theme-color" content="#F6F7F4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121513" media="(prefers-color-scheme: dark)">
+<meta name="description" content="TF Story Studio — বাংলা গল্প থেকে কণ্ঠসহ শর্টস, রিলস ও লং ভিডিও">
+<title>TF Story Studio — আজ কী বানাবেন?</title>
 <link rel="icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
 <style>
-:root{--g:#1E3A2F;--g2:#2A4D3E;--go:#E9B949;--ink:#17201B;--sub:#66706A;--line:#E2E6E1;--bg:#F6F7F4;--card:#fff;--soft:#EEF1EC;--isl:#0f3d24;--islgo:#c9a227}
+/* ===== Start screen v8 — "গল্পের সন্ধ্যা": quiet chrome, one rendered video frame carries the colour ===== */
+:root{
+  --g:#1E3A2F;--g-ink:#1E3A2F;--go:#E9B949;
+  --bg:#F6F7F4;--raise:#FFFFFF;--soft:#EEF1EC;--hover:#FAFBF9;
+  --ink:#17201B;--sub:#5C6660;--mute:#8A938D;
+  --line:rgba(23,32,27,.09);--line2:rgba(23,32,27,.16);
+  --ease:cubic-bezier(.2,.7,.2,1);
+  --font:"Hind Siliguri","Noto Sans Bengali",SolaimanLipi,"Nirmala UI",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{--g-ink:#8FC4A4;--bg:#121513;--raise:#1A1E1B;--soft:#232925;--hover:#1F2420;
+    --ink:#ECEEE9;--sub:#A6ADA8;--mute:#7C847F;--line:rgba(236,238,233,.08);--line2:rgba(236,238,233,.16)}
+}
 *{box-sizing:border-box}
-html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:SolaimanLipi,"Noto Sans Bengali","Hind Siliguri","Nirmala UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
 body{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
-.top{display:flex;align-items:center;gap:12px;padding:20px 16px 4px;max-width:560px;width:100%;margin:0 auto}
-.top img{width:40px;height:40px;border-radius:11px;display:block}
-.top b{font-size:18px}
-main{flex:1;max-width:560px;width:100%;margin:0 auto;padding:16px 16px 24px;display:flex;flex-direction:column;gap:12px}
-h1{font-size:24px;line-height:1.3;margin:12px 0 6px;font-weight:800}
-.part{position:relative;display:flex;align-items:center;gap:16px;min-height:88px;padding:16px;border-radius:18px;background:var(--card);border:1px solid var(--line);color:var(--ink);text-decoration:none;transition:border-color .15s,background-color .15s}
-.part:hover{border-color:var(--g)}
-.part:active{background:#FAFBF9}
-.part,.acct button{touch-action:manipulation}
-.part:focus-visible{outline:2px solid var(--g);outline-offset:2px}
-.part .ic{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:26px;flex:none;background:var(--g)}
-.part.isl .ic{background:var(--isl)}
-.part.exp .ic{background:#1C2B4B}
+a,button{touch-action:manipulation}
+:focus-visible{outline:2px solid var(--g-ink);outline-offset:2px}
+
+/* header */
+.top{display:flex;align-items:center;gap:12px;width:100%;max-width:1120px;margin:0 auto;padding:max(16px,env(safe-area-inset-top)) 16px 8px}
+.top img{width:36px;height:36px;border-radius:10px;display:block}
+.top b{font-size:17px;font-weight:600;letter-spacing:0}
+
+/* page */
+.page{flex:1;width:100%;max-width:1120px;margin:0 auto;padding:8px 16px 24px;display:grid;gap:24px}
+.lead h1{margin:0;font-size:26px;line-height:1.3;font-weight:600}
+.lead p{margin:4px 0 0;font-size:15px;line-height:1.55;color:var(--sub)}
+
+/* the moment: one rendered frame of a finished story video */
+.frame{position:relative;margin:0;border-radius:16px;overflow:hidden;background:#1b2a2c;aspect-ratio:16/10;box-shadow:0 1px 2px rgba(16,24,20,.08),0 12px 32px rgba(16,24,20,.12);isolation:isolate}
+.frame svg.scene{position:absolute;inset:0;width:100%;height:100%;display:block}
+.frame .tag{position:absolute;top:12px;left:12px;font:500 11px/1 var(--mono);color:rgba(255,255,255,.82);background:rgba(10,14,12,.38);padding:6px 8px;border-radius:6px;letter-spacing:0}
+.frame .sub{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);max-width:86%;padding:6px 12px;border-radius:8px;background:rgba(10,14,12,.62);color:#fff;font-size:15px;line-height:1.45;font-weight:500;text-align:center;white-space:nowrap}
+.frame .sub em{font-style:normal;color:var(--go)}
+.frame .bar{position:absolute;left:12px;right:12px;bottom:12px;display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.86);font:500 11px/1 var(--mono);font-variant-numeric:tabular-nums}
+.frame .bar i{position:relative;flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.24)}
+.frame .bar i::before{content:"";position:absolute;inset:0 69% 0 0;border-radius:2px;background:var(--go)}
+.frame .bar i::after{content:"";position:absolute;left:31%;top:50%;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;background:#fff}
+
+/* choices */
+.parts{display:flex;flex-direction:column;gap:8px}
+.part{position:relative;display:flex;align-items:center;gap:16px;min-height:80px;padding:16px;border-radius:16px;background:var(--raise);border:1px solid var(--line);color:var(--ink);text-decoration:none;transition:border-color .15s var(--ease),background-color .15s var(--ease),transform .1s var(--ease)}
+.part:hover{border-color:var(--line2)}
+.part:active{background:var(--hover);transform:scale(.995)}
+.part:focus-visible{outline:2px solid var(--g-ink);outline-offset:2px}
+.part .ic{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--soft);color:var(--g-ink);flex:none}
+.part .ic svg{width:22px;height:22px}
 .part .tx{flex:1;min-width:0}
-.part b{display:block;font-size:19px;line-height:1.3}
-.part p{margin:2px 0 0;font-size:14px;line-height:1.45;color:var(--sub)}
-.part::after{content:"›";font-size:28px;line-height:1;color:#9AA39D}
-.part .last{position:absolute;top:-8px;right:14px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--go);color:#2b2200}
-.acct{display:flex;align-items:center;gap:12px;margin-top:8px;padding:12px 14px;border-radius:16px;border:1px solid var(--line);background:var(--card)}
-.acct .av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--soft);font-size:18px;overflow:hidden;flex:none}
+.part b{display:block;font-size:17px;line-height:1.35;font-weight:600}
+.part p{margin:2px 0 0;font-size:14px;line-height:1.5;color:var(--sub)}
+.part .chev{width:18px;height:18px;color:var(--mute);flex:none;transition:transform .15s var(--ease)}
+.part:hover .chev{transform:translateX(2px)}
+/* "last opened" — quiet text, set by script */
+.part .last{display:inline-flex;align-items:center;gap:6px;font-size:12px;line-height:1;color:var(--sub);white-space:nowrap;flex:none;order:2}
+.part .last::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--go)}
+.part .chev{order:3}
+
+/* account */
+.acct{display:flex;align-items:center;gap:12px;padding:12px 12px 12px 16px;border-radius:16px;border:1px solid var(--line);background:var(--raise)}
+.acct[hidden]{display:none}
+.acct .av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--soft);color:var(--sub);font-size:16px;font-weight:600;overflow:hidden;flex:none}
+.acct .av svg{width:20px;height:20px}
 .acct .av img{width:100%;height:100%;object-fit:cover}
 .acct .who{flex:1;min-width:0}
-.acct .who b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.acct .who small{display:block;color:var(--sub);font-size:13px;margin-top:1px;line-height:1.4}
-.acct button{font:inherit;font-weight:700;font-size:14px;min-height:44px;padding:0 16px;border-radius:12px;border:0;cursor:pointer;background:var(--g);color:#fff;flex:none}
-.acct button.out{background:transparent;color:var(--ink);border:1px solid var(--line)}
-.acct button:disabled{opacity:.6}
-.acct button:focus-visible{outline:2px solid var(--g);outline-offset:2px}
-.err{margin:0;color:#b4231a;font-size:13px}
-footer{text-align:center;color:var(--sub);font-size:12px;padding:6px 16px 18px}
-@media (prefers-reduced-motion:reduce){.part{transition:none}}
-@media (prefers-color-scheme:dark){
-  :root{--ink:#eceee9;--sub:#a3aaa6;--line:#2b302d;--bg:#121513;--card:#1a1e1b;--soft:#24302a}
-  .part:active{background:#1f2420}
+.acct .who b{display:block;font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acct .who small{display:block;color:var(--sub);font-size:13px;margin-top:2px;line-height:1.4}
+.acct button{font:inherit;font-weight:600;font-size:14px;min-height:44px;padding:0 16px;border-radius:10px;border:1px solid transparent;cursor:pointer;background:var(--g);color:#fff;flex:none;transition:background-color .15s var(--ease),transform .1s var(--ease)}
+.acct button:hover{background:#2A4D3E}
+.acct button:active{transform:scale(.98)}
+.acct button.out{background:transparent;color:var(--ink);border-color:var(--line2)}
+.acct button.out:hover{background:var(--soft)}
+.acct button:disabled{opacity:.6;cursor:default}
+.err{margin:0;color:#B4231A;font-size:13px}
+@media (prefers-color-scheme:dark){.err{color:#F08A80}.acct button{background:#E8ECE7;color:#16201B}.acct button:hover{background:#fff}}
+
+footer{text-align:center;color:var(--mute);font-size:12px;padding:8px 16px max(16px,env(safe-area-inset-bottom));font-variant-numeric:tabular-nums}
+
+/* entrance: one short fade-rise */
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.lead,.frame,.parts,.acct{animation:rise .32s var(--ease) both}
+.frame{animation-delay:.04s}.parts{animation-delay:.08s}.acct{animation-delay:.12s}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* phone: frame sits between headline and choices, a little shorter */
+@media (max-width:719px){
+  .page{gap:16px}
+  .frame{aspect-ratio:16/9}
+  /* show the horizon band of the tall scene; the boat would sit under the scrubber */
+  .frame .boat{display:none}
+  .frame svg.scene{inset:0 0 auto 0;height:auto;aspect-ratio:9/16;transform:translateY(-43%)}
+  .frame .sub{font-size:14px;bottom:40px}
+  .lead{order:0}.frame{order:1}.parts{order:2}.acct-wrap{order:3}
+}
+/* tablet and desktop: split — words and choices left, the vertical frame right */
+@media (min-width:720px){
+  .top{padding:24px 32px 8px}
+  .page{padding:24px 32px 40px;grid-template-columns:minmax(0,1fr) minmax(280px,360px);grid-template-areas:". frame" "lead frame" "parts frame" "acct frame" ". frame";grid-template-rows:1fr auto auto auto 1fr;column-gap:48px;row-gap:24px;align-content:center}
+  .lead{grid-area:lead}.parts{grid-area:parts}.acct-wrap{grid-area:acct;align-self:start}
+  .frame{grid-area:frame;aspect-ratio:9/16;align-self:center;border-radius:20px}
+  .frame .sub{white-space:normal;width:max-content;bottom:52px;font-size:16px}
+  .frame .bar{left:16px;right:16px;bottom:20px}
+  .frame .tag{top:16px;left:16px}
+  .lead h1{font-size:34px;line-height:1.25}
+  .lead p{font-size:16px}
+}
+@media (min-width:1100px){
+  .page{column-gap:96px;grid-template-columns:minmax(0,560px) 380px;justify-content:center}
 }
 </style>
 </head>
 <body>
 <header class="top">
-  <img src="icon-192.png" alt="" width="40" height="40">
+  <img src="icon-192.png" alt="" width="36" height="36">
   <b translate="no">TF Story Studio</b>
 </header>
-<main>
-  <h1>আজ কী বানাবেন?</h1>
-  <a class="part story" id="goStory" href="index.html">
-    <span class="ic" aria-hidden="true">📖</span>
-    <span class="tx"><b>গল্প</b><p>শর্ট ও লং গল্পের ভিডিও</p></span>
-  </a>
-  <a class="part isl" id="goIslamic" href="index.html?part=islamic">
-    <span class="ic" aria-hidden="true">🕋</span>
-    <span class="tx"><b>ইসলামিক</b><p>কুরআন-হাদিসের গল্প, আয়াত ও বাণী</p></span>
-  </a>
-  <a class="part exp" id="goExplainer" href="index.html?part=explainer">
-    <span class="ic" aria-hidden="true">📊</span>
-    <span class="tx"><b>এক্সপ্লেনারি ভিডিও</b><p>ব্যবসা ও চলমান বিষয়ের হিসাব, কাগজের বোর্ডে লেখা-অ্যানিমেশনে</p></span>
-  </a>
-  <section class="acct" id="acct" aria-label="অ্যাকাউন্ট">
-    <span class="av" id="acAv" aria-hidden="true">👤</span>
-    <div class="who"><b id="acName">Gmail দিয়ে লগইন</b><small id="acSub">সব ডিভাইসে আপনার গল্প থাকবে</small></div>
-    <button type="button" id="acBtn">লগইন</button>
-  </section>
-  <p class="err" id="acErr" hidden></p>
+
+<main class="page">
+  <div class="lead">
+    <h1>আজ কী বানাবেন?</h1>
+    <p>বাংলা গল্প থেকে কণ্ঠসহ ভিডিও — শর্টস, রিলস আর লং ভিডিও</p>
+  </div>
+
+  <figure class="frame" aria-hidden="true">
+    <svg class="scene" viewBox="0 0 900 1600" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#22324A"/>
+          <stop offset=".38" stop-color="#7A5C6E"/>
+          <stop offset=".62" stop-color="#E39A5C"/>
+          <stop offset=".72" stop-color="#F3C77A"/>
+        </linearGradient>
+        <linearGradient id="river" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#C98A5A"/>
+          <stop offset=".35" stop-color="#5E4B5A"/>
+          <stop offset="1" stop-color="#1E2635"/>
+        </linearGradient>
+        <radialGradient id="sun" cx=".5" cy=".5" r=".5">
+          <stop offset="0" stop-color="#FFF1C9"/>
+          <stop offset=".6" stop-color="#F8D488"/>
+          <stop offset="1" stop-color="#F8D488" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <rect width="900" height="1600" fill="url(#sky)"/>
+      <circle cx="560" cy="1010" r="150" fill="url(#sun)"/>
+      <circle cx="560" cy="1010" r="62" fill="#FFE8B0"/>
+      <!-- far bank -->
+      <path d="M0 1030 C120 1010 220 1022 330 1012 C450 1000 560 1024 700 1014 C790 1008 860 1016 900 1012 L900 1070 L0 1070Z" fill="#3B3346" opacity=".75"/>
+      <!-- river -->
+      <rect y="1060" width="900" height="540" fill="url(#river)"/>
+      <g fill="#FFE2A6" opacity=".55">
+        <rect x="520" y="1080" width="84" height="4" rx="2"/>
+        <rect x="500" y="1110" width="120" height="3" rx="1.5"/>
+        <rect x="532" y="1146" width="66" height="3" rx="1.5"/>
+        <rect x="488" y="1190" width="146" height="3" rx="1.5" opacity=".6"/>
+        <rect x="540" y="1240" width="52" height="3" rx="1.5" opacity=".5"/>
+      </g>
+      <!-- near bank with palms and a hut -->
+      <path d="M0 1000 C70 990 130 1004 190 1030 C230 1048 250 1066 262 1090 L0 1090Z" fill="#141B1F"/>
+      <g fill="#141B1F">
+        <path d="M70 1000 C74 880 86 790 104 720 L112 722 C96 792 86 882 84 1002Z"/>
+        <path d="M108 722 C60 700 22 712 0 742 C40 716 76 716 108 728Z"/>
+        <path d="M108 722 C80 684 44 676 14 690 C54 690 84 700 106 730Z"/>
+        <path d="M108 722 C134 682 172 672 206 684 C168 688 136 702 112 730Z"/>
+        <path d="M108 722 C156 708 196 722 220 752 C182 728 146 724 112 728Z"/>
+        <path d="M108 722 C110 680 128 652 152 640 C134 662 122 690 114 726Z"/>
+        <path d="M150 1012 C154 930 162 868 176 820 L183 822 C171 870 164 932 162 1014Z"/>
+        <path d="M180 822 C150 806 124 812 106 832 C134 816 158 818 180 828Z"/>
+        <path d="M180 822 C206 800 236 798 258 810 C230 810 204 818 182 830Z"/>
+        <path d="M180 822 C194 794 214 780 234 776 C214 792 200 808 184 828Z"/>
+        <path d="M180 822 C178 796 166 778 150 770 C162 788 170 806 178 828Z"/>
+        <path d="M196 1030 L196 986 L232 958 L268 986 L268 1050Z"/>
+        <path d="M188 990 L232 950 L278 990 L270 994 L232 962 L196 994Z"/>
+      </g>
+      <rect x="222" y="1000" width="14" height="20" rx="2" fill="#F3C77A"/>
+      <!-- boat -->
+      <g class="boat" transform="translate(330 1112)">
+        <path d="M0 40 C60 70 200 70 262 40 L250 58 C190 84 74 84 12 58Z" fill="#141B1F"/>
+        <path d="M94 42 C110 4 152 4 170 42Z" fill="#141B1F"/>
+        <path d="M206 -60 L208 44" stroke="#141B1F" stroke-width="5"/>
+        <path d="M40 46 C110 62 160 62 230 46" stroke="#E39A5C" stroke-width="2" fill="none" opacity=".35"/>
+      </g>
+      <path d="M300 1200 C380 1212 520 1214 620 1200" stroke="#FFE2A6" stroke-width="3" fill="none" opacity=".25"/>
+      <!-- birds -->
+      <g stroke="#2A2632" stroke-width="5" fill="none" stroke-linecap="round" opacity=".7">
+        <path d="M600 560 q14 -12 28 0 q14 -12 28 0"/>
+        <path d="M680 610 q10 -9 20 0 q10 -9 20 0"/>
+        <path d="M540 640 q8 -7 16 0 q8 -7 16 0"/>
+      </g>
+    </svg>
+    <span class="tag">শর্ট · ৯:১৬</span>
+    <figcaption class="sub">নদীর ধারে তখন <em>সন্ধ্যা</em> নামছিল…</figcaption>
+    <div class="bar"><span>০:১৮</span><i></i><span>০:৫৯</span></div>
+  </figure>
+
+  <nav class="parts" aria-label="কী বানাবেন">
+    <a class="part story" id="goStory" href="index.html">
+      <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7c-1.6-1.4-4-2-7-2v12c3 0 5.4.6 7 2 1.6-1.4 4-2 7-2V5c-3 0-5.4.6-7 2Z"/><path d="M12 7v12"/></svg></span>
+      <span class="tx"><b>গল্প</b><p>শর্ট ও লং গল্পের ভিডিও</p></span>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+    </a>
+    <a class="part isl" id="goIslamic" href="index.html?part=islamic">
+      <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 4.5a7.5 7.5 0 1 0 4 13.8A8.5 8.5 0 0 1 15.5 4.5Z"/><path d="m17.5 7.2.6 1.4 1.5.1-1.1 1 .3 1.5-1.3-.8-1.3.8.3-1.5-1.1-1 1.5-.1Z"/></svg></span>
+      <span class="tx"><b>ইসলামিক</b><p>কুরআন-হাদিসের গল্প, আয়াত ও বাণী</p></span>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+    </a>
+    <a class="part exp" id="goExplainer" href="index.html?part=explainer">
+      <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/><path d="m7 12 3-3 2 2 4-4"/></svg></span>
+      <span class="tx"><b>এক্সপ্লেনারি ভিডিও</b><p>ব্যবসা ও চলমান বিষয়ের হিসাব, কাগজের বোর্ডে লেখা-অ্যানিমেশনে</p></span>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+    </a>
+  </nav>
+
+  <div class="acct-wrap">
+    <section class="acct" id="acct" aria-label="অ্যাকাউন্ট">
+      <span class="av" id="acAv" aria-hidden="true"></span>
+      <div class="who"><b id="acName">Gmail দিয়ে লগইন</b><small id="acSub">সব ডিভাইসে আপনার গল্প থাকবে</small></div>
+      <button type="button" id="acBtn">লগইন</button>
+    </section>
+    <p class="err" id="acErr" hidden></p>
+  </div>
 </main>
 <footer id="ver">TF Story Studio</footer>
 <script src="cloud-core.js"></script>
@@ -80,6 +239,8 @@ footer{text-align:center;color:var(--sub);font-size:12px;padding:6px 16px 18px}
 'use strict';
 (function(){
   const $ = id => document.getElementById(id);
+  const PERSON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5"/></svg>';
+  $('acAv').innerHTML = PERSON;
   let last = ''; try{ last = localStorage.getItem('tf_suite_last') || ''; }catch(e){}
   const tag = { story:'goStory', islamic:'goIslamic', explainer:'goExplainer' }[last];
   if(tag){ const b = document.createElement('span'); b.className = 'last'; b.textContent = 'শেষবার'; $(tag).append(b); }
@@ -94,11 +255,12 @@ footer{text-align:center;color:var(--sub);font-size:12px;padding:6px 16px 18px}
     btn.hidden = false; btn.disabled = false;
     if(u){
       const ph = /^https:\/\/lh3\.googleusercontent\.com\//.test(u.photoURL || '') ? u.photoURL : '';
-      $('acAv').innerHTML = ''; if(ph){ const i = document.createElement('img'); i.src = ph; i.alt = ''; i.referrerPolicy = 'no-referrer'; $('acAv').append(i); } else $('acAv').textContent = '✓';
-      $('acName').textContent = u.displayName || u.email || 'লগইন করা আছে'; $('acSub').textContent = u.email || 'লগইন করা আছে';
+      const nm = u.displayName || u.email || '';
+      $('acAv').innerHTML = ''; if(ph){ const i = document.createElement('img'); i.src = ph; i.alt = ''; i.referrerPolicy = 'no-referrer'; $('acAv').append(i); } else $('acAv').textContent = (nm.trim()[0] || '·').toUpperCase();
+      $('acName').textContent = nm || 'লগইন করা আছে'; $('acSub').textContent = u.email || 'লগইন করা আছে';
       btn.textContent = 'লগআউট'; btn.className = 'out';
     } else {
-      $('acAv').textContent = '👤'; $('acName').textContent = 'Gmail দিয়ে লগইন';
+      $('acAv').innerHTML = PERSON; $('acName').textContent = 'Gmail দিয়ে লগইন';
       $('acSub').textContent = 'সব ডিভাইসে আপনার গল্প থাকবে';
       btn.textContent = 'লগইন'; btn.className = '';
     }
