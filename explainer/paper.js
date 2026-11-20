@@ -217,7 +217,7 @@ window.XP = (() => {
   function caption(r, c, k, t) {
     const S = r.settings || {}; if (S.captions === false) return; const FW = r.FW, FH = r.FH, u = r.u, sh = r.tl.shots[k], ln = r.story.scenes[sh.si].lines[sh.li], lt = t - sh.start;
     const a = fin(lt, .05, .3); if (a <= 0) return; const size = (r.land ? 46 : 52) * u, rows = wrap(c, ln.cap, size, FW * (r.land ? .8 : .88), 700).slice(0, 2), hl = new Set(String(ln.hl || '').split('|').flatMap(h => h.split(/\s+/)).map(w => w.replace(/[।,.!?“”"'‘’:;()]/g, '')).filter(Boolean));
-    const lh = size * 1.3, h = rows.length * lh + 28 * u, y = FH - (r.land ? 70 : 150) * u - h;
+    const lh = size * 1.3, h = rows.length * lh + 28 * u, y = FH - (r.land ? 130 : 450) * u - h;
     alpha(c, a, () => { c.save(); c.translate(0, (1 - a) * 14 * u); let wmax = 0; rows.forEach(rw => { wmax = Math.max(wmax, c.measureText(rw).width); }); rrect(c, FW / 2 - wmax / 2 - 30 * u, y, wmax + 60 * u, h, 18 * u, 'rgba(251,246,234,.94)', P.line, 2 * u);
       rows.forEach((rw, ri) => { c.font = font(700, size); const sp = c.measureText(' ').width, ws = rw.split(' '), tot = c.measureText(rw).width; let x = FW / 2 - tot / 2; ws.forEach(w => { const cw = c.measureText(w).width; c.textAlign = 'left'; c.fillStyle = hl.has(w.replace(/[।,.!?“”"'‘’:;()]/g, '')) ? P.red : P.ink; c.fillText(w, x, y + 14 * u + lh * (ri + .8)); x += cw + sp; }); }); c.restore(); });
   }

@@ -6470,7 +6470,7 @@ class StoryRenderer {
     if (tot > maxW) { let best = 1, bestD = 1e9; for (let i = 1; i < pg.length; i++) { const l1 = ww.slice(0, i).reduce((a2, b2) => a2 + b2, 0) + sp * (i - 1), l2 = tot - l1 - sp; const d = Math.abs(l1 - l2) + (Math.max(l1, l2) > maxW ? 1e6 : 0); if (d < bestD) { bestD = d; best = i; } } lines = [pg.map((w, i) => i).slice(0, best), pg.map((w, i) => i).slice(best)]; }
     const lw = lines.map(l => l.reduce((s2, i) => s2 + ww[i], 0) + sp * (l.length - 1));
     const topPad = spk ? 38 * u : 0, lh = size * (G ? 1.4 : 1.34), boxW = Math.min(fw * .94, Math.max(Math.max(...lw) + 80 * u, spk ? 420 * u : 0)), boxH = lines.length * lh + 32 * u + topPad;
-    const y0 = fh - boxH - (fw > fh ? 70 : 280) * u;
+    const y0 = fh - boxH - (fw > fh ? 130 : fh / fw > 1.5 ? 500 : 330) * u; // lifted out of the Reels/Shorts bottom UI (profile, caption, buttons)
     // per-word timing (by character weight)
     const cum = []; let cc = 0; pg.forEach(w => { cum.push(cc); cc += w.length + 1; });
     const lead = .06, prog = (t + lead - pageStart) / pageDur * cc;
@@ -6904,8 +6904,27 @@ async function exportMP4(renderer, mix, onProgress, abort, size) {
   await venc.flush(); venc.close(); if (encErr) throw encErr;
   muxer.finalize();
   onProgress && onProgress(1, 'finish');
-  const blob = sink ? await sink.blob('video/mp4') : new Blob([target.buffer], { type: 'video/mp4' });
+  const blob = sink ? await sink.blob('video/mp4', frames / FPS) : new Blob([target.buffer], { type: 'video/mp4' });
   return { blob, codec: vc.mux, audio: ac ? ac.mux : 'none', w, h };
+}
+/* A fragmented MP4 (long videos) is written with duration 0 in its header — the real length lives only in the fragments.
+   Facebook Reels (and some other share targets) read just the header and say "video is shorter than 3 seconds".
+   This writes the real duration into the mvhd / tkhd / mdhd boxes in place (no size change), like a normal MP4 has. */
+function patchMp4Duration(u8, seconds) {
+  const dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength), dur = Math.max(0, +seconds || 0);
+  const tp = o => String.fromCharCode(u8[o], u8[o + 1], u8[o + 2], u8[o + 3]);
+  let movieTs = 1000;
+  const putDur = (o, ts) => { const v = u8[o]; const val = Math.round(dur * ts); if (v === 1) dv.setBigUint64(o + 24, BigInt(val)); else dv.setUint32(o + 16, Math.min(val, 0xFFFFFFFF)); }; // o = start of version byte; v0: dur at +16 · v1: +24
+  const walk = (a, b) => {
+    for (let o = a; o + 8 <= b;) {
+      let size = dv.getUint32(o); const t = tp(o + 4); if (size === 1 && o + 16 <= b) size = Number(dv.getBigUint64(o + 8)); if (size < 8 || o + size > b) break;
+      if (t === 'moov' || t === 'trak' || t === 'mdia') walk(o + 8, o + size);
+      else if (t === 'mvhd' || t === 'mdhd') { const v = u8[o + 8], tsOff = o + 8 + (v === 1 ? 20 : 12); const ts = dv.getUint32(tsOff) || 1000; if (t === 'mvhd') movieTs = ts; putDur(o + 8, ts); }
+      else if (t === 'tkhd') { const v = u8[o + 8]; if (v === 1) dv.setBigUint64(o + 8 + 28, BigInt(Math.round(dur * movieTs))); else dv.setUint32(o + 8 + 20, Math.min(Math.round(dur * movieTs), 0xFFFFFFFF)); }
+      o += size;
+    }
+  };
+  walk(0, u8.length); return u8;
 }
 /* collects the muxer's output in pieces (merged into Blobs every ~24 MB so the browser can keep them out of JS memory) */
 class BlobSink {
@@ -6915,9 +6934,12 @@ class BlobSink {
     if (pos === this.len) { this.parts.push(d); this.len += d.length; this.pend += d.length; if (this.pend > 24 * 1024 * 1024) { this.blobs.push(new Blob(this.parts)); this.parts = []; this.pend = 0; } }
     else this.patches.push([pos, d]);
   }
-  async blob(type) {
+  async blob(type, seconds) {
     if (this.parts.length) { this.blobs.push(new Blob(this.parts)); this.parts = []; }
     let b = new Blob(this.blobs, { type });
+    if (seconds > 0 && b.size > 4096) { // header (ftyp + moov) is at the very start of the file: put the real duration into it
+      try { const HEAD = Math.min(b.size, 65536); const head = patchMp4Duration(new Uint8Array(await b.slice(0, HEAD).arrayBuffer()), seconds); b = new Blob([head, b.slice(HEAD)], { type }); } catch (e) { console.warn('duration patch', e); }
+    }
     if (this.patches.length) { // a write went back to an earlier byte (not expected for fragmented MP4) — apply it
       let end = b.size; this.patches.forEach(([p, d]) => { end = Math.max(end, p + d.length); });
       const u = new Uint8Array(end); u.set(new Uint8Array(await b.arrayBuffer()), 0); this.patches.forEach(([p, d]) => u.set(d, p)); b = new Blob([u], { type });
@@ -7929,14 +7951,14 @@ function drawCoverGolpo(c, renderer) {
   const vg = c.createRadialGradient(540, 640, 260, 540, 900, 1250); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(10,2,0,.55)'); c.fillStyle = vg; c.fillRect(0, 0, W, H);
   const g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(18,6,2,.5)'); g.addColorStop(.2, 'rgba(18,6,2,0)'); g.addColorStop(.46, 'rgba(18,6,2,.08)'); g.addColorStop(.64, 'rgba(18,6,2,.78)'); g.addColorStop(1, 'rgba(12,4,1,.95)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
   // sticker (top-left) + logo (top-right)
-  covChip(c, cp.sticker, 80 + 250, 170, 44, '#FFD23F', '#2A1500', -.05, 'rgba(120,60,0,.35)');
-  if (Sx.watermark !== false) { c.save(); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 14; drawLogo(c, W - 120, 170, 96, Sx.logo || 'TF'); c.restore(); }
+  covChip(c, cp.sticker, 80 + 250, 320, 44, '#FFD23F', '#2A1500', -.05, 'rgba(120,60,0,.35)');
+  if (Sx.watermark !== false) { c.save(); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 14; drawLogo(c, W - 120, 320, 96, Sx.logo || 'TF'); c.restore(); }
   // question mark when the hook is a question
   if (cp.q) { c.save(); c.translate(900, 560); c.rotate(.2); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 24; circ(c, 0, 0, 92, '#E5281E', '#fff', 10); c.shadowColor = 'transparent'; txt(c, '?', 0, 52, 150, '#fff', 800, 'center', FONT_EN); c.restore(); }
   // strap (the script's teaser) just above the headline
-  let y = 960; if (cp.strap) { c.save(); c.font = `800 46px ${FONT_BN}, ${FONT_FALLBACK}`; const sw = Math.min(W - 90, c.measureText('“' + cp.strap + '”').width + 90); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 20; c.shadowOffsetY = 8; rr(c, 540 - sw / 2, y, sw, 92, 18, '#B3261E'); c.shadowColor = 'transparent'; rr(c, 540 - sw / 2 + 7, y + 7, sw - 14, 78, 12, null, 'rgba(255,220,170,.5)', 2.5); richLine(c, '“' + cp.strap + '”', 540, y + 61, 46, sw - 60, '#FFF3E0', '#FFC857', FONT_BN, 800); c.restore(); y += 120; }
-  const bot = covHeadline(c, cp.lines, 540, y + 6, { size: 150, minSize: 84, maxW: 940, maxH: 1500 - y, mode: 'box', boxFill: '#E5281E', lh: 1.17 });
-  covCTA(c, cp.cta, 540, Math.max(bot + 90, 1560), 52, '#FFD23F', '#2A1500', 'rgba(120,60,0,.4)');
+  let y = 840; if (cp.strap) { c.save(); c.font = `800 46px ${FONT_BN}, ${FONT_FALLBACK}`; const sw = Math.min(W - 90, c.measureText('“' + cp.strap + '”').width + 90); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 20; c.shadowOffsetY = 8; rr(c, 540 - sw / 2, y, sw, 92, 18, '#B3261E'); c.shadowColor = 'transparent'; rr(c, 540 - sw / 2 + 7, y + 7, sw - 14, 78, 12, null, 'rgba(255,220,170,.5)', 2.5); richLine(c, '“' + cp.strap + '”', 540, y + 61, 46, sw - 60, '#FFF3E0', '#FFC857', FONT_BN, 800); c.restore(); y += 120; }
+  const bot = covHeadline(c, cp.lines, 540, y + 6, { size: 150, minSize: 84, maxW: 940, maxH: 1400 - y, mode: 'box', boxFill: '#E5281E', lh: 1.17 });
+  covCTA(c, cp.cta, 540, Math.max(bot + 90, 1440), 52, '#FFD23F', '#2A1500', 'rgba(120,60,0,.4)');
   c.restore();
 }
 /* thumbnail / cover */
@@ -8444,12 +8466,13 @@ function ktPaint(c, g) {
       c.save(); c.globalAlpha *= al; c.font = g.font(size); c.textAlign = 'left'; c.lineJoin = 'round';
       if (bl > .4) c.filter = `blur(${bl.toFixed(1)}px)`;
       c.translate(cx + dx, cy + dy); c.rotate(rot); c.scale(sx, sy); c.translate(-cx, -cy);
-      if (boxT === 'marker' && key) { const hw = (ww + 14 * u) * eo(cl((wl - .02) / .2)); rr(c, x - 7 * u, y - size * .86, hw, size * 1.08, 6 * u, pal.key); }
+      const mk = boxT === 'marker' && key; // key word: white word first, then the yellow marker sweeps over it and the word turns dark INSIDE the marker only
       if (A === 'glitch' && rgb > .5) { c.save(); c.globalCompositeOperation = 'lighter'; c.fillStyle = 'rgba(255,40,80,.85)'; c.fillText(txtv, x - rgb, y); c.fillStyle = 'rgba(40,220,255,.85)'; c.fillText(txtv, x + rgb, y); c.restore(); }
       else {
         if (strokeW) { c.strokeStyle = 'rgba(0,0,0,.92)'; c.lineWidth = strokeW; c.strokeText(txtv, x, y); }
-        c.shadowColor = boxT === 'paper' ? 'rgba(0,0,0,0)' : 'rgba(0,0,0,.45)'; c.shadowBlur = (strokeW ? 10 : 4) * u; c.shadowOffsetY = 2 * u; c.fillStyle = col; c.fillText(txtv, x, y);
+        c.shadowColor = boxT === 'paper' ? 'rgba(0,0,0,0)' : 'rgba(0,0,0,.45)'; c.shadowBlur = (strokeW ? 10 : 4) * u; c.shadowOffsetY = 2 * u; c.fillStyle = mk ? T.txt : col; c.fillText(txtv, x, y);
       }
+      if (mk) { c.save(); c.beginPath(); c.rect(x - 7 * u, y - size * .9, (ww + 14 * u) * eo(cl((wl - .02) / .2)), size * 1.3); c.clip(); rr(c, x - 7 * u, y - size * .86, ww + 14 * u, size * 1.08, 6 * u, pal.key); c.shadowColor = 'transparent'; c.fillStyle = T.key; c.fillText(txtv, x, y); c.restore(); }
       if (cursor) { c.shadowColor = 'transparent'; const cwid = c.measureText(txtv).width; rect(c, x + cwid + 3 * u, y - size * .78, 5 * u, size * .95, pal.key); }
       c.restore();
       if (key && T.ul) { const ue = eo(cl((wl - .08) / .22)); if (ue > 0) rect(c, x, y + size * .2, ww * ue, (boxT === 'gold' ? 6 : 5) * u, T.ul); }
@@ -8813,9 +8836,9 @@ class LongRenderer extends StoryRenderer {
     let spot = hook && !(this.vis && this.vis[k]) ? 'mid' : (ln.card && ln.card.type !== 'label') || (this.vis && (this.vis[k] || (this.vis.ins && this.vis.ins[k]))) ? 'bot' : ['bot', 'bot', 'top', 'bot', 'near', 'bot', 'top'][(k * 5 + 3) % 7];
     let bx = (FW - bw) / 2, by;
     if (spot === 'near') { const hp = ln.who ? this.headScr(sc, ln.who, 150) : null; if (hp && hp[1] - bh - 30 * u > 130 * u && hp[0] > 0 && hp[0] < FW) { bx = cl(hp[0] - bw / 2, 30 * u, FW - bw - 30 * u); by = hp[1] - bh - 30 * u; } else spot = 'bot'; }
-    if (spot === 'top') by = (this.land ? 130 : this.port ? 300 : 170) * u;
+    if (spot === 'top') by = (this.land ? 130 : this.port ? 380 : 190) * u;
     else if (spot === 'mid') by = FH * .5 - bh / 2;
-    else if (spot === 'bot') by = FH - bh - (this.land ? 80 : this.port ? 330 : 120) * u;
+    else if (spot === 'bot') by = FH - bh - (this.land ? 150 : this.port ? 600 : 220) * u;
     const lt = t - ch.t0, e0 = eo(cl(lt / .14)), out = cl((ch.t1 + .02 - t) / .08);
     c.save(); c.globalAlpha *= e0 * out;
     if (ln.speak && ln.who && this.chars[ln.who]) { const nm = this.chars[ln.who].ch.name, q = this.land ? 1 : 1.35; c.font = `700 ${30 * u * q}px ${FONT_BN}, ${FONT_FALLBACK}`; const nw = c.measureText(nm).width + 26 * u * q; rr(c, bx, by - 46 * u * q, nw, 40 * u * q, 5 * u, 'rgba(255,210,63,.95)'); txt(c, nm, bx + 13 * u * q, by - 16 * u * q, 30 * u * q, '#111', 700, 'left', FONT_BN); }
@@ -8836,7 +8859,7 @@ class LongRenderer extends StoryRenderer {
       words.forEach((w, i) => { const ww = c.measureText(w.w).width; if (rows[rows.length - 1].length && w0 + sp + ww > maxW - 70 * u) { rows.push([]); w0 = 0; } rows[rows.length - 1].push({ i, ww }); w0 += (w0 ? sp : 0) + ww; }); return { rows, sp }; };
     let L = lay(size); while (L.rows.length > 2 && size > 32 * u) { size -= 3 * u; L = lay(size); }
     const lh = size * 1.32, rw = L.rows.map(r => r.reduce((s, x) => s + x.ww, 0) + L.sp * (r.length - 1)), bw = Math.max(...rw) + 70 * u, bh = L.rows.length * lh + 30 * u;
-    const bx = (FW - bw) / 2, by = FH - bh - (this.land ? 56 : this.port ? 280 : 100) * u, rise = (1 - eo(cl((lt + .05) / .25))) * 14 * u;
+    const bx = (FW - bw) / 2, by = FH - bh - (this.land ? 130 : this.port ? 600 : 220) * u, rise = (1 - eo(cl((lt + .05) / .25))) * 14 * u;
     c.save(); c.globalAlpha *= a; c.translate(0, rise);
     c.save(); c.shadowColor = 'rgba(60,30,10,.28)'; c.shadowBlur = 18 * u; c.shadowOffsetY = 6 * u; rr(c, bx, by, bw, bh, Math.min(bh / 2, 46 * u), '#FBF1DF'); c.restore();
     L.rows.forEach((r, ri) => { let x = (FW - rw[ri]) / 2; const y = by + 15 * u + lh * (ri + .74); r.forEach(it => { const w = words[it.i]; txt(c, w.w, x, y, size, w.hl || w.num ? '#D2361F' : '#2A1C14', w.hl || w.num ? 800 : 700, 'left', FONT_BN); x += it.ww + L.sp; }); });
@@ -9008,9 +9031,9 @@ class LongRenderer extends StoryRenderer {
     String(L1 + ' ' + L2).split(/\s+/).forEach(w => { if (/[০-৯\d]/.test(w)) red.add(w.replace(KT_PUNCT, '')); });
     const good = /সফল|জিত|আয়|প্রথম ক্লায়েন্ট|লাভ|ধনী|কোটিপতি|বাঁচল|জয়/.test(all) && !/হারা|ধ্বংস|শেষ|চুরি|ফাঁদ|ভুল|নেই|কাঁদ|শূন্য|ঋণ|ধার|প্রতারণা/.test(all);
     // layout per frame
-    const Lc = land ? { tx: 64 * u, ty: 64 * u, tw: FW * .5, cx: FW * .515, cy: FH * .36, cw: FW * .45, head: [FW * .19, FH * .66], ps: FH / 1080 * 2.3, lines: 3, size: 140 * u }
-      : port ? { tx: 56 * u, ty: 120 * u, tw: FW - 112 * u, cx: FW * .07, cy: FH * .37, cw: FW * .86, head: [FW * .5, FH * .835], ps: FW / 1080 * 2.6, lines: 4, size: 175 * u }
-      : { tx: 56 * u, ty: 70 * u, tw: FW - 112 * u, cx: FW * .3, cy: FH * .4, cw: FW * .64, head: [FW * .2, FH * .8], ps: FW / 1080 * (FH > FW * 1.1 ? 2 : 1.75), lines: 3, size: 128 * u };
+    const Lc = land ? { tx: 64 * u, ty: FH * .12, tw: FW * .5, cx: FW * .515, cy: FH * .36, cw: FW * .45, head: [FW * .19, FH * .66], ps: FH / 1080 * 2.3, lines: 3, size: 140 * u }
+      : port ? { tx: 56 * u, ty: FH * .155, tw: FW - 112 * u, cx: FW * .07, cy: FH * .41, cw: FW * .86, head: [FW * .5, FH * .8], ps: FW / 1080 * 2.6, lines: 3, size: 165 * u }
+      : { tx: 56 * u, ty: FH * .1, tw: FW - 112 * u, cx: FW * .3, cy: FH * .43, cw: FW * .64, head: [FW * .2, FH * .8], ps: FW / 1080 * (FH > FW * 1.1 ? 2 : 1.75), lines: 3, size: 128 * u };
     const ch = Lc.cw * .64, cardC = [Lc.cx + Lc.cw / 2, Lc.cy + ch / 2];
     // 1. no box: the most striking moment of the story fills the whole thumbnail; a shade keeps the words readable
     { const pick = coverPickShot(st, this.tl), z = 1.06, cam = { x: 540, y: cl(1160, this.HH / z, H - this.HH / z), z };
@@ -9070,8 +9093,8 @@ class LongRenderer extends StoryRenderer {
     const L1 = String(raw1).replace(/[{}]/g, '').trim(), L2 = String(raw2).replace(/[{}]/g, '').trim();
     const maxW = land ? FW * .56 : FW * .9, x0 = land ? 80 * u : FW * .05; let size = 150 * u * (land ? 1 : 1.15); const fitLines = (t0, sz) => wrapText(c, t0, sz, maxW, 800, FONT_BN);
     while (size > 70 * u && (fitLines(L1, size).length + fitLines(L2, size).length > (land ? 4 : 4))) size -= 8 * u;
-    let y = 120 * u + size;
-    if (d.ctx && this.kt) { c.font = `800 ${44 * u}px ${FONT_BN}, ${FONT_FALLBACK}`; const w = Math.min(maxW, c.measureText(d.ctx).width + 60 * u); rr(c, x0 - 10 * u, 64 * u, w, 70 * u, 10 * u, PL.red); txt(c, d.ctx, x0 + 20 * u, 113 * u, 44 * u, '#fff', 800, 'left', FONT_BN, w - 50 * u); y += 60 * u; }
+    const top0 = land ? 120 * u : FH * .15; let y = top0 + size;
+    if (d.ctx && this.kt) { c.font = `800 ${44 * u}px ${FONT_BN}, ${FONT_FALLBACK}`; const w = Math.min(maxW, c.measureText(d.ctx).width + 60 * u); rr(c, x0 - 10 * u, top0 - 56 * u, w, 70 * u, 10 * u, PL.red); txt(c, d.ctx, x0 + 20 * u, top0 - 7 * u, 44 * u, '#fff', 800, 'left', FONT_BN, w - 50 * u); y += 60 * u; }
     c.textAlign = 'left'; c.lineJoin = 'round';
     fitLines(L1, size).slice(0, 3).forEach(l => { let xx = x0; l.split(/\s+/).forEach(w => { const clean = w.replace(KT_PUNCT, ''); c.font = `800 ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; c.lineWidth = size * .16; c.strokeStyle = '#000'; c.strokeText(w, xx, y); c.fillStyle = red.has(clean) ? (this.kt ? PL.hi : '#FF3B30') : '#FFFFFF'; c.fillText(w, xx, y); xx += c.measureText(w + ' ').width; }); y += size * 1.12; });
     if (L2) { const ls = fitLines(L2, size).slice(0, 2); c.font = `800 ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; ls.forEach(l => { const w = c.measureText(l).width + 60 * u; c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 20; rr(c, x0 - 20 * u, y - size * .92, w, size * 1.16, 14 * u, this.kt ? PL.hi : '#E5281E'); c.restore(); c.fillStyle = this.kt ? '#0B1322' : '#FFFFFF'; c.fillText(l, x0 + 10 * u, y); y += size * 1.24; }); }
