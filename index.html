@@ -857,6 +857,86 @@ body.ed #lineInfo{margin:0!important;min-height:18px;color:var(--e-mon-sub)!impo
 }
 @media (prefers-reduced-motion:reduce){#ed *{transition:none!important}}
 </style>
+<style id="v10">
+/* ===== v10 — one clean surface on phone and PC. Preview is a borderless card that stays on top, its controls sit
+   inside it, the size (৯:১৬ …) is picked from its corner. Library: one line of small chips, two sections (নতুন / ব্যবহৃত). ===== */
+
+/* ---------- preview card (all screens) ---------- */
+body.ed #pvRatio .muted{display:none}
+body.ed .ed-stage .pv #pvRatio{position:absolute;top:46px;left:10px;z-index:8;display:none;flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:2px;width:auto;max-width:none;margin:0;padding:6px;border-radius:14px;background:rgba(14,18,16,.94);box-shadow:0 14px 36px rgba(0,0,0,.4);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+body.ed .ed-stage .pv #pvRatio.open{display:flex}
+body.ed .ed-stage .pv #pvRatio button{display:flex;align-items:center;gap:12px;justify-content:flex-start;min-width:132px;min-height:42px;padding:0 12px;border:0;border-radius:9px;background:transparent;color:#EDF1EC;font-size:15px;font-weight:600}
+body.ed .ed-stage .pv #pvRatio button i{display:block;height:16px;border:2px solid currentColor;border-radius:3px;opacity:.85}
+body.ed .ed-stage .pv #pvRatio button.on{background:var(--e-go);color:#111513}
+body.ed .ed-stage .pv #pvRatio button.on i{opacity:1}
+#pvRatioChip{position:absolute;top:10px;left:10px;z-index:7;display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 11px 0 9px;border:0;border-radius:9px;background:rgba(14,18,16,.52);color:#fff;font:600 13px/1 TFBody,system-ui,sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:background-color .15s}
+#pvRatioChip:hover,#pvRatioChip[aria-expanded="true"]{background:rgba(14,18,16,.8)}
+#pvRatioChip i{display:block;height:13px;border:2px solid currentColor;border-radius:2px;opacity:.9}
+#pvRatioChip::after{content:"";width:0;height:0;border:4px solid transparent;border-top-color:currentColor;border-bottom:0;opacity:.7}
+#pvEmpty:not(.hidden)~#pvRatioChip,#pvEmpty:not(.hidden)~#pvRatio,#pvEmpty:not(.hidden)~.ctrl{display:none!important}
+
+/* controls live inside the card, over the picture */
+body.ed .ed-stage .pv .ctrl{position:absolute!important;left:0;right:0;bottom:0;z-index:6;display:flex!important;align-items:center;width:auto!important;max-width:none!important;margin:0!important;padding:28px 10px 8px!important;gap:8px!important;border-radius:0!important;background:linear-gradient(to top,rgba(8,12,10,.74),rgba(8,12,10,0))!important}
+body.ed .ed-stage .pv #btnPlay{width:34px!important;height:34px!important;flex:none;border-radius:50%!important;background:rgba(255,255,255,.94)!important;color:#111513!important;font-size:12px}
+body.ed .ed-stage .pv #seek{flex:1;min-width:0;height:22px;accent-color:var(--e-go)}
+body.ed .ed-stage .pv .time{color:rgba(255,255,255,.88)!important;font-size:11.5px!important;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+body.ed .ed-stage .pv .ctrl .icon:not(#btnPlay){width:32px!important;height:32px!important;color:#fff!important;background:transparent!important}
+#btnPvMin,#btnBigPlay{display:none!important}
+.pv.is-playing #pvRatioChip,.pv.is-playing #pvRatio{opacity:0;pointer-events:none;transition:opacity .25s}
+body.ed .ed-stage .pv.pv-narrow .ctrl{display:grid!important;grid-template-columns:auto 1fr auto;grid-template-areas:"seek seek seek" "play time mark";column-gap:8px!important;row-gap:0!important;align-items:center;padding:26px 10px 6px!important}
+body.ed .ed-stage .pv.pv-narrow #seek{grid-area:seek;width:100%}body.ed .ed-stage .pv.pv-narrow #btnPlay{grid-area:play;width:30px!important;height:30px!important}
+body.ed .ed-stage .pv.pv-narrow .time{grid-area:time}body.ed .ed-stage .pv.pv-narrow #btnMark{grid-area:mark}
+body.ed .ed-stage .pv #pv{cursor:pointer}
+
+/* ---------- phone & tablet: the card is full width and stays under the top bar ---------- */
+@media (max-width:1023px){
+  body.ed .ed-stage{position:sticky;top:calc(52px + env(safe-area-inset-top,0px));z-index:40;background:var(--e-bg);padding:0 12px 10px}
+  body.ed .ed-stage .right{padding:0!important;gap:0!important;height:auto}
+  body.ed .ed-view{flex:none;height:auto;min-height:0}
+  body.ed .ed-view .pv{border-radius:16px!important;box-shadow:0 1px 2px rgba(16,24,20,.08),0 10px 28px rgba(16,24,20,.16)!important}
+  body.ed .ed-stage .time{font-size:11px!important}
+  body.ed.pvmin .ed-view{display:grid}
+  .ed-tl{margin-top:2px}
+}
+
+/* export step: the four sizes as one small row on phones */
+@media (max-width:699px){.ratios{grid-template-columns:repeat(4,1fr);gap:6px}.ratios button{padding:10px 2px 8px}.ratios button i{height:30px;max-width:40px}.ratios button span{display:none}}
+
+/* ---------- library (all screens) ---------- */
+.srcback{margin:2px 0 12px;gap:10px}
+.srcback b{font-size:18px;font-weight:700}
+.backbtn{width:44px;height:44px;padding:0;justify-content:center;border-radius:50%!important}
+.backbtn svg{width:20px;height:20px}
+#src-lib.pane{padding:12px}
+.lib-find{position:relative;margin:0 0 10px}
+.lib-find svg{position:absolute;left:13px;top:50%;width:18px;height:18px;transform:translateY(-50%);color:var(--sub);pointer-events:none}
+.lib-find input{-webkit-appearance:none;appearance:none;min-height:44px;padding-left:40px!important;padding-right:48px!important;border-radius:12px!important}
+.lib-find #libRandom{position:absolute;right:3px;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:40px;height:40px;border:0;border-radius:10px;background:transparent;color:var(--g);cursor:pointer}
+.lib-find #libRandom:hover{background:var(--soft)}.lib-find #libRandom svg{position:static;transform:none;width:20px;height:20px;color:inherit}
+.lib-find input::-webkit-search-cancel-button{-webkit-appearance:none}
+.lib-chips{display:flex;flex-wrap:nowrap;align-items:center;gap:6px;overflow-x:auto;margin:0 -2px 8px;padding:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.lib-chips::-webkit-scrollbar{display:none}
+.lchip{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px;padding:0 13px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);font-size:14.5px;font-weight:600;line-height:1;white-space:nowrap;cursor:pointer;transition:background-color .15s,border-color .15s,color .15s}
+.lchip em{font-style:normal;font-size:12.5px;font-weight:600;color:var(--sub);font-variant-numeric:tabular-nums}
+.lchip:hover{border-color:var(--line2,#c9d0ca)}
+.lchip.on{background:var(--g);border-color:var(--g);color:#fff}
+.lchip.on em{color:rgba(255,255,255,.78)}
+.lchip.ico{width:38px;padding:0}.lchip svg{width:19px;height:19px}
+select.lchip{-webkit-appearance:none;appearance:none;width:auto!important;max-width:150px;min-height:38px!important;padding:0 28px 0 14px!important;border-radius:999px!important;text-overflow:ellipsis;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2366706A' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center/14px}
+#libList{max-height:none;border-top:0;margin-top:4px}
+#libList li{gap:12px;min-height:62px;padding:10px 6px}
+#libList .no{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--soft);color:var(--g);font-size:14px;font-weight:700;text-align:center}
+#libList li.cur .no{background:var(--g);color:var(--go)}
+#libList .t b{font-size:16px;line-height:1.35}
+#libList .t span{margin-top:1px}
+#libList li.lib-empty,#libList li.more{justify-content:center;color:var(--sub);cursor:default;min-height:80px;background:transparent!important;border-color:transparent!important}
+#libList .del{width:36px;height:36px;font-size:15px;opacity:.7}
+@media (min-width:1100px){
+  #libList li{margin:0;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:10px 6px}
+  #libList li:hover,#libList li.cur{border-color:var(--line);background:var(--soft)}
+  .lib-chips{flex-wrap:wrap;overflow:visible}
+}
+</style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -879,6 +959,8 @@ body.ed #lineInfo{margin:0!important;min-height:18px;color:var(--e-mon-sub)!impo
   <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="8.5" width="12" height="12" rx="2.5"/><path d="M15.5 8.5V6a2.5 2.5 0 0 0-2.5-2.5H6A2.5 2.5 0 0 0 3.5 6v7A2.5 2.5 0 0 0 6 15.5h2.5"/></g></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></g></symbol>
+  <symbol id="i-dice" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="15" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/><circle cx="9" cy="15" r="1" fill="currentColor"/></g></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 </svg>
 
@@ -921,17 +1003,20 @@ body.ed #lineInfo{margin:0!important;min-height:18px;color:var(--e-mon-sub)!impo
         <button type="button" data-pick="ai"><i><svg><use href="#i-spark"/></svg></i><b>AI দিয়ে নতুন গল্প লিখুন</b><span>লিখে লাইব্রেরিতে রাখুন, পরে সেখান থেকে বাছুন</span></button>
       </div>
       <p class="center pickmore hidden" id="srcPickMore"></p>
-      <div class="srcback hidden" id="srcBack"><button type="button" class="backbtn" id="btnSrcBack"><svg><use href="#i-back"/></svg> অন্য উপায়</button><b id="srcTitle"></b></div>
+      <div class="srcback hidden" id="srcBack"><button type="button" class="backbtn" id="btnSrcBack" aria-label="ফিরুন" title="ফিরুন"><svg><use href="#i-back"/></svg></button><b id="srcTitle"></b></div>
       <nav class="seg sub hidden" id="srcTabs"><button class="on" data-src="lib">লাইব্রেরি</button><button data-src="ai">AI দিয়ে লিখুন</button><button data-src="paste">পেস্ট / ফাইল</button><button data-src="add">+ লাইব্রেরিতে যোগ</button></nav>
 
       <div class="pane hidden" id="src-lib">
-        <div class="row">
-          <input id="libSearch" placeholder="খুঁজুন: টাকা, মা, বেতন, 48 Laws..." class="grow" aria-label="গল্প খুঁজুন">
-          <select id="libArea" aria-label="ক্যাটাগরি"></select>
-          <select id="libBook" aria-label="বই"></select>
-          <select id="libFilter" aria-label="ফিল্টার"><option value="all">সব</option><option value="new">শুধু অব্যবহৃত</option><option value="used">ব্যবহৃত</option><option value="mine">AI ও নিজের লেখা</option></select>
+        <div class="lib-find"><svg aria-hidden="true"><use href="#i-search"/></svg><input id="libSearch" type="search" placeholder="খুঁজুন…" aria-label="গল্প খুঁজুন" autocomplete="off" enterkeyhint="search"><button type="button" id="libRandom" aria-label="র‍্যান্ডম গল্প" title="র‍্যান্ডম গল্প"><svg aria-hidden="true"><use href="#i-dice"/></svg></button></div>
+        <div class="lib-chips" id="libChips">
+          <button type="button" class="lchip on" data-lt="new" aria-pressed="true">নতুন<em id="libNewN"></em></button>
+          <button type="button" class="lchip" data-lt="used" aria-pressed="false">ব্যবহৃত<em id="libUsedN"></em></button>
+          <button type="button" class="lchip hidden" id="libMineChip" aria-pressed="false">নিজের</button>
+          <select id="libArea" class="lchip" aria-label="ক্যাটাগরি"></select>
         </div>
-        <div class="row between"><span class="muted" id="libCount"></span><button class="link" id="libRandom">র‍্যান্ডম অব্যবহৃত গল্প</button></div>
+        <select id="libBook" class="hidden" aria-hidden="true" tabindex="-1"></select>
+        <select id="libFilter" class="hidden" aria-hidden="true" tabindex="-1"><option value="new">নতুন</option><option value="used">ব্যবহৃত</option><option value="all">সব</option><option value="mine">নিজের</option></select>
+        <span id="libCount" class="hidden"></span>
         <ul class="list" id="libList"></ul>
       </div>
 
@@ -7254,15 +7339,36 @@ function externalPrompt() {
   return { n, text: n > 1 ? buildStoryPrompt(promptOpts({ count: n, topic, lesson: '', book: '', author: '' })) : buildStoryPrompt(promptOpts({ topic, lesson: '', book: '', author: '' })) };
 }
 function libUsed(it) { return usedList().includes('LIB:' + it.id); }
+const LIBUI = { tab: 'new', mine: false }; // two sections: নতুন (not used yet) and ব্যবহৃত (exported once)
 function renderLib() {
-  const q = $('libSearch').value.trim().toLowerCase(), bk = $('libBook').value, ar = $('libArea').value, f = $('libFilter').value; const ul = $('libList'); ul.innerHTML = '';
-  const all = libItems(), L = libKind();
-  const items = all.filter(it => (!bk || it.book === bk) && (!ar || libGroup(it) === ar) && (f === 'all' || (f === 'mine' ? it.mine : f === 'new' ? !libUsed(it) : libUsed(it))) && (!q || (it.title + ' ' + it.book + ' ' + it.lesson + ' ' + it.area + ' ' + it.txt).toLowerCase().includes(q)));
-  $('libCount').textContent = `${L ? 'লং ভিডিওর লাইব্রেরি' : 'শর্ট ভিডিওর লাইব্রেরি'} · ${bn(items.length)}টা গল্প (মোট ${bn(all.length)}, অব্যবহৃত ${bn(all.filter(x => !libUsed(x)).length)}, ব্যবহৃত ${bn(all.filter(x => libUsed(x)).length)})`;
+  const fsel = $('libFilter'), fv = fsel.value; // other code may still set this select: new / used / mine / all
+  if (fv === 'mine') { LIBUI.tab = 'new'; LIBUI.mine = true; } else if (fv === 'used' || fv === 'new') LIBUI.tab = fv; else if (fv === 'all') { LIBUI.tab = 'new'; LIBUI.mine = false; }
+  fsel.value = LIBUI.tab;
+  const q = $('libSearch').value.trim().toLowerCase(), bk = $('libBook').value, ar = $('libArea').value; const ul = $('libList'); ul.innerHTML = '';
+  const all = libItems(), usedNow = usedList();
+  const nUsed = all.filter(x => libUsed(x)).length, nNew = all.length - nUsed, nMine = all.filter(x => x.mine).length;
+  if (!nMine) LIBUI.mine = false;
+  const tabs = document.querySelectorAll('#libChips [data-lt]');
+  tabs.forEach(b2 => { const on = b2.dataset.lt === LIBUI.tab; b2.classList.toggle('on', on); b2.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  $('libNewN').textContent = bn(nNew); $('libUsedN').textContent = bn(nUsed);
+  const mc = $('libMineChip'); mc.classList.toggle('hidden', !nMine); mc.classList.toggle('on', LIBUI.mine); mc.setAttribute('aria-pressed', LIBUI.mine ? 'true' : 'false');
+  const items = all.filter(it => (LIBUI.tab === 'used' ? libUsed(it) : !libUsed(it)) && (!LIBUI.mine || it.mine) && (!bk || it.book === bk) && (!ar || libGroup(it) === ar) && (!q || (it.title + ' ' + it.book + ' ' + it.lesson + ' ' + it.area + ' ' + it.txt).toLowerCase().includes(q)));
+  $('libCount').textContent = `${bn(items.length)}`;
+  let list;
+  if (LIBUI.tab === 'used') { const pos = it => usedNow.lastIndexOf('LIB:' + it.id); list = items.slice().sort((x, y) => pos(y) - pos(x)); } // last used first
+  else list = items.filter(x => x.mine).reverse().concat(items.filter(x => !x.mine)); // your own new ones first
   const frag = document.createDocumentFragment();
-  const list = f === 'mine' || f === 'all' ? items.filter(x => x.mine).reverse().concat(items.filter(x => !x.mine)) : items;
-  list.slice(0, 400).forEach(it => frag.append(el('li', { class: app.libId === it.id ? 'cur' : '', onclick: e => { if (e.target.closest('.del')) return; loadLib(it); } }, el('span', { class: 'no', text: bn(it.n) }), el('span', { class: 't' }, el('b', { text: it.title }), el('span', { text: `${it.long ? (libGroup(it) === 'প্রবাসী জীবন' ? libSub(it) : (LONG_STYLE_BN[it.lstyle] || 'লং ভিডিও')) + ' · ' : ''}${it.book}${it.lesson ? ' · ' + it.lesson : ''} · ${bn(it.lines)} লাইন` })), it.mine ? el('span', { class: 'mine', text: 'নিজের' }) : null, libUsed(it) ? el('span', { class: 'u', text: '✓ ব্যবহৃত' }) : null, it.mine ? el('button', { class: 'del', type: 'button', title: 'লাইব্রেরি থেকে মুছুন', 'aria-label': 'মুছুন', text: '✕', onclick: async () => { if (!confirm(`"${it.title}" লাইব্রেরি থেকে মুছবেন?`)) return; USERLIB = USERLIB.filter(u => u.id !== it.id); await saveUserLib(); renderLib(); updateMyLibInfo(); fillLibFilters(); } }) : null)));
-  if (list.length > 400) frag.append(el('li', { class: 'muted', text: `আরও ${bn(list.length - 400)}টা — খুঁজে নিন` }));
+  list.slice(0, 400).forEach(it => {
+    const sub = []; if (it.mine) sub.push('নিজের');
+    sub.push(it.long ? (libGroup(it) === 'প্রবাসী জীবন' ? libSub(it) : (LONG_STYLE_BN[it.lstyle] || 'লং ভিডিও')) : (it.book || libGroup(it)));
+    if (it.lesson) sub.push(it.lesson);
+    frag.append(el('li', { class: app.libId === it.id ? 'cur' : '', onclick: e => { if (e.target.closest('.del')) return; loadLib(it); } },
+      el('span', { class: 'no', text: bn(it.n) }),
+      el('span', { class: 't' }, el('b', { text: it.title }), el('span', { text: sub.filter(Boolean).join(' · ') })),
+      it.mine ? el('button', { class: 'del', type: 'button', title: 'লাইব্রেরি থেকে মুছুন', 'aria-label': 'মুছুন', text: '✕', onclick: async () => { if (!confirm(`"${it.title}" লাইব্রেরি থেকে মুছবেন?`)) return; USERLIB = USERLIB.filter(u => u.id !== it.id); await saveUserLib(); renderLib(); updateMyLibInfo(); fillLibFilters(); } }) : null));
+  });
+  if (list.length > 400) frag.append(el('li', { class: 'muted more', text: `আরও ${bn(list.length - 400)}টা — খুঁজে নিন` }));
+  if (!list.length) frag.append(el('li', { class: 'lib-empty', text: q || ar || LIBUI.mine ? 'কিছু মেলেনি' : LIBUI.tab === 'used' ? 'এখনো কোনো গল্প ব্যবহার হয়নি' : 'সব গল্প ব্যবহার হয়ে গেছে' }));
   ul.append(frag);
 }
 async function loadLib(it) { if (await loadAny(it.txt, { libId: it.id })) { app.libId = it.id; renderLib(); autosave(); } }
@@ -9363,7 +9469,7 @@ if (TF_ISL && window.ISL_PATCH) window.ISL_PATCH();
 if (TF_EXP && window.EXP_PATCH) window.EXP_PATCH();
 init();
 /* ===================== v3.9 — start chooser, AI write flow, clean share sheet ===================== */
-const SRC_TITLES = { lib: 'লাইব্রেরি থেকে গল্প বাছুন', paste: 'নিজের গল্প পেস্ট করুন', ai: 'AI দিয়ে নতুন গল্প লিখুন', add: 'অনেক গল্প একসাথে লাইব্রেরিতে যোগ' };
+const SRC_TITLES = { lib: 'লাইব্রেরি', paste: 'নিজের গল্প পেস্ট করুন', ai: 'AI দিয়ে নতুন গল্প লিখুন', add: 'অনেক গল্প একসাথে লাইব্রেরিতে যোগ' };
 const TOPIC_IDEAS = ['প্রথম বেতন', 'মায়ের ত্যাগ', 'বাবার শিক্ষা', 'বন্ধুকে ধার', 'ঋণের ফাঁদ', 'সঞ্চয়ের অভ্যাস', 'অফিসের রাজনীতি', 'বসের অপমান', 'বিয়ের খরচ', 'ছোট দোকান শুরু', 'অনলাইন স্ক্যাম', 'আত্মীয়ের হিংসা', 'ফোনের নেশা', 'পরীক্ষায় ফেল', 'সময়ের দাম', 'ভুল সিদ্ধান্ত'];
 function showSrc(v) {
   const picking = !v;
@@ -9836,6 +9942,71 @@ function initShareSheet() {
   }
   build(); requestAnimationFrame(tick);
   setTimeout(() => fit(true), 60);
+})();
+</script>
+<script id="v10js">
+/* ===== v10 — preview card + library chips. Moves the ratio row and the play bar into the preview, adds the corner
+   size chip, keeps the card sized to its ratio on phones. Reads/changes only through existing controls. ===== */
+(function () {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const pvBox = $('pv') && $('pv').parentElement, view = $('edView'), stage = $('edStage');
+  if (pvBox && view && stage) {
+    try { localStorage.removeItem('tf_pvmin'); } catch (e) { }
+    document.body.classList.remove('pvmin');
+
+    /* ratio chip in the corner; the four sizes open from it */
+    const rows = $('pvRatio'), ctrl = pvBox.parentElement.parentElement.querySelector('.ctrl') || document.querySelector('.right .ctrl');
+    const chip = document.createElement('button');
+    chip.type = 'button'; chip.id = 'pvRatioChip'; chip.setAttribute('aria-haspopup', 'true'); chip.setAttribute('aria-expanded', 'false'); chip.setAttribute('aria-label', 'ভিডিওর মাপ');
+    pvBox.append(chip);
+    if (rows) pvBox.append(rows);
+    if (ctrl) pvBox.append(ctrl);
+    const close = () => { if (rows) rows.classList.remove('open'); chip.setAttribute('aria-expanded', 'false'); };
+    chip.addEventListener('click', e => { e.stopPropagation(); const on = !rows.classList.contains('open'); rows.classList.toggle('open', on); chip.setAttribute('aria-expanded', on ? 'true' : 'false'); });
+    if (rows) rows.addEventListener('click', e => { if (e.target.closest('button[data-r]')) setTimeout(close, 0); });
+    document.addEventListener('click', e => { if (!e.target.closest('#pvRatio,#pvRatioChip')) close(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+    const label = () => {
+      const b = rows && rows.querySelector('button.on') || rows && rows.querySelector('button[data-r="9:16"]'); if (!b) return;
+      const r = b.dataset.r, t = b.textContent.trim(), ic = b.querySelector('i');
+      const sig = r + '|' + t; if (chip.dataset.sig === sig) return; chip.dataset.sig = sig;
+      chip.textContent = ''; const i = document.createElement('i'); i.style.aspectRatio = r.replace(':', '/'); chip.append(i, document.createTextNode(t));
+    };
+    label();
+    if (rows) new MutationObserver(label).observe(rows, { subtree: true, attributes: true, attributeFilter: ['class'] });
+
+    /* small cards: scrubber gets its own row; chip steps aside while playing */
+    if (window.ResizeObserver) new ResizeObserver(() => pvBox.classList.toggle('pv-narrow', pvBox.clientWidth < 320)).observe(pvBox);
+    const bp = $('btnPlay'); if (bp) new MutationObserver(() => pvBox.classList.toggle('is-playing', /❚/.test(bp.textContent))).observe(bp, { childList: true, characterData: true, subtree: true });
+
+    /* phone & tablet: the card is as wide as the screen allows, but never taller than about a third of it */
+    const mq = window.matchMedia('(max-width:1023px)');
+    function layout() {
+      if (!mq.matches) { if (view.style.height) view.style.height = ''; return; }
+      const ar = parseFloat(pvBox.style.getPropertyValue('--ar')) || .5625;
+      const W = (stage.clientWidth || window.innerWidth) - 24;
+      const maxH = Math.max(160, Math.min(window.innerHeight * .36, 320));
+      const h = Math.round(Math.min(maxH, W / ar)) + 'px';
+      if (view.style.height !== h) view.style.height = h;
+    }
+    layout();
+    if (window.ResizeObserver) new ResizeObserver(layout).observe(stage);
+    new MutationObserver(layout).observe(pvBox, { attributes: true, attributeFilter: ['style'] });
+    window.addEventListener('resize', layout); window.addEventListener('orientationchange', layout);
+    if (mq.addEventListener) mq.addEventListener('change', layout);
+  }
+
+  /* library: two sections + own-only chip (renderLib reads LIBUI) */
+  const chips = $('libChips');
+  if (chips && typeof renderLib === 'function') {
+    chips.addEventListener('click', e => {
+      const t = e.target.closest('[data-lt]');
+      if (t) { $('libFilter').value = t.dataset.lt; renderLib(); return; }
+      if (e.target.closest('#libMineChip')) { LIBUI.mine = !LIBUI.mine; renderLib(); }
+    });
+    try { renderLib(); } catch (e) { }
+  }
 })();
 </script>
 <script src="fx/motion.js"></script>
