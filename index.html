@@ -940,6 +940,64 @@ select.lchip{-webkit-appearance:none;appearance:none;width:auto!important;max-wi
   .lib-chips{flex-wrap:wrap;overflow:visible}
 }
 </style>
+<style id="v11">
+/* ===== v11 — nothing decorative. No step headings, no hint sentences; long lists sit behind one tap; one primary action per step. ===== */
+#step1 .stephead,#step2 .stephead,#step3 .stephead,#step4 .stephead{display:none}
+#step2>p.muted,#step2>h3,#step2>.row.between{display:none}
+.waynote,#xHint,#longNote{display:none!important}
+#step3 .longonly,#v-none,#v-upload>p.muted:first-child{display:none!important}
+.keystat:empty{display:none}.keystat{padding:6px 10px;margin:0 0 8px;font-size:13px}
+.sect{display:block;margin:14px 0 8px;font-size:12.5px;font-weight:700;color:var(--sub);letter-spacing:.2px}
+
+/* one-tap folds */
+.fold{background:#fff;border:1px solid var(--line);border-radius:14px;margin:0 0 8px;padding:0;overflow:hidden}
+.fold>summary{list-style:none;display:flex;align-items:center;gap:10px;min-height:52px;padding:0 14px;font-size:15.5px;font-weight:700;color:var(--ink);cursor:pointer;-webkit-user-select:none;user-select:none}
+.fold>summary::-webkit-details-marker{display:none}
+.fold>summary>svg{width:20px;height:20px;flex:none;color:var(--g)}
+.fold>summary>b{font-weight:700}
+.fold>summary>em{font-style:normal;font-size:13px;font-weight:600;color:var(--sub);font-variant-numeric:tabular-nums}
+.fold>summary::after{content:"";margin-left:auto;width:16px;height:16px;flex:none;background:#8A938D;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center/16px no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center/16px no-repeat;transition:transform .2s}
+.fold[open]>summary::after{transform:rotate(180deg)}
+.fold[open]>summary{border-bottom:1px solid var(--line)}
+.fold>.foldbody{padding:12px 14px 14px}
+.fold>.foldbody>*:first-child{margin-top:0}
+.fold.mini{background:transparent;border-radius:12px}.fold.mini>summary{min-height:44px;font-size:14.5px}
+.foldbody>#btnAutoDirect{margin:0 0 10px}
+.fold p.muted{display:none}
+
+/* step 3 */
+#step3 label{margin-bottom:8px}
+#voiceTabs{display:flex;width:100%;flex-wrap:nowrap;overflow:visible}
+#voiceTabs button{flex:1 1 0;min-width:0;padding:7px 6px;white-space:nowrap}
+.seg .tip,.seg button.tip{display:none!important}
+.mrow label{margin-bottom:6px}
+#v-tts .grid2{display:block}
+.mrow{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.chiprow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:2px 0 8px}
+.chiprow>*{margin:0!important}
+.chiprow .chk,.chiprow .filebtn{position:relative;display:inline-flex;flex-direction:row;align-items:center;gap:6px;min-height:38px;padding:0 13px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);font-size:14px;font-weight:600;cursor:pointer}
+.chiprow .chk input{width:16px;height:16px}
+.chiprow .chk:has(input:checked){border-color:var(--g);background:#eef3ef;color:var(--g)}
+.chiprow #musicInfo:empty{display:none}
+.lenrow{display:flex;align-items:center;gap:10px;margin:14px 0 8px}.lenrow .sect{margin:0}.lenrow .seg{margin:0}
+
+/* step 4: the button first, then quality, then the extras */
+#step4 .exp{display:flex;flex-direction:column;gap:10px;padding:0!important;background:transparent!important;border:0!important;max-width:none!important;margin:0 0 10px!important}
+#step4 .exp>h4,#step4 .exp>#ratioPick{display:none}
+#step4 .exp>#btnExport{order:-3;margin:0}
+#step4 .exp>#expProg,#step4 .exp>#expDone{order:-2;margin:0}
+#step4 .exp>#resPick{order:-1;display:flex;margin:0}
+#step4 #resPick button{flex:1 1 0}
+#step4 .exp>.fold{order:1;margin:0}
+#step4 .exp>#expInfo,#step4 .exp>#expLine{order:3;margin:0;font-size:12.5px}
+#expHint,.done>p.center:not([id]),.thumbrow p.muted{display:none!important}
+#step4 .done{margin:0}
+
+/* the step button: one slim button, no sentence */
+.nextbar>span{display:none}
+.nextbar{justify-content:flex-end}
+@media (max-width:1023px){body.ed .ed-panel .nextbar .primary{flex:1}}
+</style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -962,6 +1020,9 @@ select.lchip{-webkit-appearance:none;appearance:none;width:auto!important;max-wi
   <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="8.5" width="12" height="12" rx="2.5"/><path d="M15.5 8.5V6a2.5 2.5 0 0 0-2.5-2.5H6A2.5 2.5 0 0 0 3.5 6v7A2.5 2.5 0 0 0 6 15.5h2.5"/></g></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17z"/><path d="m14 7 3 3"/></g></symbol>
+  <symbol id="i-tune" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></g></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="m4 17 5-4.5 4 3.5 3-2.5 4 3.5"/></g></symbol>
   <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></g></symbol>
   <symbol id="i-dice" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="15" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/><circle cx="9" cy="15" r="1" fill="currentColor"/></g></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -1119,7 +1180,7 @@ select.lchip{-webkit-appearance:none;appearance:none;width:auto!important;max-wi
       </div>
 
       <ul class="warn" id="warnList"></ul>
-      <div class="nextbar hidden" id="next1"><span><svg><use href="#i-check"/></svg> গল্প তৈরি</span><button class="primary" data-go="2">পরের ধাপ: দৃশ্য দেখুন <svg><use href="#i-arrow"/></svg></button></div>
+      <div class="nextbar hidden" id="next1"><span><svg><use href="#i-check"/></svg> গল্প তৈরি</span><button class="primary" data-go="2">পরের ধাপ <svg><use href="#i-arrow"/></svg></button></div>
     </div>
 
     <!-- STEP 2 -->
@@ -1131,13 +1192,13 @@ select.lchip{-webkit-appearance:none;appearance:none;width:auto!important;max-wi
       <h3>দৃশ্যের তালিকা</h3>
       <div id="sceneOverview" class="sov"></div>
       <details class="more" id="advEdit"><summary><span class="mo">বিস্তারিত এডিট (ঐচ্ছিক — লাইন, জায়গা, মুখের ভাব, কার্ড)</span><span class="dk">বিস্তারিত এডিট</span></summary><div id="sceneEditor"></div></details>
-      <div class="nextbar" id="next2"><span><svg><use href="#i-check"/></svg> দৃশ্য প্রস্তুত</span><button class="primary" data-go="3">পরের ধাপ: কণ্ঠ ও মিউজিক <svg><use href="#i-arrow"/></svg></button></div>
+      <div class="nextbar" id="next2"><span><svg><use href="#i-check"/></svg> দৃশ্য প্রস্তুত</span><button class="primary" data-go="3">পরের ধাপ <svg><use href="#i-arrow"/></svg></button></div>
     </div>
 
     <!-- STEP 3 -->
     <div class="step hidden" id="step3">
       <div class="stephead"><h2>কণ্ঠ ও মিউজিক</h2></div>
-      <nav class="seg sub" id="voiceTabs"><button data-v="tts">Cartesia AI</button><button data-v="rec">নিজে রেকর্ড</button><button data-v="upload">ফাইল আপলোড</button><button data-v="none">কণ্ঠ ছাড়া</button></nav>
+      <nav class="seg sub" id="voiceTabs"><button data-v="tts" title="Cartesia AI কণ্ঠ">AI কণ্ঠ</button><button data-v="rec" title="নিজে রেকর্ড">রেকর্ড</button><button data-v="upload" title="অডিও ফাইল আপলোড">ফাইল</button><button data-v="none" title="কণ্ঠ ছাড়া">নীরব</button></nav>
       <div class="vp hidden" id="v-tts">
         <p class="keystat" id="cKeyStat"></p>
         <div class="grid2">
@@ -1148,7 +1209,7 @@ select.lchip{-webkit-appearance:none;appearance:none;width:auto!important;max-wi
         </div>
         <label class="chk"><input type="checkbox" id="sMultiVoice"> চরিত্রের সংলাপ চরিত্রের নিজের কণ্ঠে (অটো)</label>
         <div id="charVoices" class="charvoices"></div>
-        <div class="row"><button class="primary" id="btnTTS">পুরো গল্পের কণ্ঠ বানাও</button><span class="muted" id="ttsInfo"></span></div>
+        <div class="row"><button class="primary" id="btnTTS">কণ্ঠ বানাও</button><span class="muted" id="ttsInfo"></span></div>
         <div class="bar hidden" id="ttsBar"><i></i></div>
         <details class="speech"><summary><span class="mo">কণ্ঠে যেভাবে পড়া হবে (সংখ্যা/সংক্ষেপ ঠিক আছে কিনা দেখুন)</span><span class="dk">পড়ার ধরন দেখুন</span></summary><ol id="speechList" class="speechlist"></ol></details>
       </div>
@@ -1162,32 +1223,33 @@ select.lchip{-webkit-appearance:none;appearance:none;width:auto!important;max-wi
             <button class="icon" id="recPlay" title="শুনুন">▶</button>
             <button class="icon" id="recNext" title="পরের লাইন">›</button>
           </div>
-          <label class="chk center"><input type="checkbox" id="recAuto" checked> রেকর্ড থামালে পরের লাইনে যাও</label>
+          <label class="chk center"><input type="checkbox" id="recAuto" checked> অটো পরের লাইন</label>
         </div>
-        <div class="row"><button class="ghost" id="recAll">পুরো গল্প একবারে রেকর্ড</button><span class="muted" id="recInfo"></span></div>
+        <div class="row"><button class="ghost" id="recAll">সব একবারে</button><span class="muted" id="recInfo"></span></div>
       </div>
       <div class="vp hidden" id="v-upload">
         <p class="muted">Cartesia ওয়েবসাইট বা অন্য কোথাও বানানো পুরো গল্পের অডিও দিন। অ্যাপ নিজেই প্রতিটা লাইনের সাথে মিলিয়ে নেবে।</p>
-        <label class="btn ghost filebtn">অডিও ফাইল বেছে নিন<input type="file" id="audioUpload" accept="audio/*,.mp3,.wav,.m4a,.ogg,.webm"></label>
+        <label class="btn ghost filebtn">অডিও ফাইল<input type="file" id="audioUpload" accept="audio/*,.mp3,.wav,.m4a,.ogg,.webm"></label>
         <p class="muted" id="uploadInfo"></p>
       </div>
       <div class="vp hidden" id="v-none"><p class="muted">কণ্ঠ ছাড়া — শুধু মিউজিক, সাউন্ড আর সাবটাইটেল। প্রতিটা লাইন পড়ার মতো সময় পাবে।</p></div>
 
-      <h3>মিউজিক</h3>
-      <div class="grid2">
+      <h4 class="sect">মিউজিক</h4>
+      <div class="mrow">
         <label>ধরন<select id="mStyle"></select></label>
         <label>ভলিউম <output id="mVolOut">55</output><input type="range" id="mVol" min="0" max="100" value="55"></label>
       </div>
-      <div class="row"><label class="btn ghost filebtn">নিজের মিউজিক ফাইল দিন<input type="file" id="musicUpload" accept="audio/*,.mp3,.wav,.m4a,.ogg"></label><span class="muted" id="musicInfo"></span></div>
-      <label class="chk"><input type="checkbox" id="mSfx" checked> সাউন্ড ইফেক্ট</label>
-      <label class="chk"><input type="checkbox" id="mPops" checked> সাবটাইটেলে হালকা "পপ"</label>
-      <label class="chk"><input type="checkbox" id="mVisuals" checked> লং ভিডিওতে কনসেপ্ট ছবি (ক্যালেন্ডার, চার্ট, বিল্ডিং, নথি…)</label>
+      <div class="chiprow">
+        <label class="btn ghost filebtn">মিউজিক ফাইল<input type="file" id="musicUpload" accept="audio/*,.mp3,.wav,.m4a,.ogg"></label><span class="muted" id="musicInfo"></span>
+        <label class="chk"><input type="checkbox" id="mSfx" checked> সাউন্ড ইফেক্ট</label>
+        <label class="chk" title="সাবটাইটেলে হালকা পপ শব্দ"><input type="checkbox" id="mPops" checked> পপ</label>
+        <label class="chk" title="লং ভিডিওতে কনসেপ্ট ছবি (ক্যালেন্ডার, চার্ট, বিল্ডিং, নথি…)"><input type="checkbox" id="mVisuals" checked> কনসেপ্ট ছবি</label>
+      </div>
 
-      <h3>ভিডিওর দৈর্ঘ্য</h3>
-      <nav class="seg sub small" id="lenTabs"><button class="on" data-len="auto">অটো (গল্প অনুযায়ী)</button><button data-len="fixed">নির্দিষ্ট</button></nav>
+      <div class="lenrow"><span class="sect">দৈর্ঘ্য</span><nav class="seg sub small" id="lenTabs"><button class="on" data-len="auto" title="গল্প আর কণ্ঠ যতটা লম্বা, ভিডিও ততটাই">অটো</button><button data-len="fixed">নির্দিষ্ট</button></nav></div>
       <p class="muted sm longonly">লং ভিডিওর দৈর্ঘ্য অটো: গল্প আর কণ্ঠ যতটা লম্বা, ভিডিও ঠিক ততটাই হবে — কিছু কাটা বা তাড়াহুড়ো হবে না।</p>
       <div class="row hidden" id="lenFixedRow"><input type="number" id="lenSec" min="15" max="1800" step="1" value="90" class="num"> <span>সেকেন্ড</span><span class="muted" id="lenNote"></span></div>
-      <div class="nextbar" id="next3"><span><svg><use href="#i-check"/></svg> কণ্ঠ ও মিউজিক</span><button class="primary" data-go="4">পরের ধাপ: এক্সপোর্ট <svg><use href="#i-arrow"/></svg></button></div>
+      <div class="nextbar" id="next3"><span><svg><use href="#i-check"/></svg> কণ্ঠ ও মিউজিক</span><button class="primary" data-go="4">পরের ধাপ <svg><use href="#i-arrow"/></svg></button></div>
     </div>
 
     <!-- STEP 4 -->
@@ -7711,7 +7773,7 @@ async function generateTTS(auto) {
     else if (left) toast(`${bn(left)}টা লাইনের কণ্ঠ বানানো যায়নি — আবার "কণ্ঠ বানাও" চাপুন`, 'err', 8000);
     else if (!auto || total) toast(total ? `${bn(total)}টা লাইনের কণ্ঠ তৈরি ✓` : 'সব লাইনের কণ্ঠ আগেই আছে ✓', 'ok');
     return left;
-  } finally { ttsBusy = false; btn.disabled = false; btn.textContent = 'পুরো গল্পের কণ্ঠ বানাও'; setTimeout(() => $('ttsBar').classList.add('hidden'), 800); }
+  } finally { ttsBusy = false; btn.disabled = false; btn.textContent = 'কণ্ঠ বানাও'; setTimeout(() => $('ttsBar').classList.add('hidden'), 800); }
 }
 /* before preview/export: make sure every line has a voice (load the cache, then make what is missing). Returns false if the user cancels. */
 async function ensureVoices(interactive) {
@@ -10010,6 +10072,73 @@ function initShareSheet() {
     });
     try { renderLib(); } catch (e) { }
   }
+})();
+</script>
+<script id="v11js">
+/* ===== v11 — moves long lists and rarely used controls into one-tap folds. Same elements, same ids, same handlers. ===== */
+(function () {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const BN = '০১২৩৪৫৬৭৮৯', bn = v => String(v).replace(/\d/g, d => BN[d]);
+  const ic = n => '<svg aria-hidden="true"><use href="#i-' + n + '"/></svg>';
+  function newFold(id, icon, title, cnt, mini) {
+    const d = document.createElement('details'); d.className = 'fold' + (mini ? ' mini' : ''); d.id = id;
+    d.innerHTML = '<summary>' + ic(icon) + '<b>' + title + '</b>' + (cnt ? '<em id="' + cnt + '"></em>' : '') + '</summary><div class="foldbody"></div>';
+    return d;
+  }
+  function foldify(det, icon, title) { // turn an existing <details> into a fold
+    const sm = det.querySelector(':scope > summary'); if (!sm) return;
+    det.classList.remove('more'); det.classList.add('fold');
+    sm.innerHTML = ic(icon) + '<b>' + title + '</b>';
+    const body = document.createElement('div'); body.className = 'foldbody';
+    while (sm.nextSibling) body.append(sm.nextSibling);
+    det.append(body);
+  }
+
+  /* step 2: characters · scenes · edit — one row each */
+  try {
+    const s2 = $('step2'), adv = $('advEdit');
+    if (s2 && adv && $('charEditor') && $('sceneOverview')) {
+      const fc = newFold('foldChars', 'users', 'চরিত্র', 'foldCharsN'), fs = newFold('foldScenes', 'film', 'দৃশ্য', 'foldScenesN');
+      const bAuto = $('btnAutoDirect'); if (bAuto) fc.querySelector('.foldbody').append(bAuto);
+      fc.querySelector('.foldbody').append($('charEditor'));
+      fs.querySelector('.foldbody').append($('sceneOverview'));
+      s2.insertBefore(fc, adv); s2.insertBefore(fs, adv);
+      foldify(adv, 'edit', 'এডিট');
+      const upd = () => { const st = app.story; $('foldCharsN').textContent = st ? bn((st.characters || []).length) : ''; $('foldScenesN').textContent = st ? bn((st.scenes || []).length) : ''; };
+      ['charEditor', 'sceneOverview'].forEach(id => new MutationObserver(upd).observe($(id), { childList: true }));
+      upd();
+    }
+  } catch (e) { console.warn('v11 step2', e); }
+
+  /* step 3: voice picker stays, speed / emotion / ids / per-character voices sit under "আরও" */
+  try {
+    const g = document.querySelector('#v-tts .grid2');
+    if (g) {
+      const more = newFold('foldVoice', 'tune', 'আরও', null, true), body = more.querySelector('.foldbody');
+      [...g.children].slice(1).forEach(x => body.append(x));
+      const mv = $('sMultiVoice'); if (mv && mv.closest('label')) body.append(mv.closest('label'));
+      if ($('charVoices')) body.append($('charVoices'));
+      g.after(more);
+    }
+    const sp = document.querySelector('#v-tts details.speech');
+    if (sp) { foldify(sp, 'edit', 'পড়ার ধরন'); sp.classList.add('mini'); }
+  } catch (e) { console.warn('v11 step3', e); }
+
+  /* step 4: thumbnail editor, publish text and fixes each fold into a single row */
+  try {
+    const exp = document.querySelector('#step4 .exp');
+    const h = exp && [...exp.children].find(e => e.tagName === 'H4' && /থাম্বনেল/.test(e.textContent));
+    const last = $('sAutoThumb') && $('sAutoThumb').closest('label');
+    if (h && last) {
+      const f = newFold('foldThumb', 'image', 'থাম্বনেল'), body = f.querySelector('.foldbody');
+      const nodes = []; for (let n = h.nextElementSibling; n; n = n.nextElementSibling) { nodes.push(n); if (n === last) break; }
+      nodes.forEach(x => body.append(x)); exp.insertBefore(f, h);
+    }
+    const tf = document.querySelector('#thumbFields > b'); if (tf) tf.innerHTML = 'লাল শব্দ <span class="muted">{এভাবে}</span>';
+    const pub = $('pubDetails'); if (pub) foldify(pub, 'edit', 'প্রকাশের লেখা');
+    [...document.querySelectorAll('#step4 > details.more')].forEach(d => foldify(d, 'tune', 'অন্যান্য'));
+  } catch (e) { console.warn('v11 step4', e); }
 })();
 </script>
 <script src="fx/motion.js"></script>
