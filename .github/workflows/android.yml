@@ -11,6 +11,7 @@ on:
       - 'home.html'
       - 'islamic/**'
       - 'explainer/**'
+      - 'fx/**'
       - 'manifest.webmanifest'
       - 'icon-*.png'
       - 'android/**'
@@ -72,6 +73,8 @@ jobs:
           cp home.html android/app/src/main/assets/www/
           cp -r islamic android/app/src/main/assets/www/
           cp -r explainer android/app/src/main/assets/www/
+          # motion + shadow-puppet video styles
+          cp -r fx android/app/src/main/assets/www/
 
       - name: Prepare signing key (from encrypted GitHub secrets — never stored in the repo)
         id: sign
