@@ -675,6 +675,179 @@ details.more2>summary{min-height:40px;display:flex;align-items:center;cursor:poi
 .list li.cur{border-color:var(--g)}
 @media (prefers-reduced-motion:reduce){.startpick button,.startpick button::after{transition:none}}
 </style>
+<style id="v9">
+/* ===== v9 — editor workspace. One shell for PC and phone: top bar (project + export), step rail, step panel,
+   dark preview monitor, scene timeline. Only layout and looks; every button keeps its id and its job. ===== */
+body.ed{--e-bg:#F4F5F2;--e-surf:#FFFFFF;--e-soft:#EDF0EB;--e-line:rgba(23,32,27,.10);--e-line2:rgba(23,32,27,.18);
+  --e-ink:#17201B;--e-sub:#5C6660;--e-mute:#8A938D;--e-g:#1E3A2F;--e-go:#E9B949;
+  --e-mon:#111513;--e-mon2:#1A1F1C;--e-mon-ink:#E8ECE7;--e-mon-sub:#9AA59F;
+  --e-ease:cubic-bezier(.2,.7,.2,1);--e-safe-b:env(safe-area-inset-bottom,0px);
+  margin:0;background:var(--e-bg);display:block!important;grid-template-columns:none!important;padding:0!important}
+body.ed>header.top,body.ed>main.wrap{display:none!important}
+#ed{display:grid;color:var(--e-ink)}
+#ed svg{width:18px;height:18px;flex:none}
+
+/* ---------- top bar ---------- */
+.ed-top{grid-area:top;display:flex;align-items:center;gap:12px;min-width:0;padding:0 12px 0 0;background:var(--e-surf);border-bottom:1px solid var(--e-line);z-index:50}
+.ed-brand{display:flex;align-items:center;justify-content:center;flex:none;width:var(--rail,84px);height:100%}
+.ed-brand .brand{display:flex!important;align-items:center;gap:10px;padding:0!important;margin:0!important}
+.ed-brand .brand b{display:none!important}
+.ed-brand .logo{width:32px!important;height:32px!important;border-radius:8px!important}
+.ed-title{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;line-height:1.3}
+.ed-title b{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ed-title span{font-size:12px;color:var(--e-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.ed-act{display:flex;align-items:center;gap:4px;flex:none}
+.ed-act .tools{display:flex!important;align-items:center;gap:2px!important;border:0!important;padding:0!important;margin:0!important;flex-direction:row!important;position:relative}
+.ed-act .tools .icon,.ed-act #btnMore{width:36px!important;height:36px!important;border:0!important;border-radius:8px!important;background:transparent!important;color:var(--e-sub)!important;display:inline-grid;place-items:center;transition:background-color .15s var(--e-ease),color .15s var(--e-ease)}
+.ed-act .tools .icon:hover,.ed-act #btnMore:hover{background:var(--e-soft)!important;color:var(--e-ink)!important}
+.ed-act #btnNew{display:inline-flex!important;align-items:center;gap:6px;min-height:36px!important;height:36px;padding:0 12px!important;margin:0 4px 0 0!important;border-radius:8px!important;border:1px solid var(--e-line2)!important;background:var(--e-surf)!important;color:var(--e-ink)!important;font-size:14px!important;font-weight:500!important;box-shadow:none!important;width:auto!important}
+.ed-act #btnNew:hover{background:var(--e-soft)!important}
+.ed-act #btnNew svg{width:16px;height:16px}
+.ed-export{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 16px;border:0;border-radius:8px;background:var(--e-g);color:#fff;font:inherit;font-size:14.5px;font-weight:600;cursor:pointer;flex:none;transition:background-color .15s var(--e-ease),transform .1s var(--e-ease)}
+.ed-export:hover{background:#2A4D3E}
+.ed-export:active{transform:scale(.98)}
+.ed-export:disabled{opacity:.45;cursor:default}
+.ed-export svg{width:17px;height:17px}
+
+/* ---------- step rail ---------- */
+.ed-rail{grid-area:rail;background:var(--e-surf);border-right:1px solid var(--e-line);display:flex;flex-direction:column;align-items:stretch;padding:8px 8px;z-index:30}
+body.ed #stepBar{position:static!important;inset:auto!important;transform:none!important;display:flex!important;flex-direction:column!important;gap:4px!important;margin:0!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important;width:auto!important;height:auto!important}
+body.ed #stepBar button{position:relative;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;width:100%!important;min-height:64px!important;padding:8px 4px!important;margin:0!important;border:0!important;border-radius:10px!important;background:transparent!important;color:var(--e-sub)!important;box-shadow:none!important;font-size:12px!important;font-weight:500!important;text-align:center;transition:background-color .15s var(--e-ease),color .15s var(--e-ease)}
+body.ed #stepBar button:hover{background:var(--e-soft)!important;color:var(--e-ink)!important}
+body.ed #stepBar button i{position:relative;width:36px!important;height:32px!important;border:0!important;border-radius:8px!important;background:transparent!important;color:inherit!important;display:grid!important;place-items:center}
+body.ed #stepBar button i svg{width:21px!important;height:21px!important}
+body.ed #stepBar button i em{position:absolute;right:-2px;top:-3px;width:15px;height:15px;border-radius:50%;background:var(--ok,#2E7D4F);color:#fff;font:600 9px/15px system-ui,sans-serif;text-align:center;font-style:normal;display:none}
+body.ed #stepBar button.done i em{display:block}
+body.ed #stepBar button.done i{background:transparent!important;color:inherit!important}
+body.ed #stepBar button .lbl{display:block!important;line-height:1.25}
+body.ed #stepBar button .lf,body.ed #stepBar button .sn{display:none!important}
+body.ed #stepBar button .ls{display:block!important;font-size:12.5px;font-weight:500}
+body.ed #stepBar button.on{background:var(--e-soft)!important;color:var(--e-g)!important}
+body.ed #stepBar button.on i{background:var(--e-g)!important;color:var(--e-go)!important}
+body.ed #stepBar button.on .ls{font-weight:600}
+
+/* ---------- panel (the step's controls) ---------- */
+.ed-panel{grid-area:panel;min-width:0;background:var(--e-bg);border-right:1px solid var(--e-line);overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+body.ed .ed-panel .left{max-width:none!important;width:auto!important;padding:20px 20px 24px!important;margin:0!important}
+body.ed .ed-panel .stephead h2{font-size:20px!important;line-height:1.35}
+body.ed .ed-panel .nextbar{position:sticky!important;bottom:0!important;z-index:5;margin:20px -20px -24px!important;padding:12px 20px!important;border-radius:0!important;border:0!important;border-top:1px solid var(--e-line)!important;background:color-mix(in srgb,var(--e-surf) 94%,transparent)!important;box-shadow:none!important;backdrop-filter:blur(6px)}
+body.ed .ed-panel .nextbar.hidden{display:none!important}
+
+
+/* ---------- monitor ---------- */
+.ed-stage{grid-area:stage;min-width:0;min-height:0;background:var(--e-mon);color:var(--e-mon-ink)}
+body.ed .ed-stage .right{position:static!important;top:auto!important;order:0!important;display:flex!important;flex-direction:column;align-items:stretch!important;gap:10px!important;width:100%!important;max-width:none!important;height:100%;min-height:0;padding:20px 24px 12px!important;margin:0!important}
+.ed-view{flex:1 1 auto;min-height:0;display:grid;place-items:center;position:relative}
+body.ed .ed-view .pv{flex:none;margin:0!important;border-radius:6px!important;box-shadow:0 0 0 1px rgba(255,255,255,.06),0 12px 40px rgba(0,0,0,.45)!important;background:#000!important;max-width:100%}
+body.ed .ed-view .pv canvas{width:100%;height:100%;display:block}
+body.ed .ed-stage .empty{background:#1A1F1C!important;color:var(--e-mon-sub)!important}
+body.ed .ed-stage .empty p{color:var(--e-mon-sub)!important;font-weight:500!important}
+body.ed .ed-stage .bigplay{width:60px;height:60px;background:rgba(255,255,255,.9);color:#111513}
+body.ed .ed-stage .ctrl{display:flex!important;align-items:center;gap:12px!important;width:100%!important;max-width:880px!important;margin:0 auto!important;padding:6px 8px;border-radius:10px;background:var(--e-mon2)}
+body.ed #btnPlay{width:40px!important;height:40px!important;border-radius:50%!important;border:0!important;background:var(--e-mon-ink)!important;color:#111513!important;font-size:15px;flex:none}
+body.ed #btnPlay:hover{background:#fff!important}
+body.ed .ed-stage #seek{flex:1;min-width:0;accent-color:var(--e-go);height:20px;background:transparent}
+body.ed .ed-stage .time{color:var(--e-mon-sub)!important;font:500 12.5px/1 ui-monospace,Consolas,monospace!important;font-variant-numeric:tabular-nums;white-space:nowrap}
+body.ed .ed-stage .ctrl .icon:not(#btnPlay){width:36px!important;height:36px!important;border:0!important;background:transparent!important;color:var(--e-mon-sub)!important;border-radius:8px!important}
+body.ed .ed-stage .ctrl .icon:not(#btnPlay):hover{background:rgba(255,255,255,.08)!important;color:var(--e-mon-ink)!important}
+body.ed #lineInfo{margin:0!important;min-height:18px;color:var(--e-mon-sub)!important;font-size:13px!important;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- timeline ---------- */
+.ed-tl{grid-area:tl;min-width:0;display:flex;flex-direction:column;background:var(--e-surf);border-top:1px solid var(--e-line);user-select:none;-webkit-user-select:none}
+.tl-bar{display:flex;align-items:center;gap:12px;height:36px;padding:0 12px 0 16px;border-bottom:1px solid var(--e-line);flex:none}
+.tl-bar b{font-size:13px;font-weight:600}
+.tl-bar #tlInfo{font-size:12px;color:var(--e-sub);font-variant-numeric:tabular-nums}
+.tl-sp{flex:1}
+.tl-z{display:inline-grid;place-items:center;width:28px;height:28px;border:0;border-radius:6px;background:transparent;color:var(--e-sub);cursor:pointer}
+.tl-z:hover{background:var(--e-soft);color:var(--e-ink)}
+.tl-z svg{width:16px;height:16px}
+.tl-zl{font:500 11.5px/1 ui-monospace,Consolas,monospace;color:var(--e-mute);min-width:28px;text-align:center}
+.tl-body{flex:1;min-height:0;display:grid;grid-template-columns:64px minmax(0,1fr)}
+.tl-labs{display:grid;grid-template-rows:22px 1fr 22px;border-right:1px solid var(--e-line);font-size:11.5px;color:var(--e-mute)}
+.tl-labs span{display:flex;align-items:center;padding-left:12px}
+.tl-scroll{position:relative;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
+.tl-inner{position:relative;height:100%;min-width:100%;display:grid;grid-template-rows:22px 1fr 22px;cursor:text}
+.tl-ruler{position:relative;border-bottom:1px solid var(--e-line)}
+.tl-tick{position:absolute;top:0;bottom:0;border-left:1px solid var(--e-line);padding-left:4px;font:500 10.5px/22px ui-monospace,Consolas,monospace;color:var(--e-mute);white-space:nowrap;font-variant-numeric:tabular-nums}
+.tl-track{position:relative;margin:6px 0}
+.tl-sc{position:absolute;top:0;bottom:0;display:flex;align-items:stretch;gap:0;padding:0;border:0;border-radius:6px;overflow:hidden;background:#DCE2DC;color:var(--e-ink);cursor:pointer;text-align:left;font:inherit;box-shadow:inset 0 0 0 1px rgba(23,32,27,.10);transition:box-shadow .15s var(--e-ease)}
+.tl-sc+.tl-sc{margin-left:0}
+.tl-sc canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#c9d1ca;display:block}
+.tl-sc .tx{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:6px;min-width:0;padding:3px 6px;background:rgba(17,21,19,.72);color:#fff;overflow:hidden}
+.tl-sc .tx b{flex:1;min-width:0;font-size:11.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl-sc .tx small{flex:none;font:500 10.5px/1.2 ui-monospace,Consolas,monospace;color:rgba(255,255,255,.75);font-variant-numeric:tabular-nums}
+.tl-sc.t-book{background:#EFE3C2}
+.tl-sc.t-cta{background:#D5E5DA}
+.tl-sc:hover{box-shadow:inset 0 0 0 1px rgba(23,32,27,.28)}
+.tl-sc.on{box-shadow:inset 0 0 0 2px var(--e-go)}
+.tl-sc:focus-visible{outline:2px solid var(--e-g);outline-offset:1px}
+.tl-lines{position:relative;margin:4px 0 6px}
+.tl-ln{position:absolute;top:2px;bottom:2px;border-radius:3px;background:#C6CEC7;box-shadow:inset -1px 0 0 var(--e-surf)}
+.tl-ln.on{background:var(--e-g)}
+.tl-mk{position:absolute;top:0;width:2px;height:22px;background:#C0392B;border-radius:1px}
+.tl-ph{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--e-go);pointer-events:none;z-index:3}
+.tl-ph::before{content:"";position:absolute;top:0;left:-5px;width:12px;height:10px;background:var(--e-go);clip-path:polygon(0 0,100% 0,50% 100%)}
+.tl-empty[hidden]{display:none}
+.tl-empty{position:absolute;inset:0;margin:0;display:grid;place-items:center;font-size:13px;color:var(--e-mute);pointer-events:none}
+#ed:not(.ed-has) .tl-ph{display:none}
+
+/* ===== PC & laptop ===== */
+@media (min-width:1024px){
+  body.ed{height:100vh;height:100dvh;overflow:hidden}
+  #ed{--rail:84px;--panel:clamp(380px,32vw,500px);height:100vh;height:100dvh;
+    grid-template-columns:var(--rail) var(--panel) minmax(0,1fr);grid-template-rows:56px minmax(0,1fr) 172px;
+    grid-template-areas:"top top top" "rail panel stage" "rail tl tl"}
+  .ed-act #toolMenu{display:contents!important}
+  .ed-act #toolMenu .icon{justify-content:center!important;padding:0!important;gap:0!important}
+  .ed-act #toolMenu .icon::after{content:none!important}
+  .ed-act #btnMore{display:none!important}
+}
+@media (min-width:1600px){ #ed{grid-template-rows:56px minmax(0,1fr) 188px} }
+
+/* ===== phone & tablet ===== */
+@media (max-width:1023px){
+  body.ed{min-height:100dvh}
+  #ed{display:flex;flex-direction:column;min-height:100dvh;padding-bottom:calc(64px + var(--e-safe-b))}
+  .ed-top{position:sticky;top:0;height:calc(52px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) 8px 0 0;gap:8px}
+  .ed-brand{width:52px}
+  .ed-brand .logo{width:30px!important;height:30px!important}
+  .ed-act #btnNew{width:36px!important;padding:0!important;justify-content:center;border:0!important;margin:0!important}
+  .ed-act #btnNew span{display:none}
+  .ed-act #btnNew svg{width:20px;height:20px}
+  .ed-act .tools .icon.acbtn{display:inline-grid!important}
+  .ed-act #btnMore{display:inline-grid!important}
+  .ed-export{height:36px;padding:0 12px;font-size:14px}
+  .ed-stage{position:relative;z-index:1}
+  body.ed .ed-stage .right{padding:12px 12px 8px!important;gap:8px!important}
+  .ed-view{height:min(40vh,360px);flex:none}
+  body.ed.pvmin .ed-view{display:none}
+  body.ed .ed-stage .ctrl{padding:4px 6px;gap:8px!important}
+  body.ed #lineInfo{display:none}
+  .ed-tl{order:3;border-top:0;border-bottom:1px solid var(--e-line)}
+  .tl-bar{height:32px;padding:0 8px 0 12px}
+  .tl-bar .tl-z,.tl-bar .tl-zl{display:none}
+  .tl-body{grid-template-columns:minmax(0,1fr)}
+  .tl-labs,.tl-ruler,.tl-lines{display:none}
+  .tl-inner{grid-template-rows:56px;min-width:calc(var(--n,6) * 88px)}
+  .tl-track{margin:6px 0}
+  .ed-panel{order:4;border:0;overflow:visible}
+  body.ed .ed-panel .left{padding:16px 16px 24px!important}
+  body.ed .ed-panel .nextbar{bottom:calc(64px + var(--e-safe-b))!important;margin:20px -16px -24px!important;padding:10px 16px!important}
+  .ed-rail{position:fixed;left:0;right:0;bottom:0;height:calc(64px + var(--e-safe-b));padding:4px 8px var(--e-safe-b);border:0;border-top:1px solid var(--e-line);z-index:60}
+  body.ed #stepBar{flex-direction:row!important;height:100%!important}
+  body.ed #stepBar button{flex:1 1 0;min-height:0!important;height:100%;padding:4px!important;gap:2px!important}
+  body.ed #stepBar button i{height:28px!important;width:48px!important;border-radius:14px!important}
+  body.ed #stepBar button.on,body.ed #stepBar button:hover{background:transparent!important}
+  /* nothing to preview yet: no empty monitor or timeline on a phone */
+  body.ed.v7-empty .ed-stage,body.ed.v7-empty .ed-tl{display:none}
+  body.ed .ed-act .toolmenu{right:0;top:calc(100% + 8px)}
+}
+@media (max-width:420px){
+  .ed-export span{display:none}
+  .ed-export{width:40px;padding:0;justify-content:center}
+}
+@media (prefers-reduced-motion:reduce){#ed *{transition:none!important}}
+</style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -1122,6 +1295,7 @@ details.more2>summary{min-height:40px;display:flex;align-items:center;cursor:poi
     <li><b>দৃশ্য</b> — সব অটো সাজানো থাকে। কোনো চরিত্র পছন্দ না হলে "চেহারা বদলান"।</li>
     <li><b>কণ্ঠ ও মিউজিক</b> — Cartesia, নিজের রেকর্ড বা অডিও ফাইল।</li>
     <li><b>এক্সপোর্ট</b> — রেশিও ও রেজোলিউশন বেছে এক্সপোর্ট → শেয়ার করে Drive/Facebook-এ দিন।</li>
+    <li><b>টাইমলাইন</b> — নিচের দৃশ্যে চাপলে প্রিভিউ সেখানে যায়, দুবার চাপলে দৃশ্য ধাপ খোলে। রুলারে টেনে আগে-পিছে যান, + / − দিয়ে বড়-ছোট করুন। উপরের "এক্সপোর্ট" বাটন সরাসরি এক্সপোর্ট ধাপে নেয়।</li>
     <li><b>নতুন গল্প</b> — উপরের "+ নতুন গল্প" চাপলে আবার শুরু থেকে।</li>
   </ol>
   <p class="muted sm">শর্টকাট: Space = চালাও/থামাও · Alt+→ / Alt+← = পরের/আগের ধাপ</p>
@@ -9443,6 +9617,166 @@ function initShareSheet() {
     $('s1Head').textContent = app.story ? 'আরেকটা গল্প বাছুন' : 'গল্প বেছে নিন';
     return r;
   };
+})();
+</script>
+<script id="v9js">
+/* ===== v9 — editor workspace. Moves the existing parts into one editor shell and adds a scene timeline.
+   Reads app state only (app.story, app.tl, app.t); seeks through the existing #seek control, changes steps
+   through goStep(). Nothing is saved or deleted here. ===== */
+(function () {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const head = document.querySelector('body > header.top'), wrap = document.querySelector('body > main.wrap');
+  const left = wrap && wrap.querySelector(':scope > .left'), right = wrap && wrap.querySelector(':scope > .right');
+  const pvBox = $('pv') && $('pv').parentElement;
+  if (!head || !wrap || !left || !right || !pvBox || !$('stepBar') || typeof app !== 'object') return;
+  const BN = '০১২৩৪৫৬৭৮৯', bn = v => String(v).replace(/\d/g, d => BN[d]);
+  const fmt = s => { s = Math.max(0, Math.round(s || 0)); return bn(Math.floor(s / 60)) + ':' + bn(String(s % 60).padStart(2, '0')); };
+  const mk = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+  const SV = d => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
+
+  /* ---------- shell ---------- */
+  const ed = mk('div', 'ed'); ed.id = 'ed';
+  ed.innerHTML =
+    '<header class="ed-top" id="edTop"><div class="ed-brand" id="edBrand"></div>' +
+    '<div class="ed-title"><b id="edTitle">নতুন প্রজেক্ট</b><span id="edMeta"></span></div>' +
+    '<div class="ed-act" id="edAct"></div>' +
+    '<button type="button" class="ed-export" id="edExport" title="এক্সপোর্ট ধাপে যান / ভিডিও বানান"><svg aria-hidden="true"><use href="#i-down"/></svg><span>এক্সপোর্ট</span></button></header>' +
+    '<nav class="ed-rail" id="edRail" aria-label="ধাপ"></nav>' +
+    '<section class="ed-panel" id="edPanel" aria-label="ধাপের কাজ"></section>' +
+    '<section class="ed-stage" id="edStage" aria-label="প্রিভিউ"></section>' +
+    '<section class="ed-tl" id="edTl" aria-label="টাইমলাইন">' +
+      '<div class="tl-bar"><b>টাইমলাইন</b><span id="tlInfo"></span><span class="tl-sp"></span>' +
+      '<button type="button" class="tl-z" id="tlOut" aria-label="টাইমলাইন ছোট করুন">' + SV('<path d="M5 12h14"/>') + '</button>' +
+      '<span class="tl-zl" id="tlZl">১x</span>' +
+      '<button type="button" class="tl-z" id="tlIn" aria-label="টাইমলাইন বড় করুন">' + SV('<path d="M12 5v14M5 12h14"/>') + '</button></div>' +
+      '<div class="tl-body"><div class="tl-labs" aria-hidden="true"><span></span><span>দৃশ্য</span><span>লাইন</span></div>' +
+      '<div class="tl-scroll" id="tlScroll"><div class="tl-inner" id="tlInner"><div class="tl-ruler" id="tlRuler"></div>' +
+      '<div class="tl-track" id="tlScenes"></div><div class="tl-lines" id="tlLines"></div><div class="tl-ph" id="tlPh"></div></div>' +
+      '<p class="tl-empty" id="tlEmpty">গল্প বাছলে দৃশ্যগুলো এখানে সময় ধরে সাজানো দেখাবে</p></div></div>' +
+    '</section>';
+  document.body.insertBefore(ed, head);
+
+  const brand = head.querySelector('.brand'); if (brand) $('edBrand').append(brand);
+  if ($('btnNew')) $('edAct').append($('btnNew'));
+  const tools = head.querySelector('.tools'); if (tools) $('edAct').append(tools);
+  $('edRail').append($('stepBar'));
+  $('edPanel').append(left);
+  const view = mk('div', 'ed-view'); view.id = 'edView'; right.insertBefore(view, pvBox); view.append(pvBox);
+  $('edStage').append(right);
+  document.body.classList.add('ed');
+
+  /* ---------- monitor: fit the frame into the space, keep its ratio ---------- */
+  let lastFit = '', lastAr = null;
+  function fit(force) {
+    const ar = parseFloat(pvBox.style.getPropertyValue('--ar')) || .5625;
+    const W = view.clientWidth, H = view.clientHeight; if (!W || !H) return;
+    const key = ar + '|' + W + '|' + H; if (!force && key === lastFit) return; lastFit = key;
+    let w = Math.min(W, H * ar); w = Math.floor(w);
+    pvBox.style.width = w + 'px'; pvBox.style.height = Math.floor(w / ar) + 'px';
+    if (typeof sizeCanvas === 'function') { try { sizeCanvas(); } catch (e) { } }
+  }
+  if (window.ResizeObserver) new ResizeObserver(() => fit()).observe(view);
+
+  /* ---------- panel: a new step starts at its top ---------- */
+  const panel = $('edPanel');
+  document.querySelectorAll('.step').forEach(s => new MutationObserver(() => { if (!s.classList.contains('hidden')) { panel.scrollTop = 0; } }).observe(s, { attributes: true, attributeFilter: ['class'] }));
+
+  /* ---------- export button in the top bar ---------- */
+  const exBtn = $('edExport');
+  exBtn.addEventListener('click', () => {
+    if (!app.story) { goStep(1); return; }
+    if (typeof curStep !== 'undefined' && curStep === 4) { const b = $('btnExport'); if (b && !b.disabled) b.click(); }
+    else goStep(4);
+  });
+
+  /* ---------- timeline ---------- */
+  const inner = $('tlInner'), scroll = $('tlScroll'), ph = $('tlPh');
+  let tlRef = null, stRef = null, zoom = 1, lastT = -1, curSc = -1, curLn = -1, scEls = [], lnEls = [], mkSig = '';
+  const ZOOMS = [1, 2, 4, 8];
+  const seekTo = s => {
+    const sk = $('seek'); if (!app.tl || !sk) return;
+    sk.value = Math.max(0, Math.min(1000, Math.round(s / app.tl.total * 1000)));
+    sk.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+  function ticks() {
+    const ru = $('tlRuler'); ru.textContent = ''; if (!tlRef || !tlRef.total) return;
+    const T = tlRef.total, px = inner.clientWidth / T;
+    const step = [1, 2, 5, 10, 15, 30, 60, 120].find(s => s * px >= 64) || 120;
+    for (let s = 0; s <= T; s += step) { const k = mk('span', 'tl-tick', fmt(s)); k.style.left = (s / T * 100) + '%'; ru.append(k); }
+  }
+  function thumbs() {
+    const ov = [...document.querySelectorAll('#sceneOverview .sovi canvas')];
+    scEls.forEach((d, i) => { const c = d.querySelector('canvas'), s = ov[i]; if (!c || !s || !s.width) return; try { const x = c.getContext('2d'); x.drawImage(s, 0, 0, c.width, c.height); } catch (e) { } });
+  }
+  function build() {
+    tlRef = app.tl; stRef = app.story; curSc = curLn = -1; lastT = -1; mkSig = '';
+    const sc = $('tlScenes'), ln = $('tlLines'); sc.textContent = ''; ln.textContent = ''; scEls = []; lnEls = [];
+    const has = !!(tlRef && stRef && tlRef.total);
+    ed.classList.toggle('ed-has', has); $('tlEmpty').hidden = has;
+    if (!has) { $('tlInfo').textContent = ''; $('tlRuler').textContent = ''; return; }
+    const T = tlRef.total, pct = s => (s / T * 100) + '%';
+    const names = [...document.querySelectorAll('#sceneOverview .sovi b')].map(b => b.textContent.replace(/^[^.]*\.\s*/, '').replace(/^.*—\s*/, ''));
+    stRef.scenes.forEach((s, i) => {
+      const a = +s.start || 0, b = Math.max(a, +s.end || a);
+      const d = mk('button', 'tl-sc t-' + (s.type || 'story')); d.type = 'button';
+      d.style.left = pct(a); d.style.width = 'calc(' + pct(b - a) + ' - 2px)';
+      const cv = mk('canvas'); cv.width = 96; cv.height = 54;
+      const tx = mk('span', 'tx'); tx.append(mk('b', null, bn(i + 1) + '. ' + (names[i] || 'দৃশ্য')), mk('small', null, fmt(b - a)));
+      d.append(cv, tx); d.title = bn(i + 1) + '. ' + (names[i] || 'দৃশ্য') + ' · ' + fmt(a) + ' থেকে — দুবার চাপলে দৃশ্য ধাপ খুলবে';
+      d.addEventListener('click', e => { e.stopPropagation(); seekTo(a + .01); });
+      d.addEventListener('dblclick', e => { e.stopPropagation(); goStep(2); });
+      sc.append(d); scEls.push(d);
+    });
+    (tlRef.shots || []).forEach(h => { const d = mk('span', 'tl-ln'); d.style.left = pct(h.start); d.style.width = pct(Math.max(.05, h.end - h.start)); ln.append(d); lnEls.push(d); });
+    inner.style.setProperty('--n', stRef.scenes.length);
+    $('tlInfo').textContent = bn(stRef.scenes.length) + 'টা দৃশ্য · ' + bn((tlRef.shots || []).length) + ' লাইন · ' + fmt(T);
+    ticks();
+    const st0 = stRef, jobs = scEls.map((d, i) => [d, i]);
+    const step = () => { if (app.story !== st0) return; const j = jobs.shift(); if (!j) return; try { const c = sceneThumb(j[1]); if (c && c.tagName === 'CANVAS') { const o = j[0].querySelector('canvas'); if (o) o.replaceWith(c); } } catch (e) { } setTimeout(step, 24); };
+    if (typeof sceneThumb === 'function') setTimeout(step, 120); else { thumbs(); setTimeout(thumbs, 2000); }
+  }
+  function setZoom(z) {
+    const keep = (scroll.scrollLeft + scroll.clientWidth / 2) / (inner.clientWidth || 1);
+    zoom = z; inner.style.width = (zoom * 100) + '%'; $('tlZl').textContent = bn(zoom) + 'x';
+    ticks(); scroll.scrollLeft = keep * inner.clientWidth - scroll.clientWidth / 2;
+  }
+  $('tlIn').addEventListener('click', () => setZoom(ZOOMS[Math.min(ZOOMS.length - 1, ZOOMS.indexOf(zoom) + 1)]));
+  $('tlOut').addEventListener('click', () => setZoom(ZOOMS[Math.max(0, ZOOMS.indexOf(zoom) - 1)]));
+  // click or drag on the ruler / empty track to scrub
+  let scrub = false;
+  const at = e => { const r = inner.getBoundingClientRect(); return Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * (app.tl ? app.tl.total : 0); };
+  inner.addEventListener('pointerdown', e => { if (!app.tl || e.target.closest('.tl-sc') || e.button) return; scrub = true; try { inner.setPointerCapture(e.pointerId); } catch (x) { } seekTo(at(e)); });
+  inner.addEventListener('pointermove', e => { if (scrub) seekTo(at(e)); });
+  ['pointerup', 'pointercancel'].forEach(k => inner.addEventListener(k, () => { scrub = false; }));
+  if (window.ResizeObserver) new ResizeObserver(() => ticks()).observe(scroll);
+
+  /* ---------- keep title, meta, playhead and buttons in step with the app ---------- */
+  const RL = { '9:16': '৯:১৬', '4:5': '৪:৫', '1:1': '১:১', '16:9': '১৬:৯' };
+  function tick() {
+    requestAnimationFrame(tick); if (document.hidden) return;
+    if (app.tl !== tlRef || app.story !== stRef) build();
+    const st = app.story, title = st ? (st.title || 'শিরোনামহীন গল্প') : 'নতুন প্রজেক্ট';
+    const tEl = $('edTitle'); if (tEl.textContent !== title) tEl.textContent = title;
+    let meta = '';
+    if (st) { const long = document.body.classList.contains('longfmt'); const r = (typeof S === 'object' && S.expRatio) || ''; meta = (long ? 'লং ভিডিও' : 'শর্ট ভিডিও') + (r ? ' · ' + (RL[r] || r) : '') + (app.tl ? ' · ' + fmt(app.tl.total) : ''); }
+    else meta = 'গল্প বাছুন, লিখুন বা পেস্ট করুন';
+    const mEl = $('edMeta'); if (mEl.textContent !== meta) mEl.textContent = meta;
+    const busy = $('expProg') && !$('expProg').classList.contains('hidden');
+    const dis = !st || busy; if (exBtn.disabled !== dis) exBtn.disabled = dis;
+    const arNow = pvBox.style.getPropertyValue('--ar'); if (arNow !== lastAr) { lastAr = arNow; fit(true); }
+    if (!tlRef || !tlRef.total) return;
+    const sig = (app.markers || []).map(m => m.t).join(',');
+    if (sig !== mkSig) { mkSig = sig; const ru = $('tlRuler'); ru.querySelectorAll('.tl-mk').forEach(x => x.remove()); (app.markers || []).forEach(m => { const k = mk('i', 'tl-mk'); k.style.left = (m.t / tlRef.total * 100) + '%'; ru.append(k); }); }
+    const t = app.t || 0; if (t === lastT) return; lastT = t;
+    ph.style.left = (Math.min(1, t / tlRef.total) * 100) + '%';
+    const si = stRef.scenes.findIndex(s => t >= (+s.start || 0) && t < (+s.end || 0));
+    if (si !== curSc) { if (scEls[curSc]) scEls[curSc].classList.remove('on'); curSc = si; if (scEls[si]) { scEls[si].classList.add('on'); if (window.matchMedia('(max-width:1023px)').matches || zoom > 1) { const d = scEls[si]; const l = d.offsetLeft, r = l + d.offsetWidth; if (l < scroll.scrollLeft || r > scroll.scrollLeft + scroll.clientWidth) scroll.scrollTo({ left: l - 24, behavior: app.playing ? 'auto' : 'smooth' }); } } }
+    const sh = tlRef.shots || [], li = sh.findIndex(h => t >= h.start && t < h.end);
+    if (li !== curLn) { if (lnEls[curLn]) lnEls[curLn].classList.remove('on'); curLn = li; if (lnEls[li]) lnEls[li].classList.add('on'); }
+  }
+  build(); requestAnimationFrame(tick);
+  setTimeout(() => fit(true), 60);
 })();
 </script>
 <script src="fx/motion.js"></script>
