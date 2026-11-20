@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- TF Story Studio mark: an open story book whose story plays as a video.
+       Book = গল্প (stories, Islamic stories, explainers), gold play = the video it becomes,
+       small crescent on the play = the Islamic part. Flat colours, no gradients. -->
+  <rect width="1024" height="1024" rx="228" fill="#1E3A2F"/>
+  <g id="mark">
+    <!-- book pages -->
+    <path d="M496 600C424 556 320 540 196 552V786C320 776 424 792 496 840Z" fill="#F6F1E4"/>
+    <path d="M528 600C600 556 704 540 828 552V786C704 776 600 792 528 840Z" fill="#F6F1E4"/>
+    <!-- page lines -->
+    <path d="M262 628C330 626 392 636 446 658M262 700C330 698 392 708 446 730" stroke="#1E3A2F" stroke-width="18" stroke-linecap="round" fill="none" opacity=".28"/>
+    <path d="M762 628C694 626 632 636 578 658M762 700C694 698 632 708 578 730" stroke="#1E3A2F" stroke-width="18" stroke-linecap="round" fill="none" opacity=".28"/>
+    <!-- play -->
+    <path d="M436 236L436 500L656 368Z" fill="#E9B949" stroke="#E9B949" stroke-width="56" stroke-linejoin="round"/>
+    <!-- crescent cut into the play -->
+    <circle cx="500" cy="368" r="58" fill="#1E3A2F"/>
+    <circle cx="524" cy="352" r="50" fill="#E9B949"/>
+  </g>
+</svg>
