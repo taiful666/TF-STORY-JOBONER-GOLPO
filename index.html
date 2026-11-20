@@ -884,7 +884,8 @@ body.ed .ed-stage .pv .ctrl .icon:not(#btnPlay){width:32px!important;height:32px
 #btnPvMin,#btnBigPlay{display:none!important}
 .pv.is-playing #pvRatioChip,.pv.is-playing #pvRatio{opacity:0;pointer-events:none;transition:opacity .25s}
 body.ed .ed-stage .pv.pv-narrow .ctrl{display:grid!important;grid-template-columns:auto 1fr auto;grid-template-areas:"seek seek seek" "play time mark";column-gap:8px!important;row-gap:0!important;align-items:center;padding:26px 10px 6px!important}
-body.ed .ed-stage .pv.pv-narrow #seek{grid-area:seek;width:100%}body.ed .ed-stage .pv.pv-narrow #btnPlay{grid-area:play;width:30px!important;height:30px!important}
+body.ed .ed-stage .pv.pv-narrow #seek{grid-area:seek;width:100%;min-width:0}
+body.ed .ed-stage .pv.pv-tiny .time{display:none}body.ed .ed-stage .pv.pv-narrow #btnPlay{grid-area:play;width:30px!important;height:30px!important}
 body.ed .ed-stage .pv.pv-narrow .time{grid-area:time}body.ed .ed-stage .pv.pv-narrow #btnMark{grid-area:mark}
 body.ed .ed-stage .pv #pv{cursor:pointer}
 
@@ -899,6 +900,8 @@ body.ed .ed-stage .pv #pv{cursor:pointer}
   .ed-tl{margin-top:2px}
 }
 
+/* tab rows on phones: wrap into equal buttons instead of sliding off the edge */
+@media (max-width:699px){.seg.sub,.seg.small{display:flex;flex-wrap:wrap;overflow:visible;max-width:100%}.seg.sub button,.seg.small button{flex:1 1 auto;white-space:normal;text-align:center}.seg.sub button.tip,.seg.small button.tip{flex:0 0 22px;width:22px;padding:0;align-self:center}}
 /* export step: the four sizes as one small row on phones */
 @media (max-width:699px){.ratios{grid-template-columns:repeat(4,1fr);gap:6px}.ratios button{padding:10px 2px 8px}.ratios button i{height:30px;max-width:40px}.ratios button span{display:none}}
 
@@ -9977,7 +9980,7 @@ function initShareSheet() {
     if (rows) new MutationObserver(label).observe(rows, { subtree: true, attributes: true, attributeFilter: ['class'] });
 
     /* small cards: scrubber gets its own row; chip steps aside while playing */
-    if (window.ResizeObserver) new ResizeObserver(() => pvBox.classList.toggle('pv-narrow', pvBox.clientWidth < 320)).observe(pvBox);
+    if (window.ResizeObserver) new ResizeObserver(() => { const w = pvBox.clientWidth; pvBox.classList.toggle('pv-narrow', w < 320); pvBox.classList.toggle('pv-tiny', w < 190); }).observe(pvBox);
     const bp = $('btnPlay'); if (bp) new MutationObserver(() => pvBox.classList.toggle('is-playing', /❚/.test(bp.textContent))).observe(bp, { childList: true, characterData: true, subtree: true });
 
     /* phone & tablet: the card is as wide as the screen allows, but never taller than about a third of it */
@@ -9986,7 +9989,7 @@ function initShareSheet() {
       if (!mq.matches) { if (view.style.height) view.style.height = ''; return; }
       const ar = parseFloat(pvBox.style.getPropertyValue('--ar')) || .5625;
       const W = (stage.clientWidth || window.innerWidth) - 24;
-      const maxH = Math.max(160, Math.min(window.innerHeight * .36, 320));
+      const maxH = Math.max(150, Math.min(window.innerHeight * .32, 290));
       const h = Math.round(Math.min(maxH, W / ar)) + 'px';
       if (view.style.height !== h) view.style.height = h;
     }
