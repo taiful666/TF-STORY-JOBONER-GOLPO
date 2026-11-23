@@ -20,6 +20,9 @@
   const minsOf = txt => { const n = String(txt).split('\n').filter(l => l.trim() && !/^\s*(##|===|(ফরম্যাট|ক্ষেত্র|ইউটিউব টাইটেল|থাম্বনেল|চরিত্র|বর্ণনা|হ্যাশট্যাগ|উৎস)\s*[:：])/.test(l)).length; return Math.max(1, Math.round(n / 16)); };
   const planOf = u => { try { return JSON.parse(String(u.txt).slice(String(u.txt).indexOf('{'))); } catch (e) { return null; } };
   const partId = (sid, k) => sid + '_p' + k;
+  /* বিল্ট-ইন ধারাবাহিক: window.ISL_LONG_SERIES (islamic/long-series.js) — পরিকল্পনা আর সব পর্ব তৈরি, মোছা/নতুন-লেখা যায় না */
+  const preSeries = () => (window.ISL_LONG_SERIES || []).map(x => ({ id: x.id, pre: true, txt: `=== ${x.title}\nফরম্যাট: series-plan\n${JSON.stringify({ title: x.title, cat: x.cat, mins: x.mins, parts: x.parts.map(q => ({ t: q.t, s: q.s || '' })) })}` }));
+  const findPart = (sid, k) => USERLIB.find(u => u.id === partId(sid, k)) || (() => { const x = (window.ISL_LONG_SERIES || []).find(y => y.id === sid), q = x && x.parts[k - 1]; return q && q.txt ? { id: partId(sid, k), txt: q.txt, pre: true } : null; })();
   let inited = false, PEND = null;
 
   /* ---------- prompts ---------- */
@@ -199,9 +202,9 @@ ${catRule(o.cat)}
     const used = id => API().usedId(id), match = s => !q || String(s).toLowerCase().includes(q);
     const mine = USERLIB.filter(u => /^isl_long_/.test(u.id) && LONG_RE.test(u.txt)).slice().reverse(), have = new Set(mine.map(u => u.id));
     const singles = mine.concat((window.ISL_LONG_STORIES || []).filter(x => !have.has(x.id)).map(x => ({ id: x.id, txt: x.txt, pre: true })));
-    const plans = USERLIB.filter(u => /^isl_ser_[^_]+$/.test(u.id) && PLAN_RE.test(u.txt)).slice().reverse();
+    const plans = USERLIB.filter(u => /^isl_ser_[^_]+$/.test(u.id) && PLAN_RE.test(u.txt)).slice().reverse().concat(preSeries());
     // chips: নতুন / ব্যবহৃত — a series counts as used when every written part is used
-    const serUsed = p => { const pl = planOf(p); if (!pl) return false; const ws = pl.parts.map((_, i) => USERLIB.find(u => u.id === partId(p.id, i + 1))).filter(Boolean); return ws.length === pl.parts.length && ws.every(u => used(u.id)); };
+    const serUsed = p => { const pl = planOf(p); if (!pl) return false; const ws = pl.parts.map((_, i) => findPart(p.id, i + 1)).filter(Boolean); return ws.length === pl.parts.length && ws.every(u => used(u.id)); };
     const items = K === 'series' ? plans : singles, isUsed = K === 'series' ? serUsed : u => used(u.id);
     const nU = items.filter(isUsed).length; const a = $('libNewN'), b = $('libUsedN'); if (a) a.textContent = bn(items.length - nU); if (b) b.textContent = bn(nU);
     document.querySelectorAll('#libChips .lchip[data-lt]').forEach(c => { const on = c.dataset.lt === (wantUsed ? 'used' : f === 'new' ? 'new' : ''); c.classList.toggle('on', on); c.setAttribute('aria-pressed', String(on)); });
@@ -216,19 +219,19 @@ ${catRule(o.cat)}
         u.pre ? el('span', { class: 'islre', title: 'বিল্ট-ইন গল্প', text: '📌' }) : el('button', { type: 'button', class: 'islre del', title: 'মুছুন', 'aria-label': 'মুছুন', text: '🗑', onclick: e => { e.stopPropagation(); del(u.id, `"${titleOf(u.txt)}"`); } })));
     });
     else list.forEach((p, i) => {
-      const pl = planOf(p); if (!pl) return; const n = pl.parts.length, ws = pl.parts.map((_, k) => USERLIB.find(u => u.id === partId(p.id, k + 1)));
+      const pl = planOf(p); if (!pl) return; const n = pl.parts.length, ws = pl.parts.map((_, k) => findPart(p.id, k + 1));
       const nW = ws.filter(Boolean).length, nUs = ws.filter(u => u && used(u.id)).length, open = OPEN.has(p.id);
       frag.append(el('li', { class: 'islser' + (open ? ' open' : ''), onclick: e => { if (e.target.closest('.del')) return; open ? OPEN.delete(p.id) : OPEN.add(p.id); render(); } },
         el('span', { class: 'no', text: bn(n) + ' পর্ব' }), el('span', { class: 't' }, el('b', { text: pl.title }), el('span', { text: `${pl.cat} · প্রতি পর্ব ~${bn(pl.mins)} মিনিট · লেখা ${bn(nW)}/${bn(n)} · ব্যবহৃত ${bn(nUs)}` })),
         el('span', { class: 'islside' }, el('span', { class: 'islst', text: open ? '▾' : '▸' })),
-        el('button', { type: 'button', class: 'islre del', title: 'পুরো ধারাবাহিক মুছুন', 'aria-label': 'মুছুন', text: '🗑', onclick: e => { e.stopPropagation(); del(p.id, `"${pl.title}" ধারাবাহিকের সব পর্ব`); } })));
+        (p.pre ? el('span', { class: 'islre', title: 'বিল্ট-ইন ধারাবাহিক', text: '📌' }) : el('button', { type: 'button', class: 'islre del', title: 'পুরো ধারাবাহিক মুছুন', 'aria-label': 'মুছুন', text: '🗑', onclick: e => { e.stopPropagation(); del(p.id, `"${pl.title}" ধারাবাহিকের সব পর্ব`); } }))));
       if (!open) return;
       pl.parts.forEach((x, k) => {
         const u = ws[k], us = u && used(u.id), canWrite = !u && (k === 0 || ws[k - 1]);
         frag.append(el('li', { class: 'islpart' + (u && app.libId === u.id ? ' cur' : '') + (us ? ' usedrow' : '') + (!u ? ' todorow' : ''), onclick: e => { if (e.target.closest('.del')) return; if (u) openItem(u); else if (canWrite) writePart(p.id, k + 1); else toast(`আগে পর্ব ${bn(k)} লিখুন`); } },
           el('span', { class: 'no', text: bn(k + 1) }), el('span', { class: 't' }, el('b', { text: `পর্ব ${bn(k + 1)}: ${x.t}` }), el('span', { text: u ? `প্রায় ${bn(minsOf(u.txt))} মিনিট · ${k < n - 1 ? 'শেষে পর্ব ' + bn(k + 2) + '-এর ডাক' : 'শেষ পর্ব'}` : (canWrite ? '✍ চাপ দিন — এই পর্ব লেখা হবে' : 'আগের পর্ব লেখা হলে লেখা যাবে') })),
           el('span', { class: 'islside' }, u ? el('button', { type: 'button', class: 'islst del ' + (us ? 'ok used' : 'ok2'), title: us ? 'ব্যবহৃত' : 'ভিডিও বানানো হলে টিক দিন', text: us ? '✓' : '○', onclick: e => { e.stopPropagation(); API().toggleUsed(u.id); render(); } }) : el('span', { class: 'islst todo', text: busy ? '…' : '✍' })),
-          u ? el('button', { type: 'button', class: 'islre del', title: 'নতুন করে লিখুন', 'aria-label': 'নতুন করে লিখুন', text: '↻', onclick: e => { e.stopPropagation(); if (confirm(`পর্ব ${bn(k + 1)} নতুন করে লিখবেন? আগের লেখা মুছে যাবে।`)) writePart(p.id, k + 1); } }) : null));
+          u && !u.pre ? el('button', { type: 'button', class: 'islre del', title: 'নতুন করে লিখুন', 'aria-label': 'নতুন করে লিখুন', text: '↻', onclick: e => { e.stopPropagation(); if (confirm(`পর্ব ${bn(k + 1)} নতুন করে লিখবেন? আগের লেখা মুছে যাবে।`)) writePart(p.id, k + 1); } }) : null));
       });
     });
     if (!list.length) frag.append(el('li', { class: 'muted', text: K === 'series' ? (wantUsed ? 'কোনো ধারাবাহিক এখনো পুরো ব্যবহার হয়নি' : 'এখনো কোনো ধারাবাহিক নেই — ওপরে "＋ নতুন ধারাবাহিক বানান" চাপুন') : (wantUsed ? 'কোনো লং গল্প এখনো ব্যবহার হয়নি' : 'এখনো কোনো লং গল্প নেই — ওপরে "＋ নতুন লং গল্প লেখান" চাপুন') }));
