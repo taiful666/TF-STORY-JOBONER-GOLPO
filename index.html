@@ -6910,7 +6910,7 @@ async function mixWindow(story, tl, audio, S, w0, w1, nch) {
       const st = style === 'auto' ? autoStyle(sc) : style;
       const t0 = T(sc.start), t1 = T(t1a);
       const g = ctx.createGain(); g.gain.setValueAtTime(t0 - .05 >= 0 ? 0 : 1, Math.max(0, t0 - .05)); if (t0 + .35 > 0) g.gain.linearRampToValueAtTime(1, t0 + .35); g.gain.setValueAtTime(1, Math.max(0, t0 + .36, t1 - .4)); g.gain.linearRampToValueAtTime(0, Math.max(.01, t1)); g.connect(musicBus);
-      sceneMusic(ctx, g, st, progFor(sc), t0, t1, noise, si);
+      try { sceneMusic(ctx, g, st, progFor(sc), t0, t1, noise, si); } catch (e) { console.error('scene music', si, e); } // one bad scene must never stop the export
     });
   }
   musicBus.gain.setValueAtTime(musicBus.gain.value, Tc(total - 2.5)); musicBus.gain.linearRampToValueAtTime(0, Math.max(.01, T(total)));

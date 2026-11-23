@@ -209,18 +209,23 @@
   const HIJAZ = [0, 1, 4, 5, 7, 8, 10, 12], RAST = [0, 2, 4, 5, 7, 9, 10, 12];
   function voice(ctx, dest, f, t0, dur, vol, vowel) {
     const F = vowel === 'oo' ? [[320, 6], [800, 8], [2400, 10]] : vowel === 'mm' ? [[260, 4], [1800, 12]] : [[700, 7], [1150, 9], [2600, 12]];
-    const env = ctx.createGain(); env.gain.setValueAtTime(0, t0); env.gain.linearRampToValueAtTime(vol, t0 + Math.min(.35, dur * .3)); env.gain.setValueAtTime(vol, t0 + dur * .7); env.gain.linearRampToValueAtTime(0, t0 + dur); env.connect(dest);
+    // long videos mix in windows, so a note can start before the window (t0 < 0): start it at 0, mid-envelope
+    if (!(dur > 0) || !isFinite(t0) || t0 + dur + .05 <= 0) return; const s0 = Math.max(0, t0);
+    const env = ctx.createGain(), pts = [[t0, 0], [t0 + Math.min(.35, dur * .3), vol], [t0 + dur * .7, vol], [t0 + dur, 0]];
+    const at = x => { for (let i = 1; i < pts.length; i++) if (x <= pts[i][0]) { const [a, va] = pts[i - 1], [b, vb] = pts[i]; return b > a ? va + (vb - va) * (x - a) / (b - a) : vb; } return 0; };
+    env.gain.setValueAtTime(at(s0), s0); pts.forEach(([x, v]) => { if (x > s0) env.gain.linearRampToValueAtTime(v, x); }); env.connect(dest);
     const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3200; lp.connect(env);
     const bands = F.map(([fq, q]) => { const b = ctx.createBiquadFilter(); b.type = 'bandpass'; b.frequency.value = fq; b.Q.value = q; const g = ctx.createGain(); g.gain.value = 1.6; b.connect(g); g.connect(lp); return b; });
-    [-7, 0, 6].forEach(det => { const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(f, t0); o.detune.value = det;
+    [-7, 0, 6].forEach(det => { const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(f, s0); o.detune.value = det;
       const lfo = ctx.createOscillator(), lg = ctx.createGain(); lfo.frequency.value = 5 + Math.random() * .8; lg.gain.value = f * .006; lfo.connect(lg); lg.connect(o.frequency);
-      bands.forEach(b => o.connect(b)); o.start(t0); o.stop(t0 + dur + .05); lfo.start(t0); lfo.stop(t0 + dur + .05); });
+      bands.forEach(b => o.connect(b)); o.start(s0); o.stop(t0 + dur + .05); lfo.start(s0); lfo.stop(t0 + dur + .05); });
   }
   function noiseLayer(ctx, dest, noise, t0, t1, kind) {
+    if (!isFinite(t0) || !isFinite(t1)) return; const s0 = Math.max(0, t0); if (t1 <= s0) return; // window may start inside the scene
     const s = ctx.createBufferSource(); s.buffer = noise; s.loop = true; const f = ctx.createBiquadFilter(); const g = ctx.createGain();
-    if (kind === 'wind') { f.type = 'bandpass'; f.frequency.setValueAtTime(400, t0); f.Q.value = .8; for (let t = t0; t < t1; t += 3) f.frequency.linearRampToValueAtTime(300 + Math.random() * 500, t + 3); g.gain.value = .22; }
+    if (kind === 'wind') { f.type = 'bandpass'; f.frequency.setValueAtTime(400, s0); f.Q.value = .8; for (let t = t0; t < t1; t += 3) { const v = 300 + Math.random() * 500; if (t + 3 > s0) f.frequency.linearRampToValueAtTime(v, t + 3); } g.gain.value = .22; }
     else { f.type = 'highpass'; f.frequency.value = 1800; g.gain.value = .045; }
-    s.connect(f); f.connect(g); g.connect(dest); s.start(t0); s.stop(t1);
+    s.connect(f); f.connect(g); g.connect(dest); s.start(s0); s.stop(t1);
   }
   function islMusic(ctx, dest, st, t0, t1, noise, seed, sc) {
     if (st === 'isl_auto') st = !sc ? 'nasheed' : sc.type === 'ayah' ? 'drone' : (sc.type === 'takeaways' || sc.type === 'cta') ? 'nasheed' : sc.mood === 'tense' ? 'desert_wind' : (sc.mood === 'sad' || sc.mood === 'regret') ? 'nasheed_soft' : sc.time === 'night' ? 'nasheed_soft' : 'nasheed';
