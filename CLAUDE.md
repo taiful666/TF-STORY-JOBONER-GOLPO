@@ -101,10 +101,11 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
 
 <!-- AUTO:START — rewritten by tools/autoupdate.py on every push; do not edit by hand -->
 ## Current state (auto)
-- Updated: 2026-11-23 10:43 · commit `1976532`
+- Updated: 2026-11-23 11:34 · commit `afffb98`
 - APK version: 5.2.<build> · APP_VERSION 5.1.0 · sw cache tf-story-v5.9.5
 - File sizes (lines): index.html 10173 · home.html 285 · islamic/index.html 4994 · islamic/story.js 855 · islamic/art.js 447 · islamic/art2.js 555 · explainer/part.js 1205 · explainer/paper.js 671 · long-visuals.js 941 · long-library.js 29 · fx/motion.js 252 · fx/shadow.js 167 · cloud-core.js 58
 - Latest changes (full list: CHANGELOG.md) — read these before starting; newer facts here win over older text above:
+  - 2026-11-23 · ইসলামিক লাইব্রেরি: শুরুতেই শুধু নতুন (অব্যবহৃত) গল্প দেখায়, চিপের সাথে তালিকা মেলে · islamic/story.js · `afffb98`
   - 2026-11-23 · এক্সপোর্ট সমন্বয়: ☾ বোতাম ইসলামিক গল্পে, রিলের ফাইলনাম ও Facebook Reels লিংক মূল অ্যাপের মতো, কমান্ড প্যালেটে সব অংশ, অফলাইন ক্যাশে ইসলামিক ও fx ফাইল · index.html, islamic/index.html, sw.js · `1976532`
   - 2026-11-23 · Auto-sync Claude notes on every push (CODEMAP, CHANGELOG, CLAUDE.md state block) · .github/workflows/docs-sync.yml, tools/autoupdate.py · `267c0b4`
   - 2026-11-23 · Add CLAUDE.md, CODEMAP, check & codemap tools, CHANGELOG — low-token change workflow · CLAUDE.md, tools/check.py, tools/codemap.py · `16afc9c`
