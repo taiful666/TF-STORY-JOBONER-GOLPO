@@ -3,6 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<script id="fitjs">/* PC / big screens: scale the whole UI with the window, smoothly on resize. Phones & tablets (touch or < 1280px) stay 1:1. */
+(function () {
+  var d = document.documentElement, raf = 0, base = window.devicePixelRatio || 1, Z = 1;
+  try { Object.defineProperty(window, 'devicePixelRatio', { configurable: true, get: function () { return base * Z; } }); } catch (e) { }
+  function fit() {
+    raf = 0; var w = window.innerWidth, h = window.innerHeight, z = 1;
+    if (w >= 1280 && !(window.matchMedia && matchMedia('(pointer:coarse)').matches)) z = Math.max(1, Math.min(2, Math.round(Math.min(w / 1440, h / 860) * 20) / 20));
+    if (z === Z && d.classList.contains('fitz') === (z > 1)) return;
+    Z = z; d.style.zoom = z > 1 ? z : ''; d.style.setProperty('--z', z); d.classList.toggle('fitz', z > 1);
+    try { window.dispatchEvent(new Event('tf-fit')); } catch (e) { }
+  }
+  fit(); window.addEventListener('resize', function () { if (!raf) raf = requestAnimationFrame(fit); });
+})();
+</script>
+<style id="fitcss">html.fitz body{min-height:calc(100vh / var(--z))}html.fitz #cv{max-height:calc(100vh / var(--z) - 250px)}html.fitz #rvCv{max-height:calc(100vh / var(--z) - 170px)}html.fitz .modal-box,html.fitz .tfsh,html.fitz #v3export .v2sbox{max-height:calc(92vh / var(--z))}</style>
 <meta name="theme-color" id="themeColor" content="#f4f5f7">
 <meta name="description" content="TF Post Maker — make Islamic &amp; motivational quote posts, story posts, captions and reels for Facebook in one tap">
 <meta name="mobile-web-app-capable" content="yes">
