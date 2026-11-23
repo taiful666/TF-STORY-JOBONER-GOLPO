@@ -163,10 +163,11 @@ ${catRule(o.cat)}
     }
     const opt = (v, t) => el('option', { value: v, text: t });
     const box = el('div', { id: 'islLongBox', class: 'isllong hidden' },
-      el('nav', { class: 'seg sub small', id: 'islLKind' }, ...[['single', 'একক লং গল্প'], ['series', 'ধারাবাহিক (পর্বে পর্বে)']].map(([v, t]) => el('button', { type: 'button', 'data-k': v, text: t }))),
-      el('nav', { class: 'seg sub small', id: 'islLSerLen' }, ...[['big', 'বড় ধারাবাহিক (পর্ব ~৮ মিনিট)'], ['mid', 'মাঝারি ধারাবাহিক (৩ পর্ব × ~৫ মিনিট)']].map(([v, t]) => el('button', { type: 'button', 'data-l': v, text: t }))),
+      el('div', { class: 'isl-row life-row' },
+        el('nav', { class: 'xls-seg', id: 'islLKind' }, ...[['single', 'একক লং'], ['series', 'ধারাবাহিক']].map(([v, t]) => el('button', { type: 'button', 'data-k': v, text: t }))),
+        el('nav', { class: 'xls-seg', id: 'islLSerLen' }, ...[['big', 'বড়'], ['mid', 'মাঝারি']].map(([v, t]) => el('button', { type: 'button', 'data-l': v, text: t })))),
       el('details', { id: 'islLNew', class: 'isl-form' },
-        el('summary', { id: 'islLNewS', text: '＋ নতুন লং গল্প লেখান' }),
+        el('summary', { id: 'islLNewS', text: '＋ অ্যাপের AI দিয়ে লিখুন' }),
         el('label', null, 'ধরন', el('select', { id: 'islLCat' }, ...CATS.map(c => opt(c, c)))),
         el('label', null, 'বিষয় বা ভাবনা (ঐচ্ছিক)', el('textarea', { id: 'islLTopic', rows: 2, placeholder: 'যেমন: হারাম রুজি ছেড়ে হালালে ফেরা এক দোকানির গল্প / ইউসুফ (আ.)-এর ধৈর্য' })),
         el('div', { class: 'grid3', id: 'islLSingle' }, el('label', null, 'দৈর্ঘ্য', el('select', { id: 'islLMin' }, ...[5, 8, 10, 12, 15].map(n => opt(n, `${bn(n)} মিনিট`))))),
@@ -204,9 +205,9 @@ ${catRule(o.cat)}
     $('islLSingle').classList.toggle('hidden', K !== 'single'); $('islLSeries').classList.toggle('hidden', K !== 'series');
     const MID = K === 'series' && serLen() === 'mid'; $('islLSerLen').classList.toggle('hidden', K !== 'series');
     document.querySelectorAll('#islLSerLen button').forEach(b => b.classList.toggle('on', b.dataset.l === serLen()));
-    $('islLNewS').textContent = K === 'series' ? (MID ? '＋ নতুন মাঝারি ধারাবাহিক বানান' : '＋ নতুন ধারাবাহিক বানান') : '＋ নতুন লং গল্প লেখান';
+    $('islLNewS').textContent = '＋ অ্যাপের AI দিয়ে লিখুন';
     $('islLGo').textContent = K === 'series' ? 'পর্বগুলোর পরিকল্পনা বানান' : 'গল্প লিখুন'; $('islLGo').disabled = !!busy;
-    $('islLNote').textContent = MID ? 'মাঝারি ধারাবাহিক: ৩ পর্ব, প্রতি পর্ব ~৫ মিনিট। প্রতি পর্বে টুইস্ট, ক/খ/গ কুইজ (উত্তর পরের পর্বে), শেষে পরের পর্বের টানটান প্রশ্ন আর সাবস্ক্রাইব-কমেন্টের ডাক থাকবে।' : K === 'series' ? 'আগে AI পুরো গল্পটা পর্বে ভাগ করে পরিকল্পনা দেবে, তারপর প্রতিটা পর্ব আলাদা করে লিখবেন। প্রতি পর্বের শেষে থাকবে "পরের পর্ব আসছে — সাবস্ক্রাইব/ফলো করুন"।' : 'আয়াত/হাদিসের আসল লেখা অ্যাপ নিজে বসাবে; AI শুধু গল্প লিখবে। ভিডিও হবে ১৬:৯ (ইউটিউব)।';
+    $('islLNote').textContent = MID ? '৩ পর্ব × ~৫ মিনিট, প্রতি পর্বে টুইস্ট ও কুইজ।' : K === 'series' ? 'আগে পর্বের পরিকল্পনা, তারপর পর্বে চাপলে লেখা হবে।' : 'ভিডিও ১৬:৯, আয়াত/হাদিসের আসল লেখা অ্যাপ বসাবে।';
     const f = $('libFilter').value, wantUsed = f === 'used' || f === 'hist', q = ($('libSearch').value || '').trim().toLowerCase();
     const used = id => API().usedId(id), match = s => !q || String(s).toLowerCase().includes(q);
     const mine = USERLIB.filter(u => /^isl_long_/.test(u.id) && LONG_RE.test(u.txt)).slice().reverse(), have = new Set(mine.map(u => u.id));

@@ -1034,6 +1034,37 @@ select.lchip{-webkit-appearance:none;appearance:none;width:auto!important;max-wi
 #libList li.islpart{margin-left:22px;border-left:3px solid var(--line2,#c9d0ca)}
 #libList li.islpart.todorow .t>span{color:var(--g)}
 </style>
+<style id="v13">
+/* v13 — minimal mobile pass: short labels, chip rows, no explanations (lib-studio.js card = the one "অন্য AI" way) */
+#aiNew .waynote{display:none}
+#aiNew.xls-ext .topiclbl,#aiNew.xls-ext #topicChips,#aiNew.xls-ext #longBox{display:none!important}
+#way-ext .extsteps,#way-ext #xHint{display:none}
+#way-ext #xlsBox{margin-top:4px}
+#aiNew .aiway{margin-bottom:10px}
+#aiNew .topiclbl small{display:none}
+#aiNew #topicChips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+#aiNew #topicChips::-webkit-scrollbar{display:none}
+#aiNew #topicChips button{flex:none}
+.longbox h4,.longbox #longNote{display:none}
+.longbox .aiways{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.longbox .aiways button{flex:0 1 auto;padding:7px 14px;border-radius:999px;min-height:0}
+.longbox .aiways button span{display:none}
+.longbox .aiways button b{font-size:13.5px}
+.longbox .aiways button.on{background:var(--g,#1f3d2f);color:#fff;border-color:transparent}
+.longbox label small{display:none}
+.isllong{gap:0}
+.isllong details.isl-form{padding:8px 12px;margin-top:8px}
+.isllong details.isl-form>summary{font-size:14px}
+#islLongBox .life-row{margin:0}
+#islLongBox #islLNote{font-size:12px}
+#way-app .grid2,.longbox .grid2{display:flex;gap:8px;align-items:flex-end}
+#way-app .grid2>label,.longbox .grid2>label{flex:1;font-size:12.5px;margin:0}
+#way-app select,#way-app input,.longbox select,.longbox input:not([type=checkbox]){height:40px;font-size:14px}
+#way-app .more2>summary,.v13fold>summary{font-size:13px;opacity:.75;cursor:pointer;padding:6px 0;list-style:none}
+.v13fold{margin:6px 0 0}.v13fold label{display:block;margin:6px 0;font-size:12.5px}
+.longbox{padding:10px 12px!important}
+
+</style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -10181,6 +10212,17 @@ function initShareSheet() {
 <script src="fx/motion.js"></script>
 <script src="fx/shadow.js"></script>
 
+<script id="v13js">
+/* v13 — minimal mobile: tuck optional long-video fields (link, notes, web search) into one fold */
+(function () {
+  try {
+    const box = document.getElementById('longBox'), link = document.getElementById('longLink'); if (!box || !link) return;
+    const rows = [link.closest('label'), document.getElementById('longFactsRow'), document.getElementById('longWebRow')].filter(Boolean);
+    const d = el('details', { class: 'v13fold' }, el('summary', { text: '＋ লিংক, তথ্য, ইন্টারনেট (ঐচ্ছিক)' }));
+    box.append(d); rows.forEach(r => d.append(r));
+  } catch (e) { console.warn('v13', e); }
+})();
+</script>
 <script src="life-series.js"></script>
 <script src="lib-studio.js"></script>
 </body>

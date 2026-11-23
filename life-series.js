@@ -163,7 +163,7 @@ ${buildLongPrompt(o)}`;
           el('label', null, 'প্রতি পর্ব', el('select', { id: 'lifeSMin' }, ...[6, 8, 10, 12, 15].map(n => opt(n, `${bn(n)} মিনিট`))))),
         el('button', { type: 'button', class: 'primary wide', id: 'lifeSGo', text: 'পর্বগুলোর পরিকল্পনা বানান' })));
     const ul = $('libList'); ul.parentNode.insertBefore(box, ul);
-    const css = document.createElement('style'); css.textContent = '#lifeLongBox{margin:0 0 8px}.life-row{display:flex;gap:8px}.life-row .xls-seg{flex:1;margin:0}#lifeSerLen{flex:.8}#lifeSNew{margin-top:8px}#lifeSNew label{display:block;margin:6px 0}#lifeSNew select,#lifeSNew textarea{width:100%;box-sizing:border-box}'; document.head.append(css);
+    const css = document.createElement('style'); css.textContent = '#lifeLongBox{margin:0 0 8px}#lifeSNew{margin-top:8px}#lifeSNew label{display:block;margin:6px 0}#lifeSNew select,#lifeSNew textarea{width:100%;box-sizing:border-box}'; document.head.append(css);
     $('lifeSParts').value = '3'; $('lifeSMin').value = '8';
     $('lifeKind').addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if (!b) return; S.lifeLongKind = b.dataset.k; saveSettings(); renderLib(); });
     $('lifeSerLen').addEventListener('click', e => { const b = e.target.closest('button[data-l]'); if (!b) return; S.lifeSerLen = b.dataset.l; saveSettings(); renderLib(); });
@@ -171,7 +171,7 @@ ${buildLongPrompt(o)}`;
   }
   function sync() { // the kind switch only in the long library; the single list's own filters only outside series
     const b = $('lifeLongBox'); if (!b) return; const L = isLongMode(), ser = on();
-    const x = $('xlsBox'); if (x && x.parentNode === b.parentNode && (x.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING)) x.before(b); // the switch above the paste card
+    if (window.TF_LIBSTUDIO) TF_LIBSTUDIO.mount();
     b.classList.toggle('hidden', !L);
     document.querySelectorAll('#lifeKind button').forEach(x => x.classList.toggle('on', x.dataset.k === (ser ? 'series' : 'single')));
     $('lifeSerLen').classList.toggle('hidden', !ser); $('lifeSNew').classList.toggle('hidden', !ser || !hasKey());

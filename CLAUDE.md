@@ -64,7 +64,7 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
 ### Where things live in `index.html` (grep the heading text; line numbers in CODEMAP)
 | Feature | Section heading to grep |
 |---|---|
-| CSS look (newest layers win: v6 … v12) | `<style id="v12">`, `v11 —`, `v10 —`, `v9 —` |
+| CSS look (newest layers win: v6 … v13) | `<style id="v13">` (মিনিমাল মোবাইল পাস), `<style id="v12">`, `v11 —`, `v10 —`, `v9 —`; JS `v13js` (লং ভিডিওর লিংক/তথ্য/ইন্টারনেট একটা ভাঁজে) |
 | Roles, places, moods, props, books (allowed values) | `TF Story Studio — data`, `allowed values` |
 | Story-writing AI prompts | `the story-writing prompt`, `buildStoryPrompt`, `buildTwistPrompt` |
 | Characters drawing | `CHARACTER`, `look presets per role` |
@@ -89,6 +89,7 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
 ## Conventions
 - UI text in Bangla; code/comments in English. Bangla digits in UI (helper `bn`).
 - Don't rename element ids or localStorage keys (saved user data + later layers depend on them).
+- **Minimal mobile design (owner's rule):** short labels, options as small pill chips in one row, no step numbers or long explanations, optional things behind ⚙ / a fold, two main actions side by side. One "বাইরের AI" flow everywhere: the lib-studio card (`TF_LIBSTUDIO.mount()` puts it in the AI pane's "অন্য AI থেকে আনুন" way or in the library under the switches); the old `#way-ext` steps are hidden.
 - New UI/CSS goes in the newest layer (`v12` style / newest `v*js` script) or a new `v13` layer at the end,
   rather than rewriting old layers — later layers override earlier ones.
 - Islamic part: real Quran/hadith text only (`verifyQuran` swaps in the official text for every `## ayah` block with `উৎস: q`), prophets/sahaba never on screen (faceless), no instruments in music. Long Islamic videos use the same `LongRenderer`; `## ayah` is drawn full-width by a patch in story.js.

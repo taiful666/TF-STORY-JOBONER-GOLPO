@@ -250,7 +250,7 @@ ${fmt}`;
       el('p', { class: 'xls-done hidden', id: 'xlsDone' }));
     const chips = $('libChips'); (chips && chips.parentNode === $('libList').parentNode ? chips : $('libList')).insertAdjacentElement(chips && chips.parentNode === $('libList').parentNode ? 'afterend' : 'beforebegin', box);
     const css = document.createElement('style'); css.id = 'xlsCss';
-    css.textContent = '.xls{margin:8px 0 12px;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--card,#fff)}.xls>summary{cursor:pointer;display:flex;align-items:baseline;justify-content:space-between;gap:8px;list-style:none;font-weight:700;font-size:15px}.xls>summary::-webkit-details-marker{display:none}.xls-sec{font-weight:400;font-size:12px;opacity:.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.xls[open]>summary{margin-bottom:10px}.xls-seg{display:flex;gap:4px;padding:3px;border-radius:999px;background:var(--line2,#eef0ee);margin-bottom:8px}.xls-seg button{flex:1;border:0;background:transparent;border-radius:999px;padding:6px 0;font-size:13.5px;min-height:0}.xls-seg button.on{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12);font-weight:700}.xls-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}.xls-cw{display:contents}.xls-cw.hidden{display:none}select.xls-chip,button.xls-chip{width:auto;max-width:46vw;min-height:0;height:34px;padding:0 26px 0 12px;border:1px solid var(--line);border-radius:999px;font-size:13.5px;background:#fff url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2710%27 height=%2710%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23777%27 stroke-width=%273%27%3E%3Cpath d=%27m6 9 6 6 6-6%27/%3E%3C/svg%3E") no-repeat right 10px center;-webkit-appearance:none;appearance:none;text-overflow:ellipsis}select.xls-chip:disabled{opacity:.75;background-image:none;padding-right:12px}#xlsCat{flex:1 1 0;min-width:0;max-width:none}.xls-chips{flex-wrap:nowrap}button.xls-gear{padding:0 11px;background-image:none;flex:none}button.xls-gear.on{border-color:var(--g,#1f5c44);color:var(--g,#1f5c44)}.xls-in{width:100%;box-sizing:border-box;height:38px;border:1px solid var(--line);border-radius:10px;padding:0 12px;font-size:14px;margin-bottom:8px}textarea.xls-in{height:auto;padding:8px 12px}.xls-more{border-top:1px dashed var(--line);padding-top:8px;margin-bottom:4px}.xls-more .xls-cw{display:block;margin-bottom:8px}.xls .xls-chk{display:flex!important;flex-direction:row!important;gap:8px;align-items:center;justify-content:flex-start;font-size:13px;margin:0 0 6px;text-align:left}.xls .xls-chk input{width:18px!important;height:18px;margin:0;flex:none}.xls-act{display:grid;grid-template-columns:1fr 1fr;gap:8px}.xls-act button{min-height:44px;font-size:14.5px;padding:0 6px}.xls-done{margin:8px 0 0;font-size:13px;color:var(--ok,#1f7a4d);font-weight:600}';
+    css.textContent = '.xls{margin:8px 0 12px;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--card,#fff)}.xls>summary{cursor:pointer;display:flex;align-items:baseline;justify-content:space-between;gap:8px;list-style:none;font-weight:700;font-size:15px}.xls>summary::-webkit-details-marker{display:none}.xls-sec{font-weight:400;font-size:12px;opacity:.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.xls[open]>summary{margin-bottom:10px}.xls-seg{display:flex;gap:4px;padding:3px;border-radius:999px;background:var(--line2,#eef0ee);margin-bottom:8px}.xls-seg button{flex:1;border:0;background:transparent;border-radius:999px;padding:6px 0;font-size:13.5px;min-height:0}.xls-seg button.on{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12);font-weight:700}.xls-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}.xls-cw{display:contents}.xls-cw.hidden{display:none}select.xls-chip,button.xls-chip{width:auto;max-width:46vw;min-height:0;height:34px;padding:0 26px 0 12px;border:1px solid var(--line);border-radius:999px;font-size:13.5px;background:#fff url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2710%27 height=%2710%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23777%27 stroke-width=%273%27%3E%3Cpath d=%27m6 9 6 6 6-6%27/%3E%3C/svg%3E") no-repeat right 10px center;-webkit-appearance:none;appearance:none;text-overflow:ellipsis}select.xls-chip:disabled{opacity:.75;background-image:none;padding-right:12px}#xlsCat{flex:1 1 0;min-width:0;max-width:none}.xls-chips{flex-wrap:nowrap}button.xls-gear{padding:0 11px;background-image:none;flex:none}button.xls-gear.on{border-color:var(--g,#1f5c44);color:var(--g,#1f5c44)}.xls-in{width:100%;box-sizing:border-box;height:38px;border:1px solid var(--line);border-radius:10px;padding:0 12px;font-size:14px;margin-bottom:8px}textarea.xls-in{height:auto;padding:8px 12px}.xls-more{border-top:1px dashed var(--line);padding-top:8px;margin-bottom:4px}.xls-more .xls-cw{display:block;margin-bottom:8px}.xls .xls-chk{display:flex!important;flex-direction:row!important;gap:8px;align-items:center;justify-content:flex-start;font-size:13px;margin:0 0 6px;text-align:left}.xls .xls-chk input{width:18px!important;height:18px;margin:0;flex:none}.xls-act{display:grid;grid-template-columns:1fr 1fr;gap:8px}.xls-act button{min-height:44px;font-size:14.5px;padding:0 6px}.life-row{display:flex;gap:8px;margin:0 0 8px}.life-row .xls-seg{flex:1;margin:0}.life-row .xls-seg+.xls-seg{flex:.8}.life-row .xls-seg.hidden{display:none}.xls-done{margin:8px 0 0;font-size:13px;color:var(--ok,#1f7a4d);font-weight:600}';
     document.head.append(css);
     // events
     const upd = () => { save(); refreshPrompt(); };
@@ -272,8 +272,23 @@ ${fmt}`;
     $('xlsIn').addEventListener('input', () => { const L = $('xlsIn').value.length; if (L - lastLen > 300) setTimeout(() => addPasted(true), 120); lastLen = L; });
     box.addEventListener('toggle', () => { if (box.open) load(); });
     // the section can change under the card (short ↔ long, single ↔ series, big ↔ mid)
-    document.addEventListener('click', e => { if (e.target.closest('#fmtPick, #islLKind, #islLSerLen, #lifeKind, #lifeSerLen, #srcTabs, [data-fmt]')) setTimeout(load, 60); }, true);
-    load();
+    document.addEventListener('click', e => { if (e.target.closest('#fmtPick, #islLKind, #islLSerLen, #lifeKind, #lifeSerLen, #srcTabs, [data-fmt]')) setTimeout(() => { load(); mount(); }, 60); }, true);
+    load(); mount();
+    // the same card is the "অন্য AI থেকে আনুন" way of the AI pane (one way of doing it everywhere)
+    if (typeof showSrc === 'function') { const _s = showSrc; showSrc = function () { const r = _s.apply(this, arguments); setTimeout(mount, 20); return r; }; }
+    document.addEventListener('click', e => { if (e.target.closest('#aiWay, #srcTabs, #srcPick, #fmtPick, #islLKind, #islLSerLen, #lifeKind, #lifeSerLen')) setTimeout(mount, 80); }, true);
+  }
+  /* where the card sits: inside the AI pane's "অন্য AI" way when that is on screen, else in the library under the switches */
+  function mount() {
+    const box = $('xlsBox'); if (!box) return;
+    const ext = $('way-ext'), ai = $('src-ai'), inAI = ext && ai && !ext.closest('.hidden');
+    const an = $('aiNew'); if (an) an.classList.toggle('xls-ext', !!inAI);
+    if (inAI) { if (box.parentNode !== ext) { ext.prepend(box); load(); } box.open = true; return; }
+    const sw = [$('lifeLongBox'), $('islLongBox')].find(x => x && !x.classList.contains('hidden'));
+    const chips = $('libChips'), list = $('libList');
+    if (sw) { if (box.previousElementSibling !== sw.querySelector('.life-row, .isl-row') && sw.firstElementChild) { const row = sw.querySelector('.life-row, .isl-row'); (row || sw).after(box); load(); } return; }
+    const ref = chips && list && chips.parentNode === list.parentNode ? chips : list;
+    if (ref && (ref === chips ? ref.nextElementSibling !== box : ref.previousElementSibling !== box)) { ref.insertAdjacentElement(ref === chips ? 'afterend' : 'beforebegin', box); load(); }
   }
   const debounce = (f, ms) => { let t; return () => { clearTimeout(t); t = setTimeout(f, ms); }; };
   function fillCats() {
@@ -309,7 +324,7 @@ ${fmt}`;
   }
   function refreshPrompt() { try { $('xlsPrompt').value = buildPrompt(); } catch (e) { console.warn('xls prompt', e); $('xlsPrompt').value = 'প্রম্পট বানানো গেল না: ' + e.message; } }
 
-  window.TF_LIBSTUDIO = { build, load, parsePack, buildPrompt, section };
+  window.TF_LIBSTUDIO = { build, load, parsePack, buildPrompt, section, mount };
   const start = () => { try { build(); } catch (e) { console.error('lib studio', e); } };
   if (document.readyState === 'complete') setTimeout(start, 300); else window.addEventListener('load', () => setTimeout(start, 300));
 })();
