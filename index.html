@@ -10249,9 +10249,9 @@ function proSeries(st) {
   const last = of ? k >= of : /শেষ পর্ব|সমাপ্ত/.test(t);
   return { name: m[1].trim(), k, of, last, partName: m[4].trim() };
 }
-/* Islamic series part (isl_ser_X_p<k>): total parts from its plan (built-in or saved) */
+/* series part (isl_ser_X_p<k> / life_ser_X_p<k>): total parts from its plan (built-in or saved) */
 function proPlanTotal() {
-  try { const id = (typeof app !== 'undefined' && app.libId) || '', m = String(id).match(/^(isl_ser_[^_]+)_p\d+$/); if (!m) return 0; const sid = m[1];
+  try { const id = (typeof app !== 'undefined' && app.libId) || '', m = String(id).match(/^((?:isl|life)_ser_[^_]+)_p\d+$/); if (!m) return 0; const sid = m[1];
     const pre = [].concat(window.ISL_LONG_SERIES || [], window.ISL_MID_SERIES || []).find(x => x.id === sid); if (pre) return pre.parts.length;
     const u = (typeof USERLIB !== 'undefined' ? USERLIB : []).find(x => x.id === sid); if (u) { const j = JSON.parse(u.txt.slice(u.txt.indexOf('{'))); return (j.parts || []).length; }
   } catch (e) { } return 0;
