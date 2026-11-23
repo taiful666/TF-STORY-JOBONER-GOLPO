@@ -17,12 +17,20 @@ Goal of this file: do every change with the **fewest tokens**. Never re-read the
 1. Clone is shallow (`--depth 1`). Work on `main` unless he asks for a branch (he wants changes live).
 2. Locate (grep) → read only the needed lines → Edit.
 3. `python3 tools/check.py` — syntax check of all JS/inline scripts (≈1 s). Must print `OK`.
-4. `python3 tools/codemap.py` — refresh CODEMAP.md line numbers (always, after any code edit).
-5. Add one line at the top of `CHANGELOG.md` (date, what changed, files).
-6. Commit with a short message (Bangla or English) and push:
+4. `python3 tools/codemap.py` — refresh CODEMAP.md line numbers if you need them again in this chat.
+5. **Commit message = the changelog.** Write a clear one-line message saying what changed (e.g.
+   `লং ভিডিও: ক্যাপশন বড়, শেয়ার শিটে Telegram`). Don't edit CHANGELOG.md by hand — the bot adds it.
+   If the change adds/moves a feature, file or section, or changes a rule/convention, also update the
+   hand-written tables/rules above so they never go stale (the bot only updates the AUTO block).
+6. Push:
    `git -c push.negotiate=true push origin main`. Pushing web/android files to `main` triggers the APK build
    (GitHub Actions) and the phones get the update automatically. Docs/tools-only changes don't trigger a build.
-7. If several features are asked in one message, do them all, then check/codemap/changelog/commit once.
+7. If several features are asked in one message, do them all, then check and commit once.
+8. **Auto-sync:** `.github/workflows/docs-sync.yml` runs on every push to main (from Claude, the owner, or
+   anyone): `tools/autoupdate.py` rebuilds CODEMAP.md, adds the new commits to CHANGELOG.md and rewrites the
+   "Current state (auto)" block at the end of this file. So the notes are always the latest — trust the
+   AUTO block over older text if they disagree. Before pushing, `git pull --rebase origin main` (the bot may
+   have pushed a notes commit).
 
 ## What the app is
 Bangla story-video maker (canvas 2D animation → MP4 via WebCodecs). Web app (plain HTML/JS, no build step,
@@ -85,3 +93,13 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
 - `python3 tools/check.py` (syntax) is the cheap default. For visual/UI changes, if asked or risky, run the page in
   headless Chromium (playwright) and look at a screenshot; otherwise skip to save tokens.
 - The CI emulator smoke test runs on every push; failures show in the Actions tab.
+
+<!-- AUTO:START — rewritten by tools/autoupdate.py on every push; do not edit by hand -->
+## Current state (auto)
+- Updated: 2026-11-23 09:40 · commit `16afc9c`
+- APK version: 5.2.<build> · APP_VERSION 5.1.0 · sw cache tf-story-v5.9.4
+- File sizes (lines): index.html 10173 · home.html 285 · islamic/index.html 4993 · islamic/story.js 855 · islamic/art.js 447 · islamic/art2.js 555 · explainer/part.js 1205 · explainer/paper.js 671 · long-visuals.js 941 · long-library.js 29 · fx/motion.js 252 · fx/shadow.js 167 · cloud-core.js 58
+- Latest changes (full list: CHANGELOG.md) — read these before starting; newer facts here win over older text above:
+  - 2026-11-23 · Add CLAUDE.md, CODEMAP, check & codemap tools, CHANGELOG — low-token change workflow · CLAUDE.md, tools/check.py, tools/codemap.py · `16afc9c`
+  - 2026-11-20 · UI round 4: Islamic library uses same chips/compact rows, hide phone step bar, no wrapped text · (start of this log) · `71fdfda`
+<!-- AUTO:END -->

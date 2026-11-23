@@ -1,4 +1,4 @@
-# CHANGELOG — newest first (one line per change: date · what · files)
+# CHANGELOG — newest first (auto: one line per commit · date · message · files · commit)
 
-- 2026-11-23 · Added CLAUDE.md (instructions for every chat), CODEMAP.md + tools/codemap.py (line-numbered code index), tools/check.py (syntax check), this changelog · docs/tools only
-- 2026-11-20 · UI round 4: Islamic library uses same chips/compact rows, hide phone step bar, no wrapped text (last commit before this log)
+- 2026-11-23 · Add CLAUDE.md, CODEMAP, check & codemap tools, CHANGELOG — low-token change workflow · CLAUDE.md, tools/check.py, tools/codemap.py · `16afc9c`
+- 2026-11-20 · UI round 4: Islamic library uses same chips/compact rows, hide phone step bar, no wrapped text · (start of this log) · `71fdfda`

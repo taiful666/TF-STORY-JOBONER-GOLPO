@@ -1,0 +1,39 @@
+name: Keep Claude notes up to date
+
+# After every push to main (by anyone, any file): rebuild CODEMAP.md, add the new commits to CHANGELOG.md
+# and refresh the "Current state" block in CLAUDE.md. The bot's own commit uses GITHUB_TOKEN, so it does
+# not start this workflow again and does not start a new APK build.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: docs-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: github.actor != 'tf-docs-bot'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 100
+      - name: Update CODEMAP, CHANGELOG, CLAUDE.md
+        run: python3 tools/autoupdate.py "${{ github.event.before }}"
+      - name: Commit if anything changed
+        run: |
+          git config user.name tf-docs-bot
+          git config user.email tf-docs-bot@users.noreply.github.com
+          git add CODEMAP.md CHANGELOG.md CLAUDE.md
+          if git diff --cached --quiet; then echo "notes already up to date"; exit 0; fi
+          git commit -m "docs-sync: update Claude notes [skip ci]"
+          for i in 1 2 3; do
+            git pull --rebase -X theirs origin main && git push origin HEAD:main && exit 0
+            sleep 5
+          done
+          exit 1
