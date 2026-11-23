@@ -91,6 +91,7 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
   (`initShareSheet`) in index.html; parts must not fork it. Post Maker reels (`islamic/index.html`) mirror it:
   same file name `Title_9x16.mp4` (`reelName`), same platforms (`TF_PLAT`), same Android bridge, AAC first then Opus.
   Change export/share behaviour in both places together.
+- Ratio: every part (story, Islamic short/long, explainer) offers 9:16 · 4:5 · 1:1 · 16:9 via the preview chip `#pvRatioChip` → `setRatio`; short and long remember their own (`S.ratioShort` / `S.ratioLong`). Any non-9:16 frame uses `LongRenderer` (re-laid out, never pillarboxed) — `rebuild()`.
 - Links: ☾ `btnSuite` → `index.html?part=islamic` (the Islamic part overrides it to Post Maker `islamic/index.html`).
 - Never put API keys or the signing key in the repo.
 - Versions: `APP_VERSION` in index.html (project file format), `TF_VERSION_NAME` in android.yml (APK name, e.g. 5.2 →

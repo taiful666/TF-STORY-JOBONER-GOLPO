@@ -7304,10 +7304,10 @@ function segsFor() {
 function rebuild(keepT) {
   if (!app.story) return;
   const isLong = app.story.fmt === 'long'; let resize = false;
-  if (TF_ISL && !S.ratioShort && S.expRatio && S.expRatio !== '16:9') S.ratioShort = S.expRatio; // Islamic used to keep its one ratio in expRatio
+  if (TF_ISL && !S.ratioShort && S.expRatio) S.ratioShort = S.expRatio; // Islamic used to keep its one ratio in expRatio
   const want = isLong ? (S.ratioLong || '16:9') : (S.ratioShort || '9:16');
   if (S.expRatio !== want) { S.expRatio = want; resize = true; setSeg('ratioPick', 'r', want); syncRatioQuick(); try { saveSettings(); } catch (e) { } }
-  const wide = isLong || (!TF_ISL && S.expRatio !== '9:16');
+  const wide = isLong || S.expRatio !== '9:16'; // every part: a non-9:16 frame is laid out again (characters + text), not pillarboxed
   if (wide !== !!app.renderer.isLong) { app.renderer = wide ? new LongRenderer() : new StoryRenderer(); pvComp = null; resize = true; }
   if (wide) app.renderer.setFrame(S.expRatio);
   document.body.classList.toggle('longfmt', isLong); document.body.classList.toggle('widepv', FRAME_SIZES[S.expRatio] && FRAME_SIZES[S.expRatio][0] > FRAME_SIZES[S.expRatio][1]);
