@@ -8687,7 +8687,7 @@ function ktStyleOf(R, k, j, getCh) {
 /* paints one caption chunk: box + words. g = { t, ch, words, M:{ws,sp}, size, u, bx, by, bw, bh, padX, y, font:(sz)=>css font, pal:{dark,stroke,bar,key}, style } */
 function ktPaint(c, g) {
   const { t, ch, words, M, size, u, bx, by, bw, bh, padX, y, pal } = g, ST = KT_STYLES[g.style] || KT_STYLES[0], lt = t - ch.t0, e0 = eo(cl(lt / .14));
-  const boxT = ST.box, T = { pill: { txt: '#FFFFFF', key: pal.key, ul: pal.key }, paper: { txt: '#2A1C14', key: '#D2361F', ul: '#D2361F' }, gold: { txt: '#1A1405', key: '#7A1410', ul: '#1A1405' }, glass: { txt: '#FFFFFF', key: pal.key, ul: pal.key }, none: { txt: '#FFFFFF', key: pal.key, ul: null }, marker: { txt: '#FFFFFF', key: '#1A1405', ul: null }, bar: { txt: '#FFFFFF', key: pal.key, ul: null } }[boxT];
+  const boxT = ST.box, T = { pill: { txt: '#FFFFFF', key: pal.key, ul: pal.key }, paper: { txt: '#2A1C14', key: '#D2361F', ul: '#D2361F' }, gold: { txt: '#FFFFFF', key: pal.key, ul: pal.key }, glass: { txt: '#FFFFFF', key: pal.key, ul: pal.key }, none: { txt: '#FFFFFF', key: pal.key, ul: null }, marker: { txt: '#FFFFFF', key: '#FFFFFF', ul: null }, bar: { txt: '#FFFFFF', key: pal.key, ul: null } }[boxT];
   // ---- the box ----
   if (boxT === 'pill' || boxT === 'paper' || boxT === 'gold' || boxT === 'glass') {
     c.save(); const cx = bx + bw / 2, cy = by + bh / 2;
@@ -8695,10 +8695,11 @@ function ktPaint(c, g) {
     else if (ST.boxIn === 'rise') c.translate(0, (1 - e0) * size * .55);
     else if (ST.boxIn === 'wipe') { c.beginPath(); c.rect(bx - 20 * u, by - 30 * u, (bw + 40 * u) * eo(cl(lt / .22)), bh + 60 * u); c.clip(); }
     c.save(); c.shadowColor = boxT === 'paper' ? 'rgba(60,30,10,.3)' : 'rgba(0,0,0,.5)'; c.shadowBlur = 18 * u; c.shadowOffsetY = 6 * u;
-    rr(c, bx, by, bw, bh, boxT === 'paper' ? 20 * u : 14 * u, boxT === 'paper' ? '#FBF1DF' : boxT === 'gold' ? pal.key : boxT === 'glass' ? 'rgba(8,12,18,.62)' : pal.dark); c.restore();
+    rr(c, bx, by, bw, bh, boxT === 'paper' ? 20 * u : 14 * u, boxT === 'paper' ? '#FBF1DF' : boxT === 'gold' ? 'rgba(14,10,4,.88)' : boxT === 'glass' ? 'rgba(8,12,18,.62)' : pal.dark); c.restore();
     if (boxT === 'pill') { rr(c, bx, by, bw, bh, 14 * u, null, pal.stroke, 2 * u); if (pal.bar) rect(c, bx + 18 * u, by, bw - 36 * u, 4 * u, pal.bar); }
     else if (boxT === 'glass') { rr(c, bx, by, bw, bh, 14 * u, null, 'rgba(255,255,255,.22)', 2 * u); rr(c, bx + 8 * u, by + 10 * u, 8 * u, bh - 20 * u, 4 * u, pal.key); }
     else if (boxT === 'paper') rr(c, bx, by, bw, bh, 20 * u, null, 'rgba(120,80,40,.3)', 2 * u);
+    else if (boxT === 'gold') rr(c, bx, by, bw, bh, 14 * u, null, pal.key, 3 * u); // dark box, gold frame: never dark text on yellow (hard to read)
     c.restore();
   }
   // ---- the words ----
@@ -8721,13 +8722,13 @@ function ktPaint(c, g) {
       c.save(); c.globalAlpha *= al; c.font = g.font(size); c.textAlign = 'left'; c.lineJoin = 'round';
       if (bl > .4) c.filter = `blur(${bl.toFixed(1)}px)`;
       c.translate(cx + dx, cy + dy); c.rotate(rot); c.scale(sx, sy); c.translate(-cx, -cy);
-      const mk = boxT === 'marker' && key; // key word: white word first, then the yellow marker sweeps over it and the word turns dark INSIDE the marker only
+      const mk = boxT === 'marker' && key; // key word: white word, then a deep red marker sweeps under it (white on red stays readable)
       if (A === 'glitch' && rgb > .5) { c.save(); c.globalCompositeOperation = 'lighter'; c.fillStyle = 'rgba(255,40,80,.85)'; c.fillText(txtv, x - rgb, y); c.fillStyle = 'rgba(40,220,255,.85)'; c.fillText(txtv, x + rgb, y); c.restore(); }
       else {
         if (strokeW) { c.strokeStyle = 'rgba(0,0,0,.92)'; c.lineWidth = strokeW; c.strokeText(txtv, x, y); }
         c.shadowColor = boxT === 'paper' ? 'rgba(0,0,0,0)' : 'rgba(0,0,0,.45)'; c.shadowBlur = (strokeW ? 10 : 4) * u; c.shadowOffsetY = 2 * u; c.fillStyle = mk ? T.txt : col; c.fillText(txtv, x, y);
       }
-      if (mk) { c.save(); c.beginPath(); c.rect(x - 7 * u, y - size * .9, (ww + 14 * u) * eo(cl((wl - .02) / .2)), size * 1.3); c.clip(); rr(c, x - 7 * u, y - size * .86, ww + 14 * u, size * 1.08, 6 * u, pal.key); c.shadowColor = 'transparent'; c.fillStyle = T.key; c.fillText(txtv, x, y); c.restore(); }
+      if (mk) { c.save(); c.beginPath(); c.rect(x - 7 * u, y - size * .9, (ww + 14 * u) * eo(cl((wl - .02) / .2)), size * 1.3); c.clip(); rr(c, x - 7 * u, y - size * .86, ww + 14 * u, size * 1.08, 6 * u, '#C62F22'); c.shadowColor = 'transparent'; c.fillStyle = T.key; c.fillText(txtv, x, y); c.restore(); }
       if (cursor) { c.shadowColor = 'transparent'; const cwid = c.measureText(txtv).width; rect(c, x + cwid + 3 * u, y - size * .78, 5 * u, size * .95, pal.key); }
       c.restore();
       if (key && T.ul) { const ue = eo(cl((wl - .08) / .22)); if (ue > 0) rect(c, x, y + size * .2, ww * ue, (boxT === 'gold' ? 6 : 5) * u, T.ul); }
@@ -10338,7 +10339,7 @@ function proDraw(c, FW, FH, st, bg) {
     boxes.push({ k, x: ccx + dx - w * s / 2, y: ccy + dy - h * s / 2, w: w * s, h: h * s, cx: ccx + dx, cy: ccy + dy, s }); };
   parts.forEach(([k, h], i) => {
     if (k === 'tag') { const w = pillW(c, cp.tag, chip); place(k, cx - w / 2, y, w, h, () => proPill(c, cp.tag, cx, y + h / 2, chip, pal.tag, '#fff', 'rgba(255,255,255,.35)')); }
-    if (k === 'ep') { const w = pillW(c, cp.ep, epS); place(k, cx - w / 2, y, w, h, () => proPill(c, cp.ep, cx, y + h / 2, epS, pal.ep, pal.epText, 'rgba(255,255,255,.6)')); }
+    if (k === 'ep') { const w = pillW(c, cp.ep, epS); place(k, cx - w / 2, y, w, h, () => proPill(c, cp.ep, cx, y + h / 2, epS, 'rgba(0,0,0,.62)', pal.ep, pal.ep)); }
     if (k === 'h') { const w = proRowsW(c, H1.rows, H1.sp, hs, 800), y0 = y; place(k, cx - w / 2, y, w, h, () => { const hh = proText(c, H1.rows, H1.sp, cx, y0, hs, 800, '#FFFFFF', pal.hi, .07); rr(c, cx - 60 * u, y0 + hh + gap * .7, 120 * u, barH, barH / 2, pal.hi); }); }
     if (k === 'sub') { const w = proRowsW(c, SB.rows, SB.sp, ss, 600), y0 = y; place(k, cx - w / 2, y, w, h, () => proText(c, SB.rows, SB.sp, cx, y0, ss, 600, '#F4EEE4', pal.hi, .04)); }
     if (k === 'cta') { const w = pillW(c, cp.cta, ctaS, true); place(k, cx - w / 2, y, w, h, () => proPill(c, cp.cta, cx, y + h / 2, ctaS, pal.cta, '#fff', pal.ctaLine, true)); }

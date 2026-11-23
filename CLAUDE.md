@@ -42,7 +42,7 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
 ### Files
 | File | Role |
 |---|---|
-| `home.html` | start screen: গল্প / ইসলামিক / এক্সপ্লেনার. Tapping ইসলামিক opens 2 choices (`#islSub`): গল্পের ভিডিও (`index.html?part=islamic`) or পোস্ট মেকার (`islamic/index.html`) |
+| `home.html` | start screen: গল্প / ইসলামিক / এক্সপ্লেনার. Tapping ইসলামিক opens its own screen (hash `#islamic`, `body.isl-on`, back button `#islBack` / phone back) with 2 choices (`#islSub`): গল্পের ভিডিও (`index.html?part=islamic`) or পোস্ট মেকার (`islamic/index.html`) |
 | `index.html` | the Story part: all CSS layers, data, drawing, engine, audio, export, UI. Also hosts other parts via `?part=islamic` / `?part=explainer` |
 | `long-library.js` | 13 built-in long stories |
 | `lib-studio.js` | **লাইব্রেরি স্টুডিও** (সব সেকশনে, লাইব্রেরির চিপের নিচে `#xlsBox`): ক্যাটাগরি + স্টাইল + একক×N / ধারাবাহিক N পর্ব + দৈর্ঘ্য + বিষয় + নিজের নির্দেশ → সেকশনের নিজের প্রম্পটের ওপর লাইভ প্রম্পট (কপি) → বাইরের AI-এর উত্তর পেস্ট → `parsePack` (TF Script কোড ব্লক বা JSON; ধারাবাহিক = `ধারাবাহিক: নাম \| মোট পর্ব: N` + `=== নাম \| পর্ব k: …` + `সারাংশ:`) → এই সেকশনের লাইব্রেরিতে। ইসলামিক লং/ধারাবাহিক `ISL_LONG.importPack` দিয়ে আসল ধারাবাহিক হয় (একই নামে পেস্ট করলে পর্ব যোগ হয়); অন্য সেকশনে পর্বগুলো `নাম · পর্ব k` নামে আলাদা গল্প। পছন্দ মনে রাখে `tf_xls_<section>`। মিনিমাল কার্ড ("✍ Gemini দিয়ে লিখুন"): পিল সেগমেন্ট (একটাতেই শেষ/ধারাবাহিক) → এক লাইনে চিপ-সিলেক্ট (গল্প/পর্ব · মিনিট · ক্যাটাগরি · ⚙ আরও অপশন `#xlsMore`) → বিষয় ইনপুট → পাশাপাশি দুই বোতাম 'প্রম্পট কপি' + 'পেস্ট করে যোগ'; প্রম্পট টেক্সটএরিয়া লুকানো, পেস্ট বক্স শুধু ক্লিপবোর্ড ব্যর্থ হলে দেখায় (ক্লিপবোর্ড → সরাসরি যোগ; Android-এ `TFAndroid.getClipboard`; বক্সে পেস্ট করলেও নিজে যোগ হয়)। `clean()` Gemini-র ``` / ** / ### / মাঝের কথা ছেঁটে ফেলে; ধারাবাহিক বাছলে সাধারণ `===` ব্লকগুলোই ক্রমানুসারে পর্ব; বাকি পর্ব না এলে 'চালিয়ে যাও' বলতে বলে (নাম ছাড়া পর্ব আগের ধারাবাহিকে জোড়ে, `lastSer`) |
@@ -81,7 +81,7 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
 | **প্রো থাম্বনেল (default, all parts/ratios)** | `v13 — প্রো থাম্বনেল` (`<script id="v13thumb">`): `proCopy` (auto text), `proSeries` (পর্ব k / N, শেষ পর্ব), `proDraw`; theme key `pro`; manual edits `story.cover.pro {tag,ep,h,sub,cta}` via `#proFields`; position/size per element `cover.pro.lay[tag|ep|h|sub|cta|logo] = {dx,dy (frame fraction), s}`; drag editor `<dialog id="proEd">` (`TF_PRO_EDITOR()`, opened by `#btnProEdit` or tapping `#thumbPv`): pointer drag, corner handle / pinch / wheel resize, centre snap; boxes from `PRO_BOXES`, background cached in `PRO_BG` |
 | Gmail login / cloud sync | `Gmail login + cloud sync` |
 | Startup | `---------- init` |
-| Long video (16:9) styles, captions, kinetic text | `LONG VIDEO`, `CAPTION VARIETY`, `first-video look (thriller)`, `kinetic typography`, `long video: UI` |
+| Long video (16:9) styles, captions, kinetic text (rule: never dark text on a yellow box — gold box = dark box + gold frame, marker = deep red under white word) | `LONG VIDEO`, `CAPTION VARIETY`, `first-video look (thriller)`, `kinetic typography`, `long video: UI` |
 | Start chooser, share sheet, command palette, ⋯ menu | `v3.9 — start chooser`, `publish text`, `command palette`, `⋯ menu` |
 | Editor shell (top bar, rail, monitor, timeline) | `v9 — editor workspace` |
 | Preview card, library chips, folds | `v10 —`, `v11 —` (JS blocks `v10js`, `v11js`) |

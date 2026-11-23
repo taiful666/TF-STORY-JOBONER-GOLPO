@@ -139,6 +139,14 @@ footer{text-align:center;color:var(--mute);font-size:12px;padding:8px 16px max(1
 .part.isl[aria-expanded="true"] .chev{transform:rotate(90deg)}
 .islsub{display:flex;flex-direction:column;gap:6px;margin:-2px 0 2px 28px;padding-left:12px;border-left:2px solid var(--line2)}
 .islsub[hidden]{display:none}
+/* ইসলামিক = its own screen (not a dropdown): the other parts and the lead hide, the two choices fill the list */
+body.isl-on .lead,body.isl-on .parts>.part{display:none}
+body.isl-on .islsub{margin:0;padding:0;border:0;gap:12px}
+body.isl-on .islsub .part{min-height:80px;padding:16px}
+.islhead{display:flex;align-items:center;gap:12px;margin:0 0 8px}
+.islhead h1{margin:0;font-size:28px;line-height:1.2}.islhead p{margin:2px 0 0;font-size:14px;color:var(--sub)}
+.islhead .back{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--raise);color:var(--ink);cursor:pointer;flex:none}
+.islhead .back svg{width:20px;height:20px}
 .islsub .part{min-height:64px;padding:12px 14px;animation:rise .2s var(--ease) both}
 .islsub .part .ic{width:38px;height:38px;border-radius:10px}
 .islsub .part b{font-size:16px}.islsub .part p{font-size:13px}
@@ -240,6 +248,7 @@ footer{text-align:center;color:var(--mute);font-size:12px;padding:8px 16px max(1
       <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
     </a>
     <div class="islsub" id="islSub" hidden>
+      <div class="islhead"><button type="button" class="back" id="islBack" aria-label="ফিরে যান"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button><div><h1>ইসলামিক</h1><p>কী বানাবেন?</p></div></div>
       <a class="part" id="goIslStory" href="index.html?part=islamic">
         <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg></span>
         <span class="tx"><b>গল্পের ভিডিও</b><p>কুরআন-হাদিসের গল্প — দৃশ্য, কণ্ঠ ও এক্সপোর্ট</p></span>
@@ -280,8 +289,12 @@ footer{text-align:center;color:var(--mute);font-size:12px;padding:8px 16px max(1
   if(tag){ const b = document.createElement('span'); b.className = 'last'; b.textContent = 'শেষবার'; $(tag).append(b); }
   const remember = k => { try{ localStorage.setItem('tf_suite_last', k); }catch(e){} };
   $('goStory').addEventListener('click', () => remember('story'));
-  /* tapping "ইসলামিক" opens its two choices instead of jumping straight in */
-  $('goIslamic').addEventListener('click', e => { e.preventDefault(); const sub = $('islSub'), open = sub.hidden; sub.hidden = !open; $('goIslamic').setAttribute('aria-expanded', String(open)); if(open) $('goIslStory').focus({ preventScroll:true }); });
+  /* tapping "ইসলামিক" opens its own screen (#islamic) with the two choices; back (button, browser, phone) returns */
+  const islShow = on => { document.body.classList.toggle('isl-on', on); $('islSub').hidden = !on; $('goIslamic').setAttribute('aria-expanded', String(on)); window.scrollTo(0, 0); if(on) $('goIslStory').focus({ preventScroll:true }); };
+  $('goIslamic').addEventListener('click', e => { e.preventDefault(); if(location.hash !== '#islamic') history.pushState({ isl:1 }, '', '#islamic'); islShow(true); });
+  $('islBack').addEventListener('click', () => { if(history.state && history.state.isl) history.back(); else { history.replaceState(null, '', location.pathname + location.search); islShow(false); } });
+  window.addEventListener('popstate', () => islShow(location.hash === '#islamic'));
+  if(location.hash === '#islamic') islShow(true);
   $('goIslStory').addEventListener('click', () => remember('islamic'));
   $('goPostMaker').addEventListener('click', () => remember('islamic'));
   $('goExplainer').addEventListener('click', () => remember('explainer'));
