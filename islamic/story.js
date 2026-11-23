@@ -546,7 +546,7 @@ rafiq:crying:pray_hands চরিত্রের ভাব দেখাতে �
   }
   function islRenderLib() {
     const ul = $('libList'); if (!ul) return; ul.innerHTML = ''; const { all, list } = rows();
-    { const nU = all.filter(r => usedU(r.u)).length, a = $('libNewN'), b = $('libUsedN'); if (a) a.textContent = bn(all.length - nU); if (b) b.textContent = bn(nU); document.querySelectorAll('#libChips .lchip[data-lt]').forEach(c => { const on = c.dataset.lt === ($('libFilter').value === 'used' || $('libFilter').value === 'hist' ? 'used' : 'new'); c.classList.toggle('on', on); c.setAttribute('aria-pressed', on); }); }
+    { const nU = all.filter(r => usedU(r.u)).length, a = $('libNewN'), b = $('libUsedN'); if (a) a.textContent = bn(all.length - nU); if (b) b.textContent = bn(nU); document.querySelectorAll('#libChips .lchip[data-lt]').forEach(c => { const fv = $('libFilter').value, on = c.dataset.lt === (fv === 'used' || fv === 'hist' ? 'used' : fv === 'new' ? 'new' : ''); /* "সব" lights no chip */ c.classList.toggle('on', on); c.setAttribute('aria-pressed', on); }); }
     $('libCount').textContent = `${bn(list.length)}টা দেখাচ্ছে · ✅ লেখা আছে ${bn(all.filter(r => r.u).length)} · ⬜ লেখা হয়নি ${bn(all.filter(r => !r.u).length)} · ব্যবহৃত ${bn(all.filter(r => usedU(r.u)).length)}`;
     const frag = document.createDocumentFragment();
     list.forEach(r => {
@@ -572,7 +572,7 @@ rafiq:crying:pray_hands চরিত্রের ভাব দেখাতে �
     const cats = Array.from(new Set(PRE().map(x => x.cat)));
     const groups = [[G_LIFE, `${G_LIFE} (তৈরি, অফলাইন)`]].concat(cats.map(c => [G_LIFE + ' · ' + c, '— ' + c]), [[G_PROPHET, G_PROPHET], [G_QURAN, G_QURAN], [G_HADITH, G_HADITH], [G_OWN, G_OWN]]);
     b.className = 'lchip'; b.removeAttribute('aria-hidden'); b.tabIndex = 0; b.style.display = 'inline-flex'; const ch = $('libChips'); if (ch && b.parentNode !== ch) ch.append(b); const ar = $('libArea'); if (ar) ar.style.display = 'none'; b.innerHTML = ''; b.append(el('option', { value: '', text: 'সব ধরন' }), ...groups.map(([v, tx]) => el('option', { value: v, text: tx }))); b.value = groups.some(g => g[0] === cb) ? cb : '';
-    if (!f.dataset.isl) { f.innerHTML = ''; f.append(...[['all', 'সব'], ['new', 'অব্যবহৃত'], ['used', 'ব্যবহৃত'], ['hist', 'ইতিহাস (সাম্প্রতিক আগে)'], ['ready', 'তৈরি আছে'], ['todo', 'এখনো লেখা হয়নি']].map(([v, tx]) => el('option', { value: v, text: tx }))); f.dataset.isl = '1'; f.value = 'all'; } else f.value = cf || 'all';
+    if (!f.dataset.isl) { f.innerHTML = ''; f.append(...[['all', 'সব'], ['new', 'অব্যবহৃত'], ['used', 'ব্যবহৃত'], ['hist', 'ইতিহাস (সাম্প্রতিক আগে)'], ['ready', 'তৈরি আছে'], ['todo', 'এখনো লেখা হয়নি']].map(([v, tx]) => el('option', { value: v, text: tx }))); f.dataset.isl = '1'; f.value = 'new'; } else f.value = cf || 'new'; /* start on "নতুন" (unused) — the chip that is lit */
   }
   async function islOpen(r) {
     if (BUSY) { busyToast(); return; }
