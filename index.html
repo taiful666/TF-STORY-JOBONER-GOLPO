@@ -1447,7 +1447,7 @@ select.lchip{-webkit-appearance:none;appearance:none;width:auto!important;max-wi
       <label>নায়ক<input id="sHero"></label>
     </div>
     <label>শেষ লাইন<input id="sOutro" placeholder="ভালো লাগলে লাইক দিন, শেয়ার করুন, চ্যানেলটি ফলো করে রাখুন"></label>
-    <label class="chk"><input type="checkbox" id="sWatermark" checked> ওয়াটারমার্ক</label>
+    <label class="chk" title="লোগো সব ভিডিওর কোণে সবসময় থাকে; এটা শুধু লোগোর পাশে চ্যানেলের নাম"><input type="checkbox" id="sWatermark" checked> জলছাপ (লোগোর পাশে চ্যানেলের নাম)</label>
     <label>স্পষ্টতা <output id="sWmOut">70</output><input type="range" id="sWm" min="25" max="100" value="70"></label>
   </div>
   <div class="stp hidden" id="st-key">
@@ -6655,13 +6655,17 @@ class StoryRenderer {
     // progress bar
     if (S.progress !== false) { const p = cl(t / Math.max(1, this.duration)); rect(c, 0, 0, fw, 7 * u, 'rgba(0,0,0,.18)'); rect(c, 0, 0, fw * p, 7 * u, C_GO2); }
     // watermark: logo + channel name, everywhere, soft shadow
-    if (S.watermark !== false) {
-      const name = S.series || 'TF বইয়ের গল্প', a = (S.wm != null ? S.wm : 70) / 100, ls = 70 * u, x0 = 30 * u, y0 = 30 * u;
-      c.save(); c.globalAlpha *= a; c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 14 * u; c.shadowOffsetY = 3 * u;
-      drawLogo(c, x0 + ls / 2, y0 + ls / 2, ls, S.logo || 'TF');
-      c.font = `800 ${36 * u}px ${FONT_BN}, ${FONT_FALLBACK}`; c.lineJoin = 'round'; c.lineWidth = 6 * u; c.strokeStyle = 'rgba(0,0,0,.55)'; c.textAlign = 'left'; c.strokeText(name, x0 + ls + 14 * u, y0 + ls / 2 + 13 * u);
-      c.shadowColor = 'transparent'; c.fillStyle = '#FFFFFF'; c.fillText(name, x0 + ls + 14 * u, y0 + ls / 2 + 13 * u);
-      c.restore();
+    // v14: this section's logo is ALWAYS in the corner of every video; the channel-name watermark is optional (tick in settings)
+    {
+      const name = S.series || 'TF বইয়ের গল্প', a = (S.wm != null ? S.wm : 70) / 100, ls = 92 * u, x0 = 30 * u, y0 = 30 * u;
+      c.save(); c.globalAlpha *= Math.max(.85, a); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 14 * u; c.shadowOffsetY = 3 * u;
+      drawLogo(c, x0 + ls / 2, y0 + ls / 2, ls, S.logo || 'TF'); c.restore();
+      if (S.watermark !== false) {
+        c.save(); c.globalAlpha *= a; c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 14 * u; c.shadowOffsetY = 3 * u;
+        c.font = `800 ${36 * u}px ${FONT_BN}, ${FONT_FALLBACK}`; c.lineJoin = 'round'; c.lineWidth = 6 * u; c.strokeStyle = 'rgba(0,0,0,.55)'; c.textAlign = 'left'; c.strokeText(name, x0 + ls + 14 * u, y0 + ls / 2 + 13 * u);
+        c.shadowColor = 'transparent'; c.fillStyle = '#FFFFFF'; c.fillText(name, x0 + ls + 14 * u, y0 + ls / 2 + 13 * u);
+        c.restore();
+      }
     }
     // badge
     if (sc.type === 'story' && sc.badge && this.golpo) {
@@ -7430,7 +7434,7 @@ function goStep(n) {
 }
 function updateFlow() {
   const has = !!app.story; $('next1').classList.toggle('hidden', !has);
-  const done = { 1: has, 2: has, 3: has && (app.audio.mode !== 'none' || app.visited3), 4: !!app.exported };
+  const done = { 1: has, 2: has, 3: has && ((app.audio.mode === 'tts' && app.tl && app.tl.shots.length && app.tl.shots.every(sh => sh.seg)) || app.audio.mode === 'rec' || app.audio.mode === 'upload'), 4: !!app.exported };
   document.querySelectorAll('#stepBar button').forEach(b => { const n = +b.dataset.step; b.classList.toggle('done', !!done[n] && n !== curStep); });
 }
 function segTabs(navId, attr, onPick) { const nav = $(navId); nav.addEventListener('click', e => { const b = e.target.closest('button'); if (!b || !nav.contains(b)) return; nav.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); onPick(b.dataset[attr]); }); }
@@ -7866,8 +7870,10 @@ async function ensureVoices(interactive) {
   const missing = () => app.tl.shots.filter(sh => !sh.seg).length;
   if (m === 'tts' && !missing()) return true;
   if (S.voiceId || (S.voiceList || []).length) { app.audio.mode = 'tts'; for (const { si, ln } of allLines()) await loadLineAudio(si, ln); rebuild(true); if (!missing()) return true; }
-  if (getKey('cKey')) { toast(`${bn(missing())}টা লাইনের কণ্ঠ নেই — Cartesia দিয়ে এখনই বানানো হচ্ছে…`, '', 5000); await generateTTS(true); if (!missing()) return true; }
-  if (!interactive) { toast('কিছু লাইনে কণ্ঠ নেই — "কণ্ঠ ও মিউজিক" ধাপে কণ্ঠ বানান', 'err', 6000); return true; }
+  // never spend Cartesia credit silently: preview only uses saved voices; export asks first
+  if (interactive && getKey('cKey') && confirm(`${bn(missing())}টা লাইনের কণ্ঠ নেই। এখন Cartesia দিয়ে বানাবো? (ক্রেডিট খরচ হবে)\n\n"না" চাপলে কণ্ঠ ছাড়া অংশ নিয়েই এক্সপোর্ট হবে।`)) { await generateTTS(true); if (!missing()) return true; }
+  else if (interactive) return true;
+  if (!interactive) { if (!app._noVoiceTold) { app._noVoiceTold = true; toast('প্রিভিউ কণ্ঠ ছাড়া চলছে — কণ্ঠ বানাতে "কণ্ঠ" ধাপে "কণ্ঠ বানাও" চাপুন', '', 5000); } return true; }
   return confirm(getKey('cKey') ? `${bn(missing())}টা লাইনের কণ্ঠ বানানো গেল না। এভাবেই (ওই লাইনগুলো কণ্ঠ ছাড়া) এক্সপোর্ট করবেন?` : 'Cartesia key নেই, তাই কণ্ঠ বানানো গেল না। কণ্ঠ ছাড়া এক্সপোর্ট করবেন?\n(সেটিংসে Cartesia key দিলে অ্যাপ নিজেই কণ্ঠ বানিয়ে নেবে)');
 }
 async function uploadAudio(file) {
@@ -9257,7 +9263,7 @@ class LongRenderer extends StoryRenderer {
   drawUIL(c, t, si) {
     const sc = this.story.scenes[si], S = this.settings, PL = this.P, lt = t - sc.start, FW = this.FW, FH = this.FH, u = this.u;
     if (S.progress !== false) { const p = cl(t / Math.max(1, this.duration)); rect(c, 0, 0, FW, 7 * u, 'rgba(0,0,0,.25)'); rect(c, 0, 0, FW * p, 7 * u, this.kt ? PL.hi : C_GO2); this.chapList.forEach(ch => rect(c, FW * ch.start / this.duration - 2, 0, 4, 7 * u, '#fff')); }
-    if (S.watermark !== false) { const name = S.series || 'TF Story', a = (S.wm != null ? S.wm : 70) / 100; c.save(); c.globalAlpha *= a; c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 12 * u; drawLogo(c, 66 * u, 66 * u, 64 * u, S.logo || 'TF'); c.font = `800 ${32 * u}px ${FONT_BN}, ${FONT_FALLBACK}`; c.lineJoin = 'round'; c.lineWidth = 6 * u; c.strokeStyle = 'rgba(0,0,0,.55)'; c.textAlign = 'left'; c.strokeText(name, 112 * u, 78 * u); c.shadowColor = 'transparent'; c.fillStyle = '#fff'; c.fillText(name, 112 * u, 78 * u); c.restore(); }
+    { const name = S.series || 'TF Story', a = (S.wm != null ? S.wm : 70) / 100; c.save(); c.globalAlpha *= Math.max(.85, a); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 12 * u; drawLogo(c, 74 * u, 74 * u, 80 * u, S.logo || 'TF'); c.restore(); if (S.watermark !== false) { c.save(); c.globalAlpha *= a; c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 12 * u; c.font = `800 ${32 * u}px ${FONT_BN}, ${FONT_FALLBACK}`; c.lineJoin = 'round'; c.lineWidth = 6 * u; c.strokeStyle = 'rgba(0,0,0,.55)'; c.textAlign = 'left'; c.strokeText(name, 126 * u, 86 * u); c.shadowColor = 'transparent'; c.fillStyle = '#fff'; c.fillText(name, 126 * u, 86 * u); c.restore(); } }
     if (sc.type === 'story') {
       const by = this.land ? 86 * u : 170 * u;
       if (sc.badge) { const k = back(lt, .15), out = cl((4.5 - lt) / .4); if (out > 0) withA(c, out, () => { c.font = `800 ${44 * u}px ${FONT_BN}, ${FONT_FALLBACK}`; const w = c.measureText(sc.badge).width + 80 * u; popAt(c, FW / 2, by, k, () => { c.save(); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 14 * u; rr(c, FW / 2 - w / 2, by - 36 * u, w, 74 * u, 37 * u, this.kt ? PL.hi : 'rgba(122,31,26,.95)'); c.restore(); txt(c, sc.badge, FW / 2, by + 16 * u, 44 * u, this.kt ? '#0B1322' : '#FFF3E0', 800, 'center', FONT_BN); }); }); }
@@ -10344,7 +10350,7 @@ function proDraw(c, FW, FH, st, bg) {
     if (k === 'sub') { const w = proRowsW(c, SB.rows, SB.sp, ss, 600), y0 = y; place(k, cx - w / 2, y, w, h, () => proText(c, SB.rows, SB.sp, cx, y0, ss, 600, '#F4EEE4', pal.hi, .04)); }
     if (k === 'cta') { const w = pillW(c, cp.cta, ctaS, true); place(k, cx - w / 2, y, w, h, () => proPill(c, cp.cta, cx, y + h / 2, ctaS, pal.cta, '#fff', pal.ctaLine, true)); }
     y += h + (i < parts.length - 1 ? gapOf(k) : 0); });
-  if (Sx.watermark !== false && typeof drawLogo === 'function') { const ls = 92 * u; place('logo', FW - 84 * u - ls / 2, 84 * u - ls / 2, ls, ls, () => { c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 12 * u; drawLogo(c, FW - 84 * u, 84 * u, ls, Sx.logo || 'TF'); c.restore(); }); }
+  if (!Sx.proLogoOff && typeof drawLogo === 'function') { const ls = 92 * u; place('logo', FW - 84 * u - ls / 2, 84 * u - ls / 2, ls, ls, () => { c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 12 * u; drawLogo(c, FW - 84 * u, 84 * u, ls, Sx.logo || 'TF'); c.restore(); }); }
   PRO_BOXES = { FW, FH, list: boxes };
   c.restore();
 }
@@ -10454,8 +10460,8 @@ function proBgLong(r) {
     ov.querySelector('#pePlus').onclick = () => step(1.1); ov.querySelector('#peMinus').onclick = () => step(1 / 1.1);
     ov.querySelector('#peCenter').onclick = () => { const b = ED.sel && box(ED.sel); if (!b) return; const l = L(ED.sel); l.dx = (+l.dx || 0) + (ED.FW / 2 - b.cx) / ED.FW; later(); proEdSave(); };
     ov.querySelector('#peOne').onclick = () => { if (!ED.sel) return; delete proPro().lay[ED.sel]; later(); proEdSave(); };
-    ov.querySelector('#peHide').onclick = () => { const k = ED.sel; if (!k) return; if (k === 'logo') { S.watermark = false; saveSettings(); const w = $('sWatermark'); if (w) w.checked = false; } else proPro()[k] = '-'; ED.sel = null; proEdSel(); proFill(); later(); proEdSave(); };
-    ov.querySelector('#peAll').onclick = () => { proPro().lay = {}; later(); proEdSave(); };
+    ov.querySelector('#peHide').onclick = () => { const k = ED.sel; if (!k) return; if (k === 'logo') { S.proLogoOff = true; saveSettings(); } else proPro()[k] = '-'; ED.sel = null; proEdSel(); proFill(); later(); proEdSave(); };
+    ov.querySelector('#peAll').onclick = () => { proPro().lay = {}; if (S.proLogoOff) { S.proLogoOff = false; saveSettings(); } later(); proEdSave(); };
     ov.querySelector('#peDone').onclick = () => ov.close();
     ov.addEventListener('close', () => { document.body.style.overflow = ''; proEdSave(); });
     addEventListener('resize', () => { if (ov.open) proEdSize(); });
@@ -10648,6 +10654,64 @@ function proBgLong(r) {
     // the editor shell may be built later: re-mount if the bar appears after us
     if (!document.getElementById('edTop')) { let n = 0; const t = setInterval(() => { if (document.getElementById('edTop') || ++n > 40) { clearInterval(t); mount(); } }, 150); }
   } catch (e) { console.warn('v14nav', e); }
+})();
+</script>
+<style id="v14lib">
+/* v14 — open a library story to read / fix it before it is used */
+#libView{max-width:760px;width:calc(100% - 20px);display:flex;flex-direction:column;padding:0}
+#libView:not([open]){display:none}
+#libView .lv-h{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;border-bottom:1px solid var(--line,rgba(0,0,0,.1))}
+#libView .lv-h b{flex:1;font-size:16px;line-height:1.35}
+#libView .lv-x{border:0;background:transparent;font-size:20px;cursor:pointer;width:36px;height:36px;border-radius:9px}
+#libView textarea{flex:1;min-height:52vh;margin:0;border:0;padding:14px 16px;font:15px/1.7 inherit;font-family:inherit;resize:none;outline:none;white-space:pre-wrap}
+#libView .lv-f{display:flex;gap:8px;align-items:center;padding:10px 16px 14px;border-top:1px solid var(--line,rgba(0,0,0,.1));flex-wrap:wrap}
+#libView .lv-f span{flex:1;font-size:12.5px;opacity:.7;min-width:140px}
+#libView .lv-f button{height:40px;padding:0 16px;border-radius:10px;font:inherit;font-weight:700;cursor:pointer;border:1px solid var(--line,rgba(0,0,0,.15));background:#fff}
+#libView .lv-f .pri{background:#1F3A2E;color:#fff;border-color:#1F3A2E}
+@media (max-width:700px){#libView{width:100%;max-width:none;height:100dvh;max-height:100dvh;margin:0;border-radius:0}#libView textarea{min-height:0}}
+</style>
+<script id="v14lib">
+/* v14 — tapping a library story opens it (full text, editable). Nothing loads, no voice is made, until "এই গল্প নিন".
+   Fixes to a built-in story are kept on this device (localStorage tf_libfix / section), your own stories are saved back. */
+(function () {
+  try {
+    const FK = LK('tf_libfix') === 'tf_libfix' ? (TF_ISL ? 'tf_isl_libfix' : TF_EXP ? 'tf_exp_libfix' : 'tf_libfix') : LK('tf_libfix');
+    const fixes = () => { try { return JSON.parse(localStorage.getItem(FK) || '{}') || {}; } catch (e) { return {}; } };
+    const applyFix = it => { const f = fixes()[it.id]; if (f && !it.mine && f !== it.txt) Object.assign(it, libMeta(f, it.id, it.n, false), { n: it.n }); };
+    BUILTIN.concat(BUILTIN_LONG).forEach(applyFix);
+    const d = document.createElement('dialog'); d.id = 'libView';
+    d.innerHTML = '<div class="lv-h"><b id="lvTitle"></b><button type="button" class="lv-x" id="lvX" aria-label="বন্ধ">✕</button></div>'
+      + '<textarea id="lvTxt" spellcheck="false" aria-label="গল্পের লেখা"></textarea>'
+      + '<div class="lv-f"><span id="lvNote">ভুল থাকলে এখানেই ঠিক করুন</span><button type="button" id="lvSave">সেভ</button><button type="button" id="lvReset" class="hidden">আসল লেখা</button><button type="button" class="pri" id="lvUse">এই গল্প নিন</button></div>';
+    document.body.append(d);
+    let cur = null;
+    const $ = id => document.getElementById(id);
+    const changed = () => cur && $('lvTxt').value.trim() !== cur.txt.trim();
+    async function save() {
+      if (!cur) return; const t = $('lvTxt').value.trim(); if (!t || !changed()) return;
+      if (!/^\s*===/m.test(t)) { toast('গল্পের শিরোনামের লাইন (=== …) রাখতে হবে', 'err'); throw new Error('no title'); }
+      if (cur.mine) { const u = USERLIB.find(x => x.id === cur.id); if (u) { u.txt = t; await saveUserLib(); } }
+      else { const f = fixes(); f[cur.id] = t; try { localStorage.setItem(FK, JSON.stringify(f)); } catch (e) { } Object.assign(cur, libMeta(t, cur.id, cur.n, false), { n: cur.n }); }
+      cur = libItems().find(x => x.id === cur.id) || Object.assign(cur, { txt: t });
+      $('lvTitle').textContent = cur.title; $('lvReset').classList.toggle('hidden', cur.mine || !fixes()[cur.id]);
+      try { renderLib(); } catch (e) { } toast('সেভ হয়েছে', 'ok');
+    }
+    $('lvX').onclick = () => { if (changed() && !confirm('বদলগুলো সেভ না করে বন্ধ করবেন?')) return; d.close(); };
+    $('lvSave').onclick = () => save().catch(() => { });
+    $('lvReset').onclick = () => {
+      if (!cur || !confirm('আপনার বদল মুছে আসল লেখায় ফিরবেন?')) return;
+      const f = fixes(); delete f[cur.id]; try { localStorage.setItem(FK, JSON.stringify(f)); } catch (e) { }
+      const i = +String(cur.id).replace(/\D+/g, '') - 1, src = /^lb3_/.test(cur.id) ? STORY_LIBRARY[i] : (TF_EXP ? (window.EXPLAINER_LIBRARY || []) : (typeof LONG_LIBRARY !== 'undefined' ? LONG_LIBRARY : []))[i];
+      if (src) Object.assign(cur, libMeta(src, cur.id, cur.n, false), { n: cur.n });
+      $('lvTxt').value = cur.txt; $('lvTitle').textContent = cur.title; $('lvReset').classList.add('hidden'); try { renderLib(); } catch (e) { }
+    };
+    $('lvUse').onclick = async () => { try { await save(); } catch (e) { return; } const it = cur; d.close(); await _load(it); };
+    const _load = loadLib;
+    loadLib = function (it) {
+      cur = it; $('lvTitle').textContent = it.title; $('lvTxt').value = it.txt; $('lvReset').classList.toggle('hidden', it.mine || !fixes()[it.id]);
+      try { d.showModal(); } catch (e) { d.setAttribute('open', ''); } $('lvTxt').scrollTop = 0;
+    };
+  } catch (e) { console.warn('v14lib', e); }
 })();
 </script>
 <script src="life-series.js"></script>
