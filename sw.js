@@ -1,7 +1,7 @@
 /* TF Story Studio — offline support.
    Only the app's own files are cached. API calls (Gemini, Claude, Cartesia, Firebase) are never cached and never touched. */
-const CACHE = 'tf-story-v5.9.5';
-const FILES = ['./', './index.html', './long-library.js', './long-visuals.js', './cloud-core.js', './explainer/paper.js', './explainer/part.js', './islamic/story.js', './islamic/art.js', './islamic/art2.js', './islamic/stories-1.js', './islamic/stories-2.js', './islamic/stories-3.js', './islamic/index.html', './islamic/mp4-muxer.js', './fx/motion.js', './fx/shadow.js', './home.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './vendor/firebase-app-compat.js', './vendor/firebase-auth-compat.js', './vendor/firebase-firestore-compat.js'];
+const CACHE = 'tf-story-v5.9.6';
+const FILES = ['./', './index.html', './long-library.js', './long-visuals.js', './cloud-core.js', './explainer/paper.js', './explainer/part.js', './islamic/story.js', './islamic/long.js', './islamic/art.js', './islamic/art2.js', './islamic/stories-1.js', './islamic/stories-2.js', './islamic/stories-3.js', './islamic/index.html', './islamic/mp4-muxer.js', './fx/motion.js', './fx/shadow.js', './home.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './vendor/firebase-app-compat.js', './vendor/firebase-auth-compat.js', './vendor/firebase-firestore-compat.js'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {

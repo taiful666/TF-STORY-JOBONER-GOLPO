@@ -14,7 +14,9 @@ Goal of this file: do every change with the **fewest tokens**. Never re-read the
 6. Use Edit for small changes (no full-file rewrites).
 
 ## Workflow for every change request
-1. Clone is shallow (`--depth 1`). Work on `main` unless he asks for a branch (he wants changes live).
+1. Clone is shallow (`--depth 1`). **Work on branch `dev`, not `main`** (he collects many changes, then builds the
+   APK once). Pushing `dev` builds nothing. Only when he says "বিল্ড করো" / "ফাইনাল": merge `dev` into `main` and push
+   (one APK build). Start of a chat: `git fetch --depth=50 origin dev && git checkout dev` if it exists.
 2. Locate (grep) → read only the needed lines → Edit.
 3. `python3 tools/check.py` — syntax check of all JS/inline scripts (≈1 s). Must print `OK`.
 4. `python3 tools/codemap.py` — refresh CODEMAP.md line numbers if you need them again in this chat.
@@ -22,8 +24,7 @@ Goal of this file: do every change with the **fewest tokens**. Never re-read the
    `লং ভিডিও: ক্যাপশন বড়, শেয়ার শিটে Telegram`). Don't edit CHANGELOG.md by hand — the bot adds it.
    If the change adds/moves a feature, file or section, or changes a rule/convention, also update the
    hand-written tables/rules above so they never go stale (the bot only updates the AUTO block).
-6. Push:
-   `git -c push.negotiate=true push origin main`. Pushing web/android files to `main` triggers the APK build
+6. Push: `git -c push.negotiate=true push origin dev` (final build only: merge into main, push `main`). Pushing web/android files to `main` triggers the APK build
    (GitHub Actions) and the phones get the update automatically. Docs/tools-only changes don't trigger a build.
 7. If several features are asked in one message, do them all, then check and commit once.
 8. **Auto-sync:** `.github/workflows/docs-sync.yml` runs on every push to main (from Claude, the owner, or
@@ -41,11 +42,12 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
 ### Files
 | File | Role |
 |---|---|
-| `home.html` | start screen: গল্প / ইসলামিক chooser |
+| `home.html` | start screen: গল্প / ইসলামিক / এক্সপ্লেনার. Tapping ইসলামিক opens 2 choices (`#islSub`): গল্পের ভিডিও (`index.html?part=islamic`) or পোস্ট মেকার (`islamic/index.html`) |
 | `index.html` | the Story part: all CSS layers, data, drawing, engine, audio, export, UI. Also hosts other parts via `?part=islamic` / `?part=explainer` |
 | `long-library.js` | 13 built-in long stories |
 | `long-visuals.js` | long-video concept visuals (`[scene: kind/…]`) |
 | `islamic/story.js`, `art.js`, `art2.js`, `stories-1..3.js` | Islamic story-video part (patches the Story engine) |
+| `islamic/long.js` | Islamic LONG videos (16:9): step-1 শর্ট/লং switch (`#fmtPick`), long library `#islLongBox` with একক লং গল্প (ids `isl_long_*`, by category) and ধারাবাহিক = series plan (`isl_ser_*`, json) + parts (`isl_ser_*_p<k>`); AI plan → part-by-part writing, each part ends with next-part + subscribe CTA. Uses `window.ISL_API` from story.js |
 | `islamic/index.html` | TF Post Maker (Islamic picture cards + reel studio) — separate app |
 | `explainer/part.js`, `paper.js` | explainer-video part (`?part=explainer`) |
 | `fx/motion.js`, `fx/shadow.js` | motion style and shadow-puppet video style |
@@ -84,11 +86,12 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
 - Don't rename element ids or localStorage keys (saved user data + later layers depend on them).
 - New UI/CSS goes in the newest layer (`v12` style / newest `v*js` script) or a new `v13` layer at the end,
   rather than rewriting old layers — later layers override earlier ones.
-- Islamic part: real Quran/hadith text only, faceless people, no instruments in music.
+- Islamic part: real Quran/hadith text only (`verifyQuran` swaps in the official text for every `## ayah` block with `উৎস: q`), prophets/sahaba never on screen (faceless), no instruments in music. Long Islamic videos use the same `LongRenderer`; `## ayah` is drawn full-width by a patch in story.js.
 - **One export system.** Short, long, Islamic-story and explainer all use `doExport` → `exportMP4` → share sheet
   (`initShareSheet`) in index.html; parts must not fork it. Post Maker reels (`islamic/index.html`) mirror it:
   same file name `Title_9x16.mp4` (`reelName`), same platforms (`TF_PLAT`), same Android bridge, AAC first then Opus.
   Change export/share behaviour in both places together.
+- Ratio: every part (story, Islamic short/long, explainer) offers 9:16 · 4:5 · 1:1 · 16:9 via the preview chip `#pvRatioChip` → `setRatio`; short and long remember their own (`S.ratioShort` / `S.ratioLong`). Any non-9:16 frame uses `LongRenderer` (re-laid out, never pillarboxed) — `rebuild()`.
 - Links: ☾ `btnSuite` → `index.html?part=islamic` (the Islamic part overrides it to Post Maker `islamic/index.html`).
 - Never put API keys or the signing key in the repo.
 - Versions: `APP_VERSION` in index.html (project file format), `TF_VERSION_NAME` in android.yml (APK name, e.g. 5.2 →

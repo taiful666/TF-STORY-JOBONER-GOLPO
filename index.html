@@ -1021,6 +1021,18 @@ select.lchip{-webkit-appearance:none;appearance:none;width:auto!important;max-wi
 #islKeyNote,#src-lib>div>p.muted.sm{display:none!important}
 #libChips select.lchip{flex:0 1 auto;min-width:0;width:auto;max-width:40vw;text-overflow:ellipsis}
 @media(max-width:699px){.tl-z{display:none!important}}
+/* v12 — Islamic long videos (islamic/long.js): kind switch, new-story form, series with parts */
+.isllong{display:flex;flex-direction:column;gap:10px;margin:0 0 10px}
+.isllong #islLKind{align-self:flex-start}
+.isllong details.isl-form{border:1px solid var(--line);border-radius:14px;padding:10px 14px;background:#fff}
+.isllong details.isl-form>summary{cursor:pointer;font-weight:700;color:var(--g);list-style:none;padding:4px 0}
+.isllong details.isl-form>summary::-webkit-details-marker{display:none}
+.isllong details[open].isl-form>summary{margin-bottom:8px}
+.isllong .isl-form label{display:block;margin:6px 0}
+#libList li.islser .no{min-width:54px;font-size:12.5px;white-space:nowrap}
+#libList li.islser.open{border-color:var(--g)}
+#libList li.islpart{margin-left:22px;border-left:3px solid var(--line2,#c9d0ca)}
+#libList li.islpart.todorow .t>span{color:var(--g)}
 </style>
 </head>
 <body>
@@ -3419,7 +3431,7 @@ If you want to offset all timestamps of a track such that the first one is zero,
 if (typeof module === "object" && typeof module.exports === "object") Object.assign(module.exports, Mp4Muxer)
 </script>
 <script>if (/[?&]part=explainer\b/.test(location.search)) document.write('<script src="explainer/paper.js"><\/script><script src="explainer/part.js"><\/script>');</script>
-<script>if (/[?&]part=islamic\b/.test(location.search)) document.write('<script src="islamic/story.js"><\/script><script src="islamic/art.js"><\/script><script src="islamic/art2.js"><\/script><script src="islamic/stories-1.js"><\/script><script src="islamic/stories-2.js"><\/script><script src="islamic/stories-3.js"><\/script>');</script>
+<script>if (/[?&]part=islamic\b/.test(location.search)) document.write('<script src="islamic/story.js"><\/script><script src="islamic/long.js"><\/script><script src="islamic/art.js"><\/script><script src="islamic/art2.js"><\/script><script src="islamic/stories-1.js"><\/script><script src="islamic/stories-2.js"><\/script><script src="islamic/stories-3.js"><\/script>');</script>
 <script src="long-library.js"></script>
 <script src="long-visuals.js"></script>
 <script>/* ===================== TF Story Studio — data ===================== */
@@ -7291,10 +7303,11 @@ function segsFor() {
 }
 function rebuild(keepT) {
   if (!app.story) return;
-  const isLong = app.story.fmt === 'long' && !TF_ISL; let resize = false;
-  const want = TF_ISL ? S.expRatio : isLong ? (S.ratioLong || '16:9') : (S.ratioShort || '9:16');
+  const isLong = app.story.fmt === 'long'; let resize = false;
+  if (TF_ISL && !S.ratioShort && S.expRatio) S.ratioShort = S.expRatio; // Islamic used to keep its one ratio in expRatio
+  const want = isLong ? (S.ratioLong || '16:9') : (S.ratioShort || '9:16');
   if (S.expRatio !== want) { S.expRatio = want; resize = true; setSeg('ratioPick', 'r', want); syncRatioQuick(); try { saveSettings(); } catch (e) { } }
-  const wide = isLong || (!TF_ISL && S.expRatio !== '9:16');
+  const wide = isLong || S.expRatio !== '9:16'; // every part: a non-9:16 frame is laid out again (characters + text), not pillarboxed
   if (wide !== !!app.renderer.isLong) { app.renderer = wide ? new LongRenderer() : new StoryRenderer(); pvComp = null; resize = true; }
   if (wide) app.renderer.setFrame(S.expRatio);
   document.body.classList.toggle('longfmt', isLong); document.body.classList.toggle('widepv', FRAME_SIZES[S.expRatio] && FRAME_SIZES[S.expRatio][0] > FRAME_SIZES[S.expRatio][1]);
@@ -7544,7 +7557,7 @@ async function loadAny(text, o) {
   app.exported = false; app.lastExport = null; $('expDone').classList.add('hidden');
   const n = app.story.scenes.reduce((a, s) => a + s.lines.length, 0);
   showWarnings(app.warnings.filter(w => !/চেনা নেই|ধরা হলো/.test(w)), `${app.story.title} — ${bn(app.story.scenes.length)}টা দৃশ্য, ${bn(n)}টা লাইন${parts.length > 1 ? ` (আরও ${bn(parts.length - 1)}টা গল্প "+ লাইব্রেরিতে যোগ" দিয়ে রাখুন)` : ''}`);
-  if (!TF_ISL) { const want = app.story.fmt === 'long' ? 'long' : 'short'; if (S.vidFmt !== want) { S.vidFmt = want; if (app.story.longStyle) S.longStyle = app.story.longStyle; saveSettings(); try { syncLongUI(); } catch (e) { } } }
+  { const want = app.story.fmt === 'long' ? 'long' : 'short'; if (S.vidFmt !== want) { S.vidFmt = want; if (app.story.longStyle) S.longStyle = app.story.longStyle; saveSettings(); try { syncLongUI(); } catch (e) { } } }
   app.t = 0; recIdx = 0; $('thumbText').value = app.story.thumb || ''; thumbFieldsFill(); buildEditors(); rebuild(); renderMarkers(); $('aiNotes').value = app.notes || '';
   return true;
 }
@@ -9442,7 +9455,7 @@ const LONG_TOPICS = {
   thriller: ['সাম্প্রতিক বড় খবর', 'বিখ্যাত কোম্পানির পতন', 'বড় একটা স্ক্যামের গল্প', 'রহস্যময় দুর্ঘটনা', 'বিখ্যাত মানুষের উত্থান-পতন', 'ব্যাংক জালিয়াতি', 'হ্যাকিংয়ের ঘটনা'],
   guide: ['৩০ দিনে ইংরেজিতে কথা বলা', 'ফ্রিল্যান্সিং শুরু করা', 'প্রথম চাকরির প্রস্তুতি', 'মাসে সঞ্চয়ের অভ্যাস', 'পড়ায় মন বসানো', 'ফোনের নেশা কমানো', 'ছোট ব্যবসা শুরু']
 };
-function isLongMode() { return !TF_ISL && (TF_EXP || S.vidFmt === 'long'); }
+function isLongMode() { return TF_EXP || S.vidFmt === 'long'; } /* the Islamic part has long videos too (islamic/long.js) */
 /* ratio per video kind: short and long remember their own; changing it re-frames the story (characters and text are laid out again) */
 function curFmtLong() { return app.story ? app.story.fmt === 'long' : isLongMode(); }
 function setRatio(v) {
