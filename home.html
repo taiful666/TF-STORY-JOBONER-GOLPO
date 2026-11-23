@@ -120,6 +120,13 @@ footer{text-align:center;color:var(--mute);font-size:12px;padding:8px 16px max(1
 @media (min-width:1100px){
   .page{column-gap:96px;grid-template-columns:minmax(0,560px) 380px;justify-content:center}
 }
+/* Islamic: two ways in — story video or Post Maker (cards + reels) */
+.part.isl[aria-expanded="true"] .chev{transform:rotate(90deg)}
+.islsub{display:flex;flex-direction:column;gap:6px;margin:-2px 0 2px 28px;padding-left:12px;border-left:2px solid var(--line2)}
+.islsub[hidden]{display:none}
+.islsub .part{min-height:64px;padding:12px 14px;animation:rise .2s var(--ease) both}
+.islsub .part .ic{width:38px;height:38px;border-radius:10px}
+.islsub .part b{font-size:16px}.islsub .part p{font-size:13px}
 </style>
 </head>
 <body>
@@ -212,11 +219,23 @@ footer{text-align:center;color:var(--mute);font-size:12px;padding:8px 16px max(1
       <span class="tx"><b>গল্প</b><p>শর্ট ও লং গল্পের ভিডিও</p></span>
       <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
     </a>
-    <a class="part isl" id="goIslamic" href="index.html?part=islamic">
+    <a class="part isl" id="goIslamic" href="index.html?part=islamic" aria-expanded="false" aria-controls="islSub">
       <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 4.5a7.5 7.5 0 1 0 4 13.8A8.5 8.5 0 0 1 15.5 4.5Z"/><path d="m17.5 7.2.6 1.4 1.5.1-1.1 1 .3 1.5-1.3-.8-1.3.8.3-1.5-1.1-1 1.5-.1Z"/></svg></span>
-      <span class="tx"><b>ইসলামিক</b><p>কুরআন-হাদিসের গল্প, আয়াত ও বাণী</p></span>
+      <span class="tx"><b>ইসলামিক</b><p>গল্পের ভিডিও, অথবা ছবি-কার্ড ও রিল</p></span>
       <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
     </a>
+    <div class="islsub" id="islSub" hidden>
+      <a class="part" id="goIslStory" href="index.html?part=islamic">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg></span>
+        <span class="tx"><b>গল্পের ভিডিও</b><p>কুরআন-হাদিসের গল্প — দৃশ্য, কণ্ঠ ও এক্সপোর্ট</p></span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+      </a>
+      <a class="part" id="goPostMaker" href="islamic/index.html">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span>
+        <span class="tx"><b>পোস্ট মেকার</b><p>আয়াত-হাদিসের ছবি-কার্ড ও ছোট রিল</p></span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+      </a>
+    </div>
     <a class="part exp" id="goExplainer" href="index.html?part=explainer">
       <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/><path d="m7 12 3-3 2 2 4-4"/></svg></span>
       <span class="tx"><b>এক্সপ্লেনারি ভিডিও</b><p>ব্যবসা ও চলমান বিষয়ের হিসাব, কাগজের বোর্ডে লেখা-অ্যানিমেশনে</p></span>
@@ -246,7 +265,10 @@ footer{text-align:center;color:var(--mute);font-size:12px;padding:8px 16px max(1
   if(tag){ const b = document.createElement('span'); b.className = 'last'; b.textContent = 'শেষবার'; $(tag).append(b); }
   const remember = k => { try{ localStorage.setItem('tf_suite_last', k); }catch(e){} };
   $('goStory').addEventListener('click', () => remember('story'));
-  $('goIslamic').addEventListener('click', () => remember('islamic'));
+  /* tapping "ইসলামিক" opens its two choices instead of jumping straight in */
+  $('goIslamic').addEventListener('click', e => { e.preventDefault(); const sub = $('islSub'), open = sub.hidden; sub.hidden = !open; $('goIslamic').setAttribute('aria-expanded', String(open)); if(open) $('goIslStory').focus({ preventScroll:true }); });
+  $('goIslStory').addEventListener('click', () => remember('islamic'));
+  $('goPostMaker').addEventListener('click', () => remember('islamic'));
   $('goExplainer').addEventListener('click', () => remember('explainer'));
   /* the one login for the whole app */
   const C = window.TFCloud, btn = $('acBtn'), err = m => { $('acErr').textContent = m || ''; $('acErr').hidden = !m; };

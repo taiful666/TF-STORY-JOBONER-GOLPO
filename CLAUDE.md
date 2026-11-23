@@ -42,7 +42,7 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
 ### Files
 | File | Role |
 |---|---|
-| `home.html` | start screen: গল্প / ইসলামিক chooser |
+| `home.html` | start screen: গল্প / ইসলামিক / এক্সপ্লেনার. Tapping ইসলামিক opens 2 choices (`#islSub`): গল্পের ভিডিও (`index.html?part=islamic`) or পোস্ট মেকার (`islamic/index.html`) |
 | `index.html` | the Story part: all CSS layers, data, drawing, engine, audio, export, UI. Also hosts other parts via `?part=islamic` / `?part=explainer` |
 | `long-library.js` | 13 built-in long stories |
 | `long-visuals.js` | long-video concept visuals (`[scene: kind/…]`) |
