@@ -83,6 +83,7 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
 | **লেখার নিয়ম সব সেকশনে** (প্রফেশনাল নাম = থাম্বনেলের বড় লেখা, ধারাবাহিক `নাম \| পর্ব k: পর্বের নাম`, ক্লিকবেইট নয়, +জিনিস, চ্যানেলের নাম CTA-তে) | `<script id="v13rules">`: `TF_PROMPT_RULES()` — lib-studio কপি-প্রম্পটের শেষে আর `aiComplete` র‍্যাপ করে অ্যাপের AI-তে যোগ হয়; প্রো থাম্বনেল সব সেকশনে জোর করে (`tf_pro_thumb2`); `proCopy`-র নিচের লাইনে ?/… ওয়ালা টিজার বাদ। লোগো ও চ্যানেলের নাম সেকশন-ভিত্তিক (`LK`: tf_logo / tf_isl_logo / tf_exp_logo), সেটিংসে `#secNote` |
 | Gmail login / cloud sync | `Gmail login + cloud sync`; সেকশনের লোগো + চ্যানেলের নাম/ট্যাগলাইন/ওয়াটারমার্ক সব ডিভাইসে: `<script id="v13brand">` — `users/{uid}/stories/{CPFX}__cfg` ডক (`{txt: JSON, at}`, নতুনটা জেতে; লাইব্রেরি `/__cfg$/` বাদ দেয়), প্রতি ২ সেকেন্ডে লোকাল বদল চেক করে পাঠায় |
 | **← পেছনে / ⌂ হোম বোতাম (সব সেকশন)** | `<script id="v14nav">` + `<style id="v14nav">`: টপ বারে `#tfNav` (`#tfNavBack`, `#tfNavHome`); `window.tfNavBack()` = ডায়ালগ → ⋯ মেনু → আগের ধাপ → ধাপ-১ সাব-স্ক্রিন (`showSrc(null)`) → যেখান থেকে এসেছে (ইসলামিক: `home.html#islamic`, বাকি: `home.html`)। Android Back (`TFBack`) একই চেইন। পোস্ট মেকারে `#tfToBack` → `TFBack` (রুটে `../home.html#islamic`) |
+| **লাইব্রেরির গল্প খুলে পড়া/ঠিক করা** | `<script id="v14lib">`: `loadLib` র‍্যাপ — `<dialog id="libView">` পুরো লেখা (এডিট), 'সেভ' (বিল্ট-ইনের বদল `tf_libfix` / `tf_isl_libfix` / `tf_exp_libfix`-এ, নিজেরটা USERLIB-এ), 'এই গল্প নিন' চাপলে তবেই লোড |
 | Startup | `---------- init` |
 | Long video (16:9) styles, captions, kinetic text (rule: never dark text on a yellow box — gold box = dark box + gold frame, marker = deep red under white word) | `LONG VIDEO`, `CAPTION VARIETY`, `first-video look (thriller)`, `kinetic typography`, `long video: UI` |
 | Start chooser, share sheet, command palette, ⋯ menu | `v3.9 — start chooser`, `publish text`, `command palette`, `⋯ menu` |
@@ -104,6 +105,8 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
   Change export/share behaviour in both places together.
 - Ratio: every part (story, Islamic short/long, explainer) offers 9:16 · 4:5 · 1:1 · 16:9 via the preview chip `#pvRatioChip` → `setRatio`; short and long remember their own (`S.ratioShort` / `S.ratioLong`). Any non-9:16 frame uses `LongRenderer` (re-laid out, never pillarboxed) — `rebuild()`.
 - Links: ☾ `btnSuite` → `index.html?part=islamic` (the Islamic part overrides it to Post Maker `islamic/index.html`).
+- **লোগো সবসময়:** প্রতিটা ভিডিও (শর্ট/লং/ইসলামিক/এক্সপ্লেনার) কোণে সেকশনের লোগো আঁকে, `S.watermark` শুধু লোগোর পাশে চ্যানেলের নাম (জলছাপ)। থাম্বনেল এডিটরে লোগো লুকানো = `S.proLogoOff` (শুধু থাম্বনেল)।
+- **Cartesia নিজে থেকে নয়:** প্রিভিউ (`ensureVoices(false)`) শুধু ক্যাশ লোড করে; এক্সপোর্টে কণ্ঠ বাকি থাকলে confirm করে তবে `generateTTS`। ইসলামিক অটো-কণ্ঠ (`S.islAutoTTS`) ডিফল্ট বন্ধ।
 - Never put API keys or the signing key in the repo.
 - Versions: `APP_VERSION` in index.html (project file format), `TF_VERSION_NAME` in android.yml (APK name, e.g. 5.2 →
   5.2.<run>). Bump `TF_VERSION_NAME` only when he asks for a new major/minor version.
