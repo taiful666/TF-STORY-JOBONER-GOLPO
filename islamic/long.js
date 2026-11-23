@@ -17,12 +17,15 @@
   const kind = () => (S.islLongKind === 'series' ? 'series' : 'single');
   const titleOf = txt => ((String(txt).match(/^\s*===\s*(.*)$/m) || [, ''])[1] || '').split('|')[0].trim();
   const catOf = txt => ((String(txt).match(/^\s*ক্ষেত্র\s*[:：]\s*(.*)$/m) || [, ''])[1] || '').trim();
-  const minsOf = txt => { const n = String(txt).split('\n').filter(l => l.trim() && !/^\s*(##|===|(ফরম্যাট|ক্ষেত্র|ইউটিউব টাইটেল|থাম্বনেল|চরিত্র|বর্ণনা|হ্যাশট্যাগ|উৎস)\s*[:：])/.test(l)).length; return Math.max(1, Math.round(n / 16)); };
+  // spoken words / ~110 per minute (measured from a real export: ~1130 words → 10:44)
+  const minsOf = txt => { const n = String(txt).split('\n').filter(l => l.trim() && !/^\s*(##|===|(ফরম্যাট|ক্ষেত্র|ইউটিউব টাইটেল|থাম্বনেল|চরিত্র|বর্ণনা|হ্যাশট্যাগ|উৎস)\s*[:：])/.test(l)).map(l => l.replace(/\{[^}]*\}/g, '').replace(/^\s*\w+:\w+:\w+\s*>?/, '')).join(' ').split(/\s+/).filter(Boolean).length; return Math.max(1, Math.round(n / 110)); };
   const planOf = u => { try { return JSON.parse(String(u.txt).slice(String(u.txt).indexOf('{'))); } catch (e) { return null; } };
   const partId = (sid, k) => sid + '_p' + k;
-  /* বিল্ট-ইন ধারাবাহিক: window.ISL_LONG_SERIES (islamic/long-series.js) — পরিকল্পনা আর সব পর্ব তৈরি, মোছা/নতুন-লেখা যায় না */
-  const preSeries = () => (window.ISL_LONG_SERIES || []).map(x => ({ id: x.id, pre: true, txt: `=== ${x.title}\nফরম্যাট: series-plan\n${JSON.stringify({ title: x.title, cat: x.cat, mins: x.mins, parts: x.parts.map(q => ({ t: q.t, s: q.s || '' })) })}` }));
-  const findPart = (sid, k) => USERLIB.find(u => u.id === partId(sid, k)) || (() => { const x = (window.ISL_LONG_SERIES || []).find(y => y.id === sid), q = x && x.parts[k - 1]; return q && q.txt ? { id: partId(sid, k), txt: q.txt, pre: true } : null; })();
+  /* বিল্ট-ইন ধারাবাহিক: window.ISL_LONG_SERIES (islamic/long-series.js, বড়, পর্ব ~৮ মিনিট) + window.ISL_MID_SERIES (islamic/mid-series.js, মাঝারি, ৩ পর্ব × ~৫ মিনিট) — পরিকল্পনা আর সব পর্ব তৈরি, মোছা/নতুন-লেখা যায় না */
+  const PRE_SER = () => (window.ISL_LONG_SERIES || []).concat(window.ISL_MID_SERIES || []);
+  const serLen = () => (S.islSerLen === 'mid' ? 'mid' : 'big'), isMidPlan = pl => (+pl.mins || 8) <= 6;
+  const preSeries = () => PRE_SER().map(x => ({ id: x.id, pre: true, txt: `=== ${x.title}\nফরম্যাট: series-plan\n${JSON.stringify({ title: x.title, cat: x.cat, mins: x.mins, parts: x.parts.map(q => ({ t: q.t, s: q.s || '' })) })}` }));
+  const findPart = (sid, k) => USERLIB.find(u => u.id === partId(sid, k)) || (() => { const x = PRE_SER().find(y => y.id === sid), q = x && x.parts[k - 1]; return q && q.txt ? { id: partId(sid, k), txt: q.txt, pre: true } : null; })();
   let inited = false, PEND = null;
 
   /* ---------- prompts ---------- */
@@ -51,6 +54,7 @@ ${o.outline.map((x, i) => `পর্ব ${bn(i + 1)}: ${x.t} — ${x.s}`).join('
 ${o.part > 1 ? `- শুরুর ২০-৩০ সেকেন্ডে আগের পর্বের ছোট সারাংশ ("আগের পর্বে আমরা দেখেছি…"), তারপর গল্প এগোবে।` : '- শুরুতেই একটা জোরালো হুক, যাতে দর্শক পুরো ধারাবাহিক দেখতে চায়।'}
 ${o.part < o.of ? `- শেষে একটা টানটান মোড়ে থামবে (cliffhanger) — প্রশ্ন রেখে যাবে, উত্তর দেবে না।
 - শেষ দৃশ্য "## cta | পর্ব ${bn(o.part + 1)}-এ কী হবে বলে মনে হয়? | বিকল্প ১, বিকল্প ২": পরের পর্বের এক লাইনের টিজার ("পর্ব ${bn(o.part + 1)}-এ: ${o.outline[o.part].t}"), তারপর "পরের পর্ব মিস করতে না চাইলে এখনই চ্যানেলটা সাবস্ক্রাইব করুন, বেল আইকন চাপুন, আর ফেসবুকে পেজটা ফলো করে রাখুন।" আর "কমেন্টে লিখুন, কী হবে বলে মনে হয়?"` : `- এটা শেষ পর্ব: গল্পের পূর্ণ সমাধান, শিক্ষা ("## takeaways"), তারপর "## cta": "পুরো ধারাবাহিকটা কেমন লাগল, কমেন্টে লিখুন। এমন আরও ধারাবাহিক গল্পের জন্য চ্যানেলটা সাবস্ক্রাইব করুন।"`}
+${mins <= 6 ? `- মাঝারি ধারাবাহিক (প্রতি পর্ব ~৫ মিনিট): অন্তত একটা অপ্রত্যাশিত টুইস্ট রাখো। শেষের আগে একটা "## sky day normal | কুইজ |" দৃশ্য দাও: ঘটনা বা আয়াত/হাদিস থেকে ক/খ/গ তিন বিকল্পের একটা প্রশ্ন, "কমেন্টে শুধু ক, খ বা গ লিখুন, উত্তর পরের পর্বে"।${o.part > 1 ? ' সারাংশের ঠিক পরে আগের পর্বের কুইজের সঠিক উত্তর বলো।' : ' শুরুতেই দর্শককে একটা প্রশ্ন করো, যার উত্তর শেষ পর্বে মিলবে, আর কমেন্টে আন্দাজ লিখতে বলো।'} লাইক, শেয়ার (কাকে শেয়ার করবে বলে দাও), সাবস্ক্রাইব-বেল আর কমেন্টের ডাক ছোট ছোট লাইনে।` : ''}
 ${o.chars ? `- আগের পর্বের চরিত্রগুলোই রাখো, একই কোড ও নাম: চরিত্র: ${o.chars}` : ''}
 - শিরোনাম: "=== ${o.stitle} | পর্ব ${bn(o.part)}: <এই পর্বের নাম>"; ইউটিউব টাইটেলেও "পর্ব ${bn(o.part)}" থাকবে।` : ''}
 
@@ -160,6 +164,7 @@ ${catRule(o.cat)}
     const opt = (v, t) => el('option', { value: v, text: t });
     const box = el('div', { id: 'islLongBox', class: 'isllong hidden' },
       el('nav', { class: 'seg sub small', id: 'islLKind' }, ...[['single', 'একক লং গল্প'], ['series', 'ধারাবাহিক (পর্বে পর্বে)']].map(([v, t]) => el('button', { type: 'button', 'data-k': v, text: t }))),
+      el('nav', { class: 'seg sub small', id: 'islLSerLen' }, ...[['big', 'বড় ধারাবাহিক (পর্ব ~৮ মিনিট)'], ['mid', 'মাঝারি ধারাবাহিক (৩ পর্ব × ~৫ মিনিট)']].map(([v, t]) => el('button', { type: 'button', 'data-l': v, text: t }))),
       el('details', { id: 'islLNew', class: 'isl-form' },
         el('summary', { id: 'islLNewS', text: '＋ নতুন লং গল্প লেখান' }),
         el('label', null, 'ধরন', el('select', { id: 'islLCat' }, ...CATS.map(c => opt(c, c)))),
@@ -179,6 +184,8 @@ ${catRule(o.cat)}
     const ul = $('libList'); ul.parentNode.insertBefore(box, ul);
     $('islLMin').value = '10'; $('islLParts').value = '3'; $('islLPMin').value = '8';
     $('islLKind').addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if (!b) return; S.islLongKind = b.dataset.k; saveSettings(); render(); });
+    $('islLSerLen').addEventListener('click', e => { const b = e.target.closest('button[data-l]'); if (!b) return; S.islSerLen = b.dataset.l; saveSettings(); $('islLParts').value = '3'; $('islLPMin').value = b.dataset.l === 'mid' ? '5' : '8'; render(); });
+    if (serLen() === 'mid') $('islLPMin').value = '5';
     $('islLGo').onclick = () => (kind() === 'series' ? makePlan() : writeSingle());
     syncFmt();
   }
@@ -195,21 +202,23 @@ ${catRule(o.cat)}
     const K = kind(), busy = API().isBusy && API().isBusy(); $('islLongBox').classList.remove('hidden');
     document.querySelectorAll('#islLKind button').forEach(b => b.classList.toggle('on', b.dataset.k === K));
     $('islLSingle').classList.toggle('hidden', K !== 'single'); $('islLSeries').classList.toggle('hidden', K !== 'series');
-    $('islLNewS').textContent = K === 'series' ? '＋ নতুন ধারাবাহিক বানান' : '＋ নতুন লং গল্প লেখান';
+    const MID = K === 'series' && serLen() === 'mid'; $('islLSerLen').classList.toggle('hidden', K !== 'series');
+    document.querySelectorAll('#islLSerLen button').forEach(b => b.classList.toggle('on', b.dataset.l === serLen()));
+    $('islLNewS').textContent = K === 'series' ? (MID ? '＋ নতুন মাঝারি ধারাবাহিক বানান' : '＋ নতুন ধারাবাহিক বানান') : '＋ নতুন লং গল্প লেখান';
     $('islLGo').textContent = K === 'series' ? 'পর্বগুলোর পরিকল্পনা বানান' : 'গল্প লিখুন'; $('islLGo').disabled = !!busy;
-    $('islLNote').textContent = K === 'series' ? 'আগে AI পুরো গল্পটা পর্বে ভাগ করে পরিকল্পনা দেবে, তারপর প্রতিটা পর্ব আলাদা করে লিখবেন। প্রতি পর্বের শেষে থাকবে "পরের পর্ব আসছে — সাবস্ক্রাইব/ফলো করুন"।' : 'আয়াত/হাদিসের আসল লেখা অ্যাপ নিজে বসাবে; AI শুধু গল্প লিখবে। ভিডিও হবে ১৬:৯ (ইউটিউব)।';
+    $('islLNote').textContent = MID ? 'মাঝারি ধারাবাহিক: ৩ পর্ব, প্রতি পর্ব ~৫ মিনিট। প্রতি পর্বে টুইস্ট, ক/খ/গ কুইজ (উত্তর পরের পর্বে), শেষে পরের পর্বের টানটান প্রশ্ন আর সাবস্ক্রাইব-কমেন্টের ডাক থাকবে।' : K === 'series' ? 'আগে AI পুরো গল্পটা পর্বে ভাগ করে পরিকল্পনা দেবে, তারপর প্রতিটা পর্ব আলাদা করে লিখবেন। প্রতি পর্বের শেষে থাকবে "পরের পর্ব আসছে — সাবস্ক্রাইব/ফলো করুন"।' : 'আয়াত/হাদিসের আসল লেখা অ্যাপ নিজে বসাবে; AI শুধু গল্প লিখবে। ভিডিও হবে ১৬:৯ (ইউটিউব)।';
     const f = $('libFilter').value, wantUsed = f === 'used' || f === 'hist', q = ($('libSearch').value || '').trim().toLowerCase();
     const used = id => API().usedId(id), match = s => !q || String(s).toLowerCase().includes(q);
     const mine = USERLIB.filter(u => /^isl_long_/.test(u.id) && LONG_RE.test(u.txt)).slice().reverse(), have = new Set(mine.map(u => u.id));
     const singles = mine.concat((window.ISL_LONG_STORIES || []).filter(x => !have.has(x.id)).map(x => ({ id: x.id, txt: x.txt, pre: true })));
-    const plans = USERLIB.filter(u => /^isl_ser_[^_]+$/.test(u.id) && PLAN_RE.test(u.txt)).slice().reverse().concat(preSeries());
+    const plans = USERLIB.filter(u => /^isl_ser_[^_]+$/.test(u.id) && PLAN_RE.test(u.txt)).slice().reverse().concat(preSeries()).filter(p => { const pl = planOf(p); return pl && isMidPlan(pl) === MID; });
     // chips: নতুন / ব্যবহৃত — a series counts as used when every written part is used
     const serUsed = p => { const pl = planOf(p); if (!pl) return false; const ws = pl.parts.map((_, i) => findPart(p.id, i + 1)).filter(Boolean); return ws.length === pl.parts.length && ws.every(u => used(u.id)); };
     const items = K === 'series' ? plans : singles, isUsed = K === 'series' ? serUsed : u => used(u.id);
     const nU = items.filter(isUsed).length; const a = $('libNewN'), b = $('libUsedN'); if (a) a.textContent = bn(items.length - nU); if (b) b.textContent = bn(nU);
     document.querySelectorAll('#libChips .lchip[data-lt]').forEach(c => { const on = c.dataset.lt === (wantUsed ? 'used' : f === 'new' ? 'new' : ''); c.classList.toggle('on', on); c.setAttribute('aria-pressed', String(on)); });
     const list = items.filter(u => (f === 'all' || f === 'ready' || f === 'todo' || isUsed(u) === wantUsed) && match(u.txt.slice(0, 400)));
-    $('libCount').textContent = K === 'series' ? `${bn(list.length)}টা ধারাবাহিক দেখাচ্ছে` : `${bn(list.length)}টা লং গল্প দেখাচ্ছে`;
+    $('libCount').textContent = K === 'series' ? `${bn(list.length)}টা ${MID ? 'মাঝারি ' : ''}ধারাবাহিক দেখাচ্ছে` : `${bn(list.length)}টা লং গল্প দেখাচ্ছে`;
     const frag = document.createDocumentFragment();
     if (K === 'single') list.forEach((u, i) => {
       const us = used(u.id);
