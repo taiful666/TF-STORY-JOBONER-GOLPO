@@ -330,7 +330,7 @@ Open code with Read(file, offset=line, limit=…) — never read a big file whol
   - `1066` *the AI prompt for an explainer script (works in Gemini, Claude, ChatGPT)*
   - `1149` *engine hooks (run after the main script, before init)*
 
-## islamic/index.html  (4993 lines)
+## islamic/index.html  (4994 lines)
 - `19` ▸ <style> 
 - `164` **polish**
 - `250` **new post (clear only the current post)**
@@ -467,29 +467,29 @@ Open code with Read(file, offset=line, limit=…) — never read a big file whol
 - `4445` **preview**
   `4446` reelPvDims · `4447` reelDraw · `4453` reelTick · `4459` reelPlay · `4464` reelRefresh
 - `4472` **UI**
-  `4473` reelChip · `4474` reelUi · `4495` reelOpen · `4502` reelClose · `4508` reelBusy · `4509` reelProgress · `4510` reelName
-- `4512` **export (fast, frame-exact MP4 via WebCodecs; real-time recording as fallback)**
-  `4513` reelExport · `4538` reelExportFast · `4578` reelExportRec · `4600` reelShare
-- `4601` **share sheet — same platforms and flow as the Story part:**
-  `4603` TF_PLAT · `4605` tfUniq · `4606` tfTags · `4607` tfPack · `4638` tfBlob · `4639` tfShClose · `4640` tfShReset · `4641` tfShareOpen
-  `4650` tfSend · `4668` tfEl · `4669` tfYtKit · `4675` row · `4676` cp · `4692` tfShareWire · `4712` reelWireDrag · `4714` pt
-  `4716` hitAt · `4730` end · `4733` reelWire
-- `4769` **☁ the app's one Gmail login (cloud-core.js): this part's history (repeat-memory) and libra…**
-  `4772` ICD · `4828` startApp
-- `4832` ▸ <script v2js> 
-- `4833` **TF Post Maker v2 — interface layer: clean labels, menu sheet, theme icon**
-  `4836` $ · `4848` lang
-  - `4850` *1. strip decorative emoji / symbols from interface labels (not from your posts)*
-  `4855` cleanEl · `4867` cleanSelect · `4868` sweep · `4891` observe
-  - `4893` *2. labels that belong to this layer*
-  `4894` syncLabels
-  - `4903` *3. theme icon + status-bar colour*
-  `4904` syncTheme
-  - `4912` *4. menu sheet*
-  `4913` openMenu · `4914` closeMenu · `4915` go · `4922` start
-- `4939` ▸ <script v3js> 
-- `4940` **TF Post Maker v3 — labels for the regrouped layout, the finish sheet**
-  `4943` $ · `4963` lang · `4964` labels · `4968` sheet · `4969` openSheet · `4970` closeSheet · `4971` mirrorMono · `4976` start
+  `4473` reelChip · `4474` reelUi · `4495` reelOpen · `4502` reelClose · `4508` reelBusy · `4509` reelProgress · `4511` reelName
+- `4513` **export (fast, frame-exact MP4 via WebCodecs; real-time recording as fallback)**
+  `4514` reelExport · `4539` reelExportFast · `4579` reelExportRec · `4601` reelShare
+- `4602` **share sheet — same platforms and flow as the Story part:**
+  `4604` TF_PLAT · `4606` tfUniq · `4607` tfTags · `4608` tfPack · `4639` tfBlob · `4640` tfShClose · `4641` tfShReset · `4642` tfShareOpen
+  `4651` tfSend · `4669` tfEl · `4670` tfYtKit · `4676` row · `4677` cp · `4693` tfShareWire · `4713` reelWireDrag · `4715` pt
+  `4717` hitAt · `4731` end · `4734` reelWire
+- `4770` **☁ the app's one Gmail login (cloud-core.js): this part's history (repeat-memory) and libra…**
+  `4773` ICD · `4829` startApp
+- `4833` ▸ <script v2js> 
+- `4834` **TF Post Maker v2 — interface layer: clean labels, menu sheet, theme icon**
+  `4837` $ · `4849` lang
+  - `4851` *1. strip decorative emoji / symbols from interface labels (not from your posts)*
+  `4856` cleanEl · `4868` cleanSelect · `4869` sweep · `4892` observe
+  - `4894` *2. labels that belong to this layer*
+  `4895` syncLabels
+  - `4904` *3. theme icon + status-bar colour*
+  `4905` syncTheme
+  - `4913` *4. menu sheet*
+  `4914` openMenu · `4915` closeMenu · `4916` go · `4923` start
+- `4940` ▸ <script v3js> 
+- `4941` **TF Post Maker v3 — labels for the regrouped layout, the finish sheet**
+  `4944` $ · `4964` lang · `4965` labels · `4969` sheet · `4970` openSheet · `4971` closeSheet · `4972` mirrorMono · `4977` start
   - element ids (295): installBtn@646 · newPostBtn@647 · acctBtn@648 · v2Theme@649 · v2MenuBtn@650 · langBtn@651 · themeBtn@652 · cv@666 · undoBtn@670 · redoBtn@671 · shuffleBtn@672 · v3ExportBtn@673 · pvBtn@674 · p-text@688 · newPostBtn2@689 · installBanner@690 · installBtn2@690 · installX@690 · brandNudge@691 · nudgeName@691 · nudgeSave@691 · genSeg@692 · gen-quick@698 · qgen@699 · qgCount@700 · qgTopics@702 · qgCustom@703 · qgTone@704 · qgCap@705 · qgPrev@706 · qgNext@706 · qgRand@706 · qgStatus@707 · qgStatusTxt@707 · qgOut@708 · qgClear@709 · src-ai@712 · aiType@716 · aiSource@717 · aiLen@718 · aiTopic@720 · styleEx@722 · styleResetBtn@723 · aiWithImg@725 · aiPostBtn@726 · aiGenBtn@726 · aiImgBtn@726 · aiStatus@726 · aiOpts@728 · gen-story@732 · stCount@734 · stKind@737 · stLifeBox@738 · stTopics@739 · stCustom@740 · stSacredNote@742 · stImg@743 · stMore@744 · stPrev@745 · stNext@745 · stStatus@746 · stStatusTxt@746 · stOut@747 · stClear@748 · src-hadith@751 · hBook@754 · hNum@755 · hTodayBtn@758 · hRandBtn@759 · hGetBtn@760 · hPrevBtn@761 · hNextBtn@762 · hArabic@765 · hSahih@766 · hGrade@767 · hStatus@769 · hMeta@770 · hTools@771 · hMatnBtn@772 · hFullBtn@773 · src-ayah@776 · aRefIn@779 · aTransSel@780 · aTodayBtn@783 · aRandBtn@784 · aGetBtn@785 · aNextBtn@786 · aArabic@788 · aStatus@789 · aMeta@790 · cardTextSect@792 · smartPasteBtn@793 · clearTextBtn@793 · f-heading@794 · f-arabic@795 · f-text@796 · hlSelBtn@797 · hlAutoBtn@797 · hlClearBtn@797 · f-ref@799 · f-note@800 · sacredWarn@802 · src-tools@803 · undoTextBtn@804 · toolStatus@813 · p-design@819 · desSeg@820 · des-look@825 · ratioSeg@827 · gallery@834 · pals@835 · cTc@837 · cAc@838 · cAc2@839 · cHl@840 · pairChips@843 · bFont@846 · aFont@847 · headFont@848 · hlStyle@849 · hlFont@850 · alignSeg@852 · textY@853 · overlay@854 · elemRows@856 · presetName@858 · presetSaveBtn@858 · presetList@859 · posResetBtn@861 · resetDesignBtn@861 · des-image@863 · imgSrcSeg@865 · imgFile@871 · linkRow@872 · imgLink@872 · imgLinkBtn@872 · imgInfo@873 · zoom@874 · blur@875 · centerBtn@876 · f-credit@877 · imgPrompt@881 · imgSuggestBtn@883 · imgGenBtn@884 · imgStatus@885 · noFigures@887 · aiThumbs@888 · imgDlBtn@889 · des-brand@893 · brandFor@894 · b-name@897 · b-handle@898 · b-show@900 · b-style@901 · b-wm@902 · logoFile@906 · logoInfo@907 · logoUpBtn@908 · logoRmBtn@908 · logoSize@909 · logoPos@910 · b-tags@914 · resetBrandBtn@916 · p-caption@921 · capStyle@924 · capEmoji@927 · capTags@928 · capFull@929 · capCta@930 · capGenBtn@932 · capQuickBtn@932 · capStatus@932 · capText@933 · capCopyBtn@934 · capBothBtn@934 · monoSect@937 · monoList@939 · monoFixBtn@940 · monoRecheck@940 · p-library@949 · libWithDesign@951 · libSearch@952 · libList@953 · libExportBtn@955 · libImportBtn@956 · libFile@957 · p-settings@963 · langBtn2@966 · themeBtn2@966 · installBtn3@966 · claudeSect@969 · cKey@971 · showCKeyBtn@971 · cModelSel@972 · cUse@973 · saveCKeyBtn@974 · testCKeyBtn@974 · rmCKeyBtn@974 · cKeyState@974 · cSpent@975 · cSpentReset@975 · gKey@983 · showKeyBtn@983 · gModel@985 · iModel@986 · saveKeyBtn@988 · testKeyBtn@988 · rmKeyBtn@988 · keyState@988 · fullBackupBtn@993 · fullRestoreBtn@993 · fullFile@993 · memCount@998 · memSaveBtn@999 · memDriveBtn@999 · memLoadBtn@999 · memFile@999 · hdrResetBtn@1004 · resetAllBtn@1004 · masterResetBtn@1004 · keepLib@1005 · modal@1012 · modalBack@1012 · modalDl@1012 · resetModal@1013 · rsKeepBtn@1016 · rsAllBtn@1017 · rsBackupBtn@1018 · rsCancelBtn@1018 · installModal@1020 · installModalOk@1027 · shareModal@1029 · shCap@1031 · shCard@1032 · shEmpty@1033 · shMakeAi@1033 · shMakeQuick@1033 · shPrevTxt@1034 · shCancel@1037 · pasteBar@1039 · pasteTxt@1039 · pasteAgain@1039 · pasteX@1039 · updateBar@1040 · updateBtn@1040 · reelSheet@1041 · rvMode@1042 · rvClose@1042 · rvStage@1045 · rvCv@1045 · rvPlayBig@1045 · rvPosReset@1047 · rvCode@1051 · rvTags@1052 · rvRoll@1053 · rvRatio@1058 · rvLayout@1059 · rvDur@1061 · rvSound@1065 · rvOwnBox@1066 · rvOwnPick@1067 · rvOwnFile@1068 · rvOwnOff@1069 · rvVolBox@1071 · rvVol@1071 · rvManualBox@1074 · rvPlay@1078 · rvMake@1078 · rvBusy@1079 · rvCancel@1079 · rvDone@1080 · rvShare@1085 · rvSave@1086 · rvAnother@1088 · rvDoneX@1089 · newBar@1092 · newUndo@1092 · v3export@1093 · monoBtn@1096 · monoBadge@1096 · shareBtn@1097 · pngBtn@1099 · jpgBtn@1100 · reelBtn@1101 · saveLibBtn@1102 · previewBtn@1104 · v2menu@1106 · v2Lang@1110 · v2Install@1111 · tfShare@1113 · tfShX@1114 · tfShWhat@1115 · tfShGrid@1116 · tfShBox@1123 · toast@1125
 
 ## islamic/story.js  (855 lines)
