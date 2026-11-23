@@ -10225,6 +10225,183 @@ function initShareSheet() {
   } catch (e) { console.warn('v11 step4', e); }
 })();
 </script>
+<script id="v13thumb">
+/* ===================== v13 — প্রো থাম্বনেল (all parts: story, Islamic short/long, explainer, every ratio)
+   One clean idea: the story's strongest picture, a dark band in the middle, and one centred text block
+   (tag + episode badge → big headline → accent bar → one-line subject → watch pill). Text sits around the middle,
+   so every feed crop (9:16, 4:5, 1:1, 16:9) and every phone shows it. Manual edits: story.cover.pro
+   {tag, ep, h, sub, cta} — empty = auto, "-" = hide; in h "|" = new line, {word} = highlighted. ===================== */
+const PRO_KIND = TF_EXP ? 'exp' : TF_ISL ? 'isl' : 'story';
+const PRO_PAL = {
+  story: { bg: '#1B0F08', tint: 'rgba(255,160,80,.30)', band: '12,6,2', hi: '#FFD23F', tag: '#C62F22', ep: '#FFD23F', epText: '#2A1500', cta: 'rgba(255,255,255,.14)', ctaLine: 'rgba(255,255,255,.55)' },
+  isl: { bg: '#06231A', tint: 'rgba(120,200,160,.22)', band: '3,20,14', hi: '#F2C14E', tag: '#0F6B4F', ep: '#F2C14E', epText: '#082A1F', cta: 'rgba(255,255,255,.12)', ctaLine: 'rgba(242,193,78,.7)' },
+  exp: { bg: '#0B1430', tint: 'rgba(120,160,255,.22)', band: '4,8,26', hi: '#FFD84D', tag: '#2346C8', ep: '#FFD84D', epText: '#0B1430', cta: 'rgba(255,255,255,.13)', ctaLine: 'rgba(255,255,255,.55)' }
+};
+const proClean = s => String(s || '').replace(/[{}]/g, '').replace(/\s+/g, ' ').trim();
+const proNum = s => +String(s).replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d));
+/* "নাম | পর্ব ২: পর্বের নাম", "নাম · পর্ব ২", "পর্ব ২/৩" → series info; last part = total reached, or no hint of the next part */
+function proSeries(st) {
+  const t = String(st.title || '').replace(/[{}]/g, '');
+  const m = t.match(/^(.*?)[\s|·:,\-–—]*পর্ব\s*[-–]?\s*([০-৯\d]+)\s*(?:\/\s*([০-৯\d]+))?\s*[:：\-–—।|]?\s*(.*)$/);
+  if (!m) return null;
+  const k = proNum(m[2]); let of = m[3] ? proNum(m[3]) : (+(st.partsTotal || st.of) || 0);
+  if (!of) of = proPlanTotal();
+  const last = of ? k >= of : /শেষ পর্ব|সমাপ্ত/.test(t);
+  return { name: m[1].trim(), k, of, last, partName: m[4].trim() };
+}
+/* Islamic series part (isl_ser_X_p<k>): total parts from its plan (built-in or saved) */
+function proPlanTotal() {
+  try { const id = (typeof app !== 'undefined' && app.libId) || '', m = String(id).match(/^(isl_ser_[^_]+)_p\d+$/); if (!m) return 0; const sid = m[1];
+    const pre = [].concat(window.ISL_LONG_SERIES || [], window.ISL_MID_SERIES || []).find(x => x.id === sid); if (pre) return pre.parts.length;
+    const u = (typeof USERLIB !== 'undefined' ? USERLIB : []).find(x => x.id === sid); if (u) { const j = JSON.parse(u.txt.slice(u.txt.indexOf('{'))); return (j.parts || []).length; }
+  } catch (e) { } return 0;
+}
+/* the words: what the story is about, said plainly */
+function proCopy(st) {
+  const man = (st.cover && st.cover.pro) || {}, ser = proSeries(st), kind = PRO_KIND, Sx = (typeof S !== 'undefined' ? S : {});
+  let title = String(st.title || '').replace(/\s*[|·:–—-]?\s*(Explained|Bangla|In Bangla).*$/i, '').trim();
+  let h;
+  if (ser) h = ser.partName || ser.name;
+  else { const p = title.split('|').map(s => s.trim()).filter(Boolean); h = p.length > 1 ? p.join('|') : title; }
+  let rest = '';
+  if (h.split(/\s+/).length > 8 && !/\|/.test(h)) { // long title: the first clause is the headline, the rest can be the sub line
+    const cm = h.match(/^(.{6,}?[,—–:;!?।])\s*(.+)$/); if (cm && cm[1].split(/\s+/).length >= 3) { h = cm[1].replace(/[,—–:;।]$/, '').trim(); rest = cm[2].trim(); } }
+  const words = proClean(h.replace(/\|/g, ' ')).split(' ').filter(Boolean);
+  if (!/\{/.test(h) && words.length > 1) { const k = words.length > 4 ? 2 : 1, hw = h.split(/\s+/); const tail = hw.slice(-k).join(' ').replace(/\|/g, ''); h = hw.slice(0, -k).join(' ') + ' {' + tail.replace(/[।.!?…,]+$/, '') + '}'; }
+  const book = st.book && st.book.lesson_bn;
+  let sub = proClean((st.cover && st.cover.ctx) || book || '');
+  if (!sub && rest) sub = proClean(rest);
+  if (!sub) sub = ser && ser.partName ? ser.name : ({ story: 'একটি জীবনের গল্প, একটি শিক্ষা', isl: 'কুরআন-হাদিসের আলোয় একটি গল্প', exp: 'সহজ ভাষায় পুরো ব্যাখ্যা' })[kind];
+  const sw = sub.split(' '); if (sw.length > 12) sub = sw.slice(0, 12).join(' ') + '…';
+  const tag = ser ? (ser.partName && ser.name && ser.name.split(/\s+/).length <= 4 ? 'ধারাবাহিক · ' + ser.name : 'ধারাবাহিক') : ({ story: Sx.series || 'জীবনের গল্প', isl: 'ইসলামিক গল্প', exp: 'এক্সপ্লেনার' })[kind];
+  const ep = ser ? (ser.last && ser.k > 1 ? 'শেষ পর্ব' : 'পর্ব ' + bn(ser.k) + (ser.of ? ' / ' + bn(ser.of) : '')) : '';
+  const cta = ser ? (ser.k === 1 ? 'শুরু থেকে দেখুন' : ser.last ? 'সমাপ্তিটা দেখুন' : 'গল্প এগিয়ে চলছে · দেখুন') : ({ story: 'পুরো গল্পটা দেখুন', isl: 'পুরো গল্পটা দেখুন', exp: 'পুরোটা বুঝে নিন' })[kind];
+  const auto = { tag, ep, h, sub, cta }, out = {};
+  Object.keys(auto).forEach(k => { const v = String(man[k] == null ? '' : man[k]).trim(); out[k] = v === '-' ? '' : (v || auto[k]); });
+  out.auto = auto; return out;
+}
+/* words with {highlight} flags; "|" splits forced lines */
+function proWords(s) { return String(s || '').split('|').map(seg => covParts(seg)).filter(l => l.length); }
+function proWrap(c, segs, size, maxW, weight) {
+  c.font = `${weight} ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; const sp = c.measureText(' ').width, rows = [];
+  segs.forEach(seg => { const tot = seg.reduce((a, p) => a + c.measureText(p.w).width, 0) + sp * (seg.length - 1);
+    // balanced wrap: aim for even line widths instead of a long first line and an orphan word
+    const n = Math.max(1, Math.ceil(tot / maxW)), target = tot / n; let row = [], w = 0;
+    seg.forEach(p => { const ww = c.measureText(p.w).width; if (row.length && (w + sp + ww > maxW || (w + sp + ww / 2 > target * 1.08 && rows.length + 1 < n + rows.length))) { rows.push(row); row = []; w = 0; } row.push(p); w += (w ? sp : 0) + ww; });
+    if (row.length) rows.push(row); });
+  return { rows, sp, ok: rows.every(r => r.reduce((a, p) => a + c.measureText(p.w).width, 0) + sp * (r.length - 1) <= maxW) };
+}
+function proText(c, rows, sp, cx, y, size, weight, col, hi, stroke) {
+  c.save(); c.textAlign = 'left'; c.textBaseline = 'alphabetic'; c.lineJoin = 'round'; c.font = `${weight} ${size}px ${FONT_BN}, ${FONT_FALLBACK}`;
+  const lh = size * 1.2;
+  rows.forEach((r, i) => { const tot = r.reduce((a, p) => a + c.measureText(p.w).width, 0) + sp * (r.length - 1); let x = cx - tot / 2; const base = y + lh * i + size * .9;
+    r.forEach(p => { if (stroke) { c.lineWidth = size * stroke; c.strokeStyle = 'rgba(0,0,0,.6)'; c.shadowColor = 'transparent'; c.strokeText(p.w, x, base); }
+      c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = size * .18; c.shadowOffsetY = size * .05; c.fillStyle = p.h ? hi : col; c.fillText(p.w, x, base); c.shadowColor = 'transparent'; x += c.measureText(p.w).width + sp; }); });
+  c.restore(); return lh * rows.length;
+}
+function proPill(c, text, cx, cy, size, bg, fg, line, play) {
+  c.save(); c.font = `800 ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; const tw0 = c.measureText(text).width, h = size * 1.8, pw = play ? h * .9 : 0, w = tw0 + size * 1.5 + pw, x = cx - w / 2, y = cy - h / 2;
+  c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = size * .5; c.shadowOffsetY = size * .15; rr(c, x, y, w, h, h / 2, bg); c.shadowColor = 'transparent';
+  if (line) rr(c, x, y, w, h, h / 2, null, line, Math.max(2, size * .06));
+  if (play) { const px = x + size * .75 + h * .3; circ(c, px, cy, h * .3, fg); P(c, `M${px - h * .09},${cy - h * .15} L${px + h * .16},${cy} L${px - h * .09},${cy + h * .15}Z`, bg === 'transparent' || /rgba/.test(bg) ? '#000' : bg); }
+  c.fillStyle = fg; c.textAlign = 'left'; c.textBaseline = 'alphabetic'; c.fillText(text, x + size * .75 + pw, cy + size * .36); c.restore(); return w;
+}
+function pillW(c, text, size, play) { c.font = `800 ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; return c.measureText(text).width + size * 1.5 + (play ? size * 1.8 * .9 : 0); }
+/* the whole cover on a FW×FH canvas; bg(c) paints the picture */
+function proDraw(c, FW, FH, st, bg) {
+  const pal = PRO_PAL[PRO_KIND], cp = proCopy(st), Sx = (typeof S !== 'undefined' ? S : {});
+  const u = Math.min(FW, FH) / 1080, land = FW > FH * 1.15, sq = !land && FH < FW * 1.4;
+  c.save(); rect(c, 0, 0, FW, FH, pal.bg);
+  try { if (bg) bg(c); } catch (e) { console.warn('pro bg', e); }
+  c.save(); c.globalCompositeOperation = 'soft-light'; c.fillStyle = pal.tint; c.fillRect(0, 0, FW, FH); c.restore();
+  // a soft dark band behind the text block (middle), lighter at top/bottom so the picture still shows
+  const b = pal.band, g = c.createLinearGradient(0, 0, 0, FH);
+  g.addColorStop(0, `rgba(${b},.30)`); g.addColorStop(.22, `rgba(${b},.52)`); g.addColorStop(.5, `rgba(${b},.80)`); g.addColorStop(.78, `rgba(${b},.52)`); g.addColorStop(1, `rgba(${b},.35)`);
+  c.fillStyle = g; c.fillRect(0, 0, FW, FH);
+  const vg = c.createRadialGradient(FW / 2, FH / 2, Math.min(FW, FH) * .35, FW / 2, FH / 2, Math.hypot(FW, FH) * .62); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.45)'); c.fillStyle = vg; c.fillRect(0, 0, FW, FH);
+  // sizes
+  const maxW = land ? FW * .80 : FW * .87, chip = (land ? 40 : 42) * u, hs0 = (land ? 128 : sq ? 120 : 132) * u, subS = (land ? 50 : 50) * u, ctaS = (land ? 38 : 40) * u;
+  // headline fit: prefer ≤2 rows big, else ≤3 rows
+  const segs = proWords(cp.h); let hs = hs0, H1 = proWrap(c, segs, hs, maxW, 800);
+  for (const lim of [2, 3]) { hs = hs0; H1 = proWrap(c, segs, hs, maxW, 800); while ((H1.rows.length > lim || !H1.ok) && hs > hs0 * (lim === 2 ? .78 : .5)) { hs -= 4 * u; H1 = proWrap(c, segs, hs, maxW, 800); } if (H1.rows.length <= lim && H1.ok) break; }
+  if (H1.rows.length > 3) H1.rows = H1.rows.slice(0, 3);
+  let ss = subS, SB = proWrap(c, proWords(proClean(cp.sub)), ss, maxW * .92, 600); while (SB.rows.length > 2 && ss > subS * .7) { ss -= 2 * u; SB = proWrap(c, proWords(proClean(cp.sub)), ss, maxW * .92, 600); } SB.rows = SB.rows.slice(0, 2);
+  const gap = 34 * u, chipH = (cp.tag || cp.ep) ? chip * 1.8 : 0, headH = H1.rows.length * hs * 1.2, barH = 10 * u, subH = cp.sub ? SB.rows.length * ss * 1.2 : 0, ctaH = cp.cta ? ctaS * 1.8 : 0;
+  const total = chipH + (chipH ? gap : 0) + headH + gap * .7 + barH + (subH ? gap * .8 + subH : 0) + (ctaH ? gap * 1.3 + ctaH : 0);
+  let y = Math.max(FH * .08, FH * (FH > FW * 1.5 ? .56 : .5) - total / 2); const cx = FW / 2;
+  // tag + episode badge (one row, centred)
+  if (chipH) { const tw1 = cp.tag ? pillW(c, cp.tag, chip) : 0, tw2 = cp.ep ? pillW(c, cp.ep, chip * 1.05) : 0, sp = tw1 && tw2 ? 18 * u : 0, x0 = cx - (tw1 + tw2 + sp) / 2;
+    if (tw1) proPill(c, cp.tag, x0 + tw1 / 2, y + chipH / 2, chip, pal.tag, '#fff', 'rgba(255,255,255,.35)');
+    if (tw2) proPill(c, cp.ep, x0 + tw1 + sp + tw2 / 2, y + chipH / 2, chip * 1.05, pal.ep, pal.epText);
+    y += chipH + gap; }
+  y += proText(c, H1.rows, H1.sp, cx, y, hs, 800, '#FFFFFF', pal.hi, .07);
+  y += gap * .7; rr(c, cx - 60 * u, y, 120 * u, barH, barH / 2, pal.hi); y += barH;
+  if (subH) { y += gap * .8; y += proText(c, SB.rows, SB.sp, cx, y, ss, 600, '#F4EEE4', pal.hi, 0); }
+  if (ctaH) { y += gap * 1.3; proPill(c, cp.cta, cx, y + ctaH / 2, ctaS, pal.cta, '#fff', pal.ctaLine, true); }
+  // small logo, top-right corner (kept clear of the text)
+  if (Sx.watermark !== false && typeof drawLogo === 'function') { c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 12 * u; drawLogo(c, FW - 84 * u, 84 * u, 92 * u, Sx.logo || 'TF'); c.restore(); }
+  c.restore();
+}
+/* short videos (9:16 world 1080×1920): the most emotional moment, face close-up */
+function proBgShort(renderer) {
+  return c => { const st = renderer.story, tl = renderer.tl, pick = coverPickShot(st, tl), sc = st.scenes[pick.si] || {}, cast = sc.cast || [], n = Math.min(3, cast.length || 1);
+    let who = cast[0]; try { const sh = tl.shots[renderer.shotAt(pick.t)], ln = sh && sc.lines[sh.li]; if (ln && ln.who && cast.includes(ln.who)) who = ln.who; } catch (e) { }
+    const i = Math.max(0, cast.indexOf(who)), pos = CAST_POS[n] || CAST_POS[1], P0 = pos[i] || pos[0], cr = who && renderer.chars && renderer.chars[who], kf = cr ? (cr.L.kid ? .74 : cr.L.teen ? .92 : 1) : 1;
+    const z = cast.length ? 1.55 : 1.1, headY = P0[1] - 300 * P0[2] * kf;
+    const off = document.createElement('canvas'); off.width = W; off.height = H; const oc = off.getContext('2d', { alpha: false });
+    renderer._camOverride = clampCam(cast.length ? { x: P0[0], y: headY + 600 / z, z } : { x: 540, y: 1000, z }); try { renderer.drawScene(oc, pick.si, pick.t); } finally { renderer._camOverride = null; }
+    c.filter = 'saturate(1.2) contrast(1.06)'; c.drawImage(off, 0, 0, W, H); c.filter = 'none'; };
+}
+/* long / other ratios / explainer */
+function proBgLong(r) {
+  return c => { const FW = r.FW, FH = r.FH, off = document.createElement('canvas'); off.width = FW; off.height = FH; const oc = off.getContext('2d', { alpha: false });
+    if (r.xp && window.XP && window.XP.render) { const th = r.tl.thumb || 0, t = th + Math.max(.5, (r.tl.total - th) * .3); window.XP.render(r, oc, t, { ui: false }); c.filter = 'blur(8px) saturate(1.1)'; c.drawImage(off, -20, -20, FW + 40, FH + 40); c.filter = 'none'; return; }
+    const pick = coverPickShot(r.story, r.tl); r.drawSceneL(oc, pick.si, pick.t);
+    c.filter = 'saturate(1.2) contrast(1.06)'; c.drawImage(off, 0, 0, FW, FH); c.filter = 'none'; };
+}
+(function () {
+  const _dc = drawCover;
+  drawCover = function (c, renderer, k) { const key = k || (typeof S !== 'undefined' && S.coverTheme); if (key === 'pro' && renderer && renderer.story && renderer.tl) return proDraw(c, W, H, renderer.story, proBgShort(renderer)); return _dc.apply(this, arguments); };
+  if (typeof LongRenderer !== 'undefined') {
+    const LP = LongRenderer.prototype, _in = LP.drawThumbInto, _dt = LP.drawThumb;
+    LP.drawThumbInto = function (c) { if (typeof S !== 'undefined' && S.coverTheme === 'pro') return proDraw(c, this.FW, this.FH, this.story, proBgLong(this)); return _in.call(this, c); };
+    LP.drawThumb = function (c) { const k = (typeof S !== 'undefined' && S.coverTheme) + '|' + JSON.stringify((this.story && this.story.cover && this.story.cover.pro) || {}); if (this._proKey !== k) { this._lcov = null; this._proKey = k; } return _dt.call(this, c); };
+  }
+  /* manual editor: one field per text, empty = auto (shown as the placeholder), "-" hides it */
+  const PF = [['tag', 'উপরের ট্যাগ'], ['ep', 'পর্ব ব্যাজ (যেমন: পর্ব ২ / ৩, শেষ পর্ব)'], ['h', 'মূল শিরোনাম (| দিলে নতুন লাইন, {শব্দ} হাইলাইট)'], ['sub', 'নিচের এক লাইন — গল্পটা কী নিয়ে'], ['cta', 'বোতামের লেখা']];
+  function proUI() {
+    const tf = $('thumbFields'); if (!tf || $('proFields')) return;
+    const box = el('div', { class: 'thumbfields', id: 'proFields' });
+    box.innerHTML = '<b class="sm">থাম্বনেলের লেখা <span class="muted">(খালি = অটো · লুকাতে - লিখুন)</span></b>' + PF.map(([k, l]) => `<label>${l}<input data-pf="${k}"></label>`).join('') + '<button type="button" class="link" id="btnProReset">↺ সব লেখা অটো করুন</button>';
+    tf.before(box);
+    box.addEventListener('input', () => { if (!app.story) return; const v = {}; box.querySelectorAll('[data-pf]').forEach(e => { if (e.value.trim()) v[e.dataset.pf] = e.value.trim(); }); app.story.cover = Object.assign({}, app.story.cover || {}, { pro: v }); thumbSoon(); try { drawAt(app.t); } catch (e) { } try { autosave(); } catch (e) { } });
+    $('btnProReset').onclick = () => { if (!app.story) return; if (app.story.cover) delete app.story.cover.pro; proFill(); thumbSoon(); try { drawAt(app.t); } catch (e) { } try { autosave(); } catch (e) { } };
+    const rb = $('btnThumbReset'); if (rb) rb.addEventListener('click', () => { if (app.story && app.story.cover) delete app.story.cover.pro; proFill(); });
+    const ct = $('coverTheme'); if (ct) ct.addEventListener('change', proShow);
+  }
+  function proShow() {
+    const on = (typeof S !== 'undefined' && S.coverTheme === 'pro'); const pf = $('proFields'), tf = $('thumbFields'), tt = $('thumbText');
+    if (pf) pf.style.display = on ? '' : 'none'; if (tf) tf.style.display = on ? 'none' : '';
+    if (tt) { const lb = tt.closest('label'); if (lb) lb.style.display = on ? 'none' : ''; const p = lb && lb.nextElementSibling; if (p && p.tagName === 'P') p.style.display = on ? 'none' : ''; }
+  }
+  function proFill() {
+    const box = $('proFields'); if (!box) return; proShow(); if (!app.story) return; let cp; try { cp = proCopy(app.story); } catch (e) { return; }
+    const man = (app.story.cover && app.story.cover.pro) || {};
+    box.querySelectorAll('[data-pf]').forEach(e => { const k = e.dataset.pf; e.placeholder = cp.auto[k] || '(খালি)'; if (document.activeElement !== e) e.value = man[k] || ''; });
+  }
+  const _fill = thumbFieldsFill; thumbFieldsFill = function () { const r = _fill.apply(this, arguments); try { proUI(); proFill(); } catch (e) { console.warn('pro fill', e); } return r; };
+  function start() {
+    try {
+      proUI();
+      const ct = $('coverTheme'); if (ct && !ct.querySelector('option[value="pro"]')) ct.prepend(el('option', { value: 'pro', text: 'প্রো (মাঝখানে পরিষ্কার বড় লেখা · পর্ব ব্যাজ) — সব ডিভাইসে পড়া যায়' }));
+      if (!localStorage.getItem(LK('tf_pro_thumb1'))) { S.coverTheme = 'pro'; saveSettings(); localStorage.setItem(LK('tf_pro_thumb1'), '1'); }
+      if (ct) ct.value = S.coverTheme || 'pro';
+      proFill(); thumbSoon(); try { if (app.story) drawAt(app.t); } catch (e) { }
+    } catch (e) { console.warn('v13 pro thumb', e); }
+  }
+  if (document.readyState === 'complete') setTimeout(start, 400); else window.addEventListener('load', () => setTimeout(start, 400));
+})();
+</script>
 <script src="fx/motion.js"></script>
 <script src="fx/shadow.js"></script>
 

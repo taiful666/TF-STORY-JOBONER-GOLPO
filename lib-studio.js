@@ -165,7 +165,7 @@ ${fmt}`;
     return pack;
   }
   // sections without a series list keep a series as numbered stories: "নাম · পর্ব ১: পর্বের নাম"
-  const flatTitle = (txt, ser, q) => txt.replace(/^\s*===.*$/m, `=== ${ser.title} · পর্ব ${BNUM(q.k)}${q.t ? ': ' + q.t : ''}`);
+  const flatTitle = (txt, ser, q) => txt.replace(/^\s*===.*$/m, `=== ${ser.title} · পর্ব ${BNUM(q.k)}${ser.total ? '/' + BNUM(ser.total) : ''}${q.t ? ': ' + q.t : ''}`);
   function setArea(txt, cat) {
     if (!cat) return txt; const L = txt.split('\n'); const i = L.findIndex(l => /^\s*ক্ষেত্র\s*[:：]/.test(l));
     if (i >= 0) { const sub = L[i].split(/[:：]/).slice(1).join(':').split('·').slice(1).join('·').trim(); L[i] = 'ক্ষেত্র: ' + cat + (sub ? ' · ' + sub : ''); }
