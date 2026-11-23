@@ -14,7 +14,9 @@ Goal of this file: do every change with the **fewest tokens**. Never re-read the
 6. Use Edit for small changes (no full-file rewrites).
 
 ## Workflow for every change request
-1. Clone is shallow (`--depth 1`). Work on `main` unless he asks for a branch (he wants changes live).
+1. Clone is shallow (`--depth 1`). **Work on branch `dev`, not `main`** (he collects many changes, then builds the
+   APK once). Pushing `dev` builds nothing. Only when he says "বিল্ড করো" / "ফাইনাল": merge `dev` into `main` and push
+   (one APK build). Start of a chat: `git fetch --depth=50 origin dev && git checkout dev` if it exists.
 2. Locate (grep) → read only the needed lines → Edit.
 3. `python3 tools/check.py` — syntax check of all JS/inline scripts (≈1 s). Must print `OK`.
 4. `python3 tools/codemap.py` — refresh CODEMAP.md line numbers if you need them again in this chat.
@@ -22,8 +24,7 @@ Goal of this file: do every change with the **fewest tokens**. Never re-read the
    `লং ভিডিও: ক্যাপশন বড়, শেয়ার শিটে Telegram`). Don't edit CHANGELOG.md by hand — the bot adds it.
    If the change adds/moves a feature, file or section, or changes a rule/convention, also update the
    hand-written tables/rules above so they never go stale (the bot only updates the AUTO block).
-6. Push:
-   `git -c push.negotiate=true push origin main`. Pushing web/android files to `main` triggers the APK build
+6. Push: `git -c push.negotiate=true push origin dev` (final build only: merge into main, push `main`). Pushing web/android files to `main` triggers the APK build
    (GitHub Actions) and the phones get the update automatically. Docs/tools-only changes don't trigger a build.
 7. If several features are asked in one message, do them all, then check and commit once.
 8. **Auto-sync:** `.github/workflows/docs-sync.yml` runs on every push to main (from Claude, the owner, or
