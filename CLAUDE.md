@@ -45,6 +45,7 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
 | `home.html` | start screen: গল্প / ইসলামিক / এক্সপ্লেনার. Tapping ইসলামিক opens 2 choices (`#islSub`): গল্পের ভিডিও (`index.html?part=islamic`) or পোস্ট মেকার (`islamic/index.html`) |
 | `index.html` | the Story part: all CSS layers, data, drawing, engine, audio, export, UI. Also hosts other parts via `?part=islamic` / `?part=explainer` |
 | `long-library.js` | 13 built-in long stories |
+| `lib-studio.js` | **লাইব্রেরি স্টুডিও** (সব সেকশনে, লাইব্রেরির চিপের নিচে `#xlsBox`): ক্যাটাগরি + স্টাইল + একক×N / ধারাবাহিক N পর্ব + দৈর্ঘ্য + বিষয় + নিজের নির্দেশ → সেকশনের নিজের প্রম্পটের ওপর লাইভ প্রম্পট (কপি) → বাইরের AI-এর উত্তর পেস্ট → `parsePack` (TF Script কোড ব্লক বা JSON; ধারাবাহিক = `ধারাবাহিক: নাম \| মোট পর্ব: N` + `=== নাম \| পর্ব k: …` + `সারাংশ:`) → এই সেকশনের লাইব্রেরিতে। ইসলামিক লং/ধারাবাহিক `ISL_LONG.importPack` দিয়ে আসল ধারাবাহিক হয় (একই নামে পেস্ট করলে পর্ব যোগ হয়); অন্য সেকশনে পর্বগুলো `নাম · পর্ব k` নামে আলাদা গল্প। পছন্দ মনে রাখে `tf_xls_<section>` |
 | `long-visuals.js` | long-video concept visuals (`[scene: kind/…]`) |
 | `islamic/story.js`, `art.js`, `art2.js`, `stories-1..3.js` | Islamic story-video part (patches the Story engine) |
 | `islamic/long-stories.js` | `window.ISL_LONG_STORIES`: ১২টা বিল্ট-ইন ইসলামিক একক লং গল্প (ids `isl_long_b01..b12`, ৬ ক্ষেত্রে ২টা করে, ফরম্যাট `long`)। long.js এগুলো একক তালিকার শুরুতে দেখায়, মোছা যায় না |

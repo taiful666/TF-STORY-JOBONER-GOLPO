@@ -247,5 +247,34 @@ ${catRule(o.cat)}
     ul.append(frag);
     if (!list.length && !wantUsed) { const d = $('islLNew'); if (d) d.open = true; }
   }
-  window.ISL_LONG = { render, shortMode };
+  /* ---------- import from lib-studio.js (one or many single stories, or a whole series pasted from an outside AI) ---------- */
+  async function importPack(pack, o) {
+    o = o || {}; const V = API().verifyQuran, res = { singles: 0, parts: 0, series: [], bad: [] };
+    for (const tx of pack.singles) {
+      try { let t = fixHead(tx, o.cat || catOf(tx) || CATS[0]); validateStory(t); if (V) t = await V(t, null);
+        USERLIB.push({ id: 'isl_long_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), txt: t, at: Date.now() }); res.singles++; }
+      catch (e) { res.bad.push((titleOf(tx) || 'গল্প') + ': ' + e.message); }
+    }
+    for (const ser of pack.series) {
+      const cat = o.cat || catOf((ser.parts[0] || {}).txt || '') || CATS[0];
+      // same title already in the library → add the new parts to it (lets him paste part by part)
+      let planU = USERLIB.find(u => /^isl_ser_[^_]+$/.test(u.id) && PLAN_RE.test(u.txt) && (planOf(u) || {}).title === ser.title);
+      const sid = planU ? planU.id : 'isl_ser_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 4);
+      const plan = planU ? planOf(planU) : { title: ser.title, cat, topic: o.topic || '', mins: o.mins || 8, parts: [] };
+      const total = Math.max(ser.total || 0, plan.parts.length, ...ser.parts.map(x => x.k));
+      for (let k = 1; k <= total; k++) plan.parts[k - 1] = plan.parts[k - 1] || { t: 'পর্ব ' + bn(k), s: '' };
+      for (const q of ser.parts) {
+        try { let t = fixHead(q.txt, plan.cat || cat); validateStory(t); if (V) t = await V(t, null);
+          const id = partId(sid, q.k), old = USERLIB.find(u => u.id === id); if (old) USERLIB.splice(USERLIB.indexOf(old), 1);
+          USERLIB.push({ id, txt: t, at: Date.now() }); res.parts++;
+          plan.parts[q.k - 1] = { t: q.t || plan.parts[q.k - 1].t, s: q.s || plan.parts[q.k - 1].s }; }
+        catch (e) { res.bad.push(`${ser.title} পর্ব ${bn(q.k)}: ${e.message}`); }
+      }
+      const ptxt = `=== ${plan.title}\nফরম্যাট: series-plan\n${JSON.stringify(plan)}`;
+      if (planU) planU.txt = ptxt; else USERLIB.push({ id: sid, txt: ptxt, at: Date.now() });
+      OPEN.add(sid); res.series.push(plan.title);
+    }
+    await saveUserLib(); updateMyLibInfo(); render(); return res;
+  }
+  window.ISL_LONG = { render, shortMode, CATS, longPrompt, importPack };
 })();
