@@ -96,10 +96,11 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
 
 <!-- AUTO:START — rewritten by tools/autoupdate.py on every push; do not edit by hand -->
 ## Current state (auto)
-- Updated: 2026-11-23 09:40 · commit `16afc9c`
+- Updated: 2026-11-23 10:08 · commit `267c0b4`
 - APK version: 5.2.<build> · APP_VERSION 5.1.0 · sw cache tf-story-v5.9.4
 - File sizes (lines): index.html 10173 · home.html 285 · islamic/index.html 4993 · islamic/story.js 855 · islamic/art.js 447 · islamic/art2.js 555 · explainer/part.js 1205 · explainer/paper.js 671 · long-visuals.js 941 · long-library.js 29 · fx/motion.js 252 · fx/shadow.js 167 · cloud-core.js 58
 - Latest changes (full list: CHANGELOG.md) — read these before starting; newer facts here win over older text above:
+  - 2026-11-23 · Auto-sync Claude notes on every push (CODEMAP, CHANGELOG, CLAUDE.md state block) · .github/workflows/docs-sync.yml, tools/autoupdate.py · `267c0b4`
   - 2026-11-23 · Add CLAUDE.md, CODEMAP, check & codemap tools, CHANGELOG — low-token change workflow · CLAUDE.md, tools/check.py, tools/codemap.py · `16afc9c`
   - 2026-11-20 · UI round 4: Islamic library uses same chips/compact rows, hide phone step bar, no wrapped text · (start of this log) · `71fdfda`
 <!-- AUTO:END -->
