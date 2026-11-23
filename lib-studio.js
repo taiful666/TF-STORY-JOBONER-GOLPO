@@ -17,6 +17,7 @@
     if (typeof TF_EXP !== 'undefined' && TF_EXP) return 'exp';
     const L = isLongMode();
     if (typeof TF_ISL !== 'undefined' && TF_ISL) { if (!L) return 'isl_short'; if (S.islLongKind === 'series') return S.islSerLen === 'mid' ? 'isl_mid' : 'isl_big'; return 'isl_long'; }
+    if (L && S.lifeLongKind === 'series' && window.LIFE_SER) return S.lifeSerLen === 'mid' ? 'life_mid' : 'life_big';
     return L ? 'long' : 'short';
   }
   const ISLW = () => window.ISL_API || {}, ISLL = () => window.ISL_LONG || {};
@@ -30,6 +31,8 @@
     isl_long: { name: 'ইসলামিক · একক লং গল্প', cats: ISL_LONG_CATS, styles: islStyles, long: true, maxN: 5, defMin: 10 },
     isl_big: { name: 'ইসলামিক · বড় ধারাবাহিক', cats: ISL_LONG_CATS, styles: islStyles, long: true, maxN: 5, defMin: 8, series: true },
     isl_mid: { name: 'ইসলামিক · মাঝারি ধারাবাহিক (৩ পর্ব × ~৫ মিনিট)', cats: ISL_LONG_CATS, styles: islStyles, long: true, maxN: 5, defMin: 5, series: true, parts: 3 },
+    life_big: { name: 'জীবন পাঠ · বড় ধারাবাহিক', cats: () => LONG_TOPICS[(get().style) || S.longStyle || 'life'] || [], styles: () => Object.entries(LONG_STYLE_BN), long: true, maxN: 5, defMin: 8, series: true },
+    life_mid: { name: 'জীবন পাঠ · মাঝারি ধারাবাহিক (৩ পর্ব × ~৫ মিনিট)', cats: () => LONG_TOPICS[(get().style) || S.longStyle || 'life'] || [], styles: () => Object.entries(LONG_STYLE_BN), long: true, maxN: 5, defMin: 5, series: true, parts: 3 },
     exp: { name: 'এক্সপ্লেনার ভিডিও', cats: () => EXP_CATS, styles: () => [], long: true, maxN: 5, defMin: 8 }
   };
   /* remembered choices per section */
@@ -50,6 +53,7 @@
     const one = o.series || o.n === 1;
     switch (o.sec) {
       case 'short': return buildStoryPrompt(promptOpts({ count: one ? 1 : o.n, topic, style: o.style, lesson: '', book: '', author: '' }));
+      case 'life_big': case 'life_mid':
       case 'long': { const lo = Object.assign(longOpts(), { longStyle: o.style || 'life', minutes: o.mins, topic, facts: '', link: '', book: '', author: '', lesson: '' }); return one ? buildLongPrompt(lo) : buildLongBulkPrompt(lo, o.n); }
       case 'exp': return window.EXP_PROMPT ? window.EXP_PROMPT(Object.assign(longOpts(), { minutes: o.mins, topic, facts: '', link: '' })) : buildLongPrompt(Object.assign(longOpts(), { minutes: o.mins, topic }));
       case 'isl_short': { const p = ISLW().buildLifePrompt ? ISLW().buildLifePrompt(o.cat || o.topic || 'আল্লাহর দিকে ফেরা', o.cat ? o.topic : '') : ''; return o.style && o.style !== 'auto' ? p.replace(/^- বর্ণনার ধরন:.*$/m, '') : p; }
@@ -177,7 +181,16 @@ ${fmt}`;
     const miss = []; pack.series.forEach(sr => { const have = sr.parts.map(q => q.k); for (let k = 1; k <= (sr.total || 0); k++) if (!have.includes(k)) miss.push(k); });
     btn.disabled = true; const old = btn.textContent; btn.textContent = 'যোগ হচ্ছে…'; let msg = '';
     try {
-      if (/^isl_(long|big|mid)$/.test(o.sec) && ISLL().importPack) {
+      if (window.LIFE_SER && (/^life_/.test(o.sec) || (o.sec === 'long' && pack.series.length))) {
+        // জীবন পাঠ: a real series (plan + parts) in the long library's ধারাবাহিক tab
+        if (pack.singles.length && !pack.series.length) { pack.series.push({ title: titleOf0(pack.singles[0]) || 'ধারাবাহিক', total: pack.singles.length, parts: pack.singles.map((x, i) => ({ k: i + 1, t: '', s: '', txt: x })) }); pack.singles = []; }
+        const keep = pack.singles; pack.singles = [];
+        const mins = o.sec === 'life_mid' ? 5 : Math.max(6, o.mins);
+        const r = await LIFE_SER.importPack(pack, { style: o.style || 'life', cat: o.cat, mins, topic: o.topic });
+        let nS = 0; if (keep.length) { const r2 = await addStoriesToLib(keep.map(t => o.cat ? setArea(t, o.cat) : t).join('\n\n')); nS = r2.ok; }
+        msg = [nS ? `${BNUM(nS)}টা একক গল্প` : '', r.series.length ? `ধারাবাহিক "${r.series.join('", "')}" (${BNUM(r.parts)}টা পর্ব)` : ''].filter(Boolean).join(' আর ');
+        if (r.bad.length) toast('কিছু অংশ বাদ গেছে: ' + r.bad.slice(0, 3).join(' · '), 'err', 9000);
+      } else if (/^isl_(long|big|mid)$/.test(o.sec) && ISLL().importPack) {
         if (o.sec === 'isl_long' && pack.series.length) { S.islLongKind = 'series'; } // a pasted series goes to the series list
         if (o.sec !== 'isl_long' && pack.singles.length && !pack.series.length) { pack.series.push({ title: (titleOf0(pack.singles[0]) || 'ধারাবাহিক'), total: pack.singles.length, parts: pack.singles.map((x, i) => ({ k: i + 1, t: '', s: '', txt: x })) }); pack.singles = []; }
         const mins = o.sec === 'isl_mid' ? 5 : o.sec === 'isl_big' ? Math.max(7, o.mins) : o.mins;
@@ -260,7 +273,7 @@ ${fmt}`;
     $('xlsIn').addEventListener('input', () => { const L = $('xlsIn').value.length; if (L - lastLen > 300) setTimeout(() => addPasted(true), 120); lastLen = L; $('xlsAdd').classList.toggle('hidden', !L); });
     box.addEventListener('toggle', () => { if (box.open) load(); });
     // the section can change under the card (short ↔ long, single ↔ series, big ↔ mid)
-    document.addEventListener('click', e => { if (e.target.closest('#fmtPick, #islLKind, #islLSerLen, #srcTabs, [data-fmt]')) setTimeout(load, 60); }, true);
+    document.addEventListener('click', e => { if (e.target.closest('#fmtPick, #islLKind, #islLSerLen, #lifeKind, #lifeSerLen, #srcTabs, [data-fmt]')) setTimeout(load, 60); }, true);
     load();
   }
   const debounce = (f, ms) => { let t; return () => { clearTimeout(t); t = setTimeout(f, ms); }; };
