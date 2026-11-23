@@ -3,18 +3,18 @@
 Format: `line` name. **H** = big section, *h* = sub-section, then functions / constants under it.
 Open code with Read(file, offset=line, limit=…) — never read a big file whole.
 
-## home.html  (322 lines)
+## home.html  (335 lines)
 - `6` ▸ <script fitjs> /* PC / big screens: scale the whole UI with the window, smoothly on r…
   `10` fit
 - `20` ▸ <style fitcss> html.fitz body{min-height:calc(100dvh / var(--z))}</style>
 - `27` ▸ <style> 
 - `28` **Start screen v8 — "গল্পের সন্ধ্যা": quiet chrome, one rendered video frame carries the col…**
-- `271` ▸ <script cloud-core.js> </script>
-- `272` ▸ <script> 
-  `275` $ · `281` remember · `290` paint
-  - element ids (4): islSub@242 · acct@262 · acAv@263 · acBtn@265
+- `280` ▸ <script cloud-core.js> </script>
+- `281` ▸ <script> 
+  `284` $ · `290` remember · `293` islShow · `303` paint
+  - element ids (5): islSub@250 · islBack@251 · acct@271 · acAv@272 · acBtn@274
 
-## index.html  (10512 lines)
+## index.html  (10614 lines)
 - `6` ▸ <script fitjs> /* PC / big screens: scale the whole UI with the window, smoothly on r…
   `10` fit
 - `20` ▸ <style fitcss> html.fitz body{min-height:calc(100dvh / var(--z))}html.fitz dialog{max…
@@ -190,66 +190,76 @@ Open code with Read(file, offset=line, limit=…) — never read a big file whol
   `8640` LONG_STYLE_BN
 - `8643` **CAPTION VARIETY (shared by every caption look that uses word-by-word chunks)**
   `8646` KT_STYLES · `8658` ktBack · `8659` ktBounce · `8660` ktElastic · `8661` _ktGraph · `8662` ktGraphemes · `8664` ktStyleOf · `8688` ktPaint
-  `8741` ktWords · `8748` ktStamp · `8749` longSfx
-  - `8778` *first-video look (thriller): black statement cards, gold words, tiny labels;*
-  `8780` cardParts · `8781` goldFill · `8783` drawStatement · `8789` lay · `8805` drawTinyLabel · `8811` tagColor · `8812` drawTags · `8824` drawHudCard
-  `8840` FRAME_SIZES · `8841` frameKeyFor · `8842` TRANS_KT · `8843` TRANS_LIFE · `8844` KT_MODES
-  - `9051` *kinetic typography: every word lands on its beat; the animation changes line to line*
-  `9360` buildLongPrompt · `9479` buildLongBulkPrompt
-  - `9499` *long video: UI (format picker, style, length, facts)*
-  `9500` LONG_TOPICS · `9505` isLongMode · `9507` curFmtLong · `9508` setRatio · `9514` syncRatioQuick · `9515` longOpts · `9519` renderTopicChips · `9523` syncLongUI
-  `9539` initLongUI · `9551` aiLong · `9556` clean · `9567` bulkWriteLong · `9573` setP · `9587` publishPackLong
-- `9620` **v3.9 — start chooser, AI write flow, clean share sheet**
-  `9621` SRC_TITLES · `9622` TOPIC_IDEAS · `9623` showSrc · `9632` initStartPick · `9642` initShareSheet · `9646` close · `9647` reset · `9652` send
-  `9664` ytKit
-- `9688` ▸ <script v6js> 
-  `9692` $q · `9693` norm
-  - `9694` *ⓘ info tips*
-  `9697` flat · `9698` texts · `9699` refresh · `9700` hide · `9701` show · `9709` tipFor · `9720` headingFor · `9729` helper
-  `9739` group · `9745` setupTips
-  - `9770` *publish text → tabs (YouTube | Facebook)*
-  `9771` setupPub
-  - `9782` *live step summaries (every step shows what the earlier ones produced)*
-  `9783` bnx · `9785` summaries
-  - `9799` *Ctrl+K command palette: every tool in one place*
-  `9800` go · `9801` click · `9802` then · `9803` need · `9822` buildPalette · `9834` render · `9843` mark · `9844` run
-  `9845` open · `9846` close · `9850` sidebarBtn · `9856` init
-- `9860` ▸ <script v7js> 
-  `9864` $ · `9865` has
-  - `9867` *⋯ menu: home, Islamic part, characters, help, settings*
-  - `9882` *phones: hide the empty preview until a story is open*
-  - `9888` *AI pane: "write in this app" or "bring from another AI" — both add to the library*
-  `9892` setWay · `9915` showAdded
-- `9936` ▸ <script v9js> 
-- `9937` **v9 — editor workspace. Moves the existing parts into one editor shell and adds a scene tim…**
-  `9942` $ · `9948` fmt · `9949` mk · `9950` SV
-  - `9952` *shell*
-  - `9983` *monitor: fit the frame into the space, keep its ratio*
-  `9985` fit
-  - `9995` *panel: a new step starts at its top*
-  - `9999` *export button in the top bar*
-  - `10007` *timeline*
-  `10011` seekTo · `10016` ticks · `10022` thumbs · `10026` build · `10053` setZoom · `10062` at
-  - `10068` *keep title, meta, playhead and buttons in step with the app*
-  `10070` tick
-- `10096` ▸ <script v10js> 
-- `10097` **v10 — preview card + library chips. Moves the ratio row and the play bar into the preview,…**
-  `10101` $
-- `10161` ▸ <script v11js> 
-- `10162` **v11 — moves long lists and rarely used controls into one-tap folds. Same elements, same id…**
-  `10165` $ · `10167` ic · `10168` newFold · `10173` foldify
-- `10228` ▸ <script v13thumb> 
-- `10229` **v13 — প্রো থাম্বনেল (all parts: story, Islamic short/long, explainer, every ratio)**
-  `10235` PRO_PAL · `10240` proClean · `10241` proNum · `10243` proSeries · `10253` proPlanTotal · `10260` proCopy · `10284` proWords · `10285` proWrap
-  `10294` proText · `10302` proPill · `10309` pillW · `10314` proRowsW · `10315` proDraw · `10333` gapOf · `10336` place · `10351` proBgShort
-  `10352` f · `10361` proBgKey · `10363` proBgLong · `10364` f · `10380` proUI · `10392` proShow · `10397` proFill · `10405` proPro
-  `10406` proEdFrame · `10407` proEdBuild · `10463` proEdSel · `10464` proEdSize · `10465` proEdPaint · `10474` proEdSave · `10475` proEditor · `10482` start
-- `10494` ▸ <script fx/motion.js> </script>
-- `10495` ▸ <script fx/shadow.js> </script>
-- `10497` ▸ <script v13js> 
-- `10508` ▸ <script life-series.js> </script>
-- `10509` ▸ <script lib-studio.js> </script>
-  - element ids (280): btnNew@1119 · stepBar@1120 · btnAccount@1129 · btnGallery@1130 · btnHelp@1131 · btnSettings@1132 · step1@1140 · fmtPick@1141 · ratioQuick@1145 · srcPick@1147 · srcBack@1153 · btnSrcBack@1153 · srcTabs@1154 · src-lib@1156 · libSearch@1157 · libRandom@1157 · libChips@1158 · libMineChip@1161 · libArea@1162 · libBook@1164 · libFilter@1165 · libCount@1166 · src-ai@1170 · aiNew@1171 · aiWay@1172 · pTopic@1178 · topicChips@1179 · longBox@1181 · longStyles@1183 · longMin@1190 · longWebRow@1191 · longWeb@1191 · longLink@1193 · longFactsRow@1194 · longFacts@1194 · way-app@1199 · genAI@1201 · genN@1202 · btnGen@1205 · btnGenStop@1206 · genBar@1207 · genArea@1210 · genBook@1211 · genLen@1212 · pStyle@1213 · pHero@1214 · way-ext@1220 · xN@1223 · xMinRow@1223 · xMin@1223 · btnXCopy@1224 · addIn@1228 · btnAddLib@1229 · btnAddPaste@1229 · addFiles@1229 · addedBox@1235 · btnSeeLib@1237 · genTopic@1242 · xTopic@1242 · xChips@1242 · xSub@1242 · extPromptCard@1242 · pArea@1243 · pBook@1243 · pLesson@1243 · pLen@1244 · btnRandom@1245 · usedInfo@1245 · aiTabs@1246 · ai-api@1247 · btnWrite@1247 · aiStatus@1247 · bulkN@1248 · btnBulkWrite@1248 · btnBulkStop@1248 · bulkBar@1248 · ai-chat@1249 · btnCopyPrompt@1249 · chatIn@1249 · btnChatParse@1249 · btnChatPaste@1249 · bulkNChat@1250 · btnCopyBulkPrompt@1250 · src-paste@1255 · storyIn@1256 · pasteKeep@1257 · btnParse@1258 · fileImport@1258 · btnCopyScript@1258 · src-add@1261 · myLibInfo@1262 · btnLibExport@1262 · btnLibClear@1262 · next1@1266 · step2@1270 · btnAutoDirect@1272 · charEditor@1274 · sceneOverview@1276 · sceneEditor@1277 · next2@1278 · step3@1282 · voiceTabs@1284 · v-tts@1285 · cVoice@1288 · btnVoices@1288 · btnVoicePrev@1288 · cVoiceId@1289 · cSpeed@1290 · cEmotion@1291 · sMultiVoice@1293 · charVoices@1294 · btnTTS@1295 · ttsInfo@1295 · ttsBar@1296 · v-rec@1299 · recPos@1301 · recDot@1301 · recPrev@1304 · recBtn@1305 · recPlay@1306 · recNext@1307 · recAuto@1309 · recAll@1311 · recInfo@1311 · v-upload@1313 · audioUpload@1315 · v-none@1318 · mStyle@1322 · mVol@1323 · musicUpload@1326 · musicInfo@1326 · mSfx@1327 · mPops@1328 · mVisuals@1329 · lenTabs@1332 · lenFixedRow@1334 · lenSec@1334 · lenNote@1334 · next3@1335 · step4@1339 · ratioPick@1343 · resPick@1350 · thumbPv@1352 · thumbText@1352 · thumbFields@1352 · btnThumbReset@1357 · coverTheme@1357 · btnThumbDl@1357 · sAutoThumb@1358 · btnExport@1361 · expProg@1362 · expBar@1364 · expEta@1365 · btnCancel@1365 · expDone@1368 · expDoneText@1369 · btnSaveAgain@1372 · btnShare@1373 · pubPack@1379 · pubYtTitle@1380 · ytText@1382 · btnCopyYT@1383 · pubYtTags@1384 · pubFb@1386 · aiNotes@1394 · aiSheet@1396 · btnAI@1397 · btnBackup@1397 · btnWav@1397 · pv@1404 · btnBigPlay@1405 · pvEmpty@1406 · pvLogo@1406 · pvRatio@1408 · btnPlay@1410 · seek@1411 · tLabel@1412 · btnMark@1413 · btnPvMin@1414 · dlgShare@1420 · btnShareX@1421 · platGrid@1422 · platBox@1429 · dlgSettings@1432 · setTabs@1434 · st-ch@1435 · logoPrev@1437 · sLogoFile@1439 · btnLogoClear@1439 · sSeries@1444 · sTagline@1445 · sLogo@1446 · sHero@1447 · sOutro@1449 · sWatermark@1450 · sWm@1451 · st-key@1453 · gKey@1458 · gModel@1459 · gLoad@1459 · gRemember@1461 · aKey@1464 · aModel@1465 · aLoad@1465 · aRemember@1467 · cKey@1470 · cModel@1471 · cRemember@1473 · btnForgetKey@1474 · st-vid@1476 · capFontPick@1478 · titleFontPick@1480 · accFontPick@1482 · sFontFile@1483 · sCapLook@1485 · sCapStyle@1486 · sCap@1487 · sGap@1488 · sCaptions@1490 · sProgress@1491 · sAnimStyle@1492 · sHookCard@1493 · sCinema@1494 · sCtxBg@1495 · sThumb@1496 · st-data@1498 · btnClearCache@1499 · btnClearUsed@1499 · btnLibExport2@1500 · libImportFile@1500 · btnAccount2@1501 · appInfo@1502 · appVer@1502 · btnCheckUpdate@1502 · dlgAccount@1507 · acOff@1509 · acApp@1510 · acOut@1511 · btnSignIn@1513 · acOutErr@1514 · acIn@1517 · acEmail@1518 · acSync@1519 · btnAcLib@1526 · btnSignOut@1526 · dlgChars@1531 · galFilter@1534 · galGrid@1535 · dlgHelp@1538 · toasts@1552 · edTop@9955 · edBrand@9955 · edMeta@9956 · edAct@9957 · edExport@9958 · edRail@9959 · edPanel@9960 · edStage@9961 · edTl@9962 · tlInfo@9963 · tlOut@9964 · tlZl@9965 · tlIn@9966 · tlScroll@9968 · tlInner@9968 · tlRuler@9968 · tlScenes@9969 · tlLines@9969 · tlPh@9969 · btnProEdit@10383 · btnProReset@10383 · peAll@10417 · peDone@10417 · peCv@10419 · peSel@10420 · peMinus@10420 · pePlus@10420 · peCenter@10420 · peOne@10420 · peHide@10420
+  `8742` ktWords · `8749` ktStamp · `8750` longSfx
+  - `8779` *first-video look (thriller): black statement cards, gold words, tiny labels;*
+  `8781` cardParts · `8782` goldFill · `8784` drawStatement · `8790` lay · `8806` drawTinyLabel · `8812` tagColor · `8813` drawTags · `8825` drawHudCard
+  `8841` FRAME_SIZES · `8842` frameKeyFor · `8843` TRANS_KT · `8844` TRANS_LIFE · `8845` KT_MODES
+  - `9052` *kinetic typography: every word lands on its beat; the animation changes line to line*
+  `9361` buildLongPrompt · `9480` buildLongBulkPrompt
+  - `9500` *long video: UI (format picker, style, length, facts)*
+  `9501` LONG_TOPICS · `9506` isLongMode · `9508` curFmtLong · `9509` setRatio · `9515` syncRatioQuick · `9516` longOpts · `9520` renderTopicChips · `9524` syncLongUI
+  `9540` initLongUI · `9552` aiLong · `9557` clean · `9568` bulkWriteLong · `9574` setP · `9588` publishPackLong
+- `9621` **v3.9 — start chooser, AI write flow, clean share sheet**
+  `9622` SRC_TITLES · `9623` TOPIC_IDEAS · `9624` showSrc · `9633` initStartPick · `9643` initShareSheet · `9647` close · `9648` reset · `9653` send
+  `9665` ytKit
+- `9689` ▸ <script v6js> 
+  `9693` $q · `9694` norm
+  - `9695` *ⓘ info tips*
+  `9698` flat · `9699` texts · `9700` refresh · `9701` hide · `9702` show · `9710` tipFor · `9721` headingFor · `9730` helper
+  `9740` group · `9746` setupTips
+  - `9771` *publish text → tabs (YouTube | Facebook)*
+  `9772` setupPub
+  - `9783` *live step summaries (every step shows what the earlier ones produced)*
+  `9784` bnx · `9786` summaries
+  - `9800` *Ctrl+K command palette: every tool in one place*
+  `9801` go · `9802` click · `9803` then · `9804` need · `9823` buildPalette · `9835` render · `9844` mark · `9845` run
+  `9846` open · `9847` close · `9851` sidebarBtn · `9857` init
+- `9861` ▸ <script v7js> 
+  `9865` $ · `9866` has
+  - `9868` *⋯ menu: home, Islamic part, characters, help, settings*
+  - `9883` *phones: hide the empty preview until a story is open*
+  - `9889` *AI pane: "write in this app" or "bring from another AI" — both add to the library*
+  `9893` setWay · `9916` showAdded
+- `9937` ▸ <script v9js> 
+- `9938` **v9 — editor workspace. Moves the existing parts into one editor shell and adds a scene tim…**
+  `9943` $ · `9949` fmt · `9950` mk · `9951` SV
+  - `9953` *shell*
+  - `9984` *monitor: fit the frame into the space, keep its ratio*
+  `9986` fit
+  - `9996` *panel: a new step starts at its top*
+  - `10000` *export button in the top bar*
+  - `10008` *timeline*
+  `10012` seekTo · `10017` ticks · `10023` thumbs · `10027` build · `10054` setZoom · `10063` at
+  - `10069` *keep title, meta, playhead and buttons in step with the app*
+  `10071` tick
+- `10097` ▸ <script v10js> 
+- `10098` **v10 — preview card + library chips. Moves the ratio row and the play bar into the preview,…**
+  `10102` $
+- `10162` ▸ <script v11js> 
+- `10163` **v11 — moves long lists and rarely used controls into one-tap folds. Same elements, same id…**
+  `10166` $ · `10168` ic · `10169` newFold · `10174` foldify
+- `10229` ▸ <script v13thumb> 
+- `10230` **v13 — প্রো থাম্বনেল (all parts: story, Islamic short/long, explainer, every ratio)**
+  `10236` PRO_PAL · `10241` proClean · `10242` proNum · `10244` proSeries · `10254` proPlanTotal · `10261` proCopy · `10286` proWords · `10287` proWrap
+  `10296` proText · `10304` proPill · `10311` pillW · `10316` proRowsW · `10317` proDraw · `10335` gapOf · `10338` place · `10353` proBgShort
+  `10354` f · `10363` proBgKey · `10365` proBgLong · `10366` f · `10382` proUI · `10394` proShow · `10399` proFill · `10407` proPro
+  `10408` proEdFrame · `10409` proEdBuild · `10465` proEdSel · `10466` proEdSize · `10467` proEdPaint · `10476` proEdSave · `10477` proEditor · `10484` start
+- `10496` ▸ <script v13first> 
+- `10497` **v13 — ১ম ফ্রেম এডিট: the video's first frame IS the thumbnail (Facebook etc. take it as th…**
+  `10503` start
+- `10517` ▸ <script v13rules> 
+- `10518` **v13 — one set of writing rules for every section (Gemini copy prompt + in-app AI):**
+  `10540` start
+- `10549` ▸ <script v13brand> 
+- `10550` **v13 — this section's logo + channel name follow the Gmail login to every device (PC ↔ phon…**
+  `10555` logoUrl · `10556` sig · `10558` localAt · `10559` small · `10562` push · `10567` apply
+- `10595` ▸ <script fx/motion.js> </script>
+- `10596` ▸ <script fx/shadow.js> </script>
+- `10597` ▸ <script elements.js> </script>
+- `10599` ▸ <script v13js> 
+- `10610` ▸ <script life-series.js> </script>
+- `10611` ▸ <script lib-studio.js> </script>
+  - element ids (280): btnNew@1119 · stepBar@1120 · btnAccount@1129 · btnGallery@1130 · btnHelp@1131 · btnSettings@1132 · step1@1140 · fmtPick@1141 · ratioQuick@1145 · srcPick@1147 · srcBack@1153 · btnSrcBack@1153 · srcTabs@1154 · src-lib@1156 · libSearch@1157 · libRandom@1157 · libChips@1158 · libMineChip@1161 · libArea@1162 · libBook@1164 · libFilter@1165 · libCount@1166 · src-ai@1170 · aiNew@1171 · aiWay@1172 · pTopic@1178 · topicChips@1179 · longBox@1181 · longStyles@1183 · longMin@1190 · longWebRow@1191 · longWeb@1191 · longLink@1193 · longFactsRow@1194 · longFacts@1194 · way-app@1199 · genAI@1201 · genN@1202 · btnGen@1205 · btnGenStop@1206 · genBar@1207 · genArea@1210 · genBook@1211 · genLen@1212 · pStyle@1213 · pHero@1214 · way-ext@1220 · xN@1223 · xMinRow@1223 · xMin@1223 · btnXCopy@1224 · addIn@1228 · btnAddLib@1229 · btnAddPaste@1229 · addFiles@1229 · addedBox@1235 · btnSeeLib@1237 · genTopic@1242 · xTopic@1242 · xChips@1242 · xSub@1242 · extPromptCard@1242 · pArea@1243 · pBook@1243 · pLesson@1243 · pLen@1244 · btnRandom@1245 · usedInfo@1245 · aiTabs@1246 · ai-api@1247 · btnWrite@1247 · aiStatus@1247 · bulkN@1248 · btnBulkWrite@1248 · btnBulkStop@1248 · bulkBar@1248 · ai-chat@1249 · btnCopyPrompt@1249 · chatIn@1249 · btnChatParse@1249 · btnChatPaste@1249 · bulkNChat@1250 · btnCopyBulkPrompt@1250 · src-paste@1255 · storyIn@1256 · pasteKeep@1257 · btnParse@1258 · fileImport@1258 · btnCopyScript@1258 · src-add@1261 · myLibInfo@1262 · btnLibExport@1262 · btnLibClear@1262 · next1@1266 · step2@1270 · btnAutoDirect@1272 · charEditor@1274 · sceneOverview@1276 · sceneEditor@1277 · next2@1278 · step3@1282 · voiceTabs@1284 · v-tts@1285 · cVoice@1288 · btnVoices@1288 · btnVoicePrev@1288 · cVoiceId@1289 · cSpeed@1290 · cEmotion@1291 · sMultiVoice@1293 · charVoices@1294 · btnTTS@1295 · ttsInfo@1295 · ttsBar@1296 · v-rec@1299 · recPos@1301 · recDot@1301 · recPrev@1304 · recBtn@1305 · recPlay@1306 · recNext@1307 · recAuto@1309 · recAll@1311 · recInfo@1311 · v-upload@1313 · audioUpload@1315 · v-none@1318 · mStyle@1322 · mVol@1323 · musicUpload@1326 · musicInfo@1326 · mSfx@1327 · mPops@1328 · mVisuals@1329 · lenTabs@1332 · lenFixedRow@1334 · lenSec@1334 · lenNote@1334 · next3@1335 · step4@1339 · ratioPick@1343 · resPick@1350 · thumbPv@1352 · thumbText@1352 · thumbFields@1352 · btnThumbReset@1357 · coverTheme@1357 · btnThumbDl@1357 · sAutoThumb@1358 · btnExport@1361 · expProg@1362 · expBar@1364 · expEta@1365 · btnCancel@1365 · expDone@1368 · expDoneText@1369 · btnSaveAgain@1372 · btnShare@1373 · pubPack@1379 · pubYtTitle@1380 · ytText@1382 · btnCopyYT@1383 · pubYtTags@1384 · pubFb@1386 · aiNotes@1394 · aiSheet@1396 · btnAI@1397 · btnBackup@1397 · btnWav@1397 · pv@1404 · btnBigPlay@1405 · pvEmpty@1406 · pvLogo@1406 · pvRatio@1408 · btnPlay@1410 · seek@1411 · tLabel@1412 · btnMark@1413 · btnPvMin@1414 · dlgShare@1420 · btnShareX@1421 · platGrid@1422 · platBox@1429 · dlgSettings@1432 · setTabs@1434 · st-ch@1435 · logoPrev@1437 · sLogoFile@1439 · btnLogoClear@1439 · sSeries@1444 · sTagline@1445 · sLogo@1446 · sHero@1447 · sOutro@1449 · sWatermark@1450 · sWm@1451 · st-key@1453 · gKey@1458 · gModel@1459 · gLoad@1459 · gRemember@1461 · aKey@1464 · aModel@1465 · aLoad@1465 · aRemember@1467 · cKey@1470 · cModel@1471 · cRemember@1473 · btnForgetKey@1474 · st-vid@1476 · capFontPick@1478 · titleFontPick@1480 · accFontPick@1482 · sFontFile@1483 · sCapLook@1485 · sCapStyle@1486 · sCap@1487 · sGap@1488 · sCaptions@1490 · sProgress@1491 · sAnimStyle@1492 · sHookCard@1493 · sCinema@1494 · sCtxBg@1495 · sThumb@1496 · st-data@1498 · btnClearCache@1499 · btnClearUsed@1499 · btnLibExport2@1500 · libImportFile@1500 · btnAccount2@1501 · appInfo@1502 · appVer@1502 · btnCheckUpdate@1502 · dlgAccount@1507 · acOff@1509 · acApp@1510 · acOut@1511 · btnSignIn@1513 · acOutErr@1514 · acIn@1517 · acEmail@1518 · acSync@1519 · btnAcLib@1526 · btnSignOut@1526 · dlgChars@1531 · galFilter@1534 · galGrid@1535 · dlgHelp@1538 · toasts@1552 · edTop@9956 · edBrand@9956 · edMeta@9957 · edAct@9958 · edExport@9959 · edRail@9960 · edPanel@9961 · edStage@9962 · edTl@9963 · tlInfo@9964 · tlOut@9965 · tlZl@9966 · tlIn@9967 · tlScroll@9969 · tlInner@9969 · tlRuler@9969 · tlScenes@9970 · tlLines@9970 · tlPh@9970 · btnProEdit@10385 · btnProReset@10385 · peAll@10419 · peDone@10419 · peCv@10421 · peSel@10422 · peMinus@10422 · pePlus@10422 · peCenter@10422 · peOne@10422 · peHide@10422
 
 ## cloud-core.js  (58 lines)
 
@@ -535,7 +545,7 @@ Open code with Read(file, offset=line, limit=…) — never read a big file whol
   `709` css · `742` domTweaks · `814` keyNote
   - `816` *patch the Story engine (runs right before init)*
 
-## islamic/art.js  (452 lines)
+## islamic/art.js  (456 lines)
 - `1` **TF Story Studio — ইসলামিক অংশ: ছবি, লেখা ও আবহ**
   - `11` *one-time settings update for this part (before the main script reads them)*
   - `30` *people in salah (faceless; full body: both hands with fingers, legs and feet in every pose…*

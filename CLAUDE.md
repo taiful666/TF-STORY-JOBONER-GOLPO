@@ -114,19 +114,19 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
 
 <!-- AUTO:START — rewritten by tools/autoupdate.py on every push; do not edit by hand -->
 ## Current state (auto)
-- Updated: 2026-11-23 20:01 · commit `6684ccd`
-- APK version: 5.2.<build> · APP_VERSION 5.1.0 · sw cache tf-story-v5.9.14
-- File sizes (lines): index.html 10512 · home.html 322 · islamic/index.html 5009 · islamic/story.js 877 · islamic/art.js 452 · islamic/art2.js 555 · explainer/part.js 1205 · explainer/paper.js 671 · long-visuals.js 941 · long-library.js 29 · fx/motion.js 252 · fx/shadow.js 167 · cloud-core.js 58
-- Other web files (new? add to CLAUDE.md tables): islamic/long-series.js, islamic/long-stories.js, islamic/long.js, islamic/mid-series.js, lib-studio.js, life-series.js
+- Updated: 2026-11-23 20:47 · commit `a5d4959`
+- APK version: 5.2.<build> · APP_VERSION 5.1.0 · sw cache tf-story-v5.9.19
+- File sizes (lines): index.html 10614 · home.html 335 · islamic/index.html 5009 · islamic/story.js 877 · islamic/art.js 456 · islamic/art2.js 555 · explainer/part.js 1205 · explainer/paper.js 671 · long-visuals.js 941 · long-library.js 29 · fx/motion.js 252 · fx/shadow.js 167 · cloud-core.js 58
+- Other web files (new? add to CLAUDE.md tables): elements.js, islamic/long-series.js, islamic/long-stories.js, islamic/long.js, islamic/mid-series.js, lib-studio.js, life-series.js
 - Latest changes (full list: CHANGELOG.md) — read these before starting; newer facts here win over older text above:
+  - 2026-11-23 · লোগো ও চ্যানেলের নাম Gmail লগইনে সব ডিভাইসে সিঙ্ক: পিসিতে দিলে ফোনের অ্যাপেও (সেকশন আলাদা আলাদা — ইসলামিক, জীবন পাঠ, এক্সপ্লেনার) · index.html, sw.js · `a5d4959`
+  - 2026-11-23 · সব সেকশনের প্রম্পটে (Gemini কপি + অ্যাপের AI) একই নিয়ম: গল্পের মূল ভাবের প্রফেশনাল নাম = থাম্বনেলের বড় লেখা, ধারাবাহিকে 'নাম | পর্ব k', ক্লিকবেইট বাদ, দৃশ্যে +জিনিস, চ্যানেলের নাম ধরে CTA; প্রো থাম্বনেল সব সেকশনে, টিজার-লাইন বাদ; সেটিংসে সেকশন-ভিত্তিক লোগোর নির্দেশ · index.html, lib-studio.js, sw.js · `fb6de39`
+  - 2026-11-23 · দৃশ্যের এলিমেন্ট: ৩৩টা নতুন জিনিস (টেবিল, চেয়ার, আলমারি, খাট, প্রদীপ, হারিকেন, ফাইলের স্তূপ, পতাকা, কম্পিউটার, সিন্দুক, কলসি, চুলা, টিউবওয়েল, ট্রাক, অ্যাম্বুলেন্স, জেলের শিক …), গল্পের শব্দ দেখে দৃশ্যে নিজে বসে, '## জায়গা+জিনিস' লেখা যায়; নতুন জায়গা জেলখানা, থানা, অফিসারের কক্ষ, ভূমি অফিস, সালিশ, মাটির ঘর, গোয়ালঘর, হারিকেন/প্রদীপের ঘর; নতুন হাতের জিনিস ফাইল, কলম, মোমবাতি, হারিকেন, চেক, সনদ, সিল, লাঠি…; AI প্রম্পটে তালিকা — সব পার্টে · elements.js · .github/workflows/android.yml, elements.js, index.html, islamic/art.js, sw.js, tools/check.py · `d5f5c4d`
+  - 2026-11-23 · ভিডিওর ১ম ফ্রেম (থাম্বনেল) এক্সপোর্টের আগেই প্রিভিউতে '✎ ১ম ফ্রেম এডিট' বোতামে সরাসরি এডিট — লেখা বদলানো, সরানো, বড়-ছোট; সব সেকশন, সব রেশিও · index.html, sw.js · `8f185ef`
+  - 2026-11-23 · হোম: ইসলামিক চাপলে আলাদা স্ক্রিনে (ফিরে যাওয়ার বোতাম) গল্পের ভিডিও / পোস্ট মেকার, ড্রপডাউন নয়; ক্যাপশন ও থাম্বনেলে হলুদের ওপর কালো লেখা বাদ — গোল্ড বক্স গাঢ় + সোনালি ফ্রেম, মার্কার গাঢ় লাল + সাদা লেখা, পর্ব ব্যাজ গাঢ় · home.html, index.html, sw.js · `e398dea`
   - 2026-11-23 · থাম্বনেল: ধারাবাহিকে গল্পের (সিরিজের) নাম সবচেয়ে বড় শিরোনাম; 'পর্ব k / N' ছোট ব্যাজ, পর্বের নাম নিচে ছোট লাইনে — সব সেকশন, সব রেশিও · index.html, sw.js · `64fcba5`
   - 2026-11-23 · থাম্বনেল: পর্ব ব্যাজ বড় (আলাদা লাইনে), প্রতিটা লেখা আঙুল/মাউসে টেনে সরানো ও কোণ/দুই আঙুলে বড়-ছোট করার এডিটর — সব সেকশন, সব রেশিও, মোবাইল ও পিসি · index.html, sw.js · `120bbff`
   - 2026-11-23 · থাম্বনেল: জীবন পাঠ ধারাবাহিকেও মোট পর্ব ধরে 'পর্ব k / N' ও 'শেষ পর্ব' ব্যাজ · index.html · `ff31b47`
   - 2026-11-23 · থাম্বনেল: নতুন প্রো ডিজাইন সব সেকশনে (গল্প, ইসলামিক শর্ট/লং, এক্সপ্লেনার, সব রেশিও) — মাঝখানে পরিষ্কার বড় লেখা, অটো অর্থবহ শিরোনাম, পর্ব ১/২/শেষ পর্ব ব্যাজ, প্রতিটা লেখা হাতে বদলানোর ঘর · index.html, lib-studio.js, sw.js · `a8fe611`
   - 2026-11-23 · পিসি/বড় স্ক্রিনে পুরো অ্যাপ স্ক্রিনের মাপে নিজে থেকে বড় হয় (১৩৬৬-এ আগের মতো, ১০৮০p-তে ১.২৫×, ১৪৪০p-তে ১.৬৫×, জানালা ছোট-বড় করলে সাথে সাথে), ক্যানভাস ঝকঝকে; মোবাইল/ট্যাব আগের মোবাইল লেআউটে — অ্যাপ, হোম, পোস্ট মেকার · home.html, index.html, islamic/index.html · `587e535`
-  - 2026-11-23 · সব সেকশন মিনিমাল (মোবাইল): AI পেনের 'অন্য AI থেকে আনুন' এখন একই ছোট Gemini কার্ড, লং ভিডিওর ধরন ছোট চিপ, লিংক/তথ্য ভাঁজে, ব্যাখ্যা-লেখা বাদ; ইসলামিক লং সুইচ এক লাইনে (একক লং/ধারাবাহিক · বড়/মাঝারি) · index.html, islamic/long.js, lib-studio.js, life-series.js · `d110da0`
-  - 2026-11-23 · Gemini কার্ড মিনিমাল: পর্ব/মিনিট/ক্যাটাগরি এক লাইনে ছোট চিপ, ⚙ আরও অপশন, পাশাপাশি 'প্রম্পট কপি' + 'পেস্ট করে যোগ', লম্বা লেখা-নির্দেশ বাদ; জীবন পাঠ সুইচ এক লাইনে (একক লং/ধারাবাহিক · বড়/মাঝারি) · lib-studio.js, life-series.js · `696fc78`
-  - 2026-11-23 · জীবন পাঠ লং লাইব্রেরিতে ইসলামিকের মতো একক লং / ধারাবাহিক (বড় · মাঝারি ৩×৫ মিনিট): আসল ধারাবাহিক তালিকা পর্বসহ, ○/✓ ব্যবহৃত, এনগেজমেন্ট প্রম্পট (কুইজ, cliffhanger, সাবস্ক্রাইব/ফলো/কমেন্ট), বাইরের AI-এর পুরো ধারাবাহিক এক পেস্টে জমা, key থাকলে অ্যাপেই পর্ব লেখা · .github/workflows/android.yml, index.html, lib-studio.js, life-series.js, sw.js · `f175c86`
-  - 2026-11-23 · লাইব্রেরি স্টুডিও প্রম্পট: Gemini সব পর্ব/গল্প একটাই কোড ব্লকে লিখবে (এক ক্লিকে কপি, একবার পেস্টে সব পর্ব যোগ); যোগের পরও কার্ড খোলা থাকে পরের পেস্টের জন্য · lib-studio.js · `efc0afa`
-  - 2026-11-23 · লাইব্রেরি স্টুডিও সহজ: ৩ ধাপ (বাছাই → প্রম্পট কপি → এক চাপে পেস্ট করে যোগ), Gemini-র পুরো উত্তর একবারে পেস্টেই সব পর্ব আলাদা হয়ে জমা, পেস্ট করলেই অটো যোগ, অ্যান্ড্রয়েড ক্লিপবোর্ড, বাকি পর্বের নির্দেশ · android/app/src/main/java/com/taiful/tfstory/WebBridge.kt, lib-studio.js · `7515245`
 <!-- AUTO:END -->
