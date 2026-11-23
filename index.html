@@ -8620,7 +8620,7 @@ async function init() {
   if (!IS_ANDROID && 'serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => { });
   // Android Back button: close dialog → previous step → (app asks to press again to exit)
   try { localStorage.setItem('tf_suite_last', TF_ISL ? 'islamic' : TF_EXP ? 'explainer' : 'story'); } catch (e) { }
-  window.TFBack = () => { const d = document.querySelector('dialog[open]'); if (d) { d.close(); return true; } if (curStep > 1) { goStep(curStep - 1); return true; } if (IS_ANDROID) { location.href = 'home.html'; return true; } return false; };
+  window.TFBack = () => { if (window.tfNavBack) return window.tfNavBack(IS_ANDROID); const d = document.querySelector('dialog[open]'); if (d) { d.close(); return true; } if (curStep > 1) { goStep(curStep - 1); return true; } if (IS_ANDROID) { location.href = 'home.html'; return true; } return false; };
   if (IS_ANDROID) { document.body.classList.add('in-app'); const v = (() => { try { return window.TFAndroid.appVersion(); } catch (e) { return ''; } })(); $('appInfo').classList.remove('hidden'); $('appVer').textContent = 'অ্যাপ ভার্সন: ' + v; $('btnCheckUpdate').onclick = () => window.TFAndroid.checkUpdate(); $('shareHint').textContent = 'ভিডিও ফোনের গ্যালারিতে (Movies › TF Story Studio) সেভ হয়েছে। "শেয়ার" চাপলে Drive, Facebook Reels/পোস্ট, WhatsApp — যেকোনোটা বেছে নিন।'; }
   try { await Promise.all(['400 40px TFBody', '700 40px TFBody', '400 40px TFKalp', '400 40px TFAdorsho', '400 40px TFBensen', '700 40px TFCap', '700 40px TFDisp', '800 40px TFDisp', '700 40px TFAtma', '700 40px TFMina', '400 40px TFTiro', '700 40px TFSerif', '400 40px TFGalada', '700 40px TFPlay'].map(f => document.fonts.load(f, 'অআকখ২৫ Ab'))); } catch (e) { }
   try { const cf = await IDB.get('kv', 'customFont'); if (cf && cf.bytes) { await loadCustomFont(cf.bytes, cf.name); applyFonts(); buildFontPickers(); } } catch (e) { }
@@ -10605,6 +10605,50 @@ function proBgLong(r) {
     const d = el('details', { class: 'v13fold' }, el('summary', { text: '＋ লিংক, তথ্য, ইন্টারনেট (ঐচ্ছিক)' }));
     box.append(d); rows.forEach(r => d.append(r));
   } catch (e) { console.warn('v13', e); }
+})();
+</script>
+<style id="v14nav">
+/* v14 — always-visible ← back and ⌂ home in the top bar, every section */
+.tfnav{display:flex;align-items:center;gap:4px;flex:none}
+.tfnav button{display:inline-flex;align-items:center;justify-content:center;gap:5px;height:36px;min-width:36px;padding:0 10px;border-radius:9px;border:1px solid var(--e-line2,rgba(23,32,27,.18));background:var(--e-surf,#fff);color:inherit;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tfnav button:hover{background:var(--e-soft,#EDF0EB)}
+.tfnav button:active{transform:scale(.96)}
+.tfnav svg{width:19px;height:19px;flex:none}
+@media (max-width:1023px){
+  #edBrand{display:none!important}
+  .tfnav{padding-left:8px;gap:6px}
+  .tfnav button{width:38px;height:38px;padding:0}
+  .tfnav button span{display:none}
+}
+</style>
+<script id="v14nav">
+/* v14 — back / home buttons. Back: open dialog → ⋯ menu → previous step → step-1 sub-screen (library / paste / AI) → the page this section was opened from (home, or home's Islamic screen). Home: main start page. Android hardware Back uses the same chain. */
+(function () {
+  try {
+    const parent = TF_ISL ? 'home.html#islamic' : 'home.html';
+    const goHome = () => { location.href = 'home.html'; };
+    window.tfNavBack = function (atRootLeave) {
+      const d = document.querySelector('dialog[open]'); if (d) { try { d.close(); } catch (e) { d.removeAttribute('open'); } return true; }
+      const tools = document.querySelector('.tools.open'); if (tools) { tools.classList.remove('open'); return true; }
+      if (typeof curStep !== 'undefined' && curStep > 1) { goStep(curStep - 1); window.scrollTo(0, 0); return true; }
+      if (typeof app !== 'undefined' && app.srcView && typeof showSrc === 'function') { showSrc(null); window.scrollTo(0, 0); return true; }
+      if (atRootLeave === false) return false;
+      location.href = parent; return true;
+    };
+    const svgBack = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const nav = document.createElement('div'); nav.className = 'tfnav'; nav.id = 'tfNav';
+    nav.innerHTML = '<button type="button" id="tfNavBack" title="পেছনে যান" aria-label="পেছনে যান">' + svgBack + '<span>পেছনে</span></button>'
+      + '<button type="button" id="tfNavHome" title="হোম পেজ" aria-label="হোম পেজ"><svg aria-hidden="true"><use href="#i-home"/></svg><span>হোম</span></button>';
+    nav.querySelector('#tfNavBack').addEventListener('click', () => window.tfNavBack(true));
+    nav.querySelector('#tfNavHome').addEventListener('click', goHome);
+    const mount = () => {
+      const brand = document.getElementById('edBrand'), top = document.getElementById('edTop') || document.querySelector('header.top');
+      if (brand && brand.parentNode) brand.after(nav); else if (top) top.prepend(nav);
+    };
+    mount();
+    // the editor shell may be built later: re-mount if the bar appears after us
+    if (!document.getElementById('edTop')) { let n = 0; const t = setInterval(() => { if (document.getElementById('edTop') || ++n > 40) { clearInterval(t); mount(); } }, 150); }
+  } catch (e) { console.warn('v14nav', e); }
 })();
 </script>
 <script src="life-series.js"></script>
