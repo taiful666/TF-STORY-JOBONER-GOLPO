@@ -47,6 +47,8 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
 | `long-library.js` | 13 built-in long stories |
 | `long-visuals.js` | long-video concept visuals (`[scene: kind/…]`) |
 | `islamic/story.js`, `art.js`, `art2.js`, `stories-1..3.js` | Islamic story-video part (patches the Story engine) |
+| `islamic/long-stories.js` | `window.ISL_LONG_STORIES`: ১২টা বিল্ট-ইন ইসলামিক একক লং গল্প (ids `isl_long_b01..b12`, ৬ ক্ষেত্রে ২টা করে, ফরম্যাট `long`)। long.js এগুলো একক তালিকার শুরুতে দেখায়, মোছা যায় না |
+| `islamic/long-series.js` | `window.ISL_LONG_SERIES`: ১২টা বিল্ট-ইন ইসলামিক ধারাবাহিক (ids `isl_ser_b01..b12`, ৬ ক্ষেত্রে ২টা করে, প্রতিটা ৩ পর্ব, `{id,cat,title,mins,parts:[{t,s,txt}]}`)। long.js `preSeries`/`findPart` দিয়ে এগুলো ধারাবাহিক তালিকার শেষে দেখায়; মোছা/পুনর্লিখন যায় না, ○/✓ ব্যবহৃত ট্র্যাকিং চলে |
 | `islamic/long.js` | Islamic LONG videos (16:9): step-1 শর্ট/লং switch (`#fmtPick`), long library `#islLongBox` with একক লং গল্প (ids `isl_long_*`, by category) and ধারাবাহিক = series plan (`isl_ser_*`, json) + parts (`isl_ser_*_p<k>`); AI plan → part-by-part writing, each part ends with next-part + subscribe CTA. Uses `window.ISL_API` from story.js |
 | `islamic/index.html` | TF Post Maker (Islamic picture cards + reel studio) — separate app |
 | `explainer/part.js`, `paper.js` | explainer-video part (`?part=explainer`) |
