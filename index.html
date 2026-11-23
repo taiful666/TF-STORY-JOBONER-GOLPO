@@ -8457,7 +8457,7 @@ const Cloud = {
   applyLib(q) {
     this.meta.lib = q.metadata; if (!q.metadata.fromCache) this.seen.lib = true;
     if (this.seen.lib) { // until the server has answered once, never drop anything saved on this device
-      const remote = q.docs.filter(d => cloudMine(d.id)).map(d => ({ id: d.id.slice(CPFX.length), txt: d.get('txt'), at: d.get('at') || 0 })).filter(x => typeof x.txt === 'string').sort((a, b) => a.at - b.at);
+      const remote = q.docs.filter(d => cloudMine(d.id) && !/__cfg$/.test(d.id)).map(d => ({ id: d.id.slice(CPFX.length), txt: d.get('txt'), at: d.get('at') || 0 })).filter(x => typeof x.txt === 'string').sort((a, b) => a.at - b.at);
       const sig = l => l.map(x => x.id + ':' + x.txt.length).join(',');
       if (sig(remote) !== sig(USERLIB)) { USERLIB = remote; IDB.set('kv', 'userLib', USERLIB); rebuildLIB(); renderLib(); updateMyLibInfo(); fillLibFilters(); }
       this.remoteIds = new Set(remote.map(x => x.id));
@@ -10544,6 +10544,52 @@ function proBgLong(r) {
     const lp = $('logoPrev'); if (lp && !$('secNote')) { const n = el('p', { id: 'secNote', class: 'muted sm', text: `এই লোগো ও চ্যানেলের নাম শুধু "${SEC}" সেকশনের ভিডিও আর থাম্বনেলে বসবে। অন্য সেকশনের জন্য সেই সেকশনে গিয়ে আলাদা লোগো দিন।` }); const box = lp.closest('.logobox'); if (box) box.before(n); }
   }
   if (document.readyState === 'complete') setTimeout(start, 700); else window.addEventListener('load', () => setTimeout(start, 700));
+})();
+</script>
+<script id="v13brand">
+/* ===================== v13 — this section's logo + channel name follow the Gmail login to every device (PC ↔ phone app).
+   Stored as one extra doc in users/{uid}/stories: "__cfg" (story part), "isl___cfg", "exp___cfg" — so the existing Firestore
+   rules allow it ({txt, at}); the library ignores it (applyLib skips /__cfg$/). Newest change wins (at = time of the edit). ===================== */
+(function () {
+  const KEYS = ['series', 'tagline', 'logo', 'hero', 'outro', 'watermark', 'wm'], DOC = CPFX + '__cfg', ATK = LK('tf_logo') + '_brand_at';
+  const logoUrl = () => { try { return localStorage.getItem(LK('tf_logo')) || ''; } catch (e) { return ''; } };
+  const sig = () => JSON.stringify([logoUrl().length, logoUrl().slice(-64), KEYS.map(k => S[k])]);
+  let last = null, ready = false, unsub = null, busy = false;
+  const localAt = () => +(localStorage.getItem(ATK) || 0), setAt = v => { try { localStorage.setItem(ATK, String(v)); } catch (e) { } };
+  function small(url) { // cloud copy of the logo: webp, small enough for one doc
+    return new Promise(res => { if (!url) return res(''); if (url.length < 150000) return res(url); const im = new Image(); im.onload = () => { const cv = document.createElement('canvas'); cv.width = cv.height = 256; cv.getContext('2d').drawImage(im, 0, 0, 256, 256); let q = .9, out = cv.toDataURL('image/webp', q); while (out.length > 150000 && q > .3) { q -= .15; out = cv.toDataURL('image/webp', q); } res(out.length < 190000 ? out : ''); }; im.onerror = () => res(''); im.src = url; });
+  }
+  async function push() {
+    if (!Cloud.user || busy) return; busy = true;
+    try { const at = Date.now(), data = { logoImg: await small(logoUrl()), at }; KEYS.forEach(k => data[k] = S[k]); await Cloud.ref().collection('stories').doc(DOC).set({ txt: JSON.stringify(data), at }); setAt(at); last = sig(); }
+    catch (e) { console.warn('brand push', e); } busy = false;
+  }
+  async function apply(r) {
+    KEYS.forEach(k => { if (r[k] !== undefined) S[k] = r[k]; }); saveSettings();
+    try { if (r.logoImg) localStorage.setItem(LK('tf_logo'), r.logoImg); else localStorage.removeItem(LK('tf_logo')); } catch (e) { }
+    try { await setLogoFromDataURL(r.logoImg || ''); } catch (e) { } if (!r.logoImg) try { LOGO_IMG = null; } catch (e) { }
+    [['sSeries', 'series'], ['sTagline', 'tagline'], ['sLogo', 'logo'], ['sHero', 'hero'], ['sOutro', 'outro'], ['sWm', 'wm']].forEach(([id, k]) => { const e = $(id); if (e && document.activeElement !== e && S[k] != null) e.value = S[k]; });
+    const w = $('sWatermark'); if (w) w.checked = S.watermark !== false;
+    try { showLogoUI(); } catch (e) { } try { if (app.renderer) app.renderer._cov = null; drawAt(app.t); thumbSoon(); } catch (e) { }
+    setAt(r.at || Date.now()); last = sig();
+  }
+  const _on = Cloud.onUser;
+  Cloud.onUser = function (u) {
+    const r = _on.apply(this, arguments); ready = false; if (unsub) { try { unsub(); } catch (e) { } unsub = null; }
+    if (u && this.db) {
+      unsub = this.ref().collection('stories').doc(DOC).onSnapshot(d => {
+        if (d.metadata.hasPendingWrites || d.metadata.fromCache) return;
+        if (d.exists) { let x = null; try { x = JSON.parse(d.get('txt')); } catch (e) { } if (x && (x.at || 0) > localAt()) apply(x); else if (x && (x.at || 0) < localAt()) push(); else if (last === null) last = sig(); }
+        else if (logoUrl() || (S.series && S.series !== DEFAULTS.series)) push(); // nothing in the cloud yet: send what this device has
+        else last = sig();
+        ready = true;
+      }, e => console.warn('brand', e));
+      this.unsub.push(() => { if (unsub) { try { unsub(); } catch (e) { } unsub = null; } });
+    }
+    return r;
+  };
+  // any local change of logo / channel name / tagline … goes up (checked every 2 s, cheap)
+  setInterval(() => { if (ready && Cloud.user && last !== null && sig() !== last) push(); }, 2000);
 })();
 </script>
 <script src="fx/motion.js"></script>
