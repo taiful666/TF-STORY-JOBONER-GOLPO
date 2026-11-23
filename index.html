@@ -10278,7 +10278,7 @@ function proCopy(st) {
   const cta = ser ? (ser.k === 1 ? 'শুরু থেকে দেখুন' : ser.last ? 'সমাপ্তিটা দেখুন' : 'গল্প এগিয়ে চলছে · দেখুন') : ({ story: 'পুরো গল্পটা দেখুন', isl: 'পুরো গল্পটা দেখুন', exp: 'পুরোটা বুঝে নিন' })[kind];
   const auto = { tag, ep, h, sub, cta }, out = {};
   Object.keys(auto).forEach(k => { const v = String(man[k] == null ? '' : man[k]).trim(); out[k] = v === '-' ? '' : (v || auto[k]); });
-  out.auto = auto; return out;
+  out.auto = auto; out.lay = (man.lay && typeof man.lay === 'object') ? man.lay : {}; return out;
 }
 /* words with {highlight} flags; "|" splits forced lines */
 function proWords(s) { return String(s || '').split('|').map(seg => covParts(seg)).filter(l => l.length); }
@@ -10307,57 +10307,65 @@ function proPill(c, text, cx, cy, size, bg, fg, line, play) {
   c.fillStyle = fg; c.textAlign = 'left'; c.textBaseline = 'alphabetic'; c.fillText(text, x + size * .75 + pw, cy + size * .36); c.restore(); return w;
 }
 function pillW(c, text, size, play) { c.font = `800 ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; return c.measureText(text).width + size * 1.5 + (play ? size * 1.8 * .9 : 0); }
-/* the whole cover on a FW×FH canvas; bg(c) paints the picture */
+/* the whole cover on a FW×FH canvas; bg(c) paints the picture (cached, so dragging in the editor stays smooth).
+   Every text piece is its own element (tag, ep, h, sub, cta, logo): story.cover.pro.lay[key] = {dx, dy (fraction of the frame), s (scale)}.
+   The final boxes go to PRO_BOXES for the drag editor. */
+let PRO_BOXES = null, PRO_BG = null;
+function proRowsW(c, rows, sp, size, weight) { c.font = `${weight} ${size}px ${FONT_BN}, ${FONT_FALLBACK}`; return Math.max(0, ...rows.map(r => r.reduce((a, p) => a + c.measureText(p.w).width, 0) + sp * (r.length - 1))); }
 function proDraw(c, FW, FH, st, bg) {
-  const pal = PRO_PAL[PRO_KIND], cp = proCopy(st), Sx = (typeof S !== 'undefined' ? S : {});
+  const pal = PRO_PAL[PRO_KIND], cp = proCopy(st), Sx = (typeof S !== 'undefined' ? S : {}), LAY = cp.lay || {};
   const u = Math.min(FW, FH) / 1080, land = FW > FH * 1.15, sq = !land && FH < FW * 1.4;
   c.save(); rect(c, 0, 0, FW, FH, pal.bg);
-  try { if (bg) bg(c); } catch (e) { console.warn('pro bg', e); }
+  if (bg) { const key = FW + 'x' + FH + '|' + (bg.key || ''); if (!PRO_BG || PRO_BG.key !== key || !bg.key) { const cv = document.createElement('canvas'); cv.width = FW; cv.height = FH; const x = cv.getContext('2d', { alpha: false }); rect(x, 0, 0, FW, FH, pal.bg); try { bg(x); } catch (e) { console.warn('pro bg', e); } PRO_BG = { key, cv }; } c.drawImage(PRO_BG.cv, 0, 0, FW, FH); }
   c.save(); c.globalCompositeOperation = 'soft-light'; c.fillStyle = pal.tint; c.fillRect(0, 0, FW, FH); c.restore();
-  // a soft dark band behind the text block (middle), lighter at top/bottom so the picture still shows
   const b = pal.band, g = c.createLinearGradient(0, 0, 0, FH);
   g.addColorStop(0, `rgba(${b},.30)`); g.addColorStop(.22, `rgba(${b},.52)`); g.addColorStop(.5, `rgba(${b},.80)`); g.addColorStop(.78, `rgba(${b},.52)`); g.addColorStop(1, `rgba(${b},.35)`);
   c.fillStyle = g; c.fillRect(0, 0, FW, FH);
   const vg = c.createRadialGradient(FW / 2, FH / 2, Math.min(FW, FH) * .35, FW / 2, FH / 2, Math.hypot(FW, FH) * .62); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.45)'); c.fillStyle = vg; c.fillRect(0, 0, FW, FH);
-  // sizes
-  const maxW = land ? FW * .80 : FW * .87, chip = (land ? 40 : 42) * u, hs0 = (land ? 128 : sq ? 120 : 132) * u, subS = (land ? 50 : 50) * u, ctaS = (land ? 38 : 40) * u;
-  // headline fit: prefer ≤2 rows big, else ≤3 rows
+  // sizes (episode badge is big on purpose: "পর্ব ২" must read at a glance)
+  const maxW = land ? FW * .80 : FW * .87, chip = (land ? 42 : 44) * u, epS = (land ? 64 : 70) * u, hs0 = (land ? 130 : sq ? 122 : 134) * u, subS = 56 * u, ctaS = (land ? 42 : 44) * u;
   const segs = proWords(cp.h); let hs = hs0, H1 = proWrap(c, segs, hs, maxW, 800);
   for (const lim of [2, 3]) { hs = hs0; H1 = proWrap(c, segs, hs, maxW, 800); while ((H1.rows.length > lim || !H1.ok) && hs > hs0 * (lim === 2 ? .78 : .5)) { hs -= 4 * u; H1 = proWrap(c, segs, hs, maxW, 800); } if (H1.rows.length <= lim && H1.ok) break; }
   if (H1.rows.length > 3) H1.rows = H1.rows.slice(0, 3);
   let ss = subS, SB = proWrap(c, proWords(proClean(cp.sub)), ss, maxW * .92, 600); while (SB.rows.length > 2 && ss > subS * .7) { ss -= 2 * u; SB = proWrap(c, proWords(proClean(cp.sub)), ss, maxW * .92, 600); } SB.rows = SB.rows.slice(0, 2);
-  const gap = 34 * u, chipH = (cp.tag || cp.ep) ? chip * 1.8 : 0, headH = H1.rows.length * hs * 1.2, barH = 10 * u, subH = cp.sub ? SB.rows.length * ss * 1.2 : 0, ctaH = cp.cta ? ctaS * 1.8 : 0;
-  const total = chipH + (chipH ? gap : 0) + headH + gap * .7 + barH + (subH ? gap * .8 + subH : 0) + (ctaH ? gap * 1.3 + ctaH : 0);
-  let y = Math.max(FH * .08, FH * (FH > FW * 1.5 ? .56 : .5) - total / 2); const cx = FW / 2;
-  // tag + episode badge (one row, centred)
-  if (chipH) { const tw1 = cp.tag ? pillW(c, cp.tag, chip) : 0, tw2 = cp.ep ? pillW(c, cp.ep, chip * 1.05) : 0, sp = tw1 && tw2 ? 18 * u : 0, x0 = cx - (tw1 + tw2 + sp) / 2;
-    if (tw1) proPill(c, cp.tag, x0 + tw1 / 2, y + chipH / 2, chip, pal.tag, '#fff', 'rgba(255,255,255,.35)');
-    if (tw2) proPill(c, cp.ep, x0 + tw1 + sp + tw2 / 2, y + chipH / 2, chip * 1.05, pal.ep, pal.epText);
-    y += chipH + gap; }
-  y += proText(c, H1.rows, H1.sp, cx, y, hs, 800, '#FFFFFF', pal.hi, .07);
-  y += gap * .7; rr(c, cx - 60 * u, y, 120 * u, barH, barH / 2, pal.hi); y += barH;
-  if (subH) { y += gap * .8; y += proText(c, SB.rows, SB.sp, cx, y, ss, 600, '#F4EEE4', pal.hi, 0); }
-  if (ctaH) { y += gap * 1.3; proPill(c, cp.cta, cx, y + ctaH / 2, ctaS, pal.cta, '#fff', pal.ctaLine, true); }
-  // small logo, top-right corner (kept clear of the text)
-  if (Sx.watermark !== false && typeof drawLogo === 'function') { c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 12 * u; drawLogo(c, FW - 84 * u, 84 * u, 92 * u, Sx.logo || 'TF'); c.restore(); }
+  const gap = 34 * u, tagH = cp.tag ? chip * 1.8 : 0, epH = cp.ep ? epS * 1.8 : 0, barH = 10 * u, headH = H1.rows.length * hs * 1.2 + gap * .7 + barH, subH = cp.sub ? SB.rows.length * ss * 1.2 : 0, ctaH = cp.cta ? ctaS * 1.8 : 0;
+  const parts = [tagH && ['tag', tagH], epH && ['ep', epH], ['h', headH], subH && ['sub', subH], ctaH && ['cta', ctaH]].filter(Boolean);
+  const gapOf = k => ({ tag: gap * .6, ep: gap, h: gap * .8, sub: gap * 1.2 })[k] || gap;
+  const total = parts.reduce((a, p, i) => a + p[1] + (i < parts.length - 1 ? gapOf(p[0]) : 0), 0);
+  let y = Math.max(FH * .06, FH * (FH > FW * 1.5 ? .56 : .5) - total / 2); const cx = FW / 2, boxes = [];
+  const place = (k, x, yy, w, h, fn) => { const L = LAY[k] || {}, s = cl(+L.s || 1, .3, 4), dx = (+L.dx || 0) * FW, dy = (+L.dy || 0) * FH, ccx = x + w / 2, ccy = yy + h / 2;
+    c.save(); c.translate(ccx + dx, ccy + dy); c.scale(s, s); c.translate(-ccx, -ccy); fn(); c.restore();
+    boxes.push({ k, x: ccx + dx - w * s / 2, y: ccy + dy - h * s / 2, w: w * s, h: h * s, cx: ccx + dx, cy: ccy + dy, s }); };
+  parts.forEach(([k, h], i) => {
+    if (k === 'tag') { const w = pillW(c, cp.tag, chip); place(k, cx - w / 2, y, w, h, () => proPill(c, cp.tag, cx, y + h / 2, chip, pal.tag, '#fff', 'rgba(255,255,255,.35)')); }
+    if (k === 'ep') { const w = pillW(c, cp.ep, epS); place(k, cx - w / 2, y, w, h, () => proPill(c, cp.ep, cx, y + h / 2, epS, pal.ep, pal.epText, 'rgba(255,255,255,.6)')); }
+    if (k === 'h') { const w = proRowsW(c, H1.rows, H1.sp, hs, 800), y0 = y; place(k, cx - w / 2, y, w, h, () => { const hh = proText(c, H1.rows, H1.sp, cx, y0, hs, 800, '#FFFFFF', pal.hi, .07); rr(c, cx - 60 * u, y0 + hh + gap * .7, 120 * u, barH, barH / 2, pal.hi); }); }
+    if (k === 'sub') { const w = proRowsW(c, SB.rows, SB.sp, ss, 600), y0 = y; place(k, cx - w / 2, y, w, h, () => proText(c, SB.rows, SB.sp, cx, y0, ss, 600, '#F4EEE4', pal.hi, .04)); }
+    if (k === 'cta') { const w = pillW(c, cp.cta, ctaS, true); place(k, cx - w / 2, y, w, h, () => proPill(c, cp.cta, cx, y + h / 2, ctaS, pal.cta, '#fff', pal.ctaLine, true)); }
+    y += h + (i < parts.length - 1 ? gapOf(k) : 0); });
+  if (Sx.watermark !== false && typeof drawLogo === 'function') { const ls = 92 * u; place('logo', FW - 84 * u - ls / 2, 84 * u - ls / 2, ls, ls, () => { c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 12 * u; drawLogo(c, FW - 84 * u, 84 * u, ls, Sx.logo || 'TF'); c.restore(); }); }
+  PRO_BOXES = { FW, FH, list: boxes };
   c.restore();
 }
 /* short videos (9:16 world 1080×1920): the most emotional moment, face close-up */
 function proBgShort(renderer) {
-  return c => { const st = renderer.story, tl = renderer.tl, pick = coverPickShot(st, tl), sc = st.scenes[pick.si] || {}, cast = sc.cast || [], n = Math.min(3, cast.length || 1);
+  const f = c => { const st = renderer.story, tl = renderer.tl, pick = coverPickShot(st, tl), sc = st.scenes[pick.si] || {}, cast = sc.cast || [], n = Math.min(3, cast.length || 1);
     let who = cast[0]; try { const sh = tl.shots[renderer.shotAt(pick.t)], ln = sh && sc.lines[sh.li]; if (ln && ln.who && cast.includes(ln.who)) who = ln.who; } catch (e) { }
     const i = Math.max(0, cast.indexOf(who)), pos = CAST_POS[n] || CAST_POS[1], P0 = pos[i] || pos[0], cr = who && renderer.chars && renderer.chars[who], kf = cr ? (cr.L.kid ? .74 : cr.L.teen ? .92 : 1) : 1;
     const z = cast.length ? 1.55 : 1.1, headY = P0[1] - 300 * P0[2] * kf;
     const off = document.createElement('canvas'); off.width = W; off.height = H; const oc = off.getContext('2d', { alpha: false });
     renderer._camOverride = clampCam(cast.length ? { x: P0[0], y: headY + 600 / z, z } : { x: 540, y: 1000, z }); try { renderer.drawScene(oc, pick.si, pick.t); } finally { renderer._camOverride = null; }
     c.filter = 'saturate(1.2) contrast(1.06)'; c.drawImage(off, 0, 0, W, H); c.filter = 'none'; };
+  f.key = proBgKey(renderer); return f;
 }
+function proBgKey(r) { const st = r.story || {}; let n = 0; try { n = JSON.stringify(st.scenes).length; } catch (e) { } return [r.isLong ? 'L' : 'S', r.xp ? 'x' : '', st.title, (r.tl && r.tl.total) || 0, n, (typeof S !== 'undefined' && S.expRatio) || ''].join('|'); }
 /* long / other ratios / explainer */
 function proBgLong(r) {
-  return c => { const FW = r.FW, FH = r.FH, off = document.createElement('canvas'); off.width = FW; off.height = FH; const oc = off.getContext('2d', { alpha: false });
+  const f = c => { const FW = r.FW, FH = r.FH, off = document.createElement('canvas'); off.width = FW; off.height = FH; const oc = off.getContext('2d', { alpha: false });
     if (r.xp && window.XP && window.XP.render) { const th = r.tl.thumb || 0, t = th + Math.max(.5, (r.tl.total - th) * .3); window.XP.render(r, oc, t, { ui: false }); c.filter = 'blur(8px) saturate(1.1)'; c.drawImage(off, -20, -20, FW + 40, FH + 40); c.filter = 'none'; return; }
     const pick = coverPickShot(r.story, r.tl); r.drawSceneL(oc, pick.si, pick.t);
     c.filter = 'saturate(1.2) contrast(1.06)'; c.drawImage(off, 0, 0, FW, FH); c.filter = 'none'; };
+  f.key = proBgKey(r); return f;
 }
 (function () {
   const _dc = drawCover;
@@ -10372,12 +10380,14 @@ function proBgLong(r) {
   function proUI() {
     const tf = $('thumbFields'); if (!tf || $('proFields')) return;
     const box = el('div', { class: 'thumbfields', id: 'proFields' });
-    box.innerHTML = '<b class="sm">থাম্বনেলের লেখা <span class="muted">(খালি = অটো · লুকাতে - লিখুন)</span></b>' + PF.map(([k, l]) => `<label>${l}<input data-pf="${k}"></label>`).join('') + '<button type="button" class="link" id="btnProReset">↺ সব লেখা অটো করুন</button>';
+    box.innerHTML = '<b class="sm">থাম্বনেলের লেখা <span class="muted">(খালি = অটো · লুকাতে - লিখুন)</span></b>' + PF.map(([k, l]) => `<label>${l}<input data-pf="${k}"></label>`).join('') + '<div class="row2"><button type="button" class="ghost sm" id="btnProEdit">✥ লেখা সরান · বড়-ছোট</button><button type="button" class="link" id="btnProReset">↺ সব লেখা অটো করুন</button></div>';
     tf.before(box);
-    box.addEventListener('input', () => { if (!app.story) return; const v = {}; box.querySelectorAll('[data-pf]').forEach(e => { if (e.value.trim()) v[e.dataset.pf] = e.value.trim(); }); app.story.cover = Object.assign({}, app.story.cover || {}, { pro: v }); thumbSoon(); try { drawAt(app.t); } catch (e) { } try { autosave(); } catch (e) { } });
+    box.addEventListener('input', () => { if (!app.story) return; const v = {}; box.querySelectorAll('[data-pf]').forEach(e => { if (e.value.trim()) v[e.dataset.pf] = e.value.trim(); }); const old = (app.story.cover && app.story.cover.pro) || {}; if (old.lay) v.lay = old.lay; app.story.cover = Object.assign({}, app.story.cover || {}, { pro: v }); thumbSoon(); try { drawAt(app.t); } catch (e) { } try { autosave(); } catch (e) { } });
     $('btnProReset').onclick = () => { if (!app.story) return; if (app.story.cover) delete app.story.cover.pro; proFill(); thumbSoon(); try { drawAt(app.t); } catch (e) { } try { autosave(); } catch (e) { } };
     const rb = $('btnThumbReset'); if (rb) rb.addEventListener('click', () => { if (app.story && app.story.cover) delete app.story.cover.pro; proFill(); });
     const ct = $('coverTheme'); if (ct) ct.addEventListener('change', proShow);
+    $('btnProEdit').onclick = () => proEditor();
+    const pv = $('thumbPv'); if (pv) { pv.style.cursor = 'pointer'; pv.title = 'চাপ দিয়ে লেখা সরান / বড়-ছোট করুন'; pv.addEventListener('click', () => { if (S.coverTheme === 'pro') proEditor(); }); }
   }
   function proShow() {
     const on = (typeof S !== 'undefined' && S.coverTheme === 'pro'); const pf = $('proFields'), tf = $('thumbFields'), tt = $('thumbText');
@@ -10389,6 +10399,85 @@ function proBgLong(r) {
     const man = (app.story.cover && app.story.cover.pro) || {};
     box.querySelectorAll('[data-pf]').forEach(e => { const k = e.dataset.pf; e.placeholder = cp.auto[k] || '(খালি)'; if (document.activeElement !== e) e.value = man[k] || ''; });
   }
+  /* drag editor: move any text with a finger or the mouse, resize from a corner or with two fingers (all parts, all ratios) */
+  const PRO_NAMES = { tag: 'ট্যাগ', ep: 'পর্ব', h: 'শিরোনাম', sub: 'নিচের লাইন', cta: 'বোতাম', logo: 'লোগো' };
+  let ED = null;
+  function proPro() { const st = app.story; st.cover = st.cover || {}; st.cover.pro = st.cover.pro || {}; st.cover.pro.lay = st.cover.pro.lay || {}; return st.cover.pro; }
+  function proEdFrame() { const r = app.renderer; if (r && r.isLong) { r.setFrame(S.expRatio); return { FW: r.FW, FH: r.FH, draw: c => { r._lcov = null; r.drawThumb(c); } }; } return { FW: W, FH: H, draw: c => drawCover(c, r) }; }
+  function proEdBuild() {
+    const ov = el('dialog', { id: 'proEd' }); ov.innerHTML = `<style>
+#proEd{position:fixed;inset:0;margin:0!important;width:100vw!important;max-width:none!important;height:100dvh!important;max-height:none!important;border-radius:0!important;border:0;box-sizing:border-box;background:rgba(12,12,14,.97);display:none;flex-direction:column;overflow:hidden!important;align-items:center;gap:8px;padding:10px;color:#fff;font-family:inherit}
+#proEd[open]{display:flex}#proEd::backdrop{background:rgba(0,0,0,.6)}html.fitz #proEd{width:calc(100vw / var(--z))!important;height:calc(100dvh / var(--z))!important}
+#proEd .pe-top,#proEd .pe-bar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center;width:100%;max-width:900px}
+#proEd .pe-top b{flex:1;font-size:15px}#proEd .pe-hint{font-size:12px;opacity:.7;text-align:center}
+#proEd button{border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:8px 14px;font:inherit;font-size:14px;min-height:40px;cursor:pointer}
+#proEd button.pri{background:#FFD23F;color:#2A1500;border-color:#FFD23F;font-weight:700}#proEd button:disabled{opacity:.35}
+#proEd canvas{touch-action:none;border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,.6);cursor:grab;flex:none}
+#proEd .pe-sel{font-size:13px;color:#FFD23F;min-width:90px;text-align:center}</style>
+<div class="pe-top"><b>থাম্বনেলের লেখা সাজান</b><button type="button" id="peAll">↺ সব আগের জায়গায়</button><button type="button" class="pri" id="peDone">হয়ে গেছে</button></div>
+<div class="pe-hint">লেখায় আঙুল/মাউস রেখে টেনে সরান · কোণার গোল দাগ টেনে বা দুই আঙুলে বড়-ছোট</div>
+<canvas id="peCv"></canvas>
+<div class="pe-bar"><span class="pe-sel" id="peSel">কিছু বাছা হয়নি</span><button type="button" id="peMinus">− ছোট</button><button type="button" id="pePlus">+ বড়</button><button type="button" id="peCenter">⇔ মাঝে</button><button type="button" id="peOne">↺ এটা</button><button type="button" id="peHide">লুকান</button></div>`;
+    document.body.append(ov);
+    const cv = ov.querySelector('#peCv'), ptr = new Map(); let drag = null, raf = 0;
+    const box = k => PRO_BOXES && PRO_BOXES.list.find(b => b.k === k);
+    const toF = e => { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * ED.FW, y: (e.clientY - r.top) / r.height * ED.FH }; };
+    const tol = () => ED.FW / cv.getBoundingClientRect().width * 22;
+    const L = k => { const p = proPro(); return (p.lay[k] = p.lay[k] || { dx: 0, dy: 0, s: 1 }); };
+    const paint = () => { raf = 0; proEdPaint(); };
+    const later = () => { if (!raf) raf = requestAnimationFrame(paint); };
+    ED.later = later;
+    cv.addEventListener('pointerdown', e => {
+      e.preventDefault(); cv.setPointerCapture(e.pointerId); const p = toF(e); ptr.set(e.pointerId, p);
+      if (ptr.size === 2 && ED.sel) { const [a, b] = [...ptr.values()]; drag = { mode: 'pinch', d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, s0: +L(ED.sel).s || 1 }; return; }
+      const sb = ED.sel && box(ED.sel), t = tol();
+      if (sb && [[sb.x, sb.y], [sb.x + sb.w, sb.y], [sb.x, sb.y + sb.h], [sb.x + sb.w, sb.y + sb.h]].some(([x, y]) => Math.hypot(p.x - x, p.y - y) < t * 1.4)) { drag = { mode: 'size', k: ED.sel, d0: Math.hypot(p.x - sb.cx, p.y - sb.cy) || 1, s0: +L(ED.sel).s || 1 }; return; }
+      const hit = PRO_BOXES ? PRO_BOXES.list.slice().reverse().find(b => p.x > b.x - t * .5 && p.x < b.x + b.w + t * .5 && p.y > b.y - t * .5 && p.y < b.y + b.h + t * .5) : null;
+      ED.sel = hit ? hit.k : null; proEdSel();
+      if (hit) { const l = L(hit.k); drag = { mode: 'move', k: hit.k, p0: p, dx0: +l.dx || 0, dy0: +l.dy || 0, nat: hit.cx - (+l.dx || 0) * ED.FW }; cv.style.cursor = 'grabbing'; }
+      later();
+    });
+    cv.addEventListener('pointermove', e => {
+      if (!ptr.has(e.pointerId)) return; const p = toF(e); ptr.set(e.pointerId, p); if (!drag) return;
+      if (drag.mode === 'pinch' && ptr.size >= 2) { const [a, b] = [...ptr.values()]; L(ED.sel).s = cl(drag.s0 * Math.hypot(a.x - b.x, a.y - b.y) / drag.d0, .3, 4); }
+      else if (drag.mode === 'size') { const sb = box(drag.k); if (sb) L(drag.k).s = cl(drag.s0 * Math.hypot(p.x - sb.cx, p.y - sb.cy) / drag.d0, .3, 4); }
+      else if (drag.mode === 'move') { const l = L(drag.k); let dx = drag.dx0 + (p.x - drag.p0.x) / ED.FW; const dy = drag.dy0 + (p.y - drag.p0.y) / ED.FH;
+        if (Math.abs(drag.nat + dx * ED.FW - ED.FW / 2) < ED.FW * .015) dx = (ED.FW / 2 - drag.nat) / ED.FW; // snap to the centre line
+        l.dx = cl(dx, -.95, .95); l.dy = cl(dy, -.95, .95); }
+      later();
+    });
+    const up = e => { ptr.delete(e.pointerId); if (ptr.size === 0 && drag) { drag = null; cv.style.cursor = 'grab'; proEdSave(); } else if (ptr.size === 1 && drag && drag.mode === 'pinch') drag = null; };
+    cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+    cv.addEventListener('wheel', e => { if (!ED.sel) return; e.preventDefault(); const l = L(ED.sel); l.s = cl((+l.s || 1) * (e.deltaY < 0 ? 1.06 : 1 / 1.06), .3, 4); later(); clearTimeout(ED.wt); ED.wt = setTimeout(proEdSave, 300); }, { passive: false });
+    const step = f => { if (!ED.sel) return; const l = L(ED.sel); l.s = cl((+l.s || 1) * f, .3, 4); later(); proEdSave(); };
+    ov.querySelector('#pePlus').onclick = () => step(1.1); ov.querySelector('#peMinus').onclick = () => step(1 / 1.1);
+    ov.querySelector('#peCenter').onclick = () => { const b = ED.sel && box(ED.sel); if (!b) return; const l = L(ED.sel); l.dx = (+l.dx || 0) + (ED.FW / 2 - b.cx) / ED.FW; later(); proEdSave(); };
+    ov.querySelector('#peOne').onclick = () => { if (!ED.sel) return; delete proPro().lay[ED.sel]; later(); proEdSave(); };
+    ov.querySelector('#peHide').onclick = () => { const k = ED.sel; if (!k) return; if (k === 'logo') { S.watermark = false; saveSettings(); const w = $('sWatermark'); if (w) w.checked = false; } else proPro()[k] = '-'; ED.sel = null; proEdSel(); proFill(); later(); proEdSave(); };
+    ov.querySelector('#peAll').onclick = () => { proPro().lay = {}; later(); proEdSave(); };
+    ov.querySelector('#peDone').onclick = () => ov.close();
+    ov.addEventListener('close', () => { document.body.style.overflow = ''; proEdSave(); });
+    addEventListener('resize', () => { if (ov.open) proEdSize(); });
+    return ov;
+  }
+  function proEdSel() { const s = $('peSel'); if (s) s.textContent = ED.sel ? 'বাছা: ' + PRO_NAMES[ED.sel] : 'একটা লেখায় চাপুন'; ['peMinus', 'pePlus', 'peCenter', 'peOne', 'peHide'].forEach(id => { const b = $(id); if (b) b.disabled = !ED.sel; }); }
+  function proEdSize() { const cv = $('peCv'), f = proEdFrame(); Object.assign(ED, f); const ov = $('proEd'), aw = ((ov && ov.clientWidth) || innerWidth) - 24, ah = ((ov && ov.clientHeight) || innerHeight) - 170, k = Math.min(aw / f.FW, ah / f.FH); cv.style.width = Math.round(f.FW * k) + 'px'; cv.style.height = Math.round(f.FH * k) + 'px'; const d = Math.min(2, devicePixelRatio || 1); cv.width = Math.round(f.FW * k * d); cv.height = Math.round(f.FH * k * d); proEdPaint(); }
+  function proEdPaint() {
+    const cv = $('peCv'); if (!cv || !ED) return; const c = cv.getContext('2d'), k = cv.width / ED.FW;
+    c.setTransform(k, 0, 0, k, 0, 0); try { ED.draw(c); } catch (e) { console.warn('pro editor', e); }
+    if (!PRO_BOXES) return; const px = 1 / k * (devicePixelRatio || 1);
+    PRO_BOXES.list.forEach(b => { const on = b.k === ED.sel; c.save(); c.setLineDash(on ? [] : [8 * px, 6 * px]); c.lineWidth = (on ? 3 : 1.5) * px; c.strokeStyle = on ? '#FFD23F' : 'rgba(255,255,255,.45)'; c.strokeRect(b.x - 6 * px, b.y - 6 * px, b.w + 12 * px, b.h + 12 * px);
+      if (on) [[b.x, b.y], [b.x + b.w, b.y], [b.x, b.y + b.h], [b.x + b.w, b.y + b.h]].forEach(([x, y]) => { c.beginPath(); c.arc(x + (x > b.cx ? 6 : -6) * px, y + (y > b.cy ? 6 : -6) * px, 11 * px, 0, Math.PI * 2); c.fillStyle = '#FFD23F'; c.fill(); c.lineWidth = 2 * px; c.strokeStyle = '#2A1500'; c.stroke(); });
+      c.restore(); });
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  function proEdSave() { try { thumbSoon(); drawAt(app.t); } catch (e) { } try { autosave(); } catch (e) { } }
+  function proEditor() {
+    if (!app.story) { toast('আগে একটা গল্প খুলুন'); return; }
+    if (S.coverTheme !== 'pro') { S.coverTheme = 'pro'; saveSettings(); const ct = $('coverTheme'); if (ct) ct.value = 'pro'; proShow(); }
+    if (!ED) ED = { sel: null }; const ov = $('proEd') || proEdBuild(); if (!ov.open) { try { ov.showModal(); } catch (e) { ov.setAttribute('open', ''); } } document.body.style.overflow = 'hidden'; ED.sel = null; proEdSel(); proEdSize();
+  }
+  window.TF_PRO_EDITOR = proEditor;
   const _fill = thumbFieldsFill; thumbFieldsFill = function () { const r = _fill.apply(this, arguments); try { proUI(); proFill(); } catch (e) { console.warn('pro fill', e); } return r; };
   function start() {
     try {
