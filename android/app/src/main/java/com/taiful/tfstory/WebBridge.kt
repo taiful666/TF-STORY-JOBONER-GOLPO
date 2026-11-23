@@ -30,6 +30,23 @@ class WebBridge(private val activity: MainActivity) {
     @JavascriptInterface fun appVersion(): String = BuildConfig.VERSION_NAME
     @JavascriptInterface fun sdk(): Int = Build.VERSION.SDK_INT
 
+    /** Clipboard text for "📥 পেস্ট করে লাইব্রেরিতে যোগ" (navigator.clipboard.readText is blocked in WebView). */
+    @JavascriptInterface
+    fun getClipboard(): String {
+        var out = ""
+        val latch = java.util.concurrent.CountDownLatch(1)
+        activity.runOnUiThread {
+            try {
+                val cm = activity.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                val clip = cm.primaryClip
+                if (clip != null && clip.itemCount > 0) out = clip.getItemAt(0).coerceToText(activity)?.toString() ?: ""
+            } catch (_: Exception) { }
+            latch.countDown()
+        }
+        latch.await(2, java.util.concurrent.TimeUnit.SECONDS)
+        return out
+    }
+
     @JavascriptInterface
     fun fileBegin(name: String, mime: String): Int {
         val id = ids.getAndIncrement()

@@ -109,7 +109,22 @@ ${fmt}`;
 
   /* ---------- reading the pasted answer ---------- */
   const SER_HEAD = /^\s*ধারাবাহিক\s*[:：]\s*([^|\n]+?)\s*(?:\|\s*মোট\s*পর্ব\s*[:：]?\s*([০-৯\d]+))?\s*$/m;
-  const PART_T = /^\s*===\s*(.+?)\s*[|·—-]\s*পর্ব\s*([০-৯\d]+)\s*[:：]?\s*(.*)$/m;
+  // "=== নাম | পর্ব ১: …", "=== নাম — পর্ব-১ …", "=== পর্ব ১: …", "=== Part 1: …"
+  const PART_T = /^\s*===\s*(?:(.+?)\s*[|·—–-]\s*)?(?:পর্ব|পর্ব্|এপিসোড|part|episode)\s*[-–]?\s*([০-৯\d]+)\s*[:：.।—–-]?\s*(.*)$/mi;
+  /* Gemini/ChatGPT answers come in many shapes: with or without ``` fences (copy button vs. long-press), **bold**,
+     "### পর্ব ১" headings, chat lines between the parts. Keep only the scripts (+ the series line). */
+  function clean(t) {
+    t = String(t || '').replace(/\r/g, '').replace(/\u200b/g, '').replace(/\*\*/g, '');
+    t = t.replace(/^[ \t]*#{1,6}[ \t]*(?=(===|ধারাবাহিক\s*[:：]))/gm, '');
+    t = t.replace(/^[ \t]*>[ \t]?(?=(===|ধারাবাহিক))/gm, '');
+    const fences = t.match(/```[^\n]*\n[\s\S]*?(```|$)/g);
+    if (fences && fences.some(f => /^\s*===|\n\s*===/.test(f))) {
+      const head = (t.match(SER_HEAD) || [''])[0];
+      const body = fences.map(f => f.replace(/^```[^\n]*\n/, '').replace(/```$/, '')).join('\n\n');
+      t = (head && !body.includes(head.trim()) ? head + '\n' : '') + body;
+    }
+    return t.replace(/```[a-z]*\s*/gi, '\n');
+  }
   function fromJSON(t) {
     let j; try { j = JSON.parse(t); } catch (e) { const m = t.match(/[\[{][\s\S]*[\]}]/); if (!m) return null; try { j = JSON.parse(m[0]); } catch (e2) { return null; } }
     const scr = x => typeof x === 'string' ? x : (x && (x.script || x.txt || x.text)) || '';
@@ -119,10 +134,10 @@ ${fmt}`;
     else (Array.isArray(j) ? j : (j.stories || [j])).forEach(x => out.push(scr(x)));
     return out.filter(Boolean).join('\n\n');
   }
-  function parsePack(text) {
+  function parsePack(text, po) {
     let t = String(text || '').replace(/\r/g, '');
     if (/^\s*[\[{]/.test(t)) { const r = fromJSON(t.trim()); if (r) t = r; }
-    t = t.replace(/```[a-z]*\s*/gi, '\n');
+    t = clean(t);
     const sh = t.match(SER_HEAD), serName = sh ? sh[1].trim() : '', total = sh && sh[2] ? toNum(sh[2]) : 0;
     t = t.replace(new RegExp(SER_HEAD.source, 'gm'), '');
     const chunks = t.split(/^(?=\s*===)/m).map(x => x.trim()).filter(x => /^===/.test(x));
@@ -130,12 +145,18 @@ ${fmt}`;
     chunks.forEach(ch => {
       const sm = ch.match(/^\s*সারাংশ\s*[:：]\s*(.*)$/m), body = ch.replace(/^\s*সারাংশ\s*[:：].*$\n?/gm, '').trim();
       const pm = body.split('\n')[0].match(PART_T);
-      if (pm) { const name = serName || pm[1].trim(), k = toNum(pm[2]);
+      if (pm) { const name = serName || (pm[1] || '').trim() || (pack.series[0] || {}).title || (po && po.last) || 'ধারাবাহিক', k = toNum(pm[2]);
         const ser = byName[name] || (byName[name] = { title: name, total: name === serName ? total : 0, parts: [] }); if (!pack.series.includes(ser)) pack.series.push(ser);
         ser.parts = ser.parts.filter(q => q.k !== k).concat({ k, t: pm[3].trim(), s: sm ? sm[1].trim() : '', txt: body }); }
       else pack.singles.push(body);
     });
+    // series chosen but the AI wrote plain "=== title" blocks → they are the parts, in order
+    if (po && po.series && !pack.series.length && pack.singles.length) {
+      pack.series.push({ title: serName || titleOf0(pack.singles[0]) || 'ধারাবাহিক', total, parts: pack.singles.map((x, i) => ({ k: i + 1, t: titleOf0(x), s: '', txt: x })) });
+      pack.singles = [];
+    }
     pack.series.forEach(s => s.parts.sort((a, b) => a.k - b.k));
+    if (pack.series.length) put({ lastSer: pack.series[0].title });
     return pack;
   }
   // sections without a series list keep a series as numbered stories: "নাম · পর্ব ১: পর্বের নাম"
@@ -146,10 +167,13 @@ ${fmt}`;
     else { const ti = L.findIndex(l => /^\s*===/.test(l)); let at = ti + 1; while (at < L.length && /^\s*(ফরম্যাট|format)\s*[:：]/i.test(L[at])) at++; L.splice(at, 0, 'ক্ষেত্র: ' + cat); }
     return L.join('\n');
   }
-  async function addPasted() {
-    const raw = $('xlsIn').value; if (!raw.trim()) { toast('আগে AI-এর উত্তর পেস্ট করুন', 'err'); return; }
-    const o = opts(), pack = parsePack(raw), btn = $('xlsAdd');
-    if (!pack.singles.length && !pack.series.length) { toast('কোনো গল্প পাওয়া গেল না — উত্তরে "===" দিয়ে শুরু হওয়া স্ক্রিপ্ট থাকতে হবে', 'err', 7000); return; }
+  async function addPasted(auto) {
+    const raw = $('xlsIn').value; if (!raw.trim()) { if (auto !== true) toast('আগে AI-এর উত্তর পেস্ট করুন', 'err'); return; }
+    if (busy) return; busy = true;
+    const o = opts(), pack = parsePack(raw, { series: o.series, last: o.g.lastSer }), btn = $('xlsAdd');
+    if (!pack.singles.length && !pack.series.length) { busy = false; toast('কোনো গল্প পাওয়া গেল না — Gemini-র পুরো উত্তরটা কপি করুন (উত্তরের নিচের কপি বোতাম দিয়ে)', 'err', 8000); return; }
+    // parts the AI hasn't written yet (answer cut off) → tell him exactly what to do
+    const miss = []; pack.series.forEach(sr => { const have = sr.parts.map(q => q.k); for (let k = 1; k <= (sr.total || 0); k++) if (!have.includes(k)) miss.push(k); });
     btn.disabled = true; const old = btn.textContent; btn.textContent = 'যোগ হচ্ছে…'; let msg = '';
     try {
       if (/^isl_(long|big|mid)$/.test(o.sec) && ISLL().importPack) {
@@ -172,11 +196,13 @@ ${fmt}`;
         if (r.dup) toast(`${BNUM(r.dup)}টা আগে থেকেই লাইব্রেরিতে ছিল`, '', 5000);
         if (r.bad && r.bad.length) toast('কিছু গল্প পড়া গেল না: ' + r.bad.slice(0, 2).join(' · '), 'err', 9000);
       }
+      if (msg && miss.length) msg += ` — পর্ব ${miss.map(BNUM).join(', ')} এখনো আসেনি: Gemini-তে লিখুন "চালিয়ে যাও", তারপর সেই উত্তরটাও এখানে পেস্ট করুন (একই ধারাবাহিকে জুড়ে যাবে)`;
       if (msg) { $('xlsDone').textContent = '✓ লাইব্রেরিতে যোগ হয়েছে: ' + msg; $('xlsDone').classList.remove('hidden'); $('xlsIn').value = ''; toast('✓ ' + msg + ' লাইব্রেরিতে যোগ হয়েছে', 'ok', 6000); }
       else if (!$('xlsDone').classList.contains('hidden')) $('xlsDone').classList.add('hidden');
     } catch (e) { console.error(e); toast(e.message, 'err', 8000); }
-    finally { btn.disabled = false; btn.textContent = old; }
+    finally { btn.disabled = false; btn.textContent = old; busy = false; }
   }
+  let busy = false;
   const titleOf0 = t => ((String(t).match(/^\s*===\s*(.*)$/m) || [, ''])[1] || '').split('|')[0].trim();
 
   /* ---------- the card ---------- */
@@ -184,30 +210,35 @@ ${fmt}`;
   function build() {
     if ($('xlsBox') || !$('libList')) return;
     const kindSeg = el('nav', { class: 'seg sub small', id: 'xlsKind', 'data-v': 'single' },
-      el('button', { type: 'button', 'data-k': 'single', text: 'একক গল্প' }), el('button', { type: 'button', 'data-k': 'series', text: 'ধারাবাহিক (পর্বে পর্বে)' }));
+      el('button', { type: 'button', 'data-k': 'single', text: 'একটাতেই শেষ' }), el('button', { type: 'button', 'data-k': 'series', text: 'ধারাবাহিক পর্ব' }));
+    const step = (n, t) => el('div', { class: 'xls-step' }, el('span', { class: 'xls-n', text: BNUM(n) }), el('b', { text: t }));
     const box = el('details', { id: 'xlsBox', class: 'xls isl-form' },
-      el('summary', null, el('b', { text: '✍ বাইরের AI দিয়ে লিখে লাইব্রেরিতে যোগ' }), el('span', { class: 'muted sm', id: 'xlsSec' })),
-      el('p', { class: 'muted sm', text: '১) নিচে বাছাই করুন, চাইলে নিজের নির্দেশ লিখুন। ২) প্রম্পট কপি করে Gemini / ChatGPT / Claude-এ দিন। ৩) পুরো উত্তর কপি করে নিচের বক্সে পেস্ট করে "লাইব্রেরিতে যোগ" চাপুন — এই সেকশনেই জমা হবে।' }),
-      el('label', null, 'ক্যাটাগরি', el('select', { id: 'xlsCat' })),
-      el('input', { id: 'xlsCatOwn', class: 'hidden', placeholder: 'নিজের ক্যাটাগরি লিখুন — যেমন: প্রবাসীর ঈদ' }),
-      el('label', { id: 'xlsStyleRow' }, 'স্টাইল', el('select', { id: 'xlsStyle' })),
-      el('div', { id: 'xlsKindRow' }, el('span', { class: 'muted sm', text: 'কী লেখাবেন' }), kindSeg),
+      el('summary', null, el('b', { text: '✍ বাইরের AI দিয়ে গল্প যোগ (Gemini / ChatGPT)' }), el('span', { class: 'muted sm', id: 'xlsSec' })),
+      step(1, 'কী চান বাছুন'),
+      el('div', { id: 'xlsKindRow' }, kindSeg),
       el('div', { class: 'grid3' },
         el('label', { id: 'xlsNRow' }, 'কয়টা গল্প', el('select', { id: 'xlsN' })),
-        el('label', { id: 'xlsPartsRow' }, 'মোট পর্ব', el('select', { id: 'xlsParts' }, ...[2, 3, 4, 5, 6, 8].map(n => opt(n, BNUM(n) + 'টা')))),
-        el('label', { id: 'xlsMinRow' }, 'দৈর্ঘ্য', el('select', { id: 'xlsMin' }, ...[4, 5, 6, 8, 10, 12, 15].map(n => opt(n, BNUM(n) + ' মিনিট'))))),
-      el('label', null, 'বিষয় বা ভাবনা (ঐচ্ছিক)', el('textarea', { id: 'xlsTopic', rows: 2, placeholder: 'যেমন: প্রবাসী ছেলের ঈদের রাত / ধার নিয়ে দুই বন্ধুর বিচ্ছেদ' })),
-      el('label', null, 'আপনার বিশেষ নির্দেশ (ঐচ্ছিক)', el('textarea', { id: 'xlsOwn', rows: 2, placeholder: 'যেমন: গ্রামের পটভূমি, শেষে সুখের সমাপ্তি, নারী চরিত্র প্রধান, সংলাপ বেশি' })),
-      el('label', { class: 'chk' }, el('input', { type: 'checkbox', id: 'xlsEngage' }), ' দর্শক ধরে রাখার কৌশল (টুইস্ট, কুইজ, কমেন্ট-সাবস্ক্রাইবের ডাক)'),
-      el('div', { class: 'row' }, el('b', { text: 'প্রম্পট (নিচে লেখা আছে)' }), el('button', { type: 'button', class: 'primary sm', id: 'xlsCopy', text: '📋 প্রম্পট কপি' })),
-      el('textarea', { id: 'xlsPrompt', rows: 6, readonly: '', class: 'xls-prompt' }),
-      el('b', { text: 'AI-এর উত্তর এখানে পেস্ট করুন' }),
-      el('textarea', { id: 'xlsIn', rows: 5, placeholder: 'পুরো উত্তর এখানে — একাধিক উত্তর হলে (চালিয়ে যাও) সব একসাথে' }),
-      el('div', { class: 'row' }, el('button', { type: 'button', class: 'ghost sm', id: 'xlsPaste', text: '📥 ক্লিপবোর্ড থেকে' }), el('button', { type: 'button', class: 'primary', id: 'xlsAdd', text: 'লাইব্রেরিতে যোগ' })),
+        el('label', { id: 'xlsPartsRow' }, 'কয়টা পর্ব', el('select', { id: 'xlsParts' }, ...[2, 3, 4, 5, 6, 8].map(n => opt(n, BNUM(n) + 'টা')))),
+        el('label', { id: 'xlsMinRow' }, 'প্রতিটা কত মিনিট', el('select', { id: 'xlsMin' }, ...[4, 5, 6, 8, 10, 12, 15].map(n => opt(n, BNUM(n) + ' মিনিট'))))),
+      el('label', null, 'ক্যাটাগরি', el('select', { id: 'xlsCat' })),
+      el('input', { id: 'xlsCatOwn', class: 'hidden', placeholder: 'নিজের ক্যাটাগরি লিখুন — যেমন: প্রবাসীর ঈদ' }),
+      el('label', null, 'বিষয় (ঐচ্ছিক, দু-এক কথা)', el('textarea', { id: 'xlsTopic', rows: 2, placeholder: 'যেমন: প্রবাসী ছেলের ঈদের রাত' })),
+      el('details', { class: 'xls-more' }, el('summary', { text: '⚙ আরও অপশন (স্টাইল, বিশেষ নির্দেশ)' }),
+        el('label', { id: 'xlsStyleRow' }, 'স্টাইল', el('select', { id: 'xlsStyle' })),
+        el('label', null, 'আপনার বিশেষ নির্দেশ', el('textarea', { id: 'xlsOwn', rows: 2, placeholder: 'যেমন: গ্রামের পটভূমি, শেষে সুখের সমাপ্তি, সংলাপ বেশি' })),
+        el('label', { class: 'chk' }, el('input', { type: 'checkbox', id: 'xlsEngage' }), ' দর্শক ধরে রাখার কৌশল (টুইস্ট, কুইজ, সাবস্ক্রাইবের ডাক)')),
+      step(2, 'প্রম্পট কপি করে Gemini-তে পেস্ট করুন'),
+      el('button', { type: 'button', class: 'primary xls-big', id: 'xlsCopy', text: '📋 প্রম্পট কপি করুন' }),
+      el('details', { class: 'xls-more' }, el('summary', { text: 'প্রম্পটটা দেখুন' }), el('textarea', { id: 'xlsPrompt', rows: 6, readonly: '', class: 'xls-prompt' })),
+      step(3, 'Gemini-র পুরো উত্তর কপি করে এখানে আনুন'),
+      el('p', { class: 'muted sm', id: 'xlsHint', text: 'সব পর্ব/গল্প একবারেই — উত্তরের নিচের কপি বোতাম চাপুন, তারপর নিচের বোতাম। অ্যাপ নিজেই পর্বগুলো আলাদা করে লাইব্রেরিতে রাখবে, আলাদা আলাদা পেস্ট করতে হবে না।' }),
+      el('button', { type: 'button', class: 'primary xls-big', id: 'xlsPaste', text: '📥 পেস্ট করে লাইব্রেরিতে যোগ' }),
+      el('textarea', { id: 'xlsIn', rows: 3, placeholder: 'বোতাম কাজ না করলে এখানে চেপে ধরে "Paste" — পেস্ট করলেই নিজে থেকে যোগ হবে' }),
+      el('button', { type: 'button', class: 'ghost sm hidden', id: 'xlsAdd', text: 'লাইব্রেরিতে যোগ' }),
       el('p', { class: 'ok sm hidden', id: 'xlsDone' }));
     const chips = $('libChips'); (chips && chips.parentNode === $('libList').parentNode ? chips : $('libList')).insertAdjacentElement(chips && chips.parentNode === $('libList').parentNode ? 'afterend' : 'beforebegin', box);
     const css = document.createElement('style'); css.id = 'xlsCss';
-    css.textContent = '.xls{margin:10px 0 14px;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--card,transparent)}.xls>summary{cursor:pointer;display:flex;flex-direction:column;gap:2px;list-style:none}.xls>summary::-webkit-details-marker{display:none}.xls[open]>summary{margin-bottom:8px}.xls label{display:block;margin:8px 0}.xls select,.xls input:not([type=checkbox]),.xls textarea{width:100%;box-sizing:border-box}.xls .chk{display:flex;gap:8px;align-items:center}.xls .row{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:10px 0 6px}.xls-prompt{font-size:12px;opacity:.85}#xlsKindRow{margin:8px 0}#xlsKindRow .seg{margin-top:4px}.xls .ok{color:var(--ok,#1f7a4d);font-weight:600}';
+    css.textContent = '.xls{margin:10px 0 14px;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--card,transparent)}.xls>summary{cursor:pointer;display:flex;flex-direction:column;gap:2px;list-style:none}.xls>summary::-webkit-details-marker{display:none}.xls[open]>summary{margin-bottom:8px}.xls label{display:block;margin:8px 0}.xls select,.xls input:not([type=checkbox]),.xls textarea{width:100%;box-sizing:border-box}.xls .chk{display:flex;gap:8px;align-items:center}.xls .row{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:10px 0 6px}.xls-prompt{font-size:12px;opacity:.85}#xlsKindRow{margin:8px 0}#xlsKindRow .seg{margin-top:4px}.xls .ok{color:var(--ok,#1f7a4d);font-weight:600}.xls-step{display:flex;align-items:center;gap:8px;margin:14px 0 6px}.xls-n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--accent,#1f7a4d);color:#fff;font-size:13px;font-weight:700;flex:none}.xls-big{width:100%;min-height:48px;font-size:16px;margin:4px 0 8px}.xls-more{margin:6px 0}.xls-more>summary{cursor:pointer;font-size:13px;opacity:.8;padding:4px 0}#xlsKindRow .seg{display:flex}#xlsKindRow .seg button{flex:1;min-height:40px}';
     document.head.append(css);
     // events
     const upd = () => { save(); refreshPrompt(); };
@@ -215,8 +246,17 @@ ${fmt}`;
     ['xlsCatOwn', 'xlsTopic', 'xlsOwn'].forEach(id => $(id).addEventListener('input', debounce(upd, 350)));
     kindSeg.addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if (!b) return; kindSeg.dataset.v = b.dataset.k; syncKind(); upd(); });
     $('xlsCopy').onclick = () => { refreshPrompt(); copyText($('xlsPrompt').value, 'প্রম্পট কপি হয়েছে — Gemini / ChatGPT / Claude-এ পেস্ট করুন'); };
-    $('xlsPaste').onclick = async () => { try { const t = await navigator.clipboard.readText(); if (t) { $('xlsIn').value = t; toast('পেস্ট হয়েছে', 'ok'); } else toast('ক্লিপবোর্ড খালি'); } catch (e) { toast('বক্সে চেপে ধরে "Paste" চাপুন', '', 5000); $('xlsIn').focus(); } };
+    $('xlsPaste').onclick = async () => {
+      let t = ''; try { t = await navigator.clipboard.readText(); } catch (e) { }
+      if (!t && window.TFAndroid && TFAndroid.getClipboard) { try { t = TFAndroid.getClipboard(); } catch (e) { } }
+      if (t && t.trim()) { $('xlsIn').value = t; addPasted(); }
+      else { toast('নিচের বক্সে চেপে ধরে "Paste" চাপুন — পেস্ট করলেই যোগ হবে', '', 6000); $('xlsIn').focus(); }
+    };
     $('xlsAdd').onclick = addPasted;
+    // pasting into the box (or a keyboard clipboard chip) adds by itself — no extra button
+    let lastLen = 0;
+    $('xlsIn').addEventListener('paste', () => setTimeout(() => addPasted(true), 80));
+    $('xlsIn').addEventListener('input', () => { const L = $('xlsIn').value.length; if (L - lastLen > 300) setTimeout(() => addPasted(true), 120); lastLen = L; $('xlsAdd').classList.toggle('hidden', !L); });
     box.addEventListener('toggle', () => { if (box.open) load(); });
     // the section can change under the card (short ↔ long, single ↔ series, big ↔ mid)
     document.addEventListener('click', e => { if (e.target.closest('#fmtPick, #islLKind, #islLSerLen, #srcTabs, [data-fmt]')) setTimeout(load, 60); }, true);
