@@ -109,7 +109,7 @@ ${engage}
 
 ${wrap}${basePrompt(o)}
 
-${fmt}`;
+${window.TF_PROMPT_RULES ? TF_PROMPT_RULES() + '\n\n' : ''}${fmt}`;
   }
 
   /* ---------- reading the pasted answer ---------- */

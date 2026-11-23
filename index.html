@@ -10270,7 +10270,8 @@ function proCopy(st) {
   const words = proClean(h.replace(/\|/g, ' ')).split(' ').filter(Boolean);
   if (!/\{/.test(h) && words.length > 1) { const k = words.length > 4 ? 2 : 1, hw = h.split(/\s+/); const tail = hw.slice(-k).join(' ').replace(/\|/g, ''); h = hw.slice(0, -k).join(' ') + ' {' + tail.replace(/[।.!?…,]+$/, '') + '}'; }
   const book = st.book && st.book.lesson_bn;
-  let sub = proClean((ser && ser.name && ser.partName) || (st.cover && st.cover.ctx) || book || '');
+  const ctx0 = proClean(st.cover && st.cover.ctx), calm = ctx0 && !/[?？!…]|\.\.\./.test(ctx0) ? ctx0 : '';
+  let sub = proClean((ser && ser.name && ser.partName) || book || calm || '');
   if (!sub && rest) sub = proClean(rest);
   if (!sub) sub = ({ story: 'একটি জীবনের গল্প, একটি শিক্ষা', isl: 'কুরআন-হাদিসের আলোয় একটি গল্প', exp: 'সহজ ভাষায় পুরো ব্যাখ্যা' })[kind];
   const sw = sub.split(' '); if (sw.length > 12) sub = sw.slice(0, 12).join(' ') + '…';
@@ -10511,6 +10512,38 @@ function proBgLong(r) {
     sync();
   }
   if (document.readyState === 'complete') setTimeout(start, 500); else window.addEventListener('load', () => setTimeout(start, 500));
+})();
+</script>
+<script id="v13rules">
+/* ===================== v13 — one set of writing rules for every section (Gemini copy prompt + in-app AI):
+   professional story name as the title (series: "নাম | পর্ব k: পর্বের নাম"), calm thumbnail sub line, scene objects
+   (+table …, elements.js), hand props, this section's channel name in the CTA. Pro thumbnail is the look everywhere.
+   Logo + channel name are per section already (LK: tf_logo / tf_isl_logo / tf_exp_logo, tf_settings per part). ===================== */
+(function () {
+  const SEC = TF_ISL ? 'ইসলামিক' : TF_EXP ? 'এক্সপ্লেনার' : 'জীবন পাঠ / গল্প';
+  window.TF_PROMPT_RULES = function () {
+    const ch = (typeof S !== 'undefined' && S.series) || '', objs = window.TF_OBJ ? Object.keys(TF_OBJ.OBJ).filter(k => !/mudwall|almanac/.test(k)).join(', ') : '';
+    return `## শিরোনাম, থাম্বনেল, দৃশ্যের জিনিস ও চ্যানেল (এই নিয়ম ওপরের যেকোনো শিরোনাম/থাম্বনেল-নির্দেশের চেয়ে বেশি গুরুত্বপূর্ণ)
+- "===" শিরোনাম = গল্পের মূল ভাব থেকে ছোট, মর্যাদাপূর্ণ, মনে রাখার মতো নাম (২-৫ শব্দ), যেমন "দুই প্রদীপের রাত", "বাবার শেষ উইল", "কাল থেকে পড়বো"। থাম্বনেলে এই নামটাই সবচেয়ে বড় লেখা হবে।
+- শিরোনামে ক্লিকবেইট চলবে না: প্রশ্ন, "...", "!", "স্তব্ধ", "চমকে গেল", "কী ছিল", "এমন কী" ধরনের কথা, বা কারো নাম ধরে খোঁচা নয়।
+- ধারাবাহিক হলে প্রতিটা পর্ব: "=== <ধারাবাহিকের নাম> | পর্ব ১: <পর্বের নাম, ২-৫ শব্দ>" (পর্ব ২, পর্ব ৩ …)। থাম্বনেলে নাম বড়, "পর্ব ১ / ৩" ছোট ব্যাজ, পর্বের নাম নিচে ছোট।
+- "থাম্বনেল:" লাইনের প্রথম ঘর = নিচের ছোট লাইন: গল্পটা কী নিয়ে, শান্ত ও পরিষ্কার এক লাইনে (৪-৮ শব্দ), প্রশ্ন বা "..." ছাড়া। দ্বিতীয়-তৃতীয় ঘরে নামটাই দুই ভাগে, শেষ শব্দ {} দিয়ে।
+- ইউটিউব টাইটেল: "<নাম> | পর্ব k" + এক লাইনে মূল ভাব; কৌতূহল রাখা যায়, কিন্তু মিথ্যা প্রতিশ্রুতি নয়।
+- দৃশ্যের জিনিস: প্রতিটা "##" দৃশ্যের লাইনে জায়গার পরে +জিনিস দিয়ে গল্পে যা আছে তা বসাও (সর্বোচ্চ ৩টা, যেমন "## govt_office+table+chair+flag night", "## mud_house+hurricane+kolshi"): ${objs}। চরিত্রের হাতের জিনিস লাইনের চতুর্থ ঘরে (যেমন rafiq:worried:talk:file)।
+- এনগেজমেন্ট: শুরুর ৫ সেকেন্ডে কৌতূহল, মাঝে একটা মোড়, শেষে কমেন্টের জন্য নির্দিষ্ট প্রশ্ন, শেয়ারের ডাক${ch ? `; cta-তে "${ch}" নাম ধরে সাবস্ক্রাইব/পেজ ফলোর ডাক` : ''}।`;
+  };
+  // in-app AI: story-writing prompts get the same rules
+  if (typeof aiComplete === 'function') {
+    const _ai = aiComplete;
+    aiComplete = function (prompt, which, opts) { try { if (typeof prompt === 'string' && /===/.test(prompt) && /##/.test(prompt) && /থাম্বনেল/.test(prompt) && !/## শিরোনাম, থাম্বনেল, দৃশ্যের জিনিস/.test(prompt)) prompt += '\n\n' + TF_PROMPT_RULES(); } catch (e) { } return _ai.call(this, prompt, which, opts); };
+  }
+  function start() {
+    // the pro thumbnail everywhere (old hook-style covers are not used any more)
+    try { if (!localStorage.getItem(LK('tf_pro_thumb2'))) { S.coverTheme = 'pro'; saveSettings(); localStorage.setItem(LK('tf_pro_thumb2'), '1'); const ct = $('coverTheme'); if (ct) ct.value = 'pro'; try { if (app.story) { app.renderer && (app.renderer._cov = null); drawAt(app.t); } } catch (e) { } } } catch (e) { }
+    // settings: say which section this logo + channel name belong to
+    const lp = $('logoPrev'); if (lp && !$('secNote')) { const n = el('p', { id: 'secNote', class: 'muted sm', text: `এই লোগো ও চ্যানেলের নাম শুধু "${SEC}" সেকশনের ভিডিও আর থাম্বনেলে বসবে। অন্য সেকশনের জন্য সেই সেকশনে গিয়ে আলাদা লোগো দিন।` }); const box = lp.closest('.logobox'); if (box) box.before(n); }
+  }
+  if (document.readyState === 'complete') setTimeout(start, 700); else window.addEventListener('load', () => setTimeout(start, 700));
 })();
 </script>
 <script src="fx/motion.js"></script>
