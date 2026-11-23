@@ -10261,7 +10261,7 @@ function proCopy(st) {
   const man = (st.cover && st.cover.pro) || {}, ser = proSeries(st), kind = PRO_KIND, Sx = (typeof S !== 'undefined' ? S : {});
   let title = String(st.title || '').replace(/\s*[|·:–—-]?\s*(Explained|Bangla|In Bangla).*$/i, '').trim();
   let h;
-  if (ser) h = ser.partName || ser.name;
+  if (ser) h = ser.name || ser.partName; // series: the series name is the big headline; part number + part name stay small
   else { const p = title.split('|').map(s => s.trim()).filter(Boolean); h = p.length > 1 ? p.join('|') : title; }
   let rest = '';
   if (h.split(/\s+/).length > 8 && !/\|/.test(h)) { // long title: the first clause is the headline, the rest can be the sub line
@@ -10269,11 +10269,11 @@ function proCopy(st) {
   const words = proClean(h.replace(/\|/g, ' ')).split(' ').filter(Boolean);
   if (!/\{/.test(h) && words.length > 1) { const k = words.length > 4 ? 2 : 1, hw = h.split(/\s+/); const tail = hw.slice(-k).join(' ').replace(/\|/g, ''); h = hw.slice(0, -k).join(' ') + ' {' + tail.replace(/[।.!?…,]+$/, '') + '}'; }
   const book = st.book && st.book.lesson_bn;
-  let sub = proClean((st.cover && st.cover.ctx) || book || '');
+  let sub = proClean((ser && ser.name && ser.partName) || (st.cover && st.cover.ctx) || book || '');
   if (!sub && rest) sub = proClean(rest);
-  if (!sub) sub = ser && ser.partName ? ser.name : ({ story: 'একটি জীবনের গল্প, একটি শিক্ষা', isl: 'কুরআন-হাদিসের আলোয় একটি গল্প', exp: 'সহজ ভাষায় পুরো ব্যাখ্যা' })[kind];
+  if (!sub) sub = ({ story: 'একটি জীবনের গল্প, একটি শিক্ষা', isl: 'কুরআন-হাদিসের আলোয় একটি গল্প', exp: 'সহজ ভাষায় পুরো ব্যাখ্যা' })[kind];
   const sw = sub.split(' '); if (sw.length > 12) sub = sw.slice(0, 12).join(' ') + '…';
-  const tag = ser ? (ser.partName && ser.name && ser.name.split(/\s+/).length <= 4 ? 'ধারাবাহিক · ' + ser.name : 'ধারাবাহিক') : ({ story: Sx.series || 'জীবনের গল্প', isl: 'ইসলামিক গল্প', exp: 'এক্সপ্লেনার' })[kind];
+  const tag = ser ? 'ধারাবাহিক' : ({ story: Sx.series || 'জীবনের গল্প', isl: 'ইসলামিক গল্প', exp: 'এক্সপ্লেনার' })[kind];
   const ep = ser ? (ser.last && ser.k > 1 ? 'শেষ পর্ব' : 'পর্ব ' + bn(ser.k) + (ser.of ? ' / ' + bn(ser.of) : '')) : '';
   const cta = ser ? (ser.k === 1 ? 'শুরু থেকে দেখুন' : ser.last ? 'সমাপ্তিটা দেখুন' : 'গল্প এগিয়ে চলছে · দেখুন') : ({ story: 'পুরো গল্পটা দেখুন', isl: 'পুরো গল্পটা দেখুন', exp: 'পুরোটা বুঝে নিন' })[kind];
   const auto = { tag, ep, h, sub, cta }, out = {};
@@ -10322,8 +10322,8 @@ function proDraw(c, FW, FH, st, bg) {
   g.addColorStop(0, `rgba(${b},.30)`); g.addColorStop(.22, `rgba(${b},.52)`); g.addColorStop(.5, `rgba(${b},.80)`); g.addColorStop(.78, `rgba(${b},.52)`); g.addColorStop(1, `rgba(${b},.35)`);
   c.fillStyle = g; c.fillRect(0, 0, FW, FH);
   const vg = c.createRadialGradient(FW / 2, FH / 2, Math.min(FW, FH) * .35, FW / 2, FH / 2, Math.hypot(FW, FH) * .62); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.45)'); c.fillStyle = vg; c.fillRect(0, 0, FW, FH);
-  // sizes (episode badge is big on purpose: "পর্ব ২" must read at a glance)
-  const maxW = land ? FW * .80 : FW * .87, chip = (land ? 42 : 44) * u, epS = (land ? 64 : 70) * u, hs0 = (land ? 130 : sq ? 122 : 134) * u, subS = 56 * u, ctaS = (land ? 42 : 44) * u;
+  // sizes: the headline (series name / story name) is the biggest; the episode badge is a small chip under the tag
+  const maxW = land ? FW * .80 : FW * .87, chip = (land ? 42 : 44) * u, epS = (land ? 46 : 50) * u, hs0 = (land ? 130 : sq ? 122 : 134) * u, subS = 56 * u, ctaS = (land ? 42 : 44) * u;
   const segs = proWords(cp.h); let hs = hs0, H1 = proWrap(c, segs, hs, maxW, 800);
   for (const lim of [2, 3]) { hs = hs0; H1 = proWrap(c, segs, hs, maxW, 800); while ((H1.rows.length > lim || !H1.ok) && hs > hs0 * (lim === 2 ? .78 : .5)) { hs -= 4 * u; H1 = proWrap(c, segs, hs, maxW, 800); } if (H1.rows.length <= lim && H1.ok) break; }
   if (H1.rows.length > 3) H1.rows = H1.rows.slice(0, 3);
