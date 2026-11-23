@@ -85,6 +85,11 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
 - New UI/CSS goes in the newest layer (`v12` style / newest `v*js` script) or a new `v13` layer at the end,
   rather than rewriting old layers — later layers override earlier ones.
 - Islamic part: real Quran/hadith text only, faceless people, no instruments in music.
+- **One export system.** Short, long, Islamic-story and explainer all use `doExport` → `exportMP4` → share sheet
+  (`initShareSheet`) in index.html; parts must not fork it. Post Maker reels (`islamic/index.html`) mirror it:
+  same file name `Title_9x16.mp4` (`reelName`), same platforms (`TF_PLAT`), same Android bridge, AAC first then Opus.
+  Change export/share behaviour in both places together.
+- Links: ☾ `btnSuite` → `index.html?part=islamic` (the Islamic part overrides it to Post Maker `islamic/index.html`).
 - Never put API keys or the signing key in the repo.
 - Versions: `APP_VERSION` in index.html (project file format), `TF_VERSION_NAME` in android.yml (APK name, e.g. 5.2 →
   5.2.<run>). Bump `TF_VERSION_NAME` only when he asks for a new major/minor version.

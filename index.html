@@ -1066,7 +1066,7 @@ select.lchip{-webkit-appearance:none;appearance:none;width:auto!important;max-wi
   </nav>
   <div class="tools">
     <a class="icon suitebtn" id="btnHome" href="home.html" title="শুরুর পাতা: গল্প / ইসলামিক অংশ বাছুন" aria-label="শুরুর পাতা"><svg aria-hidden="true"><use href="#i-home"/></svg></a>
-    <a class="icon suitebtn" id="btnSuite" href="islamic/index.html" title="ইসলামিক অংশে যান (কুরআন-হাদিসের গল্প, আয়াত, বাণী)" aria-label="ইসলামিক অংশ"><svg aria-hidden="true"><use href="#i-moon"/></svg></a>
+    <a class="icon suitebtn" id="btnSuite" href="index.html?part=islamic" title="ইসলামিক অংশে যান (কুরআন-হাদিসের গল্প, আয়াত, বাণী)" aria-label="ইসলামিক অংশ"><svg aria-hidden="true"><use href="#i-moon"/></svg></a>
     <button class="icon acbtn" id="btnAccount" type="button" title="Gmail লগইন ও ক্লাউড সিঙ্ক" aria-label="Gmail অ্যাকাউন্ট"><svg aria-hidden="true"><use href="#i-user"/></svg><img id="acBtnPhoto" class="hidden" alt="" width="42" height="42" referrerpolicy="no-referrer"><i class="acdot hidden" id="acDot" aria-hidden="true"></i></button>
     <button class="icon" id="btnGallery" title="সব চরিত্র দেখুন" aria-label="সব চরিত্র"><svg><use href="#i-users"/></svg></button>
     <button class="icon" id="btnHelp" title="সাহায্য" aria-label="সাহায্য"><svg><use href="#i-help"/></svg></button>
@@ -9756,7 +9756,7 @@ function initShareSheet() {
     ['অ্যাপ', 'সেটিংস', 'settings', click('#btnSettings')], ['অ্যাপ', 'API key', 'api key gemini claude cartesia', () => { click('#btnSettings')(); setTimeout(click('#setTabs [data-st="key"]'), 60); }],
     ['অ্যাপ', 'সাবটাইটেল ও ফন্ট', 'subtitle font caption', () => { click('#btnSettings')(); setTimeout(click('#setTabs [data-st="vid"]'), 60); }],
     ['অ্যাপ', 'Gmail অ্যাকাউন্ট', 'account login gmail', click('#btnAccount')], ['অ্যাপ', 'সাহায্য', 'help', click('#btnHelp')],
-    ['অ্যাপ', 'ইসলামিক অংশ', 'islamic', () => { location.href = 'islamic/index.html'; }]
+    ['অ্যাপ', 'ইসলামিক অংশ', 'islamic', () => { location.href = 'index.html?part=islamic'; }], ['অ্যাপ', 'এক্সপ্লেনারি ভিডিও', 'explainer', () => { location.href = 'index.html?part=explainer'; }], ['অ্যাপ', 'গল্প (শর্ট ও লং)', 'story', () => { location.href = 'index.html'; }], ['অ্যাপ', 'পোস্ট মেকার (ছবি-কার্ড ও রিল)', 'post maker card reel', () => { location.href = 'islamic/index.html'; }]
   ];
   let box, inp, list, sel = 0, shown = [];
   function buildPalette() {

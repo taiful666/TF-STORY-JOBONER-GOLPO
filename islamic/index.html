@@ -4507,7 +4507,8 @@ function reelClose(fromPop){
 }
 function reelBusy(on, txt){ $('rvBusy').classList.toggle('hidden', !on); if(txt != null) $('rvBusyTxt').textContent = txt; if(on) $('rvBusyBar').style.width = '0%'; }
 function reelProgress(p, txt){ $('rvBusyBar').style.width = (Math.max(0, Math.min(1, p)) * 100).toFixed(1) + '%'; if(txt) $('rvBusySub').textContent = txt; }
-function reelName(ext){ return 'reel - ' + fileName(ext).replace(/ - [\dx]+\.\w+$/, '') + ' - ' + RS.ratio.replace(':', 'x') + '.' + ext; }
+/* same file-name pattern as every video part of the app: Title_9x16.mp4 */
+function reelName(ext){ const f = F(); const base = String(norm(f.heading) || cardPlain().text.slice(0, 40) || 'reel').replace(/[\\/:*?"<>|\n\r\t]+/g, '').replace(/\s+/g, '_').slice(0, 60) || 'reel'; return base + '_' + RS.ratio.replace(':', 'x') + '.' + ext; }
 
 /* ================= export (fast, frame-exact MP4 via WebCodecs; real-time recording as fallback) ================= */
 async function reelExport(){
@@ -4661,7 +4662,7 @@ async function tfSend(k, text){
     let can = false; try{ can = !!(navigator.canShare && navigator.canShare({ files:[file] })); }catch(e){}
     tfShClose(); if(text) showPasteBar(copied);
     if(can){ try{ await navigator.share({ files:[file] }); }catch(e){ if(e && e.name !== 'AbortError') download(blob, TFSH.name); } }
-    else { download(blob, TFSH.name); if(P0.web) window.open(P0.web, '_blank', 'noopener'); }
+    else { download(blob, TFSH.name); const web = (TFSH.kind === 'reel' && k === 'fb') ? 'https://www.facebook.com/reels/create' : P0.web; /* a video goes to Reels, like the Story part */ if(web) window.open(web, '_blank', 'noopener'); }
   }
   const w = TFSH.kind === 'card' && monoWarn(); if(w) setTimeout(() => toast(w), 400);
 }
