@@ -816,7 +816,7 @@ rafiq:crying:pray_hands চরিত্রের ভাব দেখাতে �
   /* ---------- patch the Story engine (runs right before init) ---------- */
   window.ISL_PATCH = function () {
     /* what islamic/long.js (long videos + part-by-part series) borrows from this part */
-    window.ISL_API = { whichAI, setStat, verifyQuran, usedId, toggleUsed, busyToast, keyNote, islRenderLib: () => islRenderLib(), buildLifePrompt, CINEMA_RULES, isBusy: () => BUSY, setBusy: v => { BUSY = v; } };
+    window.ISL_API = { LIFE_TOPICS, STYLES, whichAI, setStat, verifyQuran, usedId, toggleUsed, busyToast, keyNote, islRenderLib: () => islRenderLib(), buildLifePrompt, CINEMA_RULES, isBusy: () => BUSY, setBusy: v => { BUSY = v; } };
     css(); addPlaces();
     SCENE_TYPES.push('ayah'); TYPE_BN.ayah = 'আয়াত/হাদিস';
     // honorifics read aloud in full
