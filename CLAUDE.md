@@ -47,6 +47,7 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
 | `long-library.js` | 13 built-in long stories |
 | `long-visuals.js` | long-video concept visuals (`[scene: kind/…]`) |
 | `islamic/story.js`, `art.js`, `art2.js`, `stories-1..3.js` | Islamic story-video part (patches the Story engine) |
+| `islamic/long.js` | Islamic LONG videos (16:9): step-1 শর্ট/লং switch (`#fmtPick`), long library `#islLongBox` with একক লং গল্প (ids `isl_long_*`, by category) and ধারাবাহিক = series plan (`isl_ser_*`, json) + parts (`isl_ser_*_p<k>`); AI plan → part-by-part writing, each part ends with next-part + subscribe CTA. Uses `window.ISL_API` from story.js |
 | `islamic/index.html` | TF Post Maker (Islamic picture cards + reel studio) — separate app |
 | `explainer/part.js`, `paper.js` | explainer-video part (`?part=explainer`) |
 | `fx/motion.js`, `fx/shadow.js` | motion style and shadow-puppet video style |
@@ -85,7 +86,7 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
 - Don't rename element ids or localStorage keys (saved user data + later layers depend on them).
 - New UI/CSS goes in the newest layer (`v12` style / newest `v*js` script) or a new `v13` layer at the end,
   rather than rewriting old layers — later layers override earlier ones.
-- Islamic part: real Quran/hadith text only, faceless people, no instruments in music.
+- Islamic part: real Quran/hadith text only (`verifyQuran` swaps in the official text for every `## ayah` block with `উৎস: q`), prophets/sahaba never on screen (faceless), no instruments in music. Long Islamic videos use the same `LongRenderer`; `## ayah` is drawn full-width by a patch in story.js.
 - **One export system.** Short, long, Islamic-story and explainer all use `doExport` → `exportMP4` → share sheet
   (`initShareSheet`) in index.html; parts must not fork it. Post Maker reels (`islamic/index.html`) mirror it:
   same file name `Title_9x16.mp4` (`reelName`), same platforms (`TF_PLAT`), same Android bridge, AAC first then Opus.

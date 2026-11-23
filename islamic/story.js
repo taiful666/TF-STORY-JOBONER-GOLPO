@@ -370,14 +370,18 @@ ${who.split(' / ')[0]}
   }
 
   /* ---------- the quote scene: exact text with its reference ---------- */
-  function drawAyah(c, si, t) {
-    const R = this, sc = R.story.scenes[si], lt = t - sc.start;
-    const g = c.createRadialGradient(540, 820, 80, 540, 900, 1300); g.addColorStop(0, '#1E5A40'); g.addColorStop(1, '#06170F'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+  /* the green star-pattern background of the quote scene, for any frame size */
+  function ayahBg(c, w, h, t) {
+    const R = this, g = c.createRadialGradient(w / 2, h * .43, 80, w / 2, h * .47, Math.max(w, h) * .68); g.addColorStop(0, '#1E5A40'); g.addColorStop(1, '#06170F'); c.fillStyle = g; c.fillRect(0, 0, w, h);
     if (!R._pat) { const cv = document.createElement('canvas'); cv.width = cv.height = 180; const pc = cv.getContext('2d'); pc.strokeStyle = 'rgba(233,196,106,.12)'; pc.lineWidth = 3;
       const star = (x, y, r) => { pc.beginPath(); for (let i = 0; i < 16; i++) { const a = i * Math.PI / 8, rr2 = i % 2 ? r * .55 : r; pc.lineTo(x + Math.cos(a) * rr2, y + Math.sin(a) * rr2); } pc.closePath(); pc.stroke(); };
       star(90, 90, 70); star(0, 0, 40); star(180, 0, 40); star(0, 180, 40); star(180, 180, 40); R._pat = c.createPattern(cv, 'repeat'); }
-    c.save(); c.fillStyle = R._pat; c.translate(0, -(t * 6) % 180); c.fillRect(0, 0, W, H + 180); c.restore();
-    for (let i = 0; i < 26; i++) { const x = (i * 197) % W, y = (i * 331 + t * 14 * (1 + i % 3)) % H; withA(c, .1 + (i % 4) * .05, () => circ(c, x, y, 2 + i % 3, '#F3E3C6')); }
+    c.save(); c.fillStyle = R._pat; c.translate(0, -(t * 6) % 180); c.fillRect(0, 0, w, h + 180); c.restore();
+    const n = Math.round(26 * w * h / (W * H)) || 26; for (let i = 0; i < n; i++) { const x = (i * 197) % w, y = (i * 331 + t * 14 * (1 + i % 3)) % h; withA(c, .1 + (i % 4) * .05, () => circ(c, x, y, 2 + i % 3, '#F3E3C6')); }
+  }
+  function drawAyah(c, si, t) {
+    const R = this, sc = R.story.scenes[si], lt = t - sc.start;
+    if (!R._ayNoBg) ayahBg.call(R, c, W, H, t); // long (wide) frames draw the background across the whole frame themselves
     const k = back(lt, .05, .55); if (k <= 0) return;
     const isQ = !/বুখারি|হাদিস/.test(sc.ref || '') ; const label = isQ ? 'আল-কুরআন' : 'হাদিস';
     const [a, b] = R.shotRangeOfScene(si); let cur = R.shotAt(t); if (cur < a) cur = a; if (cur > b) cur = b; const curLi = R.tl.shots[cur] ? R.tl.shots[cur].li : 0;
@@ -410,7 +414,9 @@ ${who.split(' / ')[0]}
     const tk = st.scenes.filter(x => x.type === 'takeaways').flatMap(x => x.lines.map(l => { const it = String(l.item || '').trim(), cap = String(l.cap || '').trim(); return it && cap.startsWith(it) ? it + ': ' + cap.slice(it.length).trim() : cap; })).slice(0, 3);
     const cta = (st.scenes.find(x => x.type === 'cta') || {}).cta || {}; const q = cta.question || '';
     const y = st.youtube || {}; let hs = (y.hashtags || []).filter(h => /^#/.test(h)); ['#Shorts', '#' + ser.replace(/\s+/g, '_'), '#ইসলামিক_গল্প', isQ ? '#কুরআনের_গল্প' : '#হাদিসের_গল্প'].forEach(h => { if (!hs.some(x => x.toLowerCase() === h.toLowerCase())) hs.push(h); }); hs = hs.slice(0, 8);
+    if (st.fmt === 'long') hs = hs.filter(h => h.toLowerCase() !== '#shorts'); // long (YouTube) videos are not Shorts
     let ytTitle = hook; if (ref && (ytTitle + ' | ' + ref).length <= 100) ytTitle += ' | ' + ref; ytTitle = ytTitle.slice(0, 100);
+    if (st.fmt === 'long' && y.title) ytTitle = String(y.title).slice(0, 100); // the script's own title (with "পর্ব ২" for a series)
     const desc = [hook, '', y.description || '', '', quote ? (intro ? intro + ' ' : '') + '“' + quote + '”' : '', ref ? '📖 সূত্র: ' + ref + (src ? ' (' + src + ')' : '') : '', '', tk.length ? 'আমাদের জীবনে:' : '', ...tk.map(x => '• ' + x), '', q ? `💬 ${q} কমেন্টে লিখুন।` : '', '', `▶ ${ser} — ${tag}`, 'ভিডিওটি উপকারী মনে হলে প্রিয়জনদের সাথে শেয়ার করুন।', 'নতুন গল্প পেতে চ্যানেলটি সাবস্ক্রাইব করে রাখুন।', '', hs.join(' ')]
       .filter((x, i, a) => x || (a[i - 1] && i < a.length - 1)).join('\n').replace(/\n{3,}/g, '\n\n').trim();
     const name = ref.replace(/,.*$/, '').trim();
@@ -536,7 +542,7 @@ rafiq:crying:pray_hands চরিত্রের ভাব দেখাতে �
   function rows() {
     const q = ($('libSearch').value || '').trim().toLowerCase(), grp = $('libBook').value, f = $('libFilter').value, h = hist();
     const pre = PRE().map(x => ({ pre: true, id: x.id, title: titleOf(x.txt), ref: ayahRefOf(x.txt), group: G_LIFE + ' · ' + x.cat, top: G_LIFE, u: { id: x.id, txt: x.txt } }));
-    const own = USERLIB.filter(u => !u.src || !ISL_BY_ID[u.src]).map(u => { const m = libMeta(u.txt, u.id, 0, true); return { own: true, id: u.id, title: m.title, ref: (u.txt.match(/^\s*বই:\s*([^|\n]*)/m) || [, ''])[1].trim(), group: G_OWN, top: G_OWN, u }; });
+    const own = USERLIB.filter(u => (!u.src || !ISL_BY_ID[u.src]) && !/^\s*ফরম্যাট\s*[:：]\s*(long|series)/m.test(u.txt)).map(u => { const m = libMeta(u.txt, u.id, 0, true); return { own: true, id: u.id, title: m.title, ref: (u.txt.match(/^\s*বই:\s*([^|\n]*)/m) || [, ''])[1].trim(), group: G_OWN, top: G_OWN, u }; });
     const src = ISL_LIB.map(it => ({ it, id: it.id, title: it.title, ref: fullRef(it), group: it.group, top: it.group, u: genOf(it.id) }));
     const all = pre.concat(src, own.reverse());
     all.forEach((r, i) => { r.n = i + 1; r.at = r.u ? h[r.u.id] || 0 : 0; });
@@ -545,6 +551,8 @@ rafiq:crying:pray_hands চরিত্রের ভাব দেখাতে �
     return { all, list };
   }
   function islRenderLib() {
+    if (isLongMode() && window.ISL_LONG) { window.ISL_LONG.render(); return; } // long videos have their own library (islamic/long.js)
+    if (window.ISL_LONG) window.ISL_LONG.shortMode();
     const ul = $('libList'); if (!ul) return; ul.innerHTML = ''; const { all, list } = rows();
     { const nU = all.filter(r => usedU(r.u)).length, a = $('libNewN'), b = $('libUsedN'); if (a) a.textContent = bn(all.length - nU); if (b) b.textContent = bn(nU); document.querySelectorAll('#libChips .lchip[data-lt]').forEach(c => { const fv = $('libFilter').value, on = c.dataset.lt === (fv === 'used' || fv === 'hist' ? 'used' : fv === 'new' ? 'new' : ''); /* "সব" lights no chip */ c.classList.toggle('on', on); c.setAttribute('aria-pressed', on); }); }
     $('libCount').textContent = `${bn(list.length)}টা দেখাচ্ছে · ✅ লেখা আছে ${bn(all.filter(r => r.u).length)} · ⬜ লেখা হয়নি ${bn(all.filter(r => !r.u).length)} · ব্যবহৃত ${bn(all.filter(r => usedU(r.u)).length)}`;
@@ -580,9 +588,9 @@ rafiq:crying:pray_hands চরিত্রের ভাব দেখাতে �
     if (r.it) islGenerate(r.it);
   }
   /* ready-made stories carry "উৎস: q 2:153": with internet the app swaps in the official translation (and Arabic), once, and keeps it */
-  async function verifyQuran(txt, id) {
-    const m = String(txt).match(/^\s*উৎস\s*[:：]\s*q\s+(\d+):(\d+)(?:-(\d+))?\s*$/m); if (!m || /^\s*অনুবাদ\s*[:：]/m.test(txt)) return txt;
-    const s = +m[1], f = +m[2], t = +(m[3] || m[2]), key = `tf_isl_qv:${s}:${f}-${t}`;
+  /* every "## ayah" block with its own "উৎস: q সূরা:আয়াত" gets the official translation (long videos have several) */
+  async function qFetch(s, f, t) {
+    const key = `tf_isl_qv:${s}:${f}-${t}`;
     let v = null; try { v = JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) { }
     if (!v) {
       try {
@@ -591,22 +599,29 @@ rafiq:crying:pray_hands চরিত্রের ভাব দেখাতে �
         const ar = j.data && j.data[0] && j.data[0].ayahs, bnA = j.data && j.data[1] && j.data[1].ayahs;
         if (ar && bnA && ar.length === t - f + 1 && ar[0].numberInSurah === f) { v = { ar: ar.map((x, i) => stripBismillah(nrm(x.text), s, f + i)).join(' ۝ '), bn: bnA.map(x => nrm(x.text)) }; try { localStorage.setItem(key, JSON.stringify(v)); } catch (e) { } }
         setStat('');
-      } catch (e) { setStat(''); return txt; } // offline: keep the built-in meaning
+      } catch (e) { setStat(''); return null; } // offline: keep the built-in meaning
     }
-    if (!v) return txt;
-    const lines = String(txt).split('\n'), out = []; let i = 0;
-    for (; i < lines.length; i++) {
+    return v;
+  }
+  async function verifyQuran(txt, id) {
+    if (!/^\s*উৎস\s*[:：]\s*q\s+\d+:\d+/m.test(String(txt))) return txt;
+    const lines = String(txt).split('\n'), out = []; let changed = false;
+    for (let i = 0; i < lines.length; i++) {
       out.push(lines[i]);
-      if (/^\s*##\s*ayah\b/i.test(lines[i])) {
-        let j2 = i + 1, intro = null; const keep = [];
-        for (; j2 < lines.length && !/^\s*##/.test(lines[j2]); j2++) { const l = lines[j2].trim(); if (/^উৎস\s*[:：]/.test(l)) keep.push(l); else if (intro === null && /^-\s*/.test(l)) intro = l; }
-        out.push(...keep); if (intro) out.push(intro);
-        if (v.ar.length <= 520) out.push('আরবি: ' + v.ar);
-        v.bn.forEach(b => chunkExact(b).forEach(c => out.push('- ' + c)));
-        out.push('অনুবাদ: মুহিউদ্দীন খান');
-        i = j2 - 1;
-      }
+      if (!/^\s*##\s*ayah\b/i.test(lines[i])) continue;
+      let j2 = i + 1; for (; j2 < lines.length && !/^\s*##/.test(lines[j2]); j2++);
+      const block = lines.slice(i + 1, j2), m = block.map(l => l.trim().match(/^উৎস\s*[:：]\s*q\s+(\d+):(\d+)(?:-(\d+))?\s*$/)).find(Boolean);
+      const v = m && !block.some(l => /^\s*অনুবাদ\s*[:：]/.test(l)) ? await qFetch(+m[1], +m[2], +(m[3] || m[2])) : null;
+      if (!v) { out.push(...block); i = j2 - 1; continue; }
+      let intro = null; const keep = [];
+      block.forEach(l0 => { const l = l0.trim(); if (/^উৎস\s*[:：]/.test(l)) keep.push(l); else if (intro === null && /^-\s*/.test(l)) intro = l; });
+      out.push(...keep); if (intro) out.push(intro);
+      if (v.ar.length <= 520) out.push('আরবি: ' + v.ar);
+      v.bn.forEach(b => chunkExact(b).forEach(c => out.push('- ' + c)));
+      out.push('অনুবাদ: মুহিউদ্দীন খান'); changed = true;
+      i = j2 - 1;
     }
+    if (!changed) return txt;
     const nt = out.join('\n');
     const pre = PRE().find(x => x.id === id); if (pre) pre.txt = nt; else { const u = USERLIB.find(x => x.id === id); if (u) { u.txt = nt; saveUserLib(); } }
     return nt;
@@ -800,6 +815,8 @@ rafiq:crying:pray_hands চরিত্রের ভাব দেখাতে �
 
   /* ---------- patch the Story engine (runs right before init) ---------- */
   window.ISL_PATCH = function () {
+    /* what islamic/long.js (long videos + part-by-part series) borrows from this part */
+    window.ISL_API = { whichAI, setStat, verifyQuran, usedId, toggleUsed, busyToast, keyNote, islRenderLib: () => islRenderLib(), buildLifePrompt, CINEMA_RULES, isBusy: () => BUSY, setBusy: v => { BUSY = v; } };
     css(); addPlaces();
     SCENE_TYPES.push('ayah'); TYPE_BN.ayah = 'আয়াত/হাদিস';
     // honorifics read aloud in full
@@ -842,6 +859,11 @@ rafiq:crying:pray_hands চরিত্রের ভাব দেখাতে �
     const RP = StoryRenderer.prototype;
     const _cam2 = RP.camFor2; RP.camFor2 = function (sc, idx, ln) { if (sc.type === 'story' && !sc.cast.length) return { x: 540 + ((idx % 3) - 1) * 50, y: 880 + (idx % 2) * 70, z: 1.06 + (idx % 3) * .06 }; return _cam2.call(this, sc, idx, ln); };
     const _scene = RP.drawScene; RP.drawScene = function (c, si, t) { const sc = this.story.scenes[si]; if (sc && sc.type === 'ayah') { c.save(); drawAyah.call(this, c, si, t); c.restore(); return; } return _scene.call(this, c, si, t); };
+    /* long (16:9) videos: the quote card on a full-width background, scaled to stay readable */
+    if (typeof LongRenderer === 'function') { const LP = LongRenderer.prototype, _sL = LP.drawSceneL;
+      LP.drawSceneL = function (c, si, t) { const sc = this.story.scenes[si]; if (!sc || sc.type !== 'ayah') return _sL.call(this, c, si, t);
+        const FW = this.FW, FH = this.FH, s = Math.min(FH / 1500, FW / 1180); c.save(); ayahBg.call(this, c, FW, FH, t);
+        c.translate(FW / 2 - 540 * s, FH / 2 - 960 * s); c.scale(s, s); this._ayNoBg = true; try { drawAyah.call(this, c, si, t); } finally { this._ayNoBg = false; c.restore(); } }; }
     const _cap = RP.drawCaption; RP.drawCaption = function (c, t, fw, fh, u) { const k = this.shotAt(t), sh = this.tl.shots[k]; if (sh && this.story.scenes[sh.si].type === 'ayah') return; return _cap.call(this, c, t, fw, fh, u); };
     publishPack = islPublishPack;
     if (window.ISL_ART_PATCH) window.ISL_ART_PATCH();
