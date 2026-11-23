@@ -104,10 +104,15 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
 
 <!-- AUTO:START — rewritten by tools/autoupdate.py on every push; do not edit by hand -->
 ## Current state (auto)
-- Updated: 2026-11-23 11:34 · commit `afffb98`
-- APK version: 5.2.<build> · APP_VERSION 5.1.0 · sw cache tf-story-v5.9.5
-- File sizes (lines): index.html 10173 · home.html 285 · islamic/index.html 4994 · islamic/story.js 855 · islamic/art.js 447 · islamic/art2.js 555 · explainer/part.js 1205 · explainer/paper.js 671 · long-visuals.js 941 · long-library.js 29 · fx/motion.js 252 · fx/shadow.js 167 · cloud-core.js 58
+- Updated: 2026-11-23 12:00 · commit `960228f`
+- APK version: 5.2.<build> · APP_VERSION 5.1.0 · sw cache tf-story-v5.9.6
+- File sizes (lines): index.html 10186 · home.html 307 · islamic/index.html 4994 · islamic/story.js 877 · islamic/art.js 447 · islamic/art2.js 555 · explainer/part.js 1205 · explainer/paper.js 671 · long-visuals.js 941 · long-library.js 29 · fx/motion.js 252 · fx/shadow.js 167 · cloud-core.js 58
+- Other web files (new? add to CLAUDE.md tables): islamic/long.js
 - Latest changes (full list: CHANGELOG.md) — read these before starting; newer facts here win over older text above:
+  - 2026-11-23 · মাপ: ইসলামিক শর্টেও ১৬:৯, ৪:৫, ১:১ বাছলে ভিডিও নতুন মাপে সাজে (আগে দুই পাশে ঝাপসা পট্টি থাকত); সব অংশে চার মাপ · index.html · `082fb5f`
+  - 2026-11-23 · ইসলামিক: শর্ট/লং বাছাই; লং-এ একক গল্প (ক্যাটাগরি) ও ধারাবাহিক (পর্বে পর্বে, শেষে পরের পর্ব+সাবস্ক্রাইব ডাক); লং ফ্রেমে আয়াত পুরো জায়গায়; একাধিক আয়াত যাচাই; লং-এ #Shorts নেই · index.html, islamic/long.js, islamic/story.js, sw.js · `c3337f0`
+  - 2026-11-23 · শুরুর পাতা: ইসলামিক চাপলে দুই পথ — গল্পের ভিডিও অথবা পোস্ট মেকার (ছবি-কার্ড ও রিল) · home.html · `d91c42b`
+  - 2026-11-23 · কাজের নিয়ম: সব পরিবর্তন dev ব্রাঞ্চে, ফাইনালে একবার main-এ মার্জ করে APK বিল্ড · docs · `4488c49`
   - 2026-11-23 · ইসলামিক লাইব্রেরি: শুরুতেই শুধু নতুন (অব্যবহৃত) গল্প দেখায়, চিপের সাথে তালিকা মেলে · islamic/story.js · `afffb98`
   - 2026-11-23 · এক্সপোর্ট সমন্বয়: ☾ বোতাম ইসলামিক গল্পে, রিলের ফাইলনাম ও Facebook Reels লিংক মূল অ্যাপের মতো, কমান্ড প্যালেটে সব অংশ, অফলাইন ক্যাশে ইসলামিক ও fx ফাইল · index.html, islamic/index.html, sw.js · `1976532`
   - 2026-11-23 · Auto-sync Claude notes on every push (CODEMAP, CHANGELOG, CLAUDE.md state block) · .github/workflows/docs-sync.yml, tools/autoupdate.py · `267c0b4`
