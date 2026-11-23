@@ -211,7 +211,7 @@ ${fmt}`;
         if (r.bad && r.bad.length) toast('কিছু গল্প পড়া গেল না: ' + r.bad.slice(0, 2).join(' · '), 'err', 9000);
       }
       if (msg && miss.length) msg += ` — পর্ব ${miss.map(BNUM).join(', ')} এখনো আসেনি: Gemini-তে লিখুন "চালিয়ে যাও", তারপর সেই উত্তরটাও এখানে পেস্ট করুন (একই ধারাবাহিকে জুড়ে যাবে)`;
-      if (msg) { $('xlsBox').open = true; $('xlsDone').textContent = '✓ লাইব্রেরিতে যোগ হয়েছে: ' + msg + ' · আরও কিছু থাকলে আবার "পেস্ট করে লাইব্রেরিতে যোগ" চাপুন'; $('xlsDone').classList.remove('hidden'); $('xlsIn').value = ''; toast('✓ ' + msg + ' লাইব্রেরিতে যোগ হয়েছে', 'ok', 6000); }
+      if (msg) { $('xlsBox').open = true; $('xlsDone').textContent = '✓ যোগ হয়েছে: ' + msg; $('xlsIn').classList.add('hidden'); $('xlsDone').classList.remove('hidden'); $('xlsIn').value = ''; toast('✓ ' + msg + ' লাইব্রেরিতে যোগ হয়েছে', 'ok', 6000); }
       else if (!$('xlsDone').classList.contains('hidden')) $('xlsDone').classList.add('hidden');
     } catch (e) { console.error(e); toast(e.message, 'err', 8000); }
     finally { btn.disabled = false; btn.textContent = old; busy = false; }
@@ -223,40 +223,39 @@ ${fmt}`;
   const opt = (v, t) => el('option', { value: v, text: t });
   function build() {
     if ($('xlsBox') || !$('libList')) return;
-    const kindSeg = el('nav', { class: 'seg sub small', id: 'xlsKind', 'data-v': 'single' },
-      el('button', { type: 'button', 'data-k': 'single', text: 'একটাতেই শেষ' }), el('button', { type: 'button', 'data-k': 'series', text: 'ধারাবাহিক পর্ব' }));
-    const step = (n, t) => el('div', { class: 'xls-step' }, el('span', { class: 'xls-n', text: BNUM(n) }), el('b', { text: t }));
-    const box = el('details', { id: 'xlsBox', class: 'xls isl-form' },
-      el('summary', null, el('b', { text: '✍ বাইরের AI দিয়ে গল্প যোগ (Gemini / ChatGPT)' }), el('span', { class: 'muted sm', id: 'xlsSec' })),
-      step(1, 'কী চান বাছুন'),
+    const kindSeg = el('nav', { class: 'xls-seg', id: 'xlsKind', 'data-v': 'single' },
+      el('button', { type: 'button', 'data-k': 'single', text: 'একটাতেই শেষ' }), el('button', { type: 'button', 'data-k': 'series', text: 'ধারাবাহিক' }));
+    const chip = (id, wrap, ...o) => el('span', { id: wrap, class: 'xls-cw' }, el('select', { id, class: 'xls-chip' }, ...o));
+    const box = el('details', { id: 'xlsBox', class: 'xls' },
+      el('summary', null, el('span', { text: '✍ Gemini দিয়ে লিখুন' }), el('span', { class: 'xls-sec', id: 'xlsSec' })),
       el('div', { id: 'xlsKindRow' }, kindSeg),
-      el('div', { class: 'grid3' },
-        el('label', { id: 'xlsNRow' }, 'কয়টা গল্প', el('select', { id: 'xlsN' })),
-        el('label', { id: 'xlsPartsRow' }, 'কয়টা পর্ব', el('select', { id: 'xlsParts' }, ...[2, 3, 4, 5, 6, 8].map(n => opt(n, BNUM(n) + 'টা')))),
-        el('label', { id: 'xlsMinRow' }, 'প্রতিটা কত মিনিট', el('select', { id: 'xlsMin' }, ...[4, 5, 6, 8, 10, 12, 15].map(n => opt(n, BNUM(n) + ' মিনিট'))))),
-      el('label', null, 'ক্যাটাগরি', el('select', { id: 'xlsCat' })),
-      el('input', { id: 'xlsCatOwn', class: 'hidden', placeholder: 'নিজের ক্যাটাগরি লিখুন — যেমন: প্রবাসীর ঈদ' }),
-      el('label', null, 'বিষয় (ঐচ্ছিক, দু-এক কথা)', el('textarea', { id: 'xlsTopic', rows: 2, placeholder: 'যেমন: প্রবাসী ছেলের ঈদের রাত' })),
-      el('details', { class: 'xls-more' }, el('summary', { text: '⚙ আরও অপশন (স্টাইল, বিশেষ নির্দেশ)' }),
-        el('label', { id: 'xlsStyleRow' }, 'স্টাইল', el('select', { id: 'xlsStyle' })),
-        el('label', null, 'আপনার বিশেষ নির্দেশ', el('textarea', { id: 'xlsOwn', rows: 2, placeholder: 'যেমন: গ্রামের পটভূমি, শেষে সুখের সমাপ্তি, সংলাপ বেশি' })),
-        el('label', { class: 'chk' }, el('input', { type: 'checkbox', id: 'xlsEngage' }), ' দর্শক ধরে রাখার কৌশল (টুইস্ট, কুইজ, সাবস্ক্রাইবের ডাক)')),
-      step(2, 'প্রম্পট কপি করে Gemini-তে পেস্ট করুন'),
-      el('button', { type: 'button', class: 'primary xls-big', id: 'xlsCopy', text: '📋 প্রম্পট কপি করুন' }),
-      el('details', { class: 'xls-more' }, el('summary', { text: 'প্রম্পটটা দেখুন' }), el('textarea', { id: 'xlsPrompt', rows: 6, readonly: '', class: 'xls-prompt' })),
-      step(3, 'Gemini-র পুরো উত্তর কপি করে এখানে আনুন'),
-      el('p', { class: 'muted sm', id: 'xlsHint', text: 'সব পর্ব/গল্প একবারেই — উত্তরের নিচের কপি বোতাম চাপুন, তারপর নিচের বোতাম। অ্যাপ নিজেই পর্বগুলো আলাদা করে লাইব্রেরিতে রাখবে, আলাদা আলাদা পেস্ট করতে হবে না।' }),
-      el('button', { type: 'button', class: 'primary xls-big', id: 'xlsPaste', text: '📥 পেস্ট করে লাইব্রেরিতে যোগ' }),
-      el('textarea', { id: 'xlsIn', rows: 3, placeholder: 'বোতাম কাজ না করলে এখানে চেপে ধরে "Paste" — পেস্ট করলেই নিজে থেকে যোগ হবে' }),
-      el('button', { type: 'button', class: 'ghost sm hidden', id: 'xlsAdd', text: 'লাইব্রেরিতে যোগ' }),
-      el('p', { class: 'ok sm hidden', id: 'xlsDone' }));
+      el('div', { class: 'xls-chips' },
+        chip('xlsN', 'xlsNRow'),
+        chip('xlsParts', 'xlsPartsRow', ...[2, 3, 4, 5, 6, 8].map(n => opt(n, BNUM(n) + ' পর্ব'))),
+        chip('xlsMin', 'xlsMinRow', ...[4, 5, 6, 8, 10, 12, 15].map(n => opt(n, BNUM(n) + ' মিনিট'))),
+        chip('xlsCat', 'xlsCatRow'),
+        el('button', { type: 'button', class: 'xls-chip xls-gear', id: 'xlsMoreBtn', 'aria-label': 'আরও অপশন', text: '⚙' })),
+      el('input', { id: 'xlsCatOwn', class: 'xls-in hidden', placeholder: 'নিজের ক্যাটাগরি' }),
+      el('input', { id: 'xlsTopic', class: 'xls-in', placeholder: 'বিষয় (ঐচ্ছিক) — যেমন: প্রবাসী ছেলের ঈদ' }),
+      el('div', { id: 'xlsMore', class: 'xls-more hidden' },
+        el('span', { id: 'xlsStyleRow', class: 'xls-cw' }, el('select', { id: 'xlsStyle', class: 'xls-chip' })),
+        el('input', { id: 'xlsOwn', class: 'xls-in', placeholder: 'বিশেষ নির্দেশ (ঐচ্ছিক)' }),
+        el('label', { class: 'xls-chk' }, el('input', { type: 'checkbox', id: 'xlsEngage' }), ' টুইস্ট, কুইজ, সাবস্ক্রাইবের ডাক')),
+      el('div', { class: 'xls-act' },
+        el('button', { type: 'button', class: 'primary', id: 'xlsCopy', text: '📋 প্রম্পট কপি' }),
+        el('button', { type: 'button', class: 'primary', id: 'xlsPaste', text: '📥 পেস্ট করে যোগ' })),
+      el('textarea', { id: 'xlsIn', class: 'xls-in hidden', rows: 2, placeholder: 'এখানে চেপে ধরে Paste — নিজে থেকেই যোগ হবে' }),
+      el('button', { type: 'button', class: 'hidden', id: 'xlsAdd', text: 'যোগ' }),
+      el('textarea', { id: 'xlsPrompt', class: 'hidden', readonly: '' }),
+      el('p', { class: 'xls-done hidden', id: 'xlsDone' }));
     const chips = $('libChips'); (chips && chips.parentNode === $('libList').parentNode ? chips : $('libList')).insertAdjacentElement(chips && chips.parentNode === $('libList').parentNode ? 'afterend' : 'beforebegin', box);
     const css = document.createElement('style'); css.id = 'xlsCss';
-    css.textContent = '.xls{margin:10px 0 14px;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--card,transparent)}.xls>summary{cursor:pointer;display:flex;flex-direction:column;gap:2px;list-style:none}.xls>summary::-webkit-details-marker{display:none}.xls[open]>summary{margin-bottom:8px}.xls label{display:block;margin:8px 0}.xls select,.xls input:not([type=checkbox]),.xls textarea{width:100%;box-sizing:border-box}.xls .chk{display:flex;gap:8px;align-items:center}.xls .row{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:10px 0 6px}.xls-prompt{font-size:12px;opacity:.85}#xlsKindRow{margin:8px 0}#xlsKindRow .seg{margin-top:4px}.xls .ok{color:var(--ok,#1f7a4d);font-weight:600}.xls-step{display:flex;align-items:center;gap:8px;margin:14px 0 6px}.xls-n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--accent,#1f7a4d);color:#fff;font-size:13px;font-weight:700;flex:none}.xls-big{width:100%;min-height:48px;font-size:16px;margin:4px 0 8px}.xls-more{margin:6px 0}.xls-more>summary{cursor:pointer;font-size:13px;opacity:.8;padding:4px 0}#xlsKindRow .seg{display:flex}#xlsKindRow .seg button{flex:1;min-height:40px}';
+    css.textContent = '.xls{margin:8px 0 12px;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--card,#fff)}.xls>summary{cursor:pointer;display:flex;align-items:baseline;justify-content:space-between;gap:8px;list-style:none;font-weight:700;font-size:15px}.xls>summary::-webkit-details-marker{display:none}.xls-sec{font-weight:400;font-size:12px;opacity:.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.xls[open]>summary{margin-bottom:10px}.xls-seg{display:flex;gap:4px;padding:3px;border-radius:999px;background:var(--line2,#eef0ee);margin-bottom:8px}.xls-seg button{flex:1;border:0;background:transparent;border-radius:999px;padding:6px 0;font-size:13.5px;min-height:0}.xls-seg button.on{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12);font-weight:700}.xls-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}.xls-cw{display:contents}.xls-cw.hidden{display:none}select.xls-chip,button.xls-chip{width:auto;max-width:46vw;min-height:0;height:34px;padding:0 26px 0 12px;border:1px solid var(--line);border-radius:999px;font-size:13.5px;background:#fff url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2710%27 height=%2710%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23777%27 stroke-width=%273%27%3E%3Cpath d=%27m6 9 6 6 6-6%27/%3E%3C/svg%3E") no-repeat right 10px center;-webkit-appearance:none;appearance:none;text-overflow:ellipsis}select.xls-chip:disabled{opacity:.75;background-image:none;padding-right:12px}#xlsCat{flex:1 1 0;min-width:0;max-width:none}.xls-chips{flex-wrap:nowrap}button.xls-gear{padding:0 11px;background-image:none;flex:none}button.xls-gear.on{border-color:var(--g,#1f5c44);color:var(--g,#1f5c44)}.xls-in{width:100%;box-sizing:border-box;height:38px;border:1px solid var(--line);border-radius:10px;padding:0 12px;font-size:14px;margin-bottom:8px}textarea.xls-in{height:auto;padding:8px 12px}.xls-more{border-top:1px dashed var(--line);padding-top:8px;margin-bottom:4px}.xls-more .xls-cw{display:block;margin-bottom:8px}.xls .xls-chk{display:flex!important;flex-direction:row!important;gap:8px;align-items:center;justify-content:flex-start;font-size:13px;margin:0 0 6px;text-align:left}.xls .xls-chk input{width:18px!important;height:18px;margin:0;flex:none}.xls-act{display:grid;grid-template-columns:1fr 1fr;gap:8px}.xls-act button{min-height:44px;font-size:14.5px;padding:0 6px}.xls-done{margin:8px 0 0;font-size:13px;color:var(--ok,#1f7a4d);font-weight:600}';
     document.head.append(css);
     // events
     const upd = () => { save(); refreshPrompt(); };
     ['xlsCat', 'xlsStyle', 'xlsN', 'xlsParts', 'xlsMin', 'xlsEngage'].forEach(id => $(id).addEventListener('change', () => { if (id === 'xlsCat') $('xlsCatOwn').classList.toggle('hidden', $('xlsCat').value !== '__own'); if (id === 'xlsStyle' && section() === 'long') fillCats(); upd(); }));
+    $('xlsMoreBtn').onclick = () => { const h = $('xlsMore').classList.toggle('hidden'); $('xlsMoreBtn').classList.toggle('on', !h); };
     ['xlsCatOwn', 'xlsTopic', 'xlsOwn'].forEach(id => $(id).addEventListener('input', debounce(upd, 350)));
     kindSeg.addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if (!b) return; kindSeg.dataset.v = b.dataset.k; syncKind(); upd(); });
     $('xlsCopy').onclick = () => { refreshPrompt(); copyText($('xlsPrompt').value, 'প্রম্পট কপি হয়েছে — Gemini / ChatGPT / Claude-এ পেস্ট করুন'); };
@@ -264,13 +263,13 @@ ${fmt}`;
       let t = ''; try { t = await navigator.clipboard.readText(); } catch (e) { }
       if (!t && window.TFAndroid && TFAndroid.getClipboard) { try { t = TFAndroid.getClipboard(); } catch (e) { } }
       if (t && t.trim()) { $('xlsIn').value = t; addPasted(); }
-      else { toast('নিচের বক্সে চেপে ধরে "Paste" চাপুন — পেস্ট করলেই যোগ হবে', '', 6000); $('xlsIn').focus(); }
+      else { $('xlsIn').classList.remove('hidden'); toast('নিচের বক্সে চেপে ধরে Paste চাপুন', '', 5000); $('xlsIn').focus(); }
     };
     $('xlsAdd').onclick = addPasted;
     // pasting into the box (or a keyboard clipboard chip) adds by itself — no extra button
     let lastLen = 0;
     $('xlsIn').addEventListener('paste', () => setTimeout(() => addPasted(true), 80));
-    $('xlsIn').addEventListener('input', () => { const L = $('xlsIn').value.length; if (L - lastLen > 300) setTimeout(() => addPasted(true), 120); lastLen = L; $('xlsAdd').classList.toggle('hidden', !L); });
+    $('xlsIn').addEventListener('input', () => { const L = $('xlsIn').value.length; if (L - lastLen > 300) setTimeout(() => addPasted(true), 120); lastLen = L; });
     box.addEventListener('toggle', () => { if (box.open) load(); });
     // the section can change under the card (short ↔ long, single ↔ series, big ↔ mid)
     document.addEventListener('click', e => { if (e.target.closest('#fmtPick, #islLKind, #islLSerLen, #lifeKind, #lifeSerLen, #srcTabs, [data-fmt]')) setTimeout(load, 60); }, true);
@@ -279,17 +278,18 @@ ${fmt}`;
   const debounce = (f, ms) => { let t; return () => { clearTimeout(t); t = setTimeout(f, ms); }; };
   function fillCats() {
     const c = CFG[section()], g = get(), sel = $('xlsCat'), cats = (c.cats() || []).slice();
-    sel.innerHTML = ''; sel.append(opt('', 'AI বেছে নিক'), ...cats.map(x => opt(x, x)), opt('__own', '✎ নিজে লিখুন…'));
+    sel.innerHTML = ''; sel.append(opt('', 'যেকোনো ক্যাটাগরি'), ...cats.map(x => opt(x, x)), opt('__own', '✎ নিজে লিখুন'));
     const v = g.cat || ''; if (v && !cats.includes(v) && v !== '__own') { sel.value = '__own'; $('xlsCatOwn').value = v; } else sel.value = v;
     $('xlsCatOwn').classList.toggle('hidden', sel.value !== '__own');
   }
   function load() {
     if (!$('xlsBox')) return; const sec = section(), c = CFG[sec], g = get();
-    $('xlsSec').textContent = 'এই লাইব্রেরি: ' + c.name;
+    $('xlsDone').classList.add('hidden'); $('xlsIn').classList.add('hidden');
+    $('xlsSec').textContent = c.name.replace(/\s*\(.*\)$/, '');
     const st = c.styles(); $('xlsStyleRow').classList.toggle('hidden', !st.length); $('xlsStyle').innerHTML = ''; st.forEach(([v, t]) => $('xlsStyle').append(opt(v, t)));
     if (st.length) $('xlsStyle').value = g.style && st.some(s => s[0] === g.style) ? g.style : (sec === 'long' ? (S.longStyle || 'life') : sec === 'short' ? (S.storyStyle === 'classic' ? 'classic' : 'twist') : st[0][0]);
     fillCats();
-    $('xlsN').innerHTML = ''; for (let i = 1; i <= c.maxN; i++) $('xlsN').append(opt(i, BNUM(i) + 'টা')); $('xlsN').value = Math.min(c.maxN, g.n || 1);
+    $('xlsN').innerHTML = ''; for (let i = 1; i <= c.maxN; i++) $('xlsN').append(opt(i, BNUM(i) + 'টা গল্প')); $('xlsN').value = Math.min(c.maxN, g.n || 1);
     $('xlsParts').value = c.parts || g.parts || 3; $('xlsParts').disabled = !!c.parts;
     $('xlsMin').value = c.series && c.parts ? 5 : (g.mins || c.defMin); if (!$('xlsMin').value) $('xlsMin').value = c.defMin;
     $('xlsMin').disabled = !!(c.series && c.parts);

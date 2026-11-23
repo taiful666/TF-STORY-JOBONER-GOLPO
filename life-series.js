@@ -85,7 +85,7 @@ ${buildLongPrompt(o)}`;
   function form() { return { style: $('lifeSStyle').value || 'life', cat: '', topic: $('lifeSTopic').value.trim(), of: serLen() === 'mid' ? 3 : (+$('lifeSParts').value || 3), mins: serLen() === 'mid' ? 5 : (+$('lifeSMin').value || 8) }; }
   function makePlan() {
     const f = form();
-    if (!hasKey()) { toast('অ্যাপের AI-এর key নেই — ওপরের "✍ বাইরের AI দিয়ে গল্প যোগ" কার্ড থেকে Gemini দিয়ে পুরো ধারাবাহিক লিখিয়ে পেস্ট করুন', 'err', 9000); const x = $('xlsBox'); if (x) { x.open = true; x.scrollIntoView({ behavior: 'smooth' }); } return; }
+    if (!hasKey()) { toast('অ্যাপের AI-এর key নেই — ওপরের "✍ Gemini দিয়ে লিখুন" থেকে Gemini দিয়ে পুরো ধারাবাহিক লিখিয়ে পেস্ট করুন', 'err', 9000); const x = $('xlsBox'); if (x) { x.open = true; x.scrollIntoView({ behavior: 'smooth' }); } return; }
     run('পর্বগুলোর পরিকল্পনা হচ্ছে…', async () => {
       const tx = await aiComplete(planPrompt(f), ai()), m = strip(tx).match(/\{[\s\S]*\}/); let j = null; try { j = JSON.parse(m ? m[0] : ''); } catch (e) { }
       if (!j || !Array.isArray(j.parts) || j.parts.length < 2) throw new Error('পরিকল্পনা পড়া গেল না — আবার চেষ্টা করুন');
@@ -149,11 +149,12 @@ ${buildLongPrompt(o)}`;
   function init() {
     if (inited || !$('libList')) return; inited = true;
     const opt = (v, t) => el('option', { value: v, text: t });
-    const box = el('div', { id: 'lifeLongBox', class: 'isllong hidden' },
-      el('nav', { class: 'seg sub small', id: 'lifeKind' }, ...[['single', 'একক লং গল্প'], ['series', 'ধারাবাহিক (পর্বে পর্বে)']].map(([v, t]) => el('button', { type: 'button', 'data-k': v, text: t }))),
-      el('nav', { class: 'seg sub small', id: 'lifeSerLen' }, ...[['big', 'বড় ধারাবাহিক (পর্ব ~৮ মিনিট)'], ['mid', 'মাঝারি (৩ পর্ব × ~৫ মিনিট)']].map(([v, t]) => el('button', { type: 'button', 'data-l': v, text: t }))),
-      el('details', { id: 'lifeSNew', class: 'isl-form' },
-        el('summary', { id: 'lifeSNewS', text: '＋ অ্যাপের AI দিয়ে নতুন ধারাবাহিক' }),
+    const box = el('div', { id: 'lifeLongBox', class: 'hidden' },
+      el('div', { class: 'life-row' },
+        el('nav', { class: 'xls-seg', id: 'lifeKind' }, ...[['single', 'একক লং'], ['series', 'ধারাবাহিক']].map(([v, t]) => el('button', { type: 'button', 'data-k': v, text: t }))),
+        el('nav', { class: 'xls-seg', id: 'lifeSerLen' }, ...[['big', 'বড়'], ['mid', 'মাঝারি']].map(([v, t]) => el('button', { type: 'button', 'data-l': v, text: t })))),
+      el('details', { id: 'lifeSNew', class: 'xls' },
+        el('summary', { id: 'lifeSNewS', text: '＋ অ্যাপের AI দিয়ে লিখুন (API key)' }),
         el('p', { class: 'muted sm', id: 'lifeSNote' }),
         el('label', null, 'ধরন', el('select', { id: 'lifeSStyle' }, ...Object.entries(LONG_STYLE_BN).map(([v, t]) => opt(v, t)))),
         el('label', null, 'বিষয় বা ভাবনা (ঐচ্ছিক)', el('textarea', { id: 'lifeSTopic', rows: 2, placeholder: 'যেমন: ধার দিয়ে বন্ধু হারানো / প্রবাসীর টাকায় গড়া বাড়ি' })),
@@ -162,6 +163,7 @@ ${buildLongPrompt(o)}`;
           el('label', null, 'প্রতি পর্ব', el('select', { id: 'lifeSMin' }, ...[6, 8, 10, 12, 15].map(n => opt(n, `${bn(n)} মিনিট`))))),
         el('button', { type: 'button', class: 'primary wide', id: 'lifeSGo', text: 'পর্বগুলোর পরিকল্পনা বানান' })));
     const ul = $('libList'); ul.parentNode.insertBefore(box, ul);
+    const css = document.createElement('style'); css.textContent = '#lifeLongBox{margin:0 0 8px}.life-row{display:flex;gap:8px}.life-row .xls-seg{flex:1;margin:0}#lifeSerLen{flex:.8}#lifeSNew{margin-top:8px}#lifeSNew label{display:block;margin:6px 0}#lifeSNew select,#lifeSNew textarea{width:100%;box-sizing:border-box}'; document.head.append(css);
     $('lifeSParts').value = '3'; $('lifeSMin').value = '8';
     $('lifeKind').addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if (!b) return; S.lifeLongKind = b.dataset.k; saveSettings(); renderLib(); });
     $('lifeSerLen').addEventListener('click', e => { const b = e.target.closest('button[data-l]'); if (!b) return; S.lifeSerLen = b.dataset.l; saveSettings(); renderLib(); });
@@ -172,7 +174,7 @@ ${buildLongPrompt(o)}`;
     const x = $('xlsBox'); if (x && x.parentNode === b.parentNode && (x.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING)) x.before(b); // the switch above the paste card
     b.classList.toggle('hidden', !L);
     document.querySelectorAll('#lifeKind button').forEach(x => x.classList.toggle('on', x.dataset.k === (ser ? 'series' : 'single')));
-    ['lifeSerLen', 'lifeSNew'].forEach(id => $(id).classList.toggle('hidden', !ser));
+    $('lifeSerLen').classList.toggle('hidden', !ser); $('lifeSNew').classList.toggle('hidden', !ser || !hasKey());
     const ar = $('libArea'), mc = $('libMineChip'); if (ar) ar.style.display = ser ? 'none' : ''; if (ser && mc) mc.classList.add('hidden');
   }
   function render() {
@@ -180,7 +182,7 @@ ${buildLongPrompt(o)}`;
     const MID = serLen() === 'mid';
     document.querySelectorAll('#lifeSerLen button').forEach(b => b.classList.toggle('on', b.dataset.l === serLen()));
     $('lifeSBig').classList.toggle('hidden', MID); $('lifeSGo').disabled = BUSY;
-    $('lifeSNote').textContent = (MID ? 'মাঝারি: ৩ পর্ব × ~৫ মিনিট — প্রতি পর্বে টুইস্ট, ক/খ/গ কুইজ (উত্তর পরের পর্বে), শেষে টানটান প্রশ্ন আর সাবস্ক্রাইব-ফলো-কমেন্টের ডাক।' : 'বড়: আগে AI পুরো গল্প পর্বে ভাগ করবে, তারপর পর্বে চাপ দিলে সেই পর্ব লেখা হবে। প্রতি পর্বের শেষে "পরের পর্ব আসছে — সাবস্ক্রাইব/ফলো করুন"।') + ' Gemini অ্যাপ দিয়ে লেখাতে চাইলে ওপরের "✍ বাইরের AI" কার্ড ব্যবহার করুন।';
+    $('lifeSNote').textContent = MID ? '৩ পর্ব × ~৫ মিনিট, প্রতি পর্বে টুইস্ট ও কুইজ।' : 'আগে পর্বের পরিকল্পনা, তারপর পর্বে চাপলে লেখা হবে।';
     const tab = (LIBUI && LIBUI.tab) || 'new', wantUsed = tab === 'used', q = ($('libSearch').value || '').trim().toLowerCase();
     const serUsed = p => { const pl = planOf(p); if (!pl) return false; const ws = pl.parts.map((_, i) => findPart(p.id, i + 1)).filter(Boolean); return ws.length === pl.parts.length && ws.every(u => used(u.id)); };
     const items = plans().slice().reverse().filter(p => { const pl = planOf(p); return pl && isMid(pl) === MID; });
@@ -207,7 +209,7 @@ ${buildLongPrompt(o)}`;
           u ? el('button', { type: 'button', class: 'islre del', title: 'নতুন করে লিখুন', 'aria-label': 'নতুন করে লিখুন', text: '↻', onclick: e => { e.stopPropagation(); if (confirm(`পর্ব ${bn(k + 1)} নতুন করে লিখবেন? আগের লেখা মুছে যাবে।`)) writePart(p.id, k + 1); } }) : null));
       });
     });
-    if (!list.length) frag.append(el('li', { class: 'lib-empty', text: wantUsed ? 'কোনো ধারাবাহিক এখনো পুরো ব্যবহার হয়নি' : `এখনো কোনো ${MID ? 'মাঝারি ' : ''}ধারাবাহিক নেই — ওপরের "✍ বাইরের AI দিয়ে গল্প যোগ" কার্ডে "ধারাবাহিক পর্ব" বেছে Gemini দিয়ে লেখান` }));
+    if (!list.length) frag.append(el('li', { class: 'lib-empty', text: wantUsed ? 'কোনো ধারাবাহিক এখনো পুরো ব্যবহার হয়নি' : `এখনো কোনো ${MID ? 'মাঝারি ' : ''}ধারাবাহিক নেই — ওপরে "✍ Gemini দিয়ে লিখুন"` }));
     ul.append(frag);
   }
 
