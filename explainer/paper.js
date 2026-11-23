@@ -615,7 +615,7 @@ window.XP = (() => {
   function ui(r, c, t, si) {
     const sc = r.story.scenes[si], S = r.settings || {}, FW = r.FW, FH = r.FH, u = r.u;
     if (S.progress !== false) { const p = cl(t / Math.max(1, r.duration)); rect2(c, 0, FH - 9 * u, FW, 9 * u, 'rgba(28,43,75,.12)'); rect2(c, 0, FH - 9 * u, FW * p, 9 * u, P.acc); (r.chapList || []).forEach(ch => rect2(c, FW * ch.start / r.duration - 2, FH - 9 * u, 4, 9 * u, P.ink)); }
-    if (S.watermark !== false) { const a = (S.wm != null ? S.wm : 70) / 100; c.save(); c.globalAlpha *= a; if (typeof drawLogo === 'function') drawLogo(c, 62 * u, 60 * u, 62 * u, S.logo || 'TF'); say(c, S.series || 'TF', 108 * u, 72 * u, 32 * u, P.ink, 800, 'left', HEAD, FW * .4); c.restore(); }
+    { const a = (S.wm != null ? S.wm : 70) / 100; c.save(); c.globalAlpha *= Math.max(.85, a); if (typeof drawLogo === 'function') drawLogo(c, 62 * u, 60 * u, 62 * u, S.logo || 'TF'); c.restore(); } if (S.watermark !== false) { const a = (S.wm != null ? S.wm : 70) / 100; c.save(); c.globalAlpha *= a; say(c, S.series || 'TF', 108 * u, 72 * u, 32 * u, P.ink, 800, 'left', HEAD, FW * .4); c.restore(); }
     const ch = r.chap && r.chap[si]; if (ch && ch.chapter && sc.type === 'story') { const lab = [ch.chapter.no, ch.chapter.title].filter(Boolean).join(' · '); c.font = font(700, 30 * u); const w = Math.min(FW * (r.land ? .42 : .8), c.measureText(lab).width + 50 * u); alpha(c, .95, () => { rrect(c, FW - w - 44 * u, 36 * u, w, 56 * u, 28 * u, 'rgba(28,43,75,.9)'); say(c, lab, FW - 44 * u - w / 2, 74 * u, 30 * u, '#fff', 700, 'center', HEAD, w - 30 * u); }); }
   }
 

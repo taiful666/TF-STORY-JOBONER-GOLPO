@@ -379,7 +379,7 @@
     const box = $('v-tts'); if (!box || $('islVoiceCard')) return;
     const name = el('b', { id: 'islVName' }), play = el('button', { type: 'button', class: 'ghost sm', text: '▶ শুনুন', onclick: () => { try { previewVoice(); } catch (e) { } } });
     const change = el('button', { type: 'button', class: 'ghost sm', text: 'বদলান', onclick: () => { const s = $('cVoice'); if (s) { s.focus(); s.scrollIntoView({ block: 'center' }); if (!(S.voiceList || []).length) { try { loadVoices(); } catch (e) { } } } } });
-    const auto = el('label', { class: 'chk' }, el('input', { type: 'checkbox', id: 'islAutoTTS', checked: S.islAutoTTS !== false ? 'checked' : null, onchange: e => { S.islAutoTTS = e.target.checked; saveSettings(); } }), ' এই ধাপে এলে নিজে থেকেই পুরো গল্পের কণ্ঠ বানাও');
+    const auto = el('label', { class: 'chk' }, el('input', { type: 'checkbox', id: 'islAutoTTS', checked: S.islAutoTTS === true ? 'checked' : null, onchange: e => { S.islAutoTTS = e.target.checked; saveSettings(); } }), ' এই ধাপে এলে নিজে থেকেই পুরো গল্পের কণ্ঠ বানাও');
     const card = el('div', { id: 'islVoiceCard', class: 'islvc' }, el('div', { class: 'row between' }, el('span', null, '🎙 কথক — সব গল্পে এই কণ্ঠই থাকবে'), el('span', null, play, ' ', change)), name, el('p', { class: 'muted sm', text: 'একবার তালিকা থেকে বাছলে আর বদলাবে না, যতক্ষণ না আপনি নিজে বদলান।' }), auto);
     box.prepend(card);
     const css = document.createElement('style'); css.textContent = '.islvc{border:1px solid #d7e4da;background:#f3f8f4;border-radius:14px;padding:12px 14px;margin:0 0 12px;display:grid;gap:6px}.islvc b{font-size:18px;color:#1E3A2F}';
@@ -416,7 +416,7 @@
     ['salah', 'musalli', 'rehalq'].forEach(k => { FGE[k] = E[k]; });
     const _gs = goStep;
     goStep = function (n) { _gs(n); upd(); if (+n === 3) { showVName();
-        try { if (S.islAutoTTS !== false && app.story && app.tl && getKey('cKey') && S.voiceId && app.tl.shots.some(sh => !sh.seg) && !$('btnTTS').disabled) setTimeout(() => { if (curStep === 3) $('btnTTS').click(); }, 400); } catch (e) { } } };
+        try { if (S.islAutoTTS === true && app.story && app.tl && getKey('cKey') && S.voiceId && app.tl.shots.some(sh => !sh.seg) && !$('btnTTS').disabled) setTimeout(() => { if (curStep === 3) $('btnTTS').click(); }, 400); } catch (e) { } } };
     const _la = loadAny;
     loadAny = async function (text, o) { pickVariant(true); const r = await _la(text, o); upd(); try { app.renderer._cov = null; thumbSoon(); } catch (e) { } return r; };
     // faceless people

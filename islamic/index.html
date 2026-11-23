@@ -648,13 +648,14 @@ details:not(.sect)>summary{font-size:14px!important;color:var(--muted)}
   #hTodayBtn,#aTodayBtn{grid-column:1/-1}
 }
 .note:not(:has(button)):not([id]){display:none!important}
+#tfToBack{width:40px;padding:0;justify-content:center;flex:none;margin-right:2px}#tfToBack span{display:none}
 </style>
 <script src="../cloud-core.js"></script>
 </head>
 <body>
 <header class="top">
   <div class="in">
-    <div class="brand"><img src="icon-192.png" alt=""><b>TF Story <span class="tfsub">ইসলামিক</span></b></div>
+    <div class="brand"><button type="button" class="tfswitch" id="tfToBack" title="পেছনে যান" aria-label="পেছনে যান"><i><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></i><span>পেছনে</span></button><img src="icon-192.png" alt=""><b>TF Story <span class="tfsub">ইসলামিক</span></b></div>
     <div class="ctrls">
       <a class="tfswitch" id="tfToHome" href="../home.html" title="শুরুর পাতা: গল্প / ইসলামিক অংশ বাছুন"><i><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></svg></i><span>শুরু</span></a>
       <a class="tfswitch" id="tfToStory" href="../index.html?part=islamic" title="ইসলামিক গল্প-ভিডিও (কুরআন ও হাদিসের গল্প)"><i><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18M7 5v4M12 5v4M17 5v4"/><path d="m10.5 12.2 3.6 2.1-3.6 2.1z"/></svg></i><span>গল্প-ভিডিও</span></a>
@@ -4715,14 +4716,16 @@ function tfShareWire(){
     tfSend(k, k === 'fb' ? pk.fb : (k === 'wa' || k === 'other') ? pk.short : '');
   });
 }
-/* Android Back button: close what is open, otherwise go back to the start screen */
+/* Android Back button + on-screen ← (#tfToBack): close what is open, otherwise go back to where this section was opened from */
+document.addEventListener('click', e => { if(e.target.closest && e.target.closest('#tfToBack')){ e.preventDefault(); window.TFBack && window.TFBack(); } });
 window.TFBack = () => {
   if(!$('tfShare').classList.contains('hidden')){ if($('tfShGrid').classList.contains('hidden')) tfShReset(); else tfShClose(); return true; }
   const m = Array.from(document.querySelectorAll('.modal')).find(x => !x.classList.contains('hidden')); if(m){ m.classList.add('hidden'); return true; }
   const sh = Array.from(document.querySelectorAll('.v2sheet')).find(x => !x.classList.contains('hidden')); if(sh){ sh.classList.add('hidden'); return true; }
   if(RS.open){ if(!RS.exporting){ if(!$('rvDone').classList.contains('hidden')) $('rvDone').classList.add('hidden'); else reelClose(false); } return true; }
   try{ persistNow(); }catch(e){}
-  location.href = '../index.html?part=islamic'; return true;
+  let r = ''; try{ r = document.referrer || ''; }catch(e){}
+  location.href = /index\.html\?part=islamic/.test(r) ? '../index.html?part=islamic' : '../home.html#islamic'; return true;
 };
 /* drag text parts right on the reel preview — positions are saved for this reel size */
 function reelWireDrag(){
