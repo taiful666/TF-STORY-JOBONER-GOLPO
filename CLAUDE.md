@@ -112,11 +112,12 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
 
 <!-- AUTO:START — rewritten by tools/autoupdate.py on every push; do not edit by hand -->
 ## Current state (auto)
-- Updated: 2026-11-23 19:00 · commit `120bbff`
-- APK version: 5.2.<build> · APP_VERSION 5.1.0 · sw cache tf-story-v5.9.13
+- Updated: 2026-11-23 20:01 · commit `6684ccd`
+- APK version: 5.2.<build> · APP_VERSION 5.1.0 · sw cache tf-story-v5.9.14
 - File sizes (lines): index.html 10512 · home.html 322 · islamic/index.html 5009 · islamic/story.js 877 · islamic/art.js 452 · islamic/art2.js 555 · explainer/part.js 1205 · explainer/paper.js 671 · long-visuals.js 941 · long-library.js 29 · fx/motion.js 252 · fx/shadow.js 167 · cloud-core.js 58
 - Other web files (new? add to CLAUDE.md tables): islamic/long-series.js, islamic/long-stories.js, islamic/long.js, islamic/mid-series.js, lib-studio.js, life-series.js
 - Latest changes (full list: CHANGELOG.md) — read these before starting; newer facts here win over older text above:
+  - 2026-11-23 · থাম্বনেল: ধারাবাহিকে গল্পের (সিরিজের) নাম সবচেয়ে বড় শিরোনাম; 'পর্ব k / N' ছোট ব্যাজ, পর্বের নাম নিচে ছোট লাইনে — সব সেকশন, সব রেশিও · index.html, sw.js · `64fcba5`
   - 2026-11-23 · থাম্বনেল: পর্ব ব্যাজ বড় (আলাদা লাইনে), প্রতিটা লেখা আঙুল/মাউসে টেনে সরানো ও কোণ/দুই আঙুলে বড়-ছোট করার এডিটর — সব সেকশন, সব রেশিও, মোবাইল ও পিসি · index.html, sw.js · `120bbff`
   - 2026-11-23 · থাম্বনেল: জীবন পাঠ ধারাবাহিকেও মোট পর্ব ধরে 'পর্ব k / N' ও 'শেষ পর্ব' ব্যাজ · index.html · `ff31b47`
   - 2026-11-23 · থাম্বনেল: নতুন প্রো ডিজাইন সব সেকশনে (গল্প, ইসলামিক শর্ট/লং, এক্সপ্লেনার, সব রেশিও) — মাঝখানে পরিষ্কার বড় লেখা, অটো অর্থবহ শিরোনাম, পর্ব ১/২/শেষ পর্ব ব্যাজ, প্রতিটা লেখা হাতে বদলানোর ঘর · index.html, lib-studio.js, sw.js · `a8fe611`
@@ -126,5 +127,4 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
   - 2026-11-23 · জীবন পাঠ লং লাইব্রেরিতে ইসলামিকের মতো একক লং / ধারাবাহিক (বড় · মাঝারি ৩×৫ মিনিট): আসল ধারাবাহিক তালিকা পর্বসহ, ○/✓ ব্যবহৃত, এনগেজমেন্ট প্রম্পট (কুইজ, cliffhanger, সাবস্ক্রাইব/ফলো/কমেন্ট), বাইরের AI-এর পুরো ধারাবাহিক এক পেস্টে জমা, key থাকলে অ্যাপেই পর্ব লেখা · .github/workflows/android.yml, index.html, lib-studio.js, life-series.js, sw.js · `f175c86`
   - 2026-11-23 · লাইব্রেরি স্টুডিও প্রম্পট: Gemini সব পর্ব/গল্প একটাই কোড ব্লকে লিখবে (এক ক্লিকে কপি, একবার পেস্টে সব পর্ব যোগ); যোগের পরও কার্ড খোলা থাকে পরের পেস্টের জন্য · lib-studio.js · `efc0afa`
   - 2026-11-23 · লাইব্রেরি স্টুডিও সহজ: ৩ ধাপ (বাছাই → প্রম্পট কপি → এক চাপে পেস্ট করে যোগ), Gemini-র পুরো উত্তর একবারে পেস্টেই সব পর্ব আলাদা হয়ে জমা, পেস্ট করলেই অটো যোগ, অ্যান্ড্রয়েড ক্লিপবোর্ড, বাকি পর্বের নির্দেশ · android/app/src/main/java/com/taiful/tfstory/WebBridge.kt, lib-studio.js · `7515245`
-  - 2026-11-23 · সব লাইব্রেরিতে 'বাইরের AI দিয়ে লিখে লাইব্রেরিতে যোগ': ক্যাটাগরি, স্টাইল, একক/ধারাবাহিক, নিজের নির্দেশসহ লাইভ প্রম্পট কপি, উত্তর পেস্ট করলে নিজ সেকশনে একক গল্প বা পুরো ধারাবাহিক জমা · .github/workflows/android.yml, index.html, islamic/long.js, islamic/story.js, lib-studio.js, sw.js +1 · `8de8526`
 <!-- AUTO:END -->
