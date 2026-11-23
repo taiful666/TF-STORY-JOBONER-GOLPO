@@ -11,7 +11,7 @@ Open code with Read(file, offset=line, limit=…) — never read a big file whol
   `260` $ · `266` remember · `275` paint
   - element ids (4): islSub@227 · acct@247 · acAv@248 · acBtn@250
 
-## index.html  (10186 lines)
+## index.html  (10187 lines)
 - `8` ▸ <script> /* web: opening the site root shows the same start screen as the Andro…
 - `20` ▸ <style> embedded font (base64)
 - `135` **v3 layer**
@@ -233,6 +233,7 @@ Open code with Read(file, offset=line, limit=…) — never read a big file whol
   `10118` $ · `10120` ic · `10121` newFold · `10126` foldify
 - `10181` ▸ <script fx/motion.js> </script>
 - `10182` ▸ <script fx/shadow.js> </script>
+- `10184` ▸ <script lib-studio.js> </script>
   - element ids (269): btnNew@1072 · stepBar@1073 · btnAccount@1082 · btnGallery@1083 · btnHelp@1084 · btnSettings@1085 · step1@1093 · fmtPick@1094 · ratioQuick@1098 · srcPick@1100 · srcBack@1106 · btnSrcBack@1106 · srcTabs@1107 · src-lib@1109 · libSearch@1110 · libRandom@1110 · libChips@1111 · libMineChip@1114 · libArea@1115 · libBook@1117 · libFilter@1118 · libCount@1119 · src-ai@1123 · aiNew@1124 · aiWay@1125 · pTopic@1131 · topicChips@1132 · longBox@1134 · longStyles@1136 · longMin@1143 · longWebRow@1144 · longWeb@1144 · longLink@1146 · longFactsRow@1147 · longFacts@1147 · way-app@1152 · genAI@1154 · genN@1155 · btnGen@1158 · btnGenStop@1159 · genBar@1160 · genArea@1163 · genBook@1164 · genLen@1165 · pStyle@1166 · pHero@1167 · way-ext@1173 · xN@1176 · xMinRow@1176 · xMin@1176 · btnXCopy@1177 · addIn@1181 · btnAddLib@1182 · btnAddPaste@1182 · addFiles@1182 · addedBox@1188 · btnSeeLib@1190 · genTopic@1195 · xTopic@1195 · xChips@1195 · xSub@1195 · extPromptCard@1195 · pArea@1196 · pBook@1196 · pLesson@1196 · pLen@1197 · btnRandom@1198 · usedInfo@1198 · aiTabs@1199 · ai-api@1200 · btnWrite@1200 · aiStatus@1200 · bulkN@1201 · btnBulkWrite@1201 · btnBulkStop@1201 · bulkBar@1201 · ai-chat@1202 · btnCopyPrompt@1202 · chatIn@1202 · btnChatParse@1202 · btnChatPaste@1202 · bulkNChat@1203 · btnCopyBulkPrompt@1203 · src-paste@1208 · storyIn@1209 · pasteKeep@1210 · btnParse@1211 · fileImport@1211 · btnCopyScript@1211 · src-add@1214 · myLibInfo@1215 · btnLibExport@1215 · btnLibClear@1215 · next1@1219 · step2@1223 · btnAutoDirect@1225 · charEditor@1227 · sceneOverview@1229 · sceneEditor@1230 · next2@1231 · step3@1235 · voiceTabs@1237 · v-tts@1238 · cVoice@1241 · btnVoices@1241 · btnVoicePrev@1241 · cVoiceId@1242 · cSpeed@1243 · cEmotion@1244 · sMultiVoice@1246 · charVoices@1247 · btnTTS@1248 · ttsInfo@1248 · ttsBar@1249 · v-rec@1252 · recPos@1254 · recDot@1254 · recPrev@1257 · recBtn@1258 · recPlay@1259 · recNext@1260 · recAuto@1262 · recAll@1264 · recInfo@1264 · v-upload@1266 · audioUpload@1268 · v-none@1271 · mStyle@1275 · mVol@1276 · musicUpload@1279 · musicInfo@1279 · mSfx@1280 · mPops@1281 · mVisuals@1282 · lenTabs@1285 · lenFixedRow@1287 · lenSec@1287 · lenNote@1287 · next3@1288 · step4@1292 · ratioPick@1296 · resPick@1303 · thumbPv@1305 · thumbText@1305 · thumbFields@1305 · btnThumbReset@1310 · coverTheme@1310 · btnThumbDl@1310 · sAutoThumb@1311 · btnExport@1314 · expProg@1315 · expBar@1317 · expEta@1318 · btnCancel@1318 · expDone@1321 · expDoneText@1322 · btnSaveAgain@1325 · btnShare@1326 · pubPack@1332 · pubYtTitle@1333 · ytText@1335 · btnCopyYT@1336 · pubYtTags@1337 · pubFb@1339 · aiNotes@1347 · aiSheet@1349 · btnAI@1350 · btnBackup@1350 · btnWav@1350 · pv@1357 · btnBigPlay@1358 · pvEmpty@1359 · pvLogo@1359 · pvRatio@1361 · btnPlay@1363 · seek@1364 · tLabel@1365 · btnMark@1366 · btnPvMin@1367 · dlgShare@1373 · btnShareX@1374 · platGrid@1375 · platBox@1382 · dlgSettings@1385 · setTabs@1387 · st-ch@1388 · logoPrev@1390 · sLogoFile@1392 · btnLogoClear@1392 · sSeries@1397 · sTagline@1398 · sLogo@1399 · sHero@1400 · sOutro@1402 · sWatermark@1403 · sWm@1404 · st-key@1406 · gKey@1411 · gModel@1412 · gLoad@1412 · gRemember@1414 · aKey@1417 · aModel@1418 · aLoad@1418 · aRemember@1420 · cKey@1423 · cModel@1424 · cRemember@1426 · btnForgetKey@1427 · st-vid@1429 · capFontPick@1431 · titleFontPick@1433 · accFontPick@1435 · sFontFile@1436 · sCapLook@1438 · sCapStyle@1439 · sCap@1440 · sGap@1441 · sCaptions@1443 · sProgress@1444 · sAnimStyle@1445 · sHookCard@1446 · sCinema@1447 · sCtxBg@1448 · sThumb@1449 · st-data@1451 · btnClearCache@1452 · btnClearUsed@1452 · btnLibExport2@1453 · libImportFile@1453 · btnAccount2@1454 · appInfo@1455 · appVer@1455 · btnCheckUpdate@1455 · dlgAccount@1460 · acOff@1462 · acApp@1463 · acOut@1464 · btnSignIn@1466 · acOutErr@1467 · acIn@1470 · acEmail@1471 · acSync@1472 · btnAcLib@1479 · btnSignOut@1479 · dlgChars@1484 · galFilter@1487 · galGrid@1488 · dlgHelp@1491 · toasts@1505 · edTop@9908 · edBrand@9908 · edMeta@9909 · edAct@9910 · edExport@9911 · edRail@9912 · edPanel@9913 · edStage@9914 · edTl@9915 · tlInfo@9916 · tlOut@9917 · tlZl@9918 · tlIn@9919 · tlScroll@9921 · tlInner@9921 · tlRuler@9921 · tlScenes@9922 · tlLines@9922 · tlPh@9922
 
 ## cloud-core.js  (58 lines)
@@ -516,7 +517,7 @@ Open code with Read(file, offset=line, limit=…) — never read a big file whol
   `709` css · `742` domTweaks · `814` keyNote
   - `816` *patch the Story engine (runs right before init)*
 
-## islamic/art.js  (447 lines)
+## islamic/art.js  (452 lines)
 - `1` **TF Story Studio — ইসলামিক অংশ: ছবি, লেখা ও আবহ**
   - `11` *one-time settings update for this part (before the main script reads them)*
   - `30` *people in salah (faceless; full body: both hands with fingers, legs and feet in every pose…*
@@ -530,17 +531,17 @@ Open code with Read(file, offset=line, limit=…) — never read a big file whol
   - `164` *captions: Post Maker "Islamic classic" look*
   `165` swash · `170` islCaption
   - `206` *Islamic background sound (no instruments)*
-  `210` voice · `219` noiseLayer · `225` islMusic
-  - `245` *thumbnail / first frame: the most emotional moment + a big hook line*
-  `246` pickCoverShot · `257` hookLine · `269` drawCoverIslamic
-  - `302` *style variants: every new video looks a little different (captions, cover, light)*
-  `312` pickVariant
-  - `319` *more places for everyday Islamic life*
-  `320` addMoreArt
-  - `349` *bottom bar: previous / next step*
-  `351` stepNav · `370` upd
-  - `372` *voice: one fixed narrator, clearly shown; voices are made by themselves on the voice step*
-  `373` voiceCard · `387` showVName
+  `210` voice · `223` noiseLayer · `230` islMusic
+  - `250` *thumbnail / first frame: the most emotional moment + a big hook line*
+  `251` pickCoverShot · `262` hookLine · `274` drawCoverIslamic
+  - `307` *style variants: every new video looks a little different (captions, cover, light)*
+  `317` pickVariant
+  - `324` *more places for everyday Islamic life*
+  `325` addMoreArt
+  - `354` *bottom bar: previous / next step*
+  `356` stepNav · `375` upd
+  - `377` *voice: one fixed narrator, clearly shown; voices are made by themselves on the voice step*
+  `378` voiceCard · `392` showVName
 
 ## islamic/art2.js  (555 lines)
 - `1` **TF Story Studio — ইসলামিক অংশ: পূর্ণাঙ্গ চরিত্র, আরও রিসোর্স ও লং-ভিডিও স্টাইলের লেখা**

@@ -108,11 +108,14 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
 
 <!-- AUTO:START — rewritten by tools/autoupdate.py on every push; do not edit by hand -->
 ## Current state (auto)
-- Updated: 2026-11-23 15:34 · commit `60de501`
-- APK version: 5.2.<build> · APP_VERSION 5.1.0 · sw cache tf-story-v5.9.8
-- File sizes (lines): index.html 10186 · home.html 307 · islamic/index.html 4994 · islamic/story.js 877 · islamic/art.js 447 · islamic/art2.js 555 · explainer/part.js 1205 · explainer/paper.js 671 · long-visuals.js 941 · long-library.js 29 · fx/motion.js 252 · fx/shadow.js 167 · cloud-core.js 58
-- Other web files (new? add to CLAUDE.md tables): islamic/long-series.js, islamic/long-stories.js, islamic/long.js
+- Updated: 2026-11-23 17:08 · commit `623d98a`
+- APK version: 5.2.<build> · APP_VERSION 5.1.0 · sw cache tf-story-v5.9.10
+- File sizes (lines): index.html 10187 · home.html 307 · islamic/index.html 4994 · islamic/story.js 877 · islamic/art.js 452 · islamic/art2.js 555 · explainer/part.js 1205 · explainer/paper.js 671 · long-visuals.js 941 · long-library.js 29 · fx/motion.js 252 · fx/shadow.js 167 · cloud-core.js 58
+- Other web files (new? add to CLAUDE.md tables): islamic/long-series.js, islamic/long-stories.js, islamic/long.js, islamic/mid-series.js, lib-studio.js
 - Latest changes (full list: CHANGELOG.md) — read these before starting; newer facts here win over older text above:
+  - 2026-11-23 · সব লাইব্রেরিতে 'বাইরের AI দিয়ে লিখে লাইব্রেরিতে যোগ': ক্যাটাগরি, স্টাইল, একক/ধারাবাহিক, নিজের নির্দেশসহ লাইভ প্রম্পট কপি, উত্তর পেস্ট করলে নিজ সেকশনে একক গল্প বা পুরো ধারাবাহিক জমা · .github/workflows/android.yml, index.html, islamic/long.js, islamic/story.js, lib-studio.js, sw.js +1 · `8de8526`
+  - 2026-11-23 · ইসলামিক লং: নতুন 'মাঝারি ধারাবাহিক' (৩ পর্ব × ~৫ মিনিট) — ৬টা বিল্ট-ইন গল্প টুইস্ট/কুইজ/CTA সহ, AI-তে কুইজ নিয়ম; ধারাবাহিক চেক: মুড, চরিত্র, শব্দ ঠিক; মিনিট হিসাব শব্দ দিয়ে · index.html, islamic/long-series.js, islamic/long.js, islamic/mid-series.js, sw.js · `c53c757`
+  - 2026-11-23 · ইসলামিক লং ভিডিও: এক্সপোর্ট/প্রিভিউয়ে 'setValueAtTime … -39' এরর ঠিক — ইসলামিক সাউন্ড (নাশিদ/হামিং/গুঞ্জন/বাতাস/বৃষ্টি) মাইনাস সময় সামলায়, দৃশ্যের মিউজিকে নিরাপত্তা-ঢাল · index.html, islamic/art.js · `2dfa3b6`
   - 2026-11-23 · ধারাবাহিক লং: ইসলামের ইতিহাস ২য় সিরিজ গুহার তিন দিন (হিজরত), ১২টা সিরিজ সম্পূর্ণ, CLAUDE.md ও ক্যাশ আপডেট · islamic/long-series.js, sw.js · `d95f427`
   - 2026-11-23 · ধারাবাহিক লং: ইসলামের ইতিহাস ১ম সিরিজ যে সন্ধি জয় হলো, হুদাইবিয়া (৩ পর্ব) · islamic/long-series.js · `01d9c6e`
   - 2026-11-23 · ধারাবাহিক লং: সাহাবিদের জীবন ২য় সিরিজ সুগন্ধি ও কাফন, মুসআব (রা.) (৩ পর্ব) · islamic/long-series.js · `a6823ae`
@@ -120,7 +123,4 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
   - 2026-11-23 · ধারাবাহিক লং: নবীদের কাহিনি ২য় সিরিজ জাদুকরদের সিজদা, মুসা (আ.) ও ফেরাউন (৩ পর্ব) · islamic/long-series.js · `9b58ea1`
   - 2026-11-23 · ধারাবাহিক লং: নবীদের কাহিনি ১ম সিরিজ আগুনের শহর, ইবরাহিম (আ.) ও নমরুদ (৩ পর্ব) · islamic/long-series.js · `ed71e8f`
   - 2026-11-23 · ধারাবাহিক লং: হাদিসের গল্প ২য় সিরিজ জামিনদার আল্লাহ (৩ পর্ব) · islamic/long-series.js · `71e234c`
-  - 2026-11-23 · ইসলামিক লং ধারাবাহিক: সিরিজ ৫ "শততম প্রশ্ন" (৩ পর্ব, হাদিসের গল্প) যোগ · islamic/long-series.js · `7a5be37`
-  - 2026-11-23 · ইসলামিক লং ধারাবাহিক: সিরিজ ৪ "কারুনের চাবি" (৩ পর্ব, কুরআনের ঘটনা) যোগ · islamic/long-series.js · `c30ffa7`
-  - 2026-11-23 · ইসলামিক লং ধারাবাহিক: সিরিজ ৩ "তিন সফরের পরীক্ষা" (যুলকারনাইন, ৩ পর্ব, কুরআনের ঘটনা) যোগ · islamic/long-series.js · `9612d65`
 <!-- AUTO:END -->
