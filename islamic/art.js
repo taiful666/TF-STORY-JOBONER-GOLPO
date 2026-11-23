@@ -402,8 +402,12 @@
     const _np = normPlace;
     normPlace = function (p) {
       const s = String(p || '').trim();
-      if (s.includes('+')) { const key = s.toLowerCase(); if (PLACE_INDEX[key]) return key; const base = _np(s.split('+')[0]); const b = PLACE_INDEX[base]; if (!b) return base;
-        const toks = b.toks.slice(); parsePlus(key.slice(key.indexOf('+'))).forEach(an => { an.a = an.a.split(':')[0] + ':' + (an.a.split(':')[1] || ''); if (!b.outdoor) an.n = 'animalIn'; toks.push(an); });
+      if (s.includes('+')) { const key = s.toLowerCase(); if (PLACE_INDEX[key]) return key;
+        // objects (+table, +hurricane … from elements.js) go through the core normPlace; only animals are added here
+        const segs = key.split('+'), an = segs.slice(1).filter(x => ANIMALS[x.split(':')[0]]); if (!an.length) return _np(s);
+        const rest = [segs[0]].concat(segs.slice(1).filter(x => !ANIMALS[x.split(':')[0]])).join('+');
+        const base = _np(rest); const b = PLACE_INDEX[base]; if (!b || !b.toks) return base;
+        const toks = b.toks.slice(); parsePlus('+' + an.join('+')).forEach(an => { an.a = an.a.split(':')[0] + ':' + (an.a.split(':')[1] || ''); if (!b.outdoor) an.n = 'animalIn'; toks.push(an); });
         PLACE_INDEX[key] = { bn: b.bn, group: b.group, toks, outdoor: b.outdoor }; PLACES[key] = b.bn; return key; }
       return _np(p);
     };

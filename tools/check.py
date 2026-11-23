@@ -10,7 +10,7 @@ import os, re, subprocess, sys, tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HTML = ['home.html', 'index.html', 'islamic/index.html']
-JS = ['cloud-core.js', 'long-library.js', 'long-visuals.js', 'lib-studio.js', 'islamic/long.js', 'islamic/long-series.js', 'islamic/mid-series.js', 'sw.js', 'fx/motion.js', 'fx/shadow.js',
+JS = ['cloud-core.js', 'long-library.js', 'long-visuals.js', 'lib-studio.js', 'islamic/long.js', 'islamic/long-series.js', 'islamic/mid-series.js', 'sw.js', 'fx/motion.js', 'fx/shadow.js', 'elements.js', 'life-series.js',
       'explainer/paper.js', 'explainer/part.js', 'islamic/story.js', 'islamic/art.js', 'islamic/art2.js',
       'islamic/stories-1.js', 'islamic/stories-2.js', 'islamic/stories-3.js']
 
