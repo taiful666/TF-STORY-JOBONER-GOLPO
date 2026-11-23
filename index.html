@@ -10492,6 +10492,27 @@ function proBgLong(r) {
   if (document.readyState === 'complete') setTimeout(start, 400); else window.addEventListener('load', () => setTimeout(start, 400));
 })();
 </script>
+<script id="v13first">
+/* ===================== v13 — ১ম ফ্রেম এডিট: the video's first frame IS the thumbnail (Facebook etc. take it as the cover),
+   so while the preview sits on that frame an "✎ ১ম ফ্রেম এডিট" button sits on the preview and opens the same drag editor
+   (TF_PRO_EDITOR) — edit before export, every part and ratio. ===================== */
+(function () {
+  const css = document.createElement('style'); css.textContent = '.pv .ffEdit{position:absolute;left:50%;top:64px;transform:translateX(-50%);z-index:5;border:0;border-radius:999px;padding:9px 16px;min-height:40px;font:inherit;font-size:14px;font-weight:700;background:rgba(0,0,0,.72);color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.4);cursor:pointer;white-space:nowrap}.pv .ffEdit[hidden]{display:none}';
+  document.head.append(css);
+  function start() {
+    const host = document.querySelector('.right .pv') || ($('pv') && $('pv').parentElement); if (!host || $('btnFirstEdit')) return;
+    const b = el('button', { type: 'button', class: 'ffEdit', id: 'btnFirstEdit', hidden: '' }); b.textContent = '✎ ১ম ফ্রেম এডিট'; b.title = 'ভিডিওর প্রথম ফ্রেম (থাম্বনেল) — লেখা বদলান, সরান, বড়-ছোট করুন';
+    b.addEventListener('click', e => { e.stopPropagation(); try { if (app.playing) stopPlay(true); } catch (x) { } if (window.TF_PRO_EDITOR) window.TF_PRO_EDITOR(); });
+    host.append(b);
+    const sync = () => { const on = !!(app.story && app.tl && (app.tl.thumb || 0) > 0 && app.t < app.tl.thumb && !app.playing); b.hidden = !on; };
+    const _u = updateTime; updateTime = function () { const r = _u.apply(this, arguments); try { sync(); } catch (e) { } return r; };
+    const pe = () => { const d = $('proEd'); if (d && !d._ff) { d._ff = 1; d.addEventListener('close', () => { try { drawAt(app.t); } catch (e) { } }); } };
+    b.addEventListener('click', () => setTimeout(pe, 50));
+    sync();
+  }
+  if (document.readyState === 'complete') setTimeout(start, 500); else window.addEventListener('load', () => setTimeout(start, 500));
+})();
+</script>
 <script src="fx/motion.js"></script>
 <script src="fx/shadow.js"></script>
 
