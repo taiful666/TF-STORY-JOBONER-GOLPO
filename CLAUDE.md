@@ -118,11 +118,12 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
 
 <!-- AUTO:START — rewritten by tools/autoupdate.py on every push; do not edit by hand -->
 ## Current state (auto)
-- Updated: 2026-11-23 21:35 · commit `8dd96e9`
+- Updated: 2026-11-23 21:38 · commit `bc23afb`
 - APK version: 5.2.<build> · APP_VERSION 5.1.0 · sw cache tf-story-v5.9.22
-- File sizes (lines): index.html 10493 · home.html 335 · islamic/index.html 5012 · islamic/story.js 877 · islamic/art.js 456 · islamic/art2.js 555 · explainer/part.js 1205 · explainer/paper.js 671 · long-visuals.js 941 · long-library.js 29 · fx/motion.js 252 · fx/shadow.js 167 · cloud-core.js 58
+- File sizes (lines): index.html 10510 · home.html 335 · islamic/index.html 5012 · islamic/story.js 877 · islamic/art.js 456 · islamic/art2.js 555 · explainer/part.js 1205 · explainer/paper.js 671 · long-visuals.js 941 · long-library.js 29 · fx/motion.js 252 · fx/shadow.js 167 · cloud-core.js 58
 - Other web files (new? add to CLAUDE.md tables): elements.js, islamic/long-series.js, islamic/long-stories.js, islamic/long.js, islamic/mid-series.js, lib-studio.js, life-series.js
 - Latest changes (full list: CHANGELOG.md) — read these before starting; newer facts here win over older text above:
+  - 2026-11-23 · বাইরের AI-এর প্রম্পট (কপি + অ্যাপের AI) বিল্ট-ইন গল্পের ধাঁচে: শুরুতে প্রতিদিনের জিনিস নিয়ে প্রশ্ন, আগে রাখা সূত্রে মোড়, চেনা ন্যাকা ছাঁচ বাদ, ছোট শিরোনাম পরিণতি ফাঁস ছাড়া, ইসলামিক ধাঁচের তিন টুকরো থাম্বনেল, কমেন্টের প্রশ্ন + ৩ বিকল্প, শুদ্ধ বাংলার নিয়ম (কর্তা-ক্রিয়া, আপনি, বানান) — সব সেকশনে · index.html · `10d0336`
   - 2026-11-23 · নোট: লাইব্রেরি ভিউ, লোগো ও কণ্ঠের নিয়ম · docs · `b8d0880`
   - 2026-11-23 · জীবন পাঠের ৩০টা শর্ট গল্প নতুন করে লেখা: ছোট রহস্যময় শিরোনাম (পরিণতি ফাঁস না করে), ইসলামিক ধাঁচের থাম্বনেল লাইন, শুরুতে প্রশ্ন, প্রতিদিনের জীবনের ঘটনা, আগে রাখা সূত্রে অপ্রত্যাশিত মোড়, কমেন্টের প্রশ্ন-বিকল্প, বানান ও বাক্য ঠিক; একই বই ও শিক্ষা · index.html, sw.js · `00fd29d`
   - 2026-11-23 · ভিডিওতে সেকশনের লোগো সবসময় কোণে (শর্ট, লং, ইসলামিক, এক্সপ্লেনার), জলছাপ = লোগোর পাশে চ্যানেলের নাম, টিক দিয়ে; প্রিভিউ চালালে আর নিজে থেকে Cartesia কণ্ঠ বানায় না, এক্সপোর্টে জিজ্ঞেস করে; ইসলামিকে কণ্ঠ ধাপে অটো-কণ্ঠ ডিফল্ট বন্ধ; লাইব্রেরির গল্পে চাপলে আগে পুরো লেখা খোলে — পড়া, ভুল ঠিক করে সেভ, তারপর 'এই গল্প নিন' · explainer/paper.js, index.html, islamic/art.js · `29d12b7`
@@ -132,5 +133,4 @@ AI: Gemini (`tf_gkey`) and Claude (`tf_akey`) keys from the browser; TTS: Cartes
   - 2026-11-23 · সব সেকশনের প্রম্পটে (Gemini কপি + অ্যাপের AI) একই নিয়ম: গল্পের মূল ভাবের প্রফেশনাল নাম = থাম্বনেলের বড় লেখা, ধারাবাহিকে 'নাম | পর্ব k', ক্লিকবেইট বাদ, দৃশ্যে +জিনিস, চ্যানেলের নাম ধরে CTA; প্রো থাম্বনেল সব সেকশনে, টিজার-লাইন বাদ; সেটিংসে সেকশন-ভিত্তিক লোগোর নির্দেশ · index.html, lib-studio.js, sw.js · `fb6de39`
   - 2026-11-23 · দৃশ্যের এলিমেন্ট: ৩৩টা নতুন জিনিস (টেবিল, চেয়ার, আলমারি, খাট, প্রদীপ, হারিকেন, ফাইলের স্তূপ, পতাকা, কম্পিউটার, সিন্দুক, কলসি, চুলা, টিউবওয়েল, ট্রাক, অ্যাম্বুলেন্স, জেলের শিক …), গল্পের শব্দ দেখে দৃশ্যে নিজে বসে, '## জায়গা+জিনিস' লেখা যায়; নতুন জায়গা জেলখানা, থানা, অফিসারের কক্ষ, ভূমি অফিস, সালিশ, মাটির ঘর, গোয়ালঘর, হারিকেন/প্রদীপের ঘর; নতুন হাতের জিনিস ফাইল, কলম, মোমবাতি, হারিকেন, চেক, সনদ, সিল, লাঠি…; AI প্রম্পটে তালিকা — সব পার্টে · elements.js · .github/workflows/android.yml, elements.js, index.html, islamic/art.js, sw.js, tools/check.py · `d5f5c4d`
   - 2026-11-23 · ভিডিওর ১ম ফ্রেম (থাম্বনেল) এক্সপোর্টের আগেই প্রিভিউতে '✎ ১ম ফ্রেম এডিট' বোতামে সরাসরি এডিট — লেখা বদলানো, সরানো, বড়-ছোট; সব সেকশন, সব রেশিও · index.html, sw.js · `8f185ef`
-  - 2026-11-23 · হোম: ইসলামিক চাপলে আলাদা স্ক্রিনে (ফিরে যাওয়ার বোতাম) গল্পের ভিডিও / পোস্ট মেকার, ড্রপডাউন নয়; ক্যাপশন ও থাম্বনেলে হলুদের ওপর কালো লেখা বাদ — গোল্ড বক্স গাঢ় + সোনালি ফ্রেম, মার্কার গাঢ় লাল + সাদা লেখা, পর্ব ব্যাজ গাঢ় · home.html, index.html, sw.js · `e398dea`
 <!-- AUTO:END -->
