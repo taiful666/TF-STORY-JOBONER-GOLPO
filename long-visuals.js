@@ -947,6 +947,18 @@ const LV = (() => {
     label(c, o, 360);
   });
 
+  /* the user's own picture (PNG/JPG from the asset library): soft pop-in, slow push, white photo border */
+  reg('img', 'paper', (c, o) => {
+    const im = window.TF_ASSETS && window.TF_ASSETS.img(o.tx[1]); const lt = o.lt, k = bk(lt, .05, .55);
+    if (!im || !im.width) { label(c, o, 330); return; }
+    const sc = Math.min(1300 / im.width, 680 / im.height), w = im.width * sc, h = im.height * sc, z = 1 + .04 * C.cl(lt / Math.max(1, o.dur || 4));
+    pop(c, 0, -20, k, () => { c.save(); c.translate(0, -20); c.scale(z, z); const png = window.TF_ASSETS.alpha(o.tx[1]);
+      if (!png) { c.save(); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 40; c.shadowOffsetY = 14; R(c, -w / 2 - 14, -h / 2 - 14, w + 28, h + 28, 18, '#FFFFFF'); c.restore(); c.save(); c.beginPath(); c.roundRect(-w / 2, -h / 2, w, h, 10); c.clip(); c.drawImage(im, -w / 2, -h / 2, w, h); c.restore(); }
+      else { c.shadowColor = 'rgba(0,0,0,.3)'; c.shadowBlur = 30; c.shadowOffsetY = 12; c.drawImage(im, -w / 2, -h / 2, w, h); }
+      c.restore(); });
+    label(c, o, 370);
+  });
+
   /* ---------- Islamic-only ---------- */
   /* the Quran open on a wooden stand (rehal), soft light, Arabic-like strokes (no real text) */
   reg('quran', 'money', (c, o) => {
@@ -1083,6 +1095,8 @@ const LV = (() => {
   /* concrete things and situations named in a line → the picture of that thing (also used for small pop-ups during dialogue) */
   function objectFor(text, has, h0) {
     const pickBy = arr => arr[hash(text) % arr.length]; // same line → same picture, different lines → different pictures
+    // the user's own uploaded pictures (Settings → উপাদান লাইব্রেরি) win over the built-in ones
+    if (window.TF_ASSETS) { try { const up = window.TF_ASSETS.match(text, SEC, 'pic'); if (up) return { kind: 'img', tx: [h0, up.id] }; } catch (e) { } }
     // Islamic part only
     if (SEC === 'isl') {
       if (has(/কুরআন|কোরআন|কোরান|তিলাওয়াত|তেলাওয়াত|মুসহাফ/)) return { kind: 'quran', tx: [h0] };
@@ -1267,5 +1281,7 @@ const LV = (() => {
     try { fn(c, { lt: o.lt == null ? 3 : o.lt, dur: 6, t: o.t || 0, tx: v.tx, T, seed: v.seed, FW: w, FH: h, u: base.u }); } catch (e) { if (window.LV_DEBUG) console.error('LV card ' + v.kind + ': ' + e.message); }
     c.restore(); c.restore(); c.restore();
   }
-  return { plan, draw, inset, card, THEME_OF: k => THEME_OF[k] || 'night', objectFor, auto, fromCard, SEC, normKind, kinds: Object.keys(KINDS), has: k => !!KINDS[k], TH, bg, grain };
+  const ONLY_ISL = ['quran', 'tasbih', 'prayer_mat', 'dua', 'iftar', 'crescent', 'kaaba', 'zakat'], ONLY_STORY = ['ring', 'cricket', 'kite'];
+  const SECT_OF = k => ONLY_ISL.includes(k) ? 'isl' : ONLY_STORY.includes(k) ? 'story' : 'common';
+  return { plan, draw, inset, card, THEME_OF: k => THEME_OF[k] || 'night', objectFor, auto, fromCard, SEC, SECT_OF, normKind, kinds: Object.keys(KINDS), has: k => !!KINDS[k], TH, bg, grain };
 })();

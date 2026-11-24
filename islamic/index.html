@@ -5017,5 +5017,6 @@ MEM.load().then(startApp, startApp);
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(start, 0)); else setTimeout(start, 0);
 })();
 </script>
+<script>/* deep link from the home Settings hub */ if (/[?&]settings=1\b/.test(location.search)) window.addEventListener('load', () => setTimeout(() => { try { showTab('settings'); } catch (e) { const t = document.querySelector('.tab[data-tab="settings"]'); if (t) t.click(); } }, 700));</script>
 </body>
 </html>
