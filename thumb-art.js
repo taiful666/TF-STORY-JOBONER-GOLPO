@@ -115,36 +115,40 @@
   };
   /* ---------- subjects: id, Bangla label, words, mood ---------- */
   const ART = [
-    ['tiffin', 'টিফিন বক্স', /টিফিন/, 'warm'], ['lamp', 'প্রদীপ', /প্রদীপ|কুপি|দীপ(?!ক)/, 'warm'], ['lantern', 'হারিকেন', /হারিকেন|লণ্ঠন|লন্ঠন|কুপিবাতি/, 'night'], ['candle', 'মোমবাতি', /মোমবাতি|মোম/, 'warm'],
+    ['tiffin', 'টিফিন বক্স', /টিফিন/, 'warm'], ['lamp', 'প্রদীপ', /প্রদীপ|কুপি/, 'warm'], ['lantern', 'হারিকেন', /হারিকেন|লণ্ঠন|লন্ঠন|কুপিবাতি/, 'night'], ['candle', 'মোমবাতি', /মোমবাতি|মোম/, 'warm'],
     ['quran', 'কুরআন', /কুরআন|কোরআন|কোরান|তিলাওয়াত|আয়াত|সূরা|হাফেজ|হাফিজ/, 'isl'], ['hands', 'দোয়ার হাত', /দোয়া|দুআ|দোআ|মোনাজাত|মুনাজাত|প্রার্থনা/, 'isl'], ['tasbih', 'তাসবিহ', /তাসবিহ|তসবি|জিকির|যিকির/, 'isl'],
     ['jaynamaz', 'জায়নামাজ', /জায়নামাজ|জায়নামায|সিজদা|সেজদা|তাহাজ্জুদ/, 'isl'], ['mosque', 'মসজিদ', /মসজিদ|আজান|আযান|জুমা|নামাজ|নামায|সালাত|ইমাম|মুয়াজ্জিন|মিনার/, 'isl'],
-    ['moon', 'চাঁদ-তারা', /চাঁদ|রমজান|রমযান|রোজা|রোযা|ঈদ|তারা|রাতের আকাশ/, 'night'], ['dates', 'ইফতার (খেজুর-পানি)', /ইফতার|খেজুর|সেহরি|সাহরি/, 'isl'],
-    ['letter', 'চিঠি', /চিঠি|খাম|চিরকুট|পত্র(?!িকা)/, 'warm'], ['money', 'টাকা', /টাকা|ঋণ|দেনা|বেতন|সুদ|ঘুষ|লাখ|কোটি|মজুরি|যৌতুক|ধার/, 'cool'], ['coins', 'পয়সা / দান', /পয়সা|কয়েন|মুদ্রা|দান|সদকা|সাদাকা|যাকাত|জাকাত|ভিক্ষা/, 'warm'],
+    ['moon', 'চাঁদ-তারা', /চাঁদ|রমজান|রমযান|রোজা|রোযা|ঈদ|তারার|রাতের আকাশ/, 'night'], ['dates', 'ইফতার (খেজুর-পানি)', /ইফতার|খেজুর|সেহরি|সাহরি/, 'isl'],
+    ['letter', 'চিঠি', /চিঠি|খাম(?!ার)|চিরকুট|পত্র(?!িকা)/, 'warm'], ['money', 'টাকা', /টাকা|ঋণ|দেনা|বেতন|সুদ(?![ূর])|ঘুষ|লাখ|কোটি|মজুরি|যৌতুক|ধারদেনা|ধার করা/, 'cool'], ['coins', 'পয়সা / দান', /পয়সা|কয়েন|মুদ্রা|দান|সদকা|সাদাকা|যাকাত|জাকাত|ভিক্ষা/, 'warm'],
     ['key', 'চাবি', /চাবি/, 'warm'], ['lock', 'তালা', /তালা(?!ক)|তালাবদ্ধ/, 'cool'], ['clock', 'ঘড়ি', /ঘড়ি|সময়|ঘণ্টা|মিনিট|দেরি/, 'cool'], ['hourglass', 'বালিঘড়ি', /বালিঘড়ি|মৃত্যু|কবর|আখিরাত|পরকাল|কিয়ামত|শেষ সময়|হায়াত/, 'night'],
     ['phone', 'মোবাইল', /মোবাইল|ফোন|মেসেজ|ফেসবুক|ভিডিও কল|ইন্টারনেট|অনলাইন/, 'cool'], ['rickshaw', 'রিকশা', /রিকশা|রিক্সা|ভ্যান/, 'out'], ['bicycle', 'সাইকেল', /সাইকেল/, 'out'], ['train', 'ট্রেন', /ট্রেন|রেল|স্টেশন/, 'out'],
-    ['boat', 'নৌকা', /নৌকা|নদী|মাঝি|ঘাট|নদীর/, 'out'], ['umbrella', 'ছাতা ও বৃষ্টি', /ছাতা|বৃষ্টি|বর্ষা|ঝড়/, 'cool'], ['kite', 'ঘুড়ি', /ঘুড়ি/, 'out'],
+    ['boat', 'নৌকা', /নৌকা|নদী|মাঝি|ঘাট(?!তি)/, 'out'], ['umbrella', 'ছাতা ও বৃষ্টি', /ছাতা|বৃষ্টি|বর্ষা|ঝড়/, 'cool'], ['kite', 'ঘুড়ি', /ঘুড়ি/, 'out'],
     ['schoolbag', 'স্কুলব্যাগ', /স্কুল|ব্যাগ|ছাত্র|ছাত্রী|ক্লাস|মাদরাসা|মাদ্রাসা/, 'warm'], ['book', 'বই', /বই|খাতা|পরীক্ষা|ডায়েরি|ডায়রি|পড়াশোনা|লাইব্রেরি|বৃত্তি|রেজাল্ট/, 'warm'], ['pen', 'কলম ও কাগজ', /কলম|সই|স্বাক্ষর|দলিল|দস্তখত|উইল/, 'warm'],
-    ['riceplate', 'ভাতের থালা', /ভাত|খাবার|ক্ষুধা|ক্ষুধার্ত|থালা|রুটি|এক বেলা|খিদে|ক্ষিধে|দাওয়াত/, 'warm'], ['kolshi', 'কলসি ও পানি', /কলসি|কলস|পানি|পিপাসা|তৃষ্ণা|তেষ্টা/, 'warm'], ['sack', 'চালের বস্তা', /চালের বস্তা|বস্তা|চাল/, 'warm'],
+    ['riceplate', 'ভাতের থালা', /ভাত(?!িজ)|খাবার|ক্ষুধা|ক্ষুধার্ত|থালা|রুটি(?!ন)|এক বেলা|খিদে|ক্ষিধে|দাওয়াত/, 'warm'], ['kolshi', 'কলসি ও পানি', /কলসি|কলস|পানি|পিপাসা|তৃষ্ণা|তেষ্টা/, 'warm'], ['sack', 'চালের বস্তা', /চালের বস্তা|বস্তা|চালের/, 'warm'],
     ['medicine', 'ওষুধ', /ওষুধ|ঔষধ|অসুখ|হাসপাতাল|ডাক্তার|রোগ|অসুস্থ|ক্যান্সার|অপারেশন/, 'cool'], ['ring', 'আংটি', /আংটি|বিয়ে|বিবাহ|মোহর|কাবিন/, 'warm'], ['shoes', 'জুতা', /জুতা|জুতো|স্যান্ডেল|চপ্পল/, 'warm'],
-    ['scale', 'ন্যায়ের পাল্লা', /বিচার|ন্যায়|ইনসাফ|দাঁড়িপাল্লা|আদালত|সালিশ|ওজন|মাপে/, 'cool'], ['handcuffs', 'হাতকড়া', /হাতকড়া|পুলিশ|থানা|জেল|চোর|চুরি|গ্রেফতার|আসামি/, 'cool'],
+    ['scale', 'ন্যায়ের পাল্লা', /বিচার|ন্যায়|ইনসাফ|দাঁড়িপাল্লা|আদালত|সালিশ|ওজন|মাপে/, 'cool'], ['handcuffs', 'হাতকড়া', /হাতকড়া|পুলিশ|থানা|জেল(?!া)|চোর|চুরি|গ্রেফতার|আসামি/, 'cool'],
     ['door', 'দরজা', /দরজা|দুয়ার|দোর/, 'warm'], ['mirror', 'আয়না', /আয়না|আরশি/, 'warm'], ['frame', 'বাঁধানো ছবি', /ছবি|স্মৃতি|অ্যালবাম/, 'warm'], ['gift', 'উপহার', /উপহার|গিফট|জন্মদিন|সারপ্রাইজ/, 'warm'],
-    ['paddy', 'ধানের শীষ', /ধান|ফসল|কৃষক|ক্ষেত|চাষ|জমি/, 'out'], ['sapling', 'চারাগাছ', /বীজ|চারা|গাছ লাগ|বৃক্ষরোপণ/, 'out'], ['tree', 'গাছ', /গাছ|বৃক্ষ|বটতলা|আমগাছ/, 'out'],
+    ['paddy', 'ধানের শীষ', /ধান(?!মন)|ফসল|কৃষক|ক্ষেত|চাষ|জমি(?!দার)/, 'out'], ['sapling', 'চারাগাছ', /বীজ|চারা|গাছ লাগ|বৃক্ষরোপণ/, 'out'], ['tree', 'গাছ', /গাছ|বৃক্ষ|বটতলা|আমগাছ/, 'out'],
     ['hut', 'কুঁড়েঘর', /কুঁড়েঘর|কুঁড়ে|ভিটা|মাটির ঘর|গ্রামের বাড়ি/, 'out'], ['house', 'বাড়ি', /বাড়ি|ঘর|আশ্রয়|ভাড়া|ফ্ল্যাট/, 'out'], ['cow', 'গরু', /গরু|গাভী|বাছুর|কোরবানি|কুরবানি/, 'out'],
-    ['crown', 'মুকুট', /রাজা|মুকুট|বাদশা|সিংহাসন|রাজত্ব|অহংকার|ক্ষমতা/, 'warm'], ['heart', 'হৃদয়', /ভালোবাসা|হৃদয়|মায়া|অন্তর|দিল/, 'warm'], ['glasses', 'চশমা', /চশমা/, 'warm'],
-    ['chair', 'শূন্য চেয়ার', /চেয়ার|শূন্য|একা|নিঃসঙ্গ/, 'warm']
+    ['crown', 'মুকুট', /রাজা|মুকুট|বাদশা|সিংহাসন|রাজত্ব|অহংকার|ক্ষমতা/, 'warm'], ['heart', 'হৃদয়', /ভালোবাসা|হৃদয়|মায়া|অন্তর(?!্)/, 'warm'], ['glasses', 'চশমা', /চশমা/, 'warm'],
+    ['chair', 'শূন্য চেয়ার', /চেয়ার|শূন্য|একাকী|নিঃসঙ্গ/, 'warm']
   ].filter(a => D[a[0]]);
+  /* a word must start a Bangla word ("বই" in "বইয়ের", not in "সবই"); endings after it are fine */
+  ART.forEach(a => { a[2] = new RegExp('(?<![\\u0980-\\u09FF])(?:' + a[2].source + ')'); });
   const BYID = {}; ART.forEach(a => BYID[a[0]] = a);
+  const GENERIC = new Set(['house', 'clock', 'frame', 'heart', 'chair', 'door', 'kolshi', 'book', 'phone', 'money', 'riceplate', 'mosque', 'hands', 'quran']); // too common in story text to decide alone
   const TWO = /দুই|দুটি|দুটো|২|দ্বিতীয়|জোড়া|দু'টি|দু’টি/;
   function pick(text) {
     const t = String(text || '').replace(/[{}|]/g, ' '); if (!t.trim()) return null; const hit = [];
     ART.forEach(a => { const m = t.match(a[2]); if (m) hit.push([a, m.index]); });
-    if (!hit.length) return null; hit.sort((x, y) => x[1] - y[1]); // the word that comes first in the title is the subject
-    const a = hit[0][0], before = t.slice(Math.max(0, hit[0][1] - 14), hit[0][1]);
-    return { id: a[0], two: TWO.test(before), id2: hit[1] && hit[1][0][0] !== a[0] ? hit[1][0][0] : null };
+    if (!hit.length) return null; hit.sort((x, y) => x[1] - y[1]); // the word that comes first in the title is the subject …
+    const WEAK = new Set(['house', 'clock', 'chair', 'heart', 'frame', 'door']); // … unless it is a loose word ("ঘরে বসে", "সময়") and a real thing comes later
+    const h0 = hit.find(h => !WEAK.has(h[0][0])) || hit[0], a = h0[0], before = t.slice(Math.max(0, h0[1] - 14), h0[1]), h2 = hit.find(h => h !== h0 && h[0][0] !== a[0] && !WEAK.has(h[0][0]));
+    return { id: a[0], two: TWO.test(before), id2: h2 ? h2[0][0] : null };
   }
   function best(text) { // a long story text: the most-mentioned subject (2+ times)
     const t = String(text || ''); let top = null, n = 1;
-    ART.forEach(a => { const g = new RegExp(a[2].source, 'g'), k = (t.match(g) || []).length; if (k > n) { n = k; top = a; } });
+    ART.forEach(a => { const g = new RegExp(a[2].source, 'g'), k = (t.match(g) || []).length - (GENERIC.has(a[0]) ? 3 : 0); if (k > n) { n = k; top = a; } });
     return top ? { id: top[0], two: false, id2: null } : null;
   }
 
@@ -194,5 +198,8 @@
     const vg = c.createRadialGradient(FW / 2, FH / 2, U * .2, FW / 2, FH / 2, Math.hypot(FW, FH) * .6); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.35)'); c.fillStyle = vg; c.fillRect(0, 0, FW, FH);
     return true;
   }
-  window.TF_THUMB_ART = { list: ART.map(a => ({ id: a[0], label: a[1] })), pick, best, draw, has: id => !!BYID[id] };
+  /* "tiffin" / "টিফিন বক্স" / any words → an id (the AI's "থাম্বনেলের ছবি:" line) */
+  function resolve(s) { s = String(s || '').trim(); if (!s) return ''; const k = s.toLowerCase().replace(/[^a-z]/g, ''); if (BYID[k]) return k; const l = ART.find(a => a[1] === s); if (l) return l[0]; const p = pick(s); return p ? p.id : ''; }
+  window.TF_THUMB_ART = { list: ART.map(a => ({ id: a[0], label: a[1] })), pick, best, draw, resolve, has: id => !!BYID[id],
+    forPrompt: () => ART.map(a => a[0] + ' (' + a[1] + ')').join(', ') };
 })();

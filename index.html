@@ -5871,6 +5871,7 @@ function parseTFScript(text) {
     if ((m = ln.match(head('ক্ষেত্র|area')))) { raw.area = m[2]; continue; }
     if ((m = ln.match(head('ফরম্যাট|format')))) { const p = m[2].split(/[|,\s]+/).map(x => x.trim().toLowerCase()).filter(Boolean); if (p.includes('long') || p.includes('লং')) raw.fmt = 'long'; const ls = p.find(x => ['life', 'thriller', 'guide', 'explainer'].includes(x)); if (ls) raw.longStyle = ls; continue; }
     if ((m = ln.match(head('ইউটিউব টাইটেল|youtube title|yt title')))) { raw.youtube.title = m[2].trim(); continue; }
+    if ((m = ln.match(head('থাম্বনেলের ছবি|থাম্বনেল ছবি|থাম্বনেলের পেছনের ছবি|thumb art|thumbnail art')))) { raw.thumbArt = m[2].trim(); continue; }
     if ((m = ln.match(head('থাম্বনেল|thumbnail|cover')))) { const p = m[2].split('|').map(x => x.trim()); raw.cover = { ctx: p[0] || '', l1: p[1] || '', l2: p[2] || '', icon: (p[3] || '').toLowerCase(), sym: p[4] || '', who: p[5] || '' }; continue; }
     if ((m = ln.match(/^##\s*(.*)$/))) {
       const parts = m[1].split('|').map(s => s.trim()); const words = parts[0].split(/\s+/).filter(Boolean);
@@ -10318,6 +10319,7 @@ function proBgLong(r) {
 - "থাম্বনেল:" লাইন তিন টুকরো ছোট কথায় (প্রতিটা ২-৭ শব্দ), সত্যিটা না বলে: "থাম্বনেল: <পরিস্থিতি> | <বৈপরীত্য বা কাজ> | <রহস্য, ১-২ শব্দ {লাল}> | <আইকন> | <গল্পের একটা সংখ্যা>"। যেমন: "থাম্বনেল: গ্যাস বিল ১০৮০ টাকা | মা প্রতি মাসে নিতেন ১৫০০ | বাকি {৪২০ টাকা} কোথায়? | money | ৪২০"। আইকন: phone, money, paper, book, key, clock, heart, bag, pot, medicine, box, plate।
 - ইউটিউব টাইটেল: নাম${'' } (ধারাবাহিকে "<নাম> | পর্ব k") + এক লাইনে মূল ভাব; কৌতূহল রাখা যায়, কিন্তু মিথ্যা প্রতিশ্রুতি নয়।
 - দৃশ্যের জিনিস: প্রতিটা "##" দৃশ্যের লাইনে জায়গার পরে +জিনিস দিয়ে গল্পে যা আছে তা বসাও (সর্বোচ্চ ৩টা, যেমন "## govt_office+table+chair+flag night", "## mud_house+hurricane+kolshi"): ${objs}। চরিত্রের হাতের জিনিস লাইনের চতুর্থ ঘরে (যেমন rafiq:worried:talk:file)। এক দৃশ্যে পর্দায় সর্বোচ্চ ৩ জন।
+- থাম্বনেলের ছবি: "থাম্বনেল:" লাইনের ঠিক নিচে আলাদা লাইনে "থাম্বনেলের ছবি: <id>" — থাম্বনেলের পেছনে বড় করে আঁকা হবে, তাই গল্পের নাম/মূল বিষয়ের সাথে সবচেয়ে মেলে এমন একটাই জিনিস এই তালিকা থেকে বাছো (শিরোনামে যে জিনিসের কথা, সেটাই আগে): ${window.TF_THUMB_ART ? TF_THUMB_ART.forPrompt() : 'lamp, letter, money, book'}। ধারাবাহিকের সব পর্বে একই id।
 - এনগেজমেন্ট: শুরুর ৫ সেকেন্ডে কৌতূহল, মাঝে একটা মোড়, শেষে কমেন্টের জন্য নির্দিষ্ট প্রশ্ন, শেয়ারের ডাক (কাকে শেয়ার করবে বলে দাও)${ch ? `; cta-তে "${ch}" নাম ধরে সাবস্ক্রাইব/পেজ ফলোর ডাক` : ''}।${craft}
 
 ## শুদ্ধ বাংলা (জমা দেওয়ার আগে পুরোটা একবার পড়ে ঠিক করবে)
@@ -10573,10 +10575,16 @@ function proBgLong(r) {
       if (man === 'scene') return null; if (man && A.has(man)) return { id: man, two: false, id2: null };
       const r = s0 && rec(s0.key); if (r && 'autoArt' in r) return r.autoArt;
       let txt = s0 ? s0.ser.name : String(st.title || '') + ' ' + String(proCopy(st).h || '');
-      let pk = A.pick(txt); if (!pk) { try { pk = A.best((st.scenes || []).map(sc => (sc.lines || []).map(l => l.say || l.text || '').join(' ')).join(' ') || JSON.stringify(st.scenes || [])); } catch (e) { } }
+      // 1) the title names a thing  2) the AI's "থাম্বনেলের ছবি:" line (cover.artAuto)  3) the most-mentioned thing in the story
+      let pk = A.pick(txt); const ICON = { money: 'money', phone: 'phone', envelope: 'letter', letter: 'letter', book: 'book', paper: 'pen', key: 'key', laptop: 'phone', clock: 'clock', medicine: 'medicine', ring: 'ring', gift: 'gift', lamp: 'lamp', house: 'house' };
+      const ai = (st.cover && st.cover.artAuto) || ICON[String((st.cover && st.cover.icon) || '').toLowerCase()]; if (!pk && ai && A.has(ai)) pk = { id: ai, two: false, id2: null };
+      if (!pk) { try { pk = A.best((st.scenes || []).map(sc => (sc.lines || []).map(l => l.say || l.text || '').join(' ')).join(' ') || JSON.stringify(st.scenes || [])); } catch (e) { } }
       if (s0) put(s0.key, Object.assign({}, r || {}, { autoArt: pk || null }));
       return pk || null;
     }
+    /* the AI's "থাম্বনেলের ছবি: <id>" line → story.cover.artAuto (kept through save/load) */
+    if (typeof normalizeStory === 'function') { const _ns = normalizeStory; normalizeStory = function (raw) { const r = _ns.apply(this, arguments);
+      try { const a = raw && (raw.thumbArt || (raw.cover && raw.cover.artAuto)), st = r && r.story, id = a && window.TF_THUMB_ART && TF_THUMB_ART.resolve(a); if (st && id) st.cover = Object.assign({}, st.cover || {}, { artAuto: id }); } catch (e) { } return r; }; }
     /* one picture for the whole series */
     const _draw = proDraw;
     proDraw = function (c, FW, FH, st, bg) {
@@ -10612,6 +10620,9 @@ function proBgLong(r) {
     const _dc = drawCover;
     drawCover = function (c, r, k) { const a = arguments, t = this; return withUni(r && r.story, k || theme(), () => _dc.apply(t, a)); };
     if (typeof LongRenderer !== 'undefined') { const LP = LongRenderer.prototype, _dt = LP.drawThumb; LP.drawThumb = function () { const a = arguments, t = this; return withUni(this.story, theme(), () => _dt.apply(t, a)); }; }
+    /* the pro thumbnail once in every section (the old tf_pro_thumb2 flag was shared, so only the first section opened got it) */
+    try { const fk = 'tf_pro_thumb3_' + PRO_KIND; if (!localStorage.getItem(fk)) { localStorage.setItem(fk, '1'); const go = () => { if (S.coverTheme !== 'pro') { S.coverTheme = 'pro'; try { saveSettings(); } catch (e) { } const ct = $('coverTheme'); if (ct) ct.value = 'pro'; refresh(); } };
+      if (document.readyState === 'complete') setTimeout(go, 1200); else window.addEventListener('load', () => setTimeout(go, 1200)); } } catch (e) { }
     /* UI: one text editor for every design + the series switch */
     const np = () => document.body.classList.toggle('v15np', theme() !== 'pro');
     let tries = 0; (function ui() {
