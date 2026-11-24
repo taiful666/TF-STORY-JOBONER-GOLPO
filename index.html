@@ -10640,6 +10640,52 @@ function proBgLong(r) {
   } catch (e) { console.warn('v15sercov', e); }
 })();
 </script>
+<style id="v16pc">
+/* v16 — PC: borderless monitor that uses all the space. The stage is the app's own light surface (no black frame);
+   a tall frame (9:16, 4:5, 1:1) takes the full height next to panel + timeline, a wide one (16:9) gets the full width. */
+@media (min-width:1024px){
+  body.ed .ed-stage{background:var(--e-bg);color:var(--e-ink);border-left:1px solid var(--e-line)}
+  body.ed .ed-stage .right{padding:10px 12px 6px!important;gap:6px!important}
+  body.ed .ed-view .pv{border-radius:10px!important;box-shadow:0 1px 2px rgba(23,32,27,.10),0 10px 28px rgba(23,32,27,.16)!important}
+  body.ed #lineInfo{color:var(--e-sub)!important;font-size:12.5px!important}
+  body.ed .ed-stage .empty{background:var(--e-soft)!important;color:var(--e-sub)!important}
+  body.ed .ed-stage .empty p{color:var(--e-sub)!important}
+  #ed.ed-tall{grid-template-areas:"top top top" "rail panel stage" "rail tl stage"!important}
+  #ed.ed-tall .ed-stage{border-left:1px solid var(--e-line)}
+  #ed.ed-tall .ed-panel .left{max-width:900px!important;margin:0 auto!important}
+  #ed{transition:grid-template-columns .25s var(--e-ease)}
+}
+@media (prefers-reduced-motion:reduce){#ed{transition:none}}
+</style>
+<script id="v16pc">
+(function () {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  let tries = 0;
+  function start() {
+    const ed = $('ed'), view = $('edView'), pv = $('pv'), stage = $('edStage'); if (!ed || !view || !pv || !stage) { if (tries++ < 60) setTimeout(start, 250); return; }
+    const box = pv.parentElement, mq = window.matchMedia('(min-width:1024px)'); let sig = '';
+    function adapt() {
+      if (!mq.matches) { ed.classList.remove('ed-tall'); ed.style.removeProperty('--panel'); sig = ''; return; }
+      const ar = parseFloat(box.style.getPropertyValue('--ar')) || .5625, tall = ar < 1.2;
+      const rail = parseFloat(getComputedStyle(ed).getPropertyValue('--rail')) || 84, A = ed.clientWidth - rail;
+      const rows = getComputedStyle(ed).gridTemplateRows.split(' ').map(parseFloat);
+      const top = rows[0] || 56, tl = rows[2] || 172, info = 30, pad = 22;
+      const Hs = (tall ? ed.clientHeight - top : ed.clientHeight - top - tl) - info - pad; // height the frame can use
+      const pw = Math.max(0, Hs) * ar + 26;                                                // stage width that frame needs
+      const lo = 340, hi = Math.max(lo, Math.round(A * (tall ? .66 : .42)));
+      const panel = Math.round(Math.min(hi, Math.max(lo, A - pw)));
+      const k = tall + '|' + panel; if (k === sig) return; sig = k;
+      ed.classList.toggle('ed-tall', tall); ed.style.setProperty('--panel', panel + 'px');
+    }
+    adapt();
+    if (window.ResizeObserver) new ResizeObserver(adapt).observe(ed);
+    new MutationObserver(adapt).observe(box, { attributes: true, attributeFilter: ['style'] });
+    window.addEventListener('resize', adapt); if (mq.addEventListener) mq.addEventListener('change', adapt);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(start, 0)); else setTimeout(start, 0);
+})();
+</script>
 <script src="life-series.js"></script>
 <script src="lib-studio.js"></script>
 </body>

@@ -317,6 +317,16 @@ html.reel-open,html.reel-open body{overflow:hidden}
   .rctl{overflow:auto;padding:16px}
   .rfoot{justify-content:flex-end}.rfoot .btn,.rfoot .btn.primary{flex:0 0 auto;min-width:190px}
 }
+
+/* v16 — PC: use the full width (no wide empty margins); the card preview fills the stage height */
+@media (min-width:1280px){
+  .top .in,.app{max-width:min(1760px,100%)}
+  .app{padding:16px 24px;gap:24px;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}
+  .canvasbox{padding:16px}
+  #cv{max-height:calc(100vh - 200px)}
+  html.fitz #cv{max-height:calc(100dvh / var(--z) - 200px)}
+}
+
 </style>
 <style id="v2pro">
 /* ===================== TF Post Maker v2 — calm, minimal, app-like (same language as TF NewsCard) ===================== */
