@@ -10096,7 +10096,7 @@ function proDraw(c, FW, FH, st, bg) {
   const u = Math.min(FW, FH) / 1080, land = FW > FH * 1.15, sq = !land && FH < FW * 1.4;
   c.save(); rect(c, 0, 0, FW, FH, pal.bg);
   if (bg) { const key = FW + 'x' + FH + '|' + (bg.key || ''); if (!PRO_BG || PRO_BG.key !== key || !bg.key) { const cv = document.createElement('canvas'); cv.width = FW; cv.height = FH; const x = cv.getContext('2d', { alpha: false }); rect(x, 0, 0, FW, FH, pal.bg); try { bg(x); } catch (e) { console.warn('pro bg', e); } PRO_BG = { key, cv }; } c.drawImage(PRO_BG.cv, 0, 0, FW, FH); }
-  c.save(); c.globalCompositeOperation = 'soft-light'; c.fillStyle = pal.tint; c.fillRect(0, 0, FW, FH); c.restore();
+  if (!(bg && bg.art)) { c.save(); c.globalCompositeOperation = 'soft-light'; c.fillStyle = pal.tint; c.fillRect(0, 0, FW, FH); c.restore(); }
   const b = pal.band, g = c.createLinearGradient(0, 0, 0, FH), q = bg && bg.art ? .5 : 1; // subject picture (thumb-art.js): lighter band so the thing shows
   g.addColorStop(0, `rgba(${b},${.30 * q})`); g.addColorStop(.22, `rgba(${b},${.52 * q})`); g.addColorStop(.5, `rgba(${b},${.80 * q})`); g.addColorStop(.78, `rgba(${b},${.52 * q})`); g.addColorStop(1, `rgba(${b},${.35 * q})`);
   c.fillStyle = g; c.fillRect(0, 0, FW, FH);
