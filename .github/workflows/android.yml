@@ -8,6 +8,7 @@ on:
       - 'long-library.js'
       - 'long-visuals.js'
       - 'elements.js'
+      - 'thumb-art.js'
       - 'lib-studio.js'
       - 'life-series.js'
       - 'cloud-core.js'
@@ -70,7 +71,7 @@ jobs:
       - name: Put the web app inside the APK
         run: |
           mkdir -p android/app/src/main/assets/www
-          cp index.html long-library.js long-visuals.js elements.js lib-studio.js life-series.js cloud-core.js manifest.webmanifest icon-192.png icon-512.png icon-maskable-512.png android/app/src/main/assets/www/
+          cp index.html long-library.js long-visuals.js elements.js thumb-art.js lib-studio.js life-series.js cloud-core.js manifest.webmanifest icon-192.png icon-512.png icon-maskable-512.png android/app/src/main/assets/www/
           cp -r vendor android/app/src/main/assets/www/
           # start screen + the Islamic part (TF Post Maker)
           cp home.html android/app/src/main/assets/www/
