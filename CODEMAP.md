@@ -3,18 +3,18 @@
 Format: `line` name. **H** = big section, *h* = sub-section, then functions / constants under it.
 Open code with Read(file, offset=line, limit=…) — never read a big file whole.
 
-## home.html  (337 lines)
+## home.html  (346 lines)
 - `6` ▸ <script fitjs> /* PC / big screens: scale the whole UI with the window, smoothly on r…
   `10` fit
 - `20` ▸ <style fitcss> html.fitz body{min-height:calc(100dvh / var(--z))}</style>
 - `27` ▸ <style> 
 - `28` **Start screen v8 — "গল্পের সন্ধ্যা": quiet chrome, one rendered video frame carries the col…**
-- `282` ▸ <script cloud-core.js> </script>
-- `283` ▸ <script> 
-  `286` $ · `292` remember · `295` islShow · `305` paint
-  - element ids (5): islSub@252 · islBack@253 · acct@273 · acAv@274 · acBtn@276
+- `291` ▸ <script cloud-core.js> </script>
+- `292` ▸ <script> 
+  `295` $ · `301` remember · `304` islShow · `314` paint
+  - element ids (5): islSub@256 · islBack@257 · acct@282 · acAv@283 · acBtn@285
 
-## index.html  (10693 lines)
+## index.html  (10960 lines)
 - `6` ▸ <script fitjs> /* PC / big screens: scale the whole UI with the window, smoothly on r…
   `10` fit
 - `20` ▸ <style fitcss> html.fitz body{min-height:calc(100dvh / var(--z))}html.fitz dialog{max…
@@ -268,8 +268,22 @@ Open code with Read(file, offset=line, limit=…) — never read a big file whol
 - `10643` ▸ <style v16pc> 
 - `10660` ▸ <script v16pc> 
   `10663` $ · `10665` start
-- `10689` ▸ <script life-series.js> </script>
-- `10690` ▸ <script lib-studio.js> </script>
+- `10689` ▸ <script v17lv> 
+  `10698` planShort
+- `10726` ▸ <style v18hub> 
+- `10770` ▸ <script v18hub> 
+  `10796` words · `10803` keysFor · `10810` detect
+  - `10816` *storage*
+  `10818` open · `10819` tx · `10820` mkImg · `10821` load · `10822` shrink · `10825` add · `10832` update · `10833` remove
+  - `10835` *matching*
+  `10837` rx · `10838` secOk · `10839` hashS · `10840` match
+  - `10850` *uploaded characters: a story character whose name/role matches is drawn with the image*
+  - `10867` *deep link: index.html?settings=1 opens this section's settings*
+  - `10870` *the hub page*
+  `10875` E · `10878` build · `10891` upload · `10892` bnN · `10893` chips · `10894` dropZone · `10899` secSel · `10900` mineCard
+  `10906` qOk · `10907` paintSet · `10918` paintChar · `10930` drawRole · `10931` paintPic · `10945` paint · `10951` kill · `10952` startHub
+- `10956` ▸ <script life-series.js> </script>
+- `10957` ▸ <script lib-studio.js> </script>
   - element ids (289): btnNew@1119 · stepBar@1120 · btnAccount@1129 · btnGallery@1130 · btnHelp@1131 · btnSettings@1132 · step1@1140 · fmtPick@1141 · ratioQuick@1145 · srcPick@1147 · srcBack@1153 · btnSrcBack@1153 · srcTabs@1154 · src-lib@1156 · libSearch@1157 · libRandom@1157 · libChips@1158 · libMineChip@1161 · libArea@1162 · libBook@1164 · libFilter@1165 · libCount@1166 · src-ai@1170 · aiNew@1171 · aiWay@1172 · pTopic@1178 · topicChips@1179 · longBox@1181 · longStyles@1183 · longMin@1190 · longWebRow@1191 · longWeb@1191 · longLink@1193 · longFactsRow@1194 · longFacts@1194 · way-app@1199 · genAI@1201 · genN@1202 · btnGen@1205 · btnGenStop@1206 · genBar@1207 · genArea@1210 · genBook@1211 · genLen@1212 · pStyle@1213 · pHero@1214 · way-ext@1220 · xN@1223 · xMinRow@1223 · xMin@1223 · btnXCopy@1224 · addIn@1228 · btnAddLib@1229 · btnAddPaste@1229 · addFiles@1229 · addedBox@1235 · btnSeeLib@1237 · genTopic@1242 · xTopic@1242 · xChips@1242 · xSub@1242 · extPromptCard@1242 · pArea@1243 · pBook@1243 · pLesson@1243 · pLen@1244 · btnRandom@1245 · usedInfo@1245 · aiTabs@1246 · ai-api@1247 · btnWrite@1247 · aiStatus@1247 · bulkN@1248 · btnBulkWrite@1248 · btnBulkStop@1248 · bulkBar@1248 · ai-chat@1249 · btnCopyPrompt@1249 · chatIn@1249 · btnChatParse@1249 · btnChatPaste@1249 · bulkNChat@1250 · btnCopyBulkPrompt@1250 · src-paste@1255 · storyIn@1256 · pasteKeep@1257 · btnParse@1258 · fileImport@1258 · btnCopyScript@1258 · src-add@1261 · myLibInfo@1262 · btnLibExport@1262 · btnLibClear@1262 · next1@1266 · step2@1270 · btnAutoDirect@1272 · charEditor@1274 · sceneOverview@1276 · sceneEditor@1277 · next2@1278 · step3@1282 · voiceTabs@1284 · v-tts@1285 · cVoice@1288 · btnVoices@1288 · btnVoicePrev@1288 · cVoiceId@1289 · cSpeed@1290 · cEmotion@1291 · sMultiVoice@1293 · charVoices@1294 · btnTTS@1295 · ttsInfo@1295 · ttsBar@1296 · v-rec@1299 · recPos@1301 · recDot@1301 · recPrev@1304 · recBtn@1305 · recPlay@1306 · recNext@1307 · recAuto@1309 · recAll@1311 · recInfo@1311 · v-upload@1313 · audioUpload@1315 · v-none@1318 · mStyle@1322 · mVol@1323 · musicUpload@1326 · musicInfo@1326 · mSfx@1327 · mPops@1328 · mVisuals@1329 · lenTabs@1332 · lenFixedRow@1334 · lenSec@1334 · lenNote@1334 · next3@1335 · step4@1339 · ratioPick@1343 · resPick@1350 · thumbPv@1352 · thumbText@1352 · thumbFields@1352 · btnThumbReset@1357 · coverTheme@1357 · btnThumbDl@1357 · sAutoThumb@1358 · btnExport@1361 · expProg@1362 · expBar@1364 · expEta@1365 · btnCancel@1365 · expDone@1368 · expDoneText@1369 · btnSaveAgain@1372 · btnShare@1373 · pubPack@1379 · pubYtTitle@1380 · ytText@1382 · btnCopyYT@1383 · pubYtTags@1384 · pubFb@1386 · aiNotes@1394 · aiSheet@1396 · btnAI@1397 · btnBackup@1397 · btnWav@1397 · pv@1404 · btnBigPlay@1405 · pvEmpty@1406 · pvLogo@1406 · pvRatio@1408 · btnPlay@1410 · seek@1411 · tLabel@1412 · btnMark@1413 · btnPvMin@1414 · dlgShare@1420 · btnShareX@1421 · platGrid@1422 · platBox@1429 · dlgSettings@1432 · setTabs@1434 · st-ch@1435 · logoPrev@1437 · sLogoFile@1439 · btnLogoClear@1439 · sSeries@1444 · sTagline@1445 · sLogo@1446 · sHero@1447 · sOutro@1449 · sWatermark@1450 · sWm@1451 · st-key@1453 · gKey@1458 · gModel@1459 · gLoad@1459 · gRemember@1461 · aKey@1464 · aModel@1465 · aLoad@1465 · aRemember@1467 · cKey@1470 · cModel@1471 · cRemember@1473 · btnForgetKey@1474 · st-vid@1476 · capFontPick@1478 · titleFontPick@1480 · accFontPick@1482 · sFontFile@1483 · sCapLook@1485 · sCapStyle@1486 · sCap@1487 · sGap@1488 · sCaptions@1490 · sProgress@1491 · sAnimStyle@1492 · sHookCard@1493 · sCinema@1494 · sCtxBg@1495 · sThumb@1496 · st-data@1498 · btnClearCache@1499 · btnClearUsed@1499 · btnLibExport2@1500 · libImportFile@1500 · btnAccount2@1501 · appInfo@1502 · appVer@1502 · btnCheckUpdate@1502 · dlgAccount@1507 · acOff@1509 · acApp@1510 · acOut@1511 · btnSignIn@1513 · acOutErr@1514 · acIn@1517 · acEmail@1518 · acSync@1519 · btnAcLib@1526 · btnSignOut@1526 · dlgChars@1531 · galFilter@1534 · galGrid@1535 · dlgHelp@1538 · toasts@1552 · edTop@9735 · edBrand@9735 · edMeta@9736 · edAct@9737 · edExport@9738 · edRail@9739 · edPanel@9740 · edStage@9741 · edTl@9742 · tlInfo@9743 · tlOut@9744 · tlZl@9745 · tlIn@9746 · tlScroll@9748 · tlInner@9748 · tlRuler@9748 · tlScenes@9749 · tlLines@9749 · tlPh@9749 · btnProEdit@10164 · btnProReset@10164 · peAll@10198 · peDone@10198 · peCv@10200 · peSel@10201 · peMinus@10201 · pePlus@10201 · peCenter@10201 · peOne@10201 · peHide@10201 · tfNavBack@10438 · tfNavHome@10439 · lvX@10476 · lvTxt@10477 · lvNote@10478 · lvSave@10478 · lvReset@10478 · lvUse@10478 · v15Same@10634
 
 ## cloud-core.js  (58 lines)
@@ -278,22 +292,26 @@ Open code with Read(file, offset=line, limit=…) — never read a big file whol
   `3` LONG_LIBRARY
   - `17` *জীবন পাঠ · প্রবাসী জীবনের গল্প (প্রতারণা, সম্পর্ক, অভ্যাস, শিক্ষা)*
 
-## long-visuals.js  (941 lines)
-  `8` LV · `11` toEn · `12` toBn · `13` num · `14` grp · `16` hash · `17` rng · `19` eo
-  `20` eio · `21` bk · `22` BN · `23` FB · `24` font
-  - `26` *colour themes (dark, cinematic)*
-  - `36` *cinematic background: gradient, glow, grid, dust, vignette, grain*
-  `38` grainTile · `42` bg · `56` grain
-  - `60` *small drawing helpers (work in the scene's own 1600×800 space)*
-  `61` R · `62` O · `63` L · `64` TXT · `65` tw · `66` pop · `67` glowText · `69` chip
-  `75` big · `76` arrow · `77` person · `85` reg
-- `87` **scenes (each drawn around (0,0) in a 1600×800 space)**
-- `326` **everyday objects & situations (round 2)**
-  `327` steam · `328` rays · `329` sparkles · `330` confetti · `331` heartPath · `332` wheel · `333` sky · `334` stars
-  `335` label
-- `766` **choosing and drawing**
-  `768` normKind · `769` clean · `772` fromCard · `777` fromOldCard · `791` objectFor · `837` auto · `879` plan · `898` draw
-  `910` inset · `929` card
+## long-visuals.js  (1288 lines)
+  `8` LV · `11` toEn · `12` toBn · `13` num · `14` grp · `16` hash · `17` rng · `20` eo
+  `21` eio · `22` bk · `23` BN · `24` FB · `25` font
+  - `27` *colour themes (dark, cinematic)*
+  - `38` *cinematic background: gradient, glow, grid, dust, vignette, grain*
+  `40` grainTile · `44` bg · `58` grain
+  - `62` *small drawing helpers (work in the scene's own 1600×800 space)*
+  `63` R · `64` O · `65` L · `66` TXT · `67` tw · `68` pop · `69` glowText · `71` chip
+  `77` big · `78` arrow · `79` person · `87` reg
+- `89` **scenes (each drawn around (0,0) in a 1600×800 space)**
+- `328` **everyday objects & situations (round 2)**
+  `329` steam · `330` rays · `331` sparkles · `332` confetti · `333` heartPath · `334` wheel · `335` sky · `336` stars
+  `337` label
+- `768` **round 3: specific things (health, paper, home) + Islamic-only + general-story-only**
+  `770` drop · `771` scribble
+  - `962` *Islamic-only*
+  - `1040` *general stories only*
+- `1071` **choosing and drawing**
+  `1073` normKind · `1074` clean · `1077` fromCard · `1082` fromOldCard · `1096` objectFor · `1182` auto · `1224` plan · `1243` draw
+  `1255` inset · `1274` card · `1285` SECT_OF
 
 ## sw.js  (13 lines)
   `4` FILES
@@ -367,7 +385,7 @@ Open code with Read(file, offset=line, limit=…) — never read a big file whol
   - `1066` *the AI prompt for an explainer script (works in Gemini, Claude, ChatGPT)*
   - `1149` *engine hooks (run after the main script, before init)*
 
-## islamic/index.html  (5022 lines)
+## islamic/index.html  (5023 lines)
 - `6` ▸ <script fitjs> /* PC / big screens: scale the whole UI with the window, smoothly on r…
   `10` fit
 - `20` ▸ <style fitcss> html.fitz body{min-height:calc(100vh / var(--z))}html.fitz #cv{max-hei…
@@ -530,6 +548,7 @@ Open code with Read(file, offset=line, limit=…) — never read a big file whol
 - `4968` ▸ <script v3js> 
 - `4969` **TF Post Maker v3 — labels for the regrouped layout, the finish sheet**
   `4972` $ · `4992` lang · `4993` labels · `4997` sheet · `4998` openSheet · `4999` closeSheet · `5000` mirrorMono · `5005` start
+- `5020` ▸ <script> /* deep link from the home Settings hub if (/[?&]settings=1\b/.test(lo…
   - element ids (296): tfToBack@668 · installBtn@672 · newPostBtn@673 · acctBtn@674 · v2Theme@675 · v2MenuBtn@676 · langBtn@677 · themeBtn@678 · cv@692 · undoBtn@696 · redoBtn@697 · shuffleBtn@698 · v3ExportBtn@699 · pvBtn@700 · p-text@714 · newPostBtn2@715 · installBanner@716 · installBtn2@716 · installX@716 · brandNudge@717 · nudgeName@717 · nudgeSave@717 · genSeg@718 · gen-quick@724 · qgen@725 · qgCount@726 · qgTopics@728 · qgCustom@729 · qgTone@730 · qgCap@731 · qgPrev@732 · qgNext@732 · qgRand@732 · qgStatus@733 · qgStatusTxt@733 · qgOut@734 · qgClear@735 · src-ai@738 · aiType@742 · aiSource@743 · aiLen@744 · aiTopic@746 · styleEx@748 · styleResetBtn@749 · aiWithImg@751 · aiPostBtn@752 · aiGenBtn@752 · aiImgBtn@752 · aiStatus@752 · aiOpts@754 · gen-story@758 · stCount@760 · stKind@763 · stLifeBox@764 · stTopics@765 · stCustom@766 · stSacredNote@768 · stImg@769 · stMore@770 · stPrev@771 · stNext@771 · stStatus@772 · stStatusTxt@772 · stOut@773 · stClear@774 · src-hadith@777 · hBook@780 · hNum@781 · hTodayBtn@784 · hRandBtn@785 · hGetBtn@786 · hPrevBtn@787 · hNextBtn@788 · hArabic@791 · hSahih@792 · hGrade@793 · hStatus@795 · hMeta@796 · hTools@797 · hMatnBtn@798 · hFullBtn@799 · src-ayah@802 · aRefIn@805 · aTransSel@806 · aTodayBtn@809 · aRandBtn@810 · aGetBtn@811 · aNextBtn@812 · aArabic@814 · aStatus@815 · aMeta@816 · cardTextSect@818 · smartPasteBtn@819 · clearTextBtn@819 · f-heading@820 · f-arabic@821 · f-text@822 · hlSelBtn@823 · hlAutoBtn@823 · hlClearBtn@823 · f-ref@825 · f-note@826 · sacredWarn@828 · src-tools@829 · undoTextBtn@830 · toolStatus@839 · p-design@845 · desSeg@846 · des-look@851 · ratioSeg@853 · gallery@860 · pals@861 · cTc@863 · cAc@864 · cAc2@865 · cHl@866 · pairChips@869 · bFont@872 · aFont@873 · headFont@874 · hlStyle@875 · hlFont@876 · alignSeg@878 · textY@879 · overlay@880 · elemRows@882 · presetName@884 · presetSaveBtn@884 · presetList@885 · posResetBtn@887 · resetDesignBtn@887 · des-image@889 · imgSrcSeg@891 · imgFile@897 · linkRow@898 · imgLink@898 · imgLinkBtn@898 · imgInfo@899 · zoom@900 · blur@901 · centerBtn@902 · f-credit@903 · imgPrompt@907 · imgSuggestBtn@909 · imgGenBtn@910 · imgStatus@911 · noFigures@913 · aiThumbs@914 · imgDlBtn@915 · des-brand@919 · brandFor@920 · b-name@923 · b-handle@924 · b-show@926 · b-style@927 · b-wm@928 · logoFile@932 · logoInfo@933 · logoUpBtn@934 · logoRmBtn@934 · logoSize@935 · logoPos@936 · b-tags@940 · resetBrandBtn@942 · p-caption@947 · capStyle@950 · capEmoji@953 · capTags@954 · capFull@955 · capCta@956 · capGenBtn@958 · capQuickBtn@958 · capStatus@958 · capText@959 · capCopyBtn@960 · capBothBtn@960 · monoSect@963 · monoList@965 · monoFixBtn@966 · monoRecheck@966 · p-library@975 · libWithDesign@977 · libSearch@978 · libList@979 · libExportBtn@981 · libImportBtn@982 · libFile@983 · p-settings@989 · langBtn2@992 · themeBtn2@992 · installBtn3@992 · claudeSect@995 · cKey@997 · showCKeyBtn@997 · cModelSel@998 · cUse@999 · saveCKeyBtn@1000 · testCKeyBtn@1000 · rmCKeyBtn@1000 · cKeyState@1000 · cSpent@1001 · cSpentReset@1001 · gKey@1009 · showKeyBtn@1009 · gModel@1011 · iModel@1012 · saveKeyBtn@1014 · testKeyBtn@1014 · rmKeyBtn@1014 · keyState@1014 · fullBackupBtn@1019 · fullRestoreBtn@1019 · fullFile@1019 · memCount@1024 · memSaveBtn@1025 · memDriveBtn@1025 · memLoadBtn@1025 · memFile@1025 · hdrResetBtn@1030 · resetAllBtn@1030 · masterResetBtn@1030 · keepLib@1031 · modal@1038 · modalBack@1038 · modalDl@1038 · resetModal@1039 · rsKeepBtn@1042 · rsAllBtn@1043 · rsBackupBtn@1044 · rsCancelBtn@1044 · installModal@1046 · installModalOk@1053 · shareModal@1055 · shCap@1057 · shCard@1058 · shEmpty@1059 · shMakeAi@1059 · shMakeQuick@1059 · shPrevTxt@1060 · shCancel@1063 · pasteBar@1065 · pasteTxt@1065 · pasteAgain@1065 · pasteX@1065 · updateBar@1066 · updateBtn@1066 · reelSheet@1067 · rvMode@1068 · rvClose@1068 · rvStage@1071 · rvCv@1071 · rvPlayBig@1071 · rvPosReset@1073 · rvCode@1077 · rvTags@1078 · rvRoll@1079 · rvRatio@1084 · rvLayout@1085 · rvDur@1087 · rvSound@1091 · rvOwnBox@1092 · rvOwnPick@1093 · rvOwnFile@1094 · rvOwnOff@1095 · rvVolBox@1097 · rvVol@1097 · rvManualBox@1100 · rvPlay@1104 · rvMake@1104 · rvBusy@1105 · rvCancel@1105 · rvDone@1106 · rvShare@1111 · rvSave@1112 · rvAnother@1114 · rvDoneX@1115 · newBar@1118 · newUndo@1118 · v3export@1119 · monoBtn@1122 · monoBadge@1122 · shareBtn@1123 · pngBtn@1125 · jpgBtn@1126 · reelBtn@1127 · saveLibBtn@1128 · previewBtn@1130 · v2menu@1132 · v2Lang@1136 · v2Install@1137 · tfShare@1139 · tfShX@1140 · tfShWhat@1141 · tfShGrid@1142 · tfShBox@1149 · toast@1151
 
 ## islamic/story.js  (877 lines)
