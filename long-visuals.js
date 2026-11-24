@@ -15,6 +15,7 @@ const LV = (() => {
   const MONTHS = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
   const hash = s => { let h = 2166136261; s = String(s); for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
   const rng = seed => { let s = (seed >>> 0) || 1; return () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 4294967296; }; };
+  const SEC = /[?&]part=islamic\b/.test(location.search) || /\/islamic\//.test(location.pathname) ? 'isl' : /[?&]part=explainer\b/.test(location.search) ? 'exp' : 'story';
   const C = { cl: (v, a = 0, b = 1) => Math.max(a, Math.min(b, v)) };
   const eo = x => 1 - Math.pow(1 - C.cl(x), 3);
   const eio = x => { x = C.cl(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
@@ -30,6 +31,7 @@ const LV = (() => {
     money: { a: '#05120D', b: '#0D3526', glow: '#1FD38A', acc: '#9CFFB8', ink: '#F0FFF6', dim: '#7FBF9F', ok: '#7CFF8A', bad: '#FF6A6A' },
     alert: { a: '#150507', b: '#40101A', glow: '#FF3B4E', acc: '#FFC857', ink: '#FFF2F2', dim: '#C98A92', ok: '#7CFF8A', bad: '#FF5468' },
     steel: { a: '#080D13', b: '#1B2A39', glow: '#58B6FF', acc: '#7FDBFF', ink: '#F2FAFF', dim: '#86A3BA', ok: '#7CFF8A', bad: '#FF6A7A' },
+    paper: { a: '#FCF6EA', b: '#EEDDBF', glow: '#FFB347', acc: '#C8781E', ink: '#2A1A10', dim: '#8A6A4A', ok: '#2E9E5B', bad: '#D2343C', light: 1 }, // short videos: bright, clear
     plum: { a: '#10091A', b: '#2D1848', glow: '#B05CFF', acc: '#FFD7A0', ink: '#FBF3FF', dim: '#B49BD0', ok: '#9CF0B0', bad: '#FF6A8A' }
   };
 
@@ -46,12 +48,12 @@ const LV = (() => {
     const gx = FW * (.5 + .06 * Math.sin(t * .4 + o.seed % 7)), gy = FH * .42, gr = Math.max(FW, FH) * (.55 + .03 * Math.sin(t * .7));
     const rg = c.createRadialGradient(gx, gy, 10, gx, gy, gr); rg.addColorStop(0, T.glow + '55'); rg.addColorStop(.55, T.glow + '14'); rg.addColorStop(1, T.glow + '00'); c.fillStyle = rg; c.fillRect(0, 0, FW, FH);
     // faint grid drifting upward (depth)
-    c.save(); c.strokeStyle = 'rgba(150,185,255,.055)'; c.lineWidth = 1; const gs = 90 * u, off = (t * 7 * u) % gs;
+    c.save(); c.strokeStyle = T.light ? 'rgba(120,80,40,.06)' : 'rgba(150,185,255,.055)'; c.lineWidth = 1; const gs = 90 * u, off = (t * 7 * u) % gs;
     c.beginPath(); for (let x = -gs; x <= FW + gs; x += gs) { c.moveTo(x + .5, 0); c.lineTo(x + .5, FH); } for (let y = -gs; y <= FH + gs; y += gs) { c.moveTo(0, y + off + .5); c.lineTo(FW, y + off + .5); } c.stroke(); c.restore();
     // dust motes
     for (let i = 0; i < 26; i++) { const x = (i * 263 + Math.sin(t * .3 + i) * 30) % FW, y = (FH - ((i * 331 + t * (10 + i % 5 * 4) * u) % FH)), a = .06 + (i % 4) * .035; c.globalAlpha = a; c.fillStyle = T.acc; c.beginPath(); c.arc(Math.abs(x), y, (1.4 + i % 3) * u, 0, 7); c.fill(); } c.globalAlpha = 1;
     // vignette
-    const vg = c.createRadialGradient(FW / 2, FH / 2, Math.min(FW, FH) * .32, FW / 2, FH / 2, Math.max(FW, FH) * .74); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.72)'); c.fillStyle = vg; c.fillRect(0, 0, FW, FH);
+    const vg = c.createRadialGradient(FW / 2, FH / 2, Math.min(FW, FH) * .32, FW / 2, FH / 2, Math.max(FW, FH) * .74); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, T.light ? 'rgba(80,50,20,.16)' : 'rgba(0,0,0,.72)'); c.fillStyle = vg; c.fillRect(0, 0, FW, FH);
   }
   function grain(c, o) {
     try { const tile = grainTile(), n = Math.floor(o.t * 20); c.save(); c.globalCompositeOperation = 'overlay'; c.globalAlpha = .5; c.fillStyle = c.createPattern(tile, 'repeat'); c.translate((n * 53) % 192, (n * 97) % 192); c.fillRect(-192, -192, o.FW + 384, o.FH + 384); c.restore(); } catch (e) { }
@@ -69,7 +71,7 @@ const LV = (() => {
   function chip(c, s, x, y, size, k, T, opt) {
     if (!s || k <= 0) return; opt = opt || {}; const w = tw(c, s, size, 800) + size * 1.2, h = size * 1.7;
     pop(c, x, y, k, () => { c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 18; c.shadowOffsetY = 6; R(c, x - w / 2, y - h / 2, w, h, size * .3, opt.bg || 'rgba(8,12,22,.86)', opt.edge || null, 3); c.restore();
-      TXT(c, s, x, y + size * .3, size, opt.ink || T.ink, 800, 'center', null, w - size * .6); R(c, x - w / 2 + size * .5, y + h / 2 - size * .22, (w - size) * eo(k), 4, 2, opt.line || T.acc); });
+      TXT(c, s, x, y + size * .3, size, opt.ink || (T.light ? '#FFF4E4' : T.ink), 800, 'center', null, w - size * .6); R(c, x - w / 2 + size * .5, y + h / 2 - size * .22, (w - size) * eo(k), 4, 2, opt.line || T.acc); });
   }
   /* big accent number / word with glow */
   function big(c, s, x, y, size, T, k, col) { if (k <= 0) return; c.save(); c.globalAlpha *= C.cl(k * 1.4); c.translate(x, y); const z = .9 + .1 * C.cl(k); c.scale(z, z); glowText(c, s, 0, 0, size, col || T.ink, (col || T.acc) + 'cc', 800, 'TFDisp'); c.restore(); }
@@ -763,8 +765,299 @@ const LV = (() => {
     label(c, o, 370);
   });
 
+  /* ================= round 3: specific things (health, paper, home) + Islamic-only + general-story-only =================
+     every kind is drawn around (0,0) in the 1600×800 space; works full-screen, as an inset beside a speaker and in thumbnails */
+  const drop = (c, x, y, s, col) => { c.beginPath(); c.moveTo(x, y - s); c.quadraticCurveTo(x + s * .8, y + s * .2, x, y + s * .7); c.quadraticCurveTo(x - s * .8, y + s * .2, x, y - s); c.fillStyle = col; c.fill(); };
+  const scribble = (c, x, y, w, rows, gap, col, f, lw) => { c.strokeStyle = col; c.lineWidth = lw || 4; c.lineCap = 'round'; for (let i = 0; i < rows; i++) { const ff = C.cl(f * rows - i); if (ff <= 0) break; const len = (w - (i % 3) * w * .12) * ff; c.beginPath(); for (let s = 0; s <= 30; s++) { const xx = x + s / 30 * len, yy = y + i * gap + Math.sin(s * 1.6 + i * 2) * 4; if (s === 0) c.moveTo(xx, yy); else c.lineTo(xx, yy); } c.stroke(); } };
+
+  /* fever: a thermometer whose red line climbs, heat waves, a wet cloth and sweat drops */
+  reg('fever', 'alert', (c, o) => {
+    const lt = o.lt, k = bk(lt, .05, .5), lv = eo((lt - .3) / 1.6), deg = 98 + Math.round(lv * 6);
+    for (let i = 0; i < 4; i++) { c.save(); c.globalAlpha = .18 + .08 * Math.sin(lt * 3 + i); c.strokeStyle = '#FF8A5C'; c.lineWidth = 10; c.beginPath(); for (let y = -320; y <= 260; y += 10) { const x = -480 + i * 60 + Math.sin(y * .03 + lt * 4 + i) * 16; if (y === -320) c.moveTo(x, y); else c.lineTo(x, y); } c.stroke(); c.restore(); }
+    pop(c, 120, 0, k, () => { c.save(); c.translate(120, 0); c.rotate(-.18); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 40; R(c, -70, -330, 140, 560, 70, '#F4F7FA'); c.restore(); c.save(); c.translate(120, 0); c.rotate(-.18);
+      R(c, -24, -290, 48, 480, 24, '#E3E9EF'); const top = 190 - lv * 420; R(c, -16, top, 32, 190 - top + 10, 16, '#E5484D'); O(c, 0, 230, 62, '#E5484D', '#F4F7FA', 12);
+      for (let i = 0; i < 9; i++) L(c, 30, 160 - i * 48, i % 2 ? 50 : 62, 160 - i * 48, '#8A96A3', 4);
+      c.restore(); });
+    big(c, toBn(deg) + '°', 520, -80, 150, o.T, bk(lt, .6, .4), lv > .7 ? '#FF5468' : '#FFC857');
+    for (let i = 0; i < 5; i++) { const ph = (lt * .7 + i * .21) % 1; c.globalAlpha = Math.sin(ph * Math.PI) * .9; drop(c, -300 + i * 50, -200 + ph * 300, 18, '#9FD8FF'); } c.globalAlpha = 1;
+    label(c, o, 340);
+  });
+
+  /* medicine: a blister strip pops its pills, a syrup bottle and a spoon */
+  reg('medicine', 'steel', (c, o) => {
+    const lt = o.lt, k = bk(lt, .05, .5), v = String(o.tx[1] || '');
+    pop(c, -250, 0, k, () => { c.save(); c.translate(-250, 0); c.rotate(-.12); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 40; R(c, -330, -200, 660, 400, 30, '#C9D3DD'); c.restore(); c.save(); c.translate(-250, 0); c.rotate(-.12); R(c, -310, -180, 620, 360, 24, null, 'rgba(255,255,255,.55)', 4);
+      for (let r = 0; r < 2; r++) for (let q = 0; q < 4; q++) { const i = r * 4 + q, gone = lt > 1 + i * .18 && i < 3; const x = -225 + q * 150, y = -80 + r * 160; O(c, x, y, 52, gone ? 'rgba(80,95,110,.35)' : 'rgba(255,255,255,.65)'); if (!gone) { c.save(); c.translate(x, y); c.rotate(.6); R(c, -46, -22, 92, 44, 22, '#F7F7F7'); c.beginPath(); c.rect(-46, -22, 46, 44); c.clip(); R(c, -46, -22, 92, 44, 22, v === 'red' ? '#E5484D' : '#4C7BD9'); c.restore(); } }
+      c.restore(); });
+    pop(c, 400, 40, bk(lt, .4, .45), () => { c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 30; R(c, 300, -180, 200, 380, 30, '#8B4A1C'); c.restore(); R(c, 335, -250, 130, 80, 12, '#F2F2F2'); R(c, 315, -60, 170, 170, 12, '#FFF8E8'); TXT(c, 'সিরাপ', 400, 20, 40, '#8B4A1C', 800, 'center'); L(c, 335, 70, 465, 70, '#E5484D', 6); });
+    const sp = bk(lt, .9, .4); pop(c, 380, 300, sp, () => { c.save(); c.translate(380, 300); c.rotate(-.2); R(c, -170, -10, 230, 20, 10, '#C6CED6'); c.beginPath(); c.ellipse(90, 0, 60, 34, 0, 0, 7); c.fillStyle = '#C6CED6'; c.fill(); c.beginPath(); c.ellipse(90, 0, 46, 24, 0, 0, 7); c.fillStyle = '#B5652A'; c.fill(); c.restore(); });
+    label(c, o, 360);
+  });
+
+  /* doctor: a stethoscope + a prescription pad that writes "Rx" lines */
+  reg('doctor', 'steel', (c, o) => {
+    const lt = o.lt, k = bk(lt, .05, .5);
+    pop(c, -180, 0, k, () => { c.save(); c.translate(-180, 0); c.rotate(-.05); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 40; R(c, -300, -340, 600, 680, 18, '#FFFFFF'); c.restore(); c.save(); c.translate(-180, 0); c.rotate(-.05);
+      R(c, -300, -340, 600, 110, 18, '#2B7BB9'); R(c, -300, -260, 600, 30, 0, '#2B7BB9'); TXT(c, 'ডা. প্রেসক্রিপশন', 0, -275, 44, '#FFFFFF', 800, 'center');
+      TXT(c, 'Rx', -220, -150, 80, '#1A2233', 800, 'left', 'TFDisp'); scribble(c, -230, -60, 440, 6, 58, '#1F3A8A', C.cl((lt - .4) / 1.6), 5);
+      c.restore(); });
+    const s2 = bk(lt, .5, .5); pop(c, 380, 0, s2, () => { c.save(); c.translate(380, 0); c.lineWidth = 16; c.strokeStyle = '#3A4656'; c.lineCap = 'round'; c.beginPath(); c.moveTo(-90, -260); c.quadraticCurveTo(-120, -40, 0, 40); c.quadraticCurveTo(120, -40, 90, -260); c.stroke(); c.beginPath(); c.moveTo(0, 40); c.bezierCurveTo(0, 180, 160, 200, 170, 90); c.stroke(); O(c, -90, -270, 18, '#BFC7D0'); O(c, 90, -270, 18, '#BFC7D0'); O(c, 170, 70, 62, '#C9D1DA', '#8995A3', 8); O(c, 170, 70, 36, '#E6EBF0'); c.restore(); });
+    label(c, o, 360);
+  });
+
+  /* saline: a drip bag on a stand, drops falling into the tube, a hospital bed edge */
+  reg('saline', 'steel', (c, o) => {
+    const lt = o.lt, k = bk(lt, .05, .5);
+    pop(c, 0, 0, k, () => { L(c, 0, -380, 0, 330, '#9AA6B4', 12); L(c, -90, 330, 90, 330, '#9AA6B4', 12); L(c, -120, -380, 120, -380, '#9AA6B4', 10);
+      c.save(); c.shadowColor = 'rgba(160,210,255,.6)'; c.shadowBlur = 30; c.beginPath(); c.moveTo(-90, -360); c.lineTo(90, -360); c.quadraticCurveTo(120, -200, 70, -90); c.lineTo(-70, -90); c.quadraticCurveTo(-120, -200, -90, -360); c.closePath(); c.fillStyle = 'rgba(210,235,255,.85)'; c.fill(); c.restore();
+      const lvl = .75 - .1 * C.cl(lt / 6); c.save(); c.beginPath(); c.moveTo(-90, -360); c.lineTo(90, -360); c.quadraticCurveTo(120, -200, 70, -90); c.lineTo(-70, -90); c.quadraticCurveTo(-120, -200, -90, -360); c.clip(); c.fillStyle = 'rgba(120,190,255,.55)'; c.fillRect(-130, -360 + (1 - lvl) * 270, 260, 300); c.restore();
+      TXT(c, 'NaCl', 0, -230, 40, '#2B5C8A', 800, 'center', 'TFDisp'); R(c, -14, -90, 28, 90, 8, 'rgba(210,235,255,.9)', '#9AA6B4', 3);
+      const ph = (lt * 1.6) % 1; drop(c, 0, -60 + ph * 50, 8, '#7FC4FF');
+      c.strokeStyle = 'rgba(200,225,250,.8)'; c.lineWidth = 6; c.beginPath(); c.moveTo(0, 0); c.bezierCurveTo(0, 180, 300, 120, 420, 240); c.stroke(); });
+    pop(c, 520, 260, bk(lt, .4, .5), () => { R(c, 260, 220, 520, 70, 16, '#E8EEF3'); R(c, 260, 290, 520, 30, 8, '#9AA6B4'); R(c, 600, 150, 160, 80, 30, '#FFFFFF'); });
+    label(c, o, 360);
+  });
+
+  /* injection: a syringe pushes, a vial and a small plaster */
+  reg('injection', 'steel', (c, o) => {
+    const lt = o.lt, k = bk(lt, .05, .5), push = eio((lt - .6) / 1.2);
+    pop(c, 0, 0, k, () => { c.save(); c.rotate(-.35); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 30; R(c, -330, -60, 520, 120, 20, 'rgba(235,245,255,.92)', '#9AA6B4', 5); c.restore(); c.save(); c.rotate(-.35);
+      R(c, -320 + push * 260, -48, 500 - push * 260, 96, 14, 'rgba(120,200,255,.55)'); for (let i = 0; i < 8; i++) L(c, -270 + i * 55, -60, -270 + i * 55, -30, '#6A7888', 4);
+      R(c, -400 + push * 260, -16, 90, 32, 6, '#6A7888'); R(c, -440 + push * 260, -70, 40, 140, 10, '#3A4656');
+      R(c, 190, -24, 60, 48, 8, '#3A4656'); L(c, 250, 0, 420, 0, '#C6CED6', 6); c.restore(); });
+    pop(c, -480, 170, bk(lt, .4, .4), () => { R(c, -540, 80, 120, 200, 18, 'rgba(230,240,250,.9)', '#9AA6B4', 4); R(c, -540, 50, 120, 50, 10, '#E5484D'); R(c, -540, 170, 120, 70, 0, 'rgba(120,200,255,.55)'); });
+    label(c, o, 340);
+  });
+
+  /* ambulance: drives in with flashing light and speed lines */
+  reg('ambulance', 'alert', (c, o) => {
+    const lt = o.lt, x0 = -900 * (1 - eo(lt / 1.1)), fl = Math.floor(lt * 5) % 2;
+    c.save(); c.globalAlpha = .4; for (let i = 0; i < 6; i++) L(c, x0 - 600 - i * 40, -120 + i * 50, x0 - 420 - i * 20, -120 + i * 50, '#FFFFFF', 6); c.restore();
+    c.save(); c.translate(x0, 60); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 40; R(c, -420, -220, 640, 300, 30, '#F7F9FB'); R(c, 220, -140, 220, 220, 30, '#F7F9FB'); c.restore();
+    c.save(); c.translate(x0, 60); R(c, 250, -120, 150, 100, 14, '#8FC3E8'); R(c, -420, -40, 860, 34, 0, '#E5484D'); R(c, -150, -190, 60, 130, 8, '#E5484D'); R(c, -185, -155, 130, 60, 8, '#E5484D');
+      R(c, -70, -270, 120, 50, 12, fl ? '#FF3B4E' : '#3B7BFF'); if (fl || 1) { c.save(); c.globalAlpha = .35; O(c, -10, -250, 140, fl ? '#FF3B4E' : '#3B7BFF'); c.restore(); }
+      wheel(c, -250, 90, 70, lt); wheel(c, 300, 90, 70, lt); c.restore();
+    R(c, -1400, 230, 2800, 12, 0, 'rgba(255,255,255,.15)');
+    label(c, o, 340);
+  });
+
+  /* diary: a leather diary with a strap opens to a dated handwritten page */
+  reg('diary', 'ember', (c, o) => {
+    const lt = o.lt, k = bk(lt, .05, .5), op = eio((lt - .5) / .6), date = String(o.tx[1] || '');
+    pop(c, 0, 0, k, () => { c.save(); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 50; c.shadowOffsetY = 20; R(c, -20, -300, 420, 600, 18, '#5B1F2B'); c.restore();
+      R(c, 0, -280, 380, 560, 10, '#F6EEDC'); for (let i = 0; i < 9; i++) L(c, 30, -170 + i * 52, 350, -170 + i * 52, 'rgba(120,90,60,.25)', 2);
+      TXT(c, date || 'প্রিয় ডায়েরি,', 40, -200, 40, '#6B2A1A', 700, 'left'); scribble(c, 40, -120, 300, 7, 52, '#3A2A6A', C.cl((lt - .9) / 1.8), 4);
+      c.save(); c.translate(0, 0); c.scale(1 - op * 2, 1); R(c, 0, -300, 400, 600, 18, '#6E2433'); R(c, 0, -300, 30, 600, 6, '#4A1520'); c.fillStyle = '#E6C36A'; c.globalAlpha = 1 - op; R(c, 140, -120, 180, 120, 10, null, '#E6C36A', 4); TXT(c, 'ডায়েরি', 230, -45, 40, '#E6C36A', 800, 'center'); c.restore();
+      if (op < .9) { R(c, 360 - op * 300, -40, 80, 70, 10, '#3D1119'); O(c, 400 - op * 300, -5, 14, '#E6C36A'); } });
+    label(c, o, 350);
+  });
+
+  /* notebook: a spiral exercise book (khata), ruled lines get written, a pencil moves */
+  reg('notebook', 'ember', (c, o) => {
+    const lt = o.lt, k = bk(lt, .05, .5), f = C.cl((lt - .3) / 2); let pen = null;
+    pop(c, 0, 0, k, () => { c.save(); c.rotate(.04); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 40; c.shadowOffsetY = 16; R(c, -420, -300, 840, 600, 14, '#FFFFFF'); c.restore(); c.save(); c.rotate(.04);
+      R(c, -420, -300, 840, 90, 14, '#E9573F'); TXT(c, 'খাতা', -330, -235, 44, '#FFFFFF', 800, 'left');
+      for (let i = 0; i < 9; i++) L(c, -400, -170 + i * 50, 400, -170 + i * 50, 'rgba(70,130,200,.3)', 2); L(c, -320, -210, -320, 300, 'rgba(229,72,77,.45)', 3);
+      for (let i = 0; i < 9; i++) O(c, -420, -250 + i * 62, 16, '#CFD5DA', '#7A7F85', 3);
+      scribble(c, -300, -180, 640, 8, 50, '#2A3A6A', f, 4); const row = Math.min(7, Math.floor(f * 8)); pen = [-300 + 640 * C.cl(f * 8 - row) * (1 - (row % 3) * .12), -180 + row * 50];
+      if (lt < 2.4) { c.save(); c.translate(pen[0], pen[1]); c.rotate(-.8); R(c, -10, -190, 20, 170, 4, '#F2B134'); c.beginPath(); c.moveTo(-10, -20); c.lineTo(10, -20); c.lineTo(0, 6); c.fillStyle = '#E8C9A0'; c.fill(); R(c, -10, -200, 20, 18, 3, '#E5484D'); c.restore(); }
+      c.restore(); });
+    label(c, o, 350);
+  });
+
+  /* ledger: the red cloth account book (hisab khata) — a column of numbers and a total that adds up */
+  reg('ledger', 'money', (c, o) => {
+    const lt = o.lt, k = bk(lt, .05, .5), rows = ['১২০', '৪৫০', '৮০', '৩০০', '২৫০'], f = C.cl((lt - .4) / 1.6), due = /বাকি|due|দেনা/.test(String(o.tx[1] || ''));
+    pop(c, 0, 0, k, () => { c.save(); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 50; R(c, -460, -320, 920, 640, 16, '#8C2230'); c.restore(); R(c, -430, -295, 860, 590, 8, '#F4ECD8'); L(c, 0, -295, 0, 295, 'rgba(120,60,40,.35)', 3);
+      TXT(c, due ? 'বাকির খাতা' : 'হিসাবের খাতা', -215, -225, 42, '#8C2230', 800, 'center'); TXT(c, 'জমা / খরচ', 215, -225, 42, '#8C2230', 800, 'center'); L(c, -400, -195, 400, -195, '#8C2230', 3);
+      rows.forEach((r, i) => { if (f * rows.length < i + .2) return; const y = -140 + i * 62; TXT(c, ['চাল', 'তেল', 'নুন', 'ডাল', 'সবজি'][i], -380, y, 38, '#3A2410', 700, 'left'); TXT(c, '৳ ' + r, 380, y, 40, '#1F3A8A', 800, 'right', 'TFDisp'); L(c, -400, y + 18, 400, y + 18, 'rgba(120,60,40,.18)', 2); });
+      const tk = bk(lt, 2.1, .4); if (tk > 0) { L(c, 60, 180, 400, 180, '#3A2410', 4); pop(c, 260, 230, tk, () => TXT(c, '৳ ১২০০', 380, 250, 58, due ? '#C62828' : '#1E7A4C', 800, 'right', 'TFDisp')); } });
+    label(c, o, 370);
+  });
+
+  /* envelope: a letter slides out of an envelope, a stamp lands */
+  reg('envelope', 'ember', (c, o) => {
+    const lt = o.lt, k = bk(lt, .05, .5), op = eio((lt - .5) / .5), out = eio((lt - .9) / .7);
+    pop(c, 0, 60, k, () => { R(c, -300, -200 - out * 250, 600, 360, 10, '#FFFDF6'); if (out > .3) scribble(c, -240, -140 - out * 250, 470, 4, 52, '#3A2A6A', C.cl((lt - 1.4) / 1.2), 4);
+      c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 40; c.shadowOffsetY = 14; R(c, -380, -160, 760, 400, 14, '#E9D2A6'); c.restore();
+      c.beginPath(); c.moveTo(-380, 240); c.lineTo(0, 30); c.lineTo(380, 240); c.strokeStyle = 'rgba(120,80,30,.35)'; c.lineWidth = 4; c.stroke();
+      c.save(); c.translate(0, -160); c.scale(1, 1 - op * 2); c.beginPath(); c.moveTo(-380, 0); c.lineTo(0, 210); c.lineTo(380, 0); c.closePath(); c.fillStyle = op > .5 ? '#D9BE8C' : '#E2C694'; c.fill(); c.restore();
+      if (op < .5) O(c, 0, 40, 34, '#B3261E'); });
+    pop(c, 260, -10, bk(lt, 1.6, .3), () => { c.save(); c.translate(260, 120); c.rotate(.12); R(c, -60, -70, 120, 140, 6, '#FFFFFF', '#3E7C59', 6); R(c, -44, -54, 88, 108, 4, '#7FB89A'); c.restore(); });
+    label(c, o, 360);
+  });
+
+  /* lantern: a hurricane lamp flickers in the dark (load-shedding, night study) */
+  reg('lantern', 'ember', (c, o) => {
+    const lt = o.lt, k = bk(lt, .05, .6), fl = 1 + .08 * Math.sin(lt * 17) + .05 * Math.sin(lt * 29);
+    c.save(); const g = c.createRadialGradient(0, -20, 10, 0, -20, 700 * fl); g.addColorStop(0, 'rgba(255,190,90,.55)'); g.addColorStop(1, 'rgba(255,190,90,0)'); c.fillStyle = g; c.fillRect(-1400, -700, 2800, 1400); c.restore();
+    pop(c, 0, 0, k, () => { c.strokeStyle = '#3A3A3A'; c.lineWidth = 10; c.beginPath(); c.arc(0, -250, 110, Math.PI, 0); c.stroke(); R(c, -150, -230, 300, 40, 12, '#B5651D'); R(c, -150, 170, 300, 70, 16, '#B5651D'); R(c, -120, 150, 240, 30, 6, '#8C4A12');
+      c.save(); c.beginPath(); c.ellipse(0, -20, 120, 170, 0, 0, 7); c.fillStyle = 'rgba(255,240,200,.35)'; c.fill(); c.strokeStyle = 'rgba(255,255,255,.5)'; c.lineWidth = 4; c.stroke(); c.restore();
+      [-130, 130].forEach(x => L(c, x, -200, x, 160, '#7A3E12', 10));
+      c.save(); c.translate(0, 60); c.scale(fl, fl); c.shadowColor = '#FFB347'; c.shadowBlur = 60; c.beginPath(); c.moveTo(0, -110); c.quadraticCurveTo(46, -20, 0, 20); c.quadraticCurveTo(-46, -20, 0, -110); c.fillStyle = '#FFD36B'; c.fill(); c.beginPath(); c.moveTo(0, -60); c.quadraticCurveTo(20, -10, 0, 12); c.quadraticCurveTo(-20, -10, 0, -60); c.fillStyle = '#FFF6D6'; c.fill(); c.restore(); });
+    label(c, o, 360);
+  });
+
+  /* key: a golden key slides into a padlock, turns, the shackle springs open */
+  reg('key', 'night', (c, o) => {
+    const lt = o.lt, k = bk(lt, .05, .5), ins = eo(lt / .8), tr = eio((lt - .9) / .35), up = eo((lt - 1.2) / .4);
+    pop(c, -200, 0, k, () => { c.lineWidth = 46; c.strokeStyle = '#AEB7C2'; c.lineCap = 'butt'; c.beginPath(); c.moveTo(-350, -60 - up * 90); c.lineTo(-350, -170 - up * 90); c.arc(-200, -170 - up * 90, 150, Math.PI, 0); c.lineTo(-50, -60 + (up > 0 ? -up * 90 : 0)); c.stroke();
+      c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 40; R(c, -420, -80, 440, 380, 40, '#C9A24B'); c.restore(); R(c, -400, -60, 400, 340, 32, '#E0B95A'); O(c, -200, 90, 38, '#3A2A0A'); R(c, -214, 100, 28, 80, 6, '#3A2A0A'); });
+    c.save(); c.translate(-160 + (1 - ins) * 700, 90); c.rotate(tr * .22); c.shadowColor = "#FFD36B"; c.shadowBlur = 30;
+      O(c, 520, 0, 110, '#E6C36A'); O(c, 520, 0, 50, TH.night.b); R(c, 0, -26, 430, 52, 16, '#E6C36A'); R(c, 60, 20, 38, 60, 6, '#E6C36A'); R(c, 130, 20, 38, 42, 6, '#E6C36A'); c.restore();
+    if (up > .8) sparkles(c, lt, o.seed, 10, 300, 200, '#FFF2B8', -200, -200);
+    label(c, o, 350);
+  });
+
+  /* baby: a newborn wrapped in a cloth, gently rocking, small hearts */
+  reg('baby', 'plum', (c, o) => {
+    const lt = o.lt, k = bk(lt, .05, .6), rk = Math.sin(lt * 1.6) * .06;
+    pop(c, 0, 40, k, () => { c.save(); c.translate(0, 40); c.rotate(rk); c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = 40; c.beginPath(); c.ellipse(0, 40, 360, 190, 0, 0, 7); c.fillStyle = '#F7D9E3'; c.fill(); c.restore(); c.save(); c.translate(0, 40); c.rotate(rk);
+      c.beginPath(); c.moveTo(-340, 40); c.quadraticCurveTo(0, -60, 340, 40); c.quadraticCurveTo(0, 230, -340, 40); c.fillStyle = '#FCE9F0'; c.fill(); O(c, -200, -40, 120, '#E8B48C'); O(c, -200, -40, 120, null, '#F7D9E3', 20);
+      L(c, -250, -50, -225, -50, '#5A3A2A', 6); L(c, -175, -50, -150, -50, '#5A3A2A', 6); c.beginPath(); c.arc(-200, -5, 16, .2, Math.PI - .2); c.strokeStyle = '#B5653A'; c.lineWidth = 5; c.stroke(); O(c, -260, -10, 18, 'rgba(255,120,140,.35)'); O(c, -140, -10, 18, 'rgba(255,120,140,.35)');
+      c.restore(); });
+    for (let i = 0; i < 5; i++) { const ph = (lt * .5 + i * .2) % 1; c.save(); c.globalAlpha = Math.sin(ph * Math.PI) * .8; heartPath(c, 200 + i * 60 - 120, -120 - ph * 260, 34); c.fillStyle = '#FF7EA0'; c.fill(); c.restore(); }
+    label(c, o, 350);
+  });
+
+  /* tiffin: a steel tiffin carrier opens tier by tier, steam rises */
+  reg('tiffin', 'ember', (c, o) => {
+    const lt = o.lt, k = bk(lt, .05, .5), op = eio((lt - .8) / .8);
+    pop(c, 0, 40, k, () => { c.strokeStyle = '#9AA6B4'; c.lineWidth = 14; L(c, -170, -260, -170, 260, '#9AA6B4', 14); L(c, 170, -260, 170, 260, '#9AA6B4', 14); c.beginPath(); c.arc(0, -260, 170, Math.PI, 0); c.stroke();
+      [0, 1, 2].forEach(i => { const y = 120 - i * 150 - (i === 2 ? op * 140 : i === 1 ? op * 60 : 0), x = i === 2 ? op * 260 : 0; c.save(); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 20; R(c, x - 150, y - 60, 300, 130, 30, '#D6DDE4'); c.restore(); R(c, x - 150, y - 60, 300, 30, 14, '#EEF2F5'); R(c, x - 150, y + 40, 300, 14, 7, '#B5C0CB'); });
+      if (op > .3) { c.save(); c.globalAlpha = op; c.beginPath(); c.ellipse(0, -30, 130, 30, 0, 0, 7); c.fillStyle = '#FFF8EA'; c.fill(); O(c, -50, -36, 22, '#E8B04B'); O(c, 40, -30, 18, '#6E9E48'); c.restore(); steam(c, 0, -60, lt, 3, 220, 12); } });
+    label(c, o, 360);
+  });
+
+  /* school bag: a backpack with books peeking out, it bounces as if walking */
+  reg('schoolbag', 'night', (c, o) => {
+    const lt = o.lt, k = bk(lt, .05, .5), b = Math.abs(Math.sin(lt * 4)) * 16;
+    pop(c, 0, 0, k, () => { c.save(); c.translate(0, -b); c.strokeStyle = '#2C4D8A'; c.lineWidth = 22; c.beginPath(); c.arc(0, -230, 90, Math.PI, 0); c.stroke();
+      R(c, -150, -280, 60, 140, 10, '#E5484D'); R(c, -80, -300, 60, 160, 10, '#F2B134'); R(c, -10, -270, 60, 130, 10, '#3FA37C');
+      c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 40; R(c, -230, -230, 460, 520, 70, '#3B6FD8'); c.restore(); R(c, -170, 60, 340, 180, 40, '#2C59B8'); R(c, -130, 90, 260, 16, 8, '#F2C14E'); R(c, -230, -230, 460, 120, 70, '#4A7FE6'); c.restore(); });
+    label(c, o, 350);
+  });
+
+  /* umbrella: opens under rain */
+  reg('umbrella', 'steel', (c, o) => {
+    const lt = o.lt, op = eo((lt - .2) / .6);
+    c.strokeStyle = 'rgba(170,200,255,.5)'; c.lineWidth = 4; c.beginPath(); for (let i = 0; i < 110; i++) { const x = ((i * 137) % 2800) - 1400, y = ((i * 211 + lt * 1500) % 950) - 400; if (Math.abs(x) < 380 * op && y > -260) continue; c.moveTo(x, y); c.lineTo(x - 14, y + 50); } c.stroke();
+    c.save(); c.translate(0, -60); c.scale(.2 + .8 * op, 1); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 30; c.beginPath(); c.moveTo(-420, 0); c.quadraticCurveTo(0, -380, 420, 0); for (let i = 0; i < 6; i++) { const x1 = 420 - i * 140; c.quadraticCurveTo(x1 - 70, -60, x1 - 140, 0); } c.fillStyle = '#E5484D'; c.fill(); c.restore();
+    L(c, 0, -60, 0, 280, '#3A3A3A', 12); c.beginPath(); c.arc(-40, 280, 40, 0, Math.PI); c.strokeStyle = '#3A3A3A'; c.lineWidth = 12; c.stroke();
+    label(c, o, 360);
+  });
+
+  /* ---------- Islamic-only ---------- */
+  /* the Quran open on a wooden stand (rehal), soft light, Arabic-like strokes (no real text) */
+  reg('quran', 'money', (c, o) => {
+    const lt = o.lt, k = bk(lt, .05, .6); rays(c, 0, -60, lt, '#FFF1C4', 14, 1200, .14);
+    pop(c, 0, 80, k, () => { c.fillStyle = '#7A4A22'; c.beginPath(); c.moveTo(-420, 260); c.lineTo(0, 40); c.lineTo(420, 260); c.lineTo(380, 290); c.lineTo(0, 90); c.lineTo(-380, 290); c.closePath(); c.fill();
+      const page = s => { c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(s * 200, -50, s * 400, -10); c.lineTo(s * 400, -330); c.quadraticCurveTo(s * 200, -370, 0, -320); c.closePath(); c.fillStyle = '#FBF5E4'; c.fill(); c.strokeStyle = '#C9A24B'; c.lineWidth = 6; c.stroke(); c.strokeStyle = '#2E6B52'; c.lineWidth = 4; for (let i = 0; i < 6; i++) { c.beginPath(); const y = -280 + i * 44; for (let x = 30; x < 370; x += 14) { const yy = y + Math.sin(x * .2 + i) * 6; if (x === 30) c.moveTo(s * x, yy); else c.lineTo(s * x, yy); } c.stroke(); } };
+      c.save(); c.translate(0, 60); page(-1); page(1); c.restore(); R(c, -12, -280, 24, 340, 6, '#1F5D45'); });
+    sparkles(c, lt, o.seed, 12, 520, 200, '#FFF1C4', 0, -220);
+    label(c, o, 360);
+  });
+
+  /* tasbih: prayer beads, one bead slides at a time, a soft counter */
+  reg('tasbih', 'money', (c, o) => {
+    const lt = o.lt, k = bk(lt, .05, .5), n = 33, step = Math.floor(lt * 2.5) % n;
+    pop(c, 0, 0, k, () => { for (let i = 0; i < n; i++) { const a = -Math.PI / 2 + i / n * Math.PI * 2 + (i <= step ? .06 : 0), x = Math.cos(a) * 280, y = Math.sin(a) * 240 - 20; c.save(); c.shadowColor = i === step ? '#FFE08A' : 'rgba(0,0,0,.4)'; c.shadowBlur = i === step ? 30 : 10; O(c, x, y, 26, i === step ? '#F2C14E' : '#1F7A5A'); c.restore(); O(c, x - 8, y - 8, 7, 'rgba(255,255,255,.5)'); }
+      R(c, -18, 220, 36, 70, 10, '#F2C14E'); c.beginPath(); c.moveTo(-40, 290); c.lineTo(40, 290); c.lineTo(0, 380); c.closePath(); c.fillStyle = '#C9A24B'; c.fill(); });
+    big(c, toBn(step + 1), 0, 10, 120, o.T, bk(lt, .3, .4), '#FFE08A');
+    label(c, o, 360);
+  });
+
+  /* prayer mat: a jaynamaz unrolls, mihrab arch pattern */
+  reg('prayer_mat', 'money', (c, o) => {
+    const lt = o.lt, un = eio((lt - .1) / 1.1), h = 640 * un;
+    c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 40; R(c, -260, 320 - h, 520, h, 12, '#1F5D45'); c.restore();
+    c.save(); c.beginPath(); c.rect(-260, 320 - h, 520, h); c.clip(); R(c, -230, -290, 460, 580, 8, null, '#E6C36A', 6);
+      c.beginPath(); c.moveTo(-160, 220); c.lineTo(-160, -120); c.quadraticCurveTo(-160, -250, 0, -270); c.quadraticCurveTo(160, -250, 160, -120); c.lineTo(160, 220); c.strokeStyle = '#E6C36A'; c.lineWidth = 8; c.stroke();
+      O(c, 0, -170, 28, '#E6C36A'); for (let i = 0; i < 9; i++) R(c, -200 + i * 46, 250, 24, 24, 4, i % 2 ? '#C9A24B' : '#8C2230'); c.restore();
+    if (un < 1) { c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 20; R(c, -270, 320 - h - 50, 540, 90, 45, '#174A37'); c.restore(); }
+    label(c, o, 370);
+  });
+
+  /* dua: two open palms raised, light falls from above (no face) */
+  reg('dua', 'money', (c, o) => {
+    const lt = o.lt, k = bk(lt, .05, .6); rays(c, 0, -460, lt, '#FFF1C4', 12, 900, .2);
+    const palm = s => { c.save(); c.scale(s, 1); c.beginPath(); c.moveTo(30, 260); c.quadraticCurveTo(20, 60, 50, -60); for (let i = 0; i < 4; i++) { const x = 70 + i * 52; c.quadraticCurveTo(x - 6, -200 + Math.abs(i - 1.5) * 30, x + 22, -60 + i * 6); } c.quadraticCurveTo(300, 40, 260, 120); c.quadraticCurveTo(240, 220, 200, 260); c.closePath(); c.fillStyle = '#D9A06F'; c.fill(); c.strokeStyle = '#B5784A'; c.lineWidth = 5; c.stroke(); R(c, 10, 250, 220, 120, 20, '#F2F2F2'); c.restore(); };
+    pop(c, 0, 60, k, () => { c.save(); c.translate(0, 60); c.rotate(.05); palm(-1); c.rotate(-.1); palm(1); c.restore(); });
+    sparkles(c, lt, o.seed, 16, 400, 250, '#FFF6D0', 0, -260);
+    label(c, o, 370);
+  });
+
+  /* iftar: dates and a glass of water on a plate, a crescent outside */
+  reg('iftar', 'ember', (c, o) => {
+    const lt = o.lt, k = bk(lt, .05, .5);
+    c.save(); c.shadowColor = '#FFF1C4'; c.shadowBlur = 40; O(c, 560, -260, 70, '#FFF1C4'); c.restore(); O(c, 590, -280, 64, TH.ember.b);
+    pop(c, 0, 120, k, () => { c.beginPath(); c.ellipse(0, 180, 480, 110, 0, 0, 7); c.fillStyle = '#E7E3DC'; c.fill(); c.beginPath(); c.ellipse(0, 170, 400, 80, 0, 0, 7); c.fillStyle = '#FFFFFF'; c.fill();
+      for (let i = 0; i < 6; i++) { const x = -300 + (i % 3) * 90 + (i > 2 ? 45 : 0), y = 150 - (i > 2 ? 40 : 0); c.save(); c.translate(x, y); c.rotate(.4); c.beginPath(); c.ellipse(0, 0, 50, 26, 0, 0, 7); c.fillStyle = '#5A2A16'; c.fill(); c.globalAlpha = .4; c.beginPath(); c.ellipse(-12, -8, 18, 6, 0, 0, 7); c.fillStyle = '#C98A5A'; c.fill(); c.restore(); }
+      c.save(); c.beginPath(); c.moveTo(150, -100); c.lineTo(330, -100); c.lineTo(310, 170); c.lineTo(170, 170); c.closePath(); c.fillStyle = 'rgba(200,230,255,.45)'; c.fill(); c.strokeStyle = 'rgba(255,255,255,.7)'; c.lineWidth = 4; c.stroke(); c.restore(); R(c, 162, -10, 156, 170, 6, 'rgba(120,190,255,.45)'); });
+    label(c, o, 360);
+  });
+
+  /* crescent: the new moon appears over rooftops (Ramadan / Eid) */
+  reg('crescent', 'night', (c, o) => {
+    const lt = o.lt, k = eo(lt / 1.4); sky(c, '#050A1C', '#1B2A48'); stars(c, o.seed, lt, 80);
+    c.save(); c.globalAlpha = k; c.shadowColor = '#FFF1C4'; c.shadowBlur = 70; O(c, 0, -120, 170, '#FFF1C4'); c.restore(); O(c, 70, -160, 160, '#0E1830');
+    c.save(); c.globalAlpha = k; c.fillStyle = '#FFF1C4'; c.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 22 : 54; c.lineTo(230 + Math.cos(a) * r, -230 + Math.sin(a) * r); } c.fill(); c.restore();
+    c.fillStyle = '#070C1C'; [[-1400, 180, 500, 400], [-900, 120, 300, 500], [-600, 200, 520, 400], [-80, 160, 340, 500], [260, 110, 260, 500], [520, 190, 900, 400]].forEach(([x, y, w, h]) => c.fillRect(x, y, w, h));
+    label(c, o, 360);
+  });
+
+  /* kaaba: the black cube with a gold band under a calm sky (no people) */
+  reg('kaaba', 'night', (c, o) => {
+    const lt = o.lt, k = bk(lt, .05, .6); sky(c, '#0A1630', '#2A3E66'); stars(c, o.seed, lt, 40);
+    pop(c, 0, 100, k, () => { c.save(); c.shadowColor = 'rgba(255,220,150,.35)'; c.shadowBlur = 60; c.beginPath(); c.moveTo(-320, -200); c.lineTo(160, -260); c.lineTo(340, -190); c.lineTo(340, 280); c.lineTo(160, 330); c.lineTo(-320, 280); c.closePath(); c.fillStyle = '#121212'; c.fill(); c.restore();
+      c.beginPath(); c.moveTo(160, -260); c.lineTo(160, 330); c.strokeStyle = '#2A2A2A'; c.lineWidth = 4; c.stroke();
+      c.fillStyle = '#D4A93C'; c.beginPath(); c.moveTo(-320, -120); c.lineTo(160, -170); c.lineTo(340, -110); c.lineTo(340, -75); c.lineTo(160, -132); c.lineTo(-320, -84); c.closePath(); c.fill();
+      R(c, 40, 60, 90, 180, 6, '#C9A24B'); R(c, -1400, 330, 2800, 300, 0, '#E9E4DA'); });
+    label(c, o, 370);
+  });
+
+  /* zakat / sadaqah: an open hand gives coins into another, coins arc over */
+  reg('zakat', 'money', (c, o) => {
+    const lt = o.lt, k = bk(lt, .05, .5);
+    const hand = (x, s) => { c.save(); c.translate(x, 140); c.scale(s * 1.5, 1.5); c.beginPath(); c.moveTo(-260, 40); c.quadraticCurveTo(-100, 70, 60, 40); c.quadraticCurveTo(140, 20, 160, -20); c.quadraticCurveTo(100, -40, 40, -10); c.quadraticCurveTo(-100, -20, -260, -40); c.closePath(); c.fillStyle = '#D9A06F'; c.fill(); R(c, -320, -50, 90, 110, 16, '#3FA37C'); c.restore(); };
+    pop(c, 0, 140, k, () => { hand(-260, 1); hand(260, -1); });
+    for (let i = 0; i < 5; i++) { const t0 = lt - .4 - i * .25; if (t0 < 0) continue; const ph = C.cl((t0 % 1.6) / .9); if (ph >= 1) continue; const x = -260 + ph * 520, y = 60 - Math.sin(ph * Math.PI) * 260; c.save(); c.shadowColor = '#FFE08A'; c.shadowBlur = 20; O(c, x, y, 40, '#F2C14E', '#C9A24B', 6); c.restore(); TXT(c, '৳', x, y + 16, 40, '#8A6A1E', 800, 'center'); }
+    label(c, o, 360);
+  });
+
+  /* ---------- general stories only ---------- */
+  /* ring: two wedding rings, one drops into the other, sparkles */
+  reg('ring', 'plum', (c, o) => {
+    const lt = o.lt, k = bk(lt, .05, .5), d = eio((lt - .4) / .8);
+    pop(c, 0, 0, k, () => { c.save(); c.shadowColor = '#FFD36B'; c.shadowBlur = 40; c.lineWidth = 40; c.strokeStyle = '#E6C36A'; c.beginPath(); c.ellipse(-110, 40, 170, 190, 0, 0, 7); c.stroke(); c.beginPath(); c.ellipse(110 - (1 - d) * 160, 60 - (1 - d) * 260, 170, 190, 0, 0, 7); c.stroke(); c.restore();
+      c.save(); c.translate(110 - (1 - d) * 160, -140 - (1 - d) * 260); c.rotate(Math.PI / 4); c.shadowColor = '#BFE9FF'; c.shadowBlur = 40; R(c, -40, -40, 80, 80, 8, '#DFF6FF'); c.restore(); });
+    sparkles(c, lt, o.seed, 18, 420, 260, '#FFF6D0', 0, -60);
+    label(c, o, 350);
+  });
+
+  /* cricket: a bat hits the ball, the ball flies off with a trail, stumps behind */
+  reg('cricket', 'night', (c, o) => {
+    const lt = o.lt, sw = eio((lt - .4) / .25), fly = C.cl((lt - .65) / 1.2);
+    [-420, -360, -300].forEach(x => R(c, x, -60, 18, 360, 8, '#F2E3C0')); R(c, -430, -70, 146, 14, 6, '#E8D3A0');
+    R(c, -1400, 300, 2800, 400, 0, '#1E5C34');
+    c.save(); c.translate(-80, 260); c.rotate(-1.2 + sw * 1.5); R(c, -16, -460, 32, 160, 12, '#3A3A3A'); R(c, -46, -310, 92, 300, 20, '#E9C98E'); c.restore();
+    const bx = fly > 0 ? -60 + fly * 1100 : -600 + C.cl(lt / .65) * 540, by = fly > 0 ? 40 - Math.sin(fly * Math.PI * .8) * 420 : 60;
+    if (fly > 0) { c.save(); c.globalAlpha = .3; L(c, -60, 40, bx, by, '#FFFFFF', 18); c.restore(); }
+    O(c, bx, by, 34, '#C62828'); c.beginPath(); c.arc(bx, by, 26, -1, 1); c.strokeStyle = '#FFFFFF'; c.lineWidth = 4; c.stroke();
+    label(c, o, 360);
+  });
+
+  /* kite: a paper kite dances on its string in the sky */
+  reg('kite', 'ember', (c, o) => {
+    const lt = o.lt; sky(c, '#4A7FD0', '#FFC98A'); const x = 120 + Math.sin(lt * 1.2) * 120, y = -200 + Math.cos(lt * 1.7) * 60, r = Math.sin(lt * 2) * .15;
+    c.strokeStyle = 'rgba(255,255,255,.8)'; c.lineWidth = 3; c.beginPath(); c.moveTo(-600, 380); c.quadraticCurveTo(-200, 100, x, y + 150); c.stroke();
+    c.save(); c.translate(x, y); c.rotate(r); c.beginPath(); c.moveTo(0, -170); c.lineTo(130, 0); c.lineTo(0, 170); c.lineTo(-130, 0); c.closePath(); c.fillStyle = '#E5484D'; c.fill(); c.beginPath(); c.moveTo(0, -170); c.lineTo(130, 0); c.lineTo(0, 0); c.closePath(); c.fillStyle = '#F2B134'; c.fill(); L(c, 0, -170, 0, 170, '#7A3E12', 4); L(c, -130, 0, 130, 0, '#7A3E12', 4);
+      c.beginPath(); c.moveTo(0, 170); for (let i = 1; i <= 8; i++) c.lineTo(Math.sin(lt * 4 + i) * 30, 170 + i * 30); c.strokeStyle = '#FFFFFF'; c.lineWidth = 4; c.stroke(); c.restore();
+    label(c, o, 360);
+  });
+
   /* ================= choosing and drawing ================= */
-  const ALIAS = { photo: 'frame', picture: 'frame', wall_photo: 'frame', food: 'plate', rice: 'plate', meal: 'plate', cup: 'tea', coffee: 'tea', home: 'house', car: 'vehicle', bus: 'vehicle', rickshaw: 'vehicle', truck: 'vehicle', storm: 'rain', weather: 'rain', morning: 'sun', sunrise: 'sun', moon: 'sun', love: 'heart', study: 'book', result: 'exam', hospital: 'health', medicine: 'health', doctor: 'health', present: 'gift', win: 'trophy', award: 'trophy', bulb: 'idea', plan: 'idea', shop: 'cart', market: 'cart', bazaar: 'cart', purse: 'wallet', debt: 'wallet', computer: 'laptop', online: 'laptop', farm: 'field', village: 'field', flight: 'plane', abroad: 'plane', savings: 'piggy', deal: 'handshake', partner: 'handshake', exit: 'door', prayer: 'mosque', eid: 'mosque', burn: 'fire', police: 'jail', arrest: 'jail', prison: 'jail', gamble: 'dice', lottery: 'dice', casino: 'dice', news: 'tv', goal: 'target', dream: 'target', launch: 'rocket', growth: 'rocket', steps: 'stairs', promotion: 'stairs', deadline: 'hourglass', wait: 'hourglass', world: 'globe', earth: 'globe', jewellery: 'gold', chart: 'chart_line', graph: 'chart_line', line: 'chart_line', up: 'chart_line', down: 'chart_line', bars: 'chart_bars', bar: 'chart_bars', map: 'route', path: 'route', crowd: 'people', people: 'people', letter: 'doc', paper: 'doc', report: 'doc', mail: 'email', city: 'skyline', night: 'skyline', siren: 'alert', danger: 'alert', cash: 'money', date: 'calendar', scale: 'balance', versus: 'balance', net: 'network', links: 'network', file: 'files', pile: 'files', time: 'clock', days: 'timeline', why: 'question', '?': 'question', search: 'magnifier', spy: 'magnifier', secure: 'lock', hack: 'lock', chat: 'phone', sms: 'phone', tower: 'building', bank: 'building', school: 'building', factory: 'building', count: 'counter', number: 'counter' };
+  const ALIAS = { photo: 'frame', picture: 'frame', wall_photo: 'frame', food: 'plate', rice: 'plate', meal: 'plate', cup: 'tea', coffee: 'tea', home: 'house', car: 'vehicle', bus: 'vehicle', rickshaw: 'vehicle', truck: 'vehicle', storm: 'rain', weather: 'rain', morning: 'sun', sunrise: 'sun', moon: 'sun', love: 'heart', study: 'book', result: 'exam', hospital: 'saline', icu: 'health', pills: 'medicine', thermometer: 'fever', letter: 'envelope', khata: 'notebook', hisab: 'ledger', lamp: 'lantern', hurricane: 'lantern', mat: 'prayer_mat', jaynamaz: 'prayer_mat', beads: 'tasbih', moon_star: 'crescent', wedding: 'ring', present: 'gift', win: 'trophy', award: 'trophy', bulb: 'idea', plan: 'idea', shop: 'cart', market: 'cart', bazaar: 'cart', purse: 'wallet', debt: 'wallet', computer: 'laptop', online: 'laptop', farm: 'field', village: 'field', flight: 'plane', abroad: 'plane', savings: 'piggy', deal: 'handshake', partner: 'handshake', exit: 'door', prayer: 'mosque', eid: 'mosque', burn: 'fire', police: 'jail', arrest: 'jail', prison: 'jail', gamble: 'dice', lottery: 'dice', casino: 'dice', news: 'tv', goal: 'target', dream: 'target', launch: 'rocket', growth: 'rocket', steps: 'stairs', promotion: 'stairs', deadline: 'hourglass', wait: 'hourglass', world: 'globe', earth: 'globe', jewellery: 'gold', chart: 'chart_line', graph: 'chart_line', line: 'chart_line', up: 'chart_line', down: 'chart_line', bars: 'chart_bars', bar: 'chart_bars', map: 'route', path: 'route', crowd: 'people', people: 'people', letter: 'doc', paper: 'doc', report: 'doc', mail: 'email', city: 'skyline', night: 'skyline', siren: 'alert', danger: 'alert', cash: 'money', date: 'calendar', scale: 'balance', versus: 'balance', net: 'network', links: 'network', file: 'files', pile: 'files', time: 'clock', days: 'timeline', why: 'question', '?': 'question', search: 'magnifier', spy: 'magnifier', secure: 'lock', hack: 'lock', chat: 'phone', sms: 'phone', tower: 'building', bank: 'building', school: 'building', factory: 'building', count: 'counter', number: 'counter' };
   const normKind = k => { k = String(k || '').trim().toLowerCase().replace(/[\s-]+/g, '_'); return KINDS[k] ? k : (ALIAS[k] && KINDS[ALIAS[k]] ? ALIAS[k] : ''); };
   const clean = s => String(s || '').replace(/[।,.!?“”"'‘’:;()\[\]{}]/g, '').trim();
   const COUNTRIES = ['আমেরিকা', 'যুক্তরাষ্ট্র', 'চীন', 'সিঙ্গাপুর', 'মালয়েশিয়া', 'ইন্দোনেশিয়া', 'তাইওয়ান', 'ভারত', 'বাংলাদেশ', 'জাপান', 'রাশিয়া', 'ইংল্যান্ড', 'ফিলিপাইন', 'দুবাই', 'কানাডা', 'জার্মানি', 'ঢাকা', 'দিল্লি', 'নিউইয়র্ক', 'লন্ডন'];
@@ -789,6 +1082,46 @@ const LV = (() => {
 
   /* concrete things and situations named in a line → the picture of that thing (also used for small pop-ups during dialogue) */
   function objectFor(text, has, h0) {
+    const pickBy = arr => arr[hash(text) % arr.length]; // same line → same picture, different lines → different pictures
+    // Islamic part only
+    if (SEC === 'isl') {
+      if (has(/কুরআন|কোরআন|কোরান|তিলাওয়াত|তেলাওয়াত|মুসহাফ/)) return { kind: 'quran', tx: [h0] };
+      if (has(/তাসবিহ|তসবি|জিকির|জিকর|সুবহানাল্লাহ|আলহামদুলিল্লাহ|আস্তাগফিরুল্লাহ/)) return { kind: 'tasbih', tx: [h0] };
+      if (has(/জায়নামাজ|জায়নামাজ|জায়নামায|সিজদা|সেজদা|নামাজে দাঁড়|নামাজ পড়|তাহাজ্জুদ/)) return { kind: 'prayer_mat', tx: [h0] };
+      if (has(/দোয়া|দোয়া|মোনাজাত|হাত তুলে/)) return { kind: 'dua', tx: [h0] };
+      if (has(/ইফতার|খেজুর|রোজা ভাঙ/)) return { kind: 'iftar', tx: [h0] };
+      if (has(/রমজানের চাঁদ|ঈদের চাঁদ|চাঁদ দেখা|নতুন চাঁদ|হিলাল|রমজান|রোজা/)) return { kind: 'crescent', tx: [h0] };
+      if (has(/কাবা|হজ|হজ্জ|উমরা|মক্কা|তাওয়াফ/)) return { kind: 'kaaba', tx: [h0] };
+      if (has(/যাকাত|জাকাত|সদকা|সাদকা|দান কর|দান করে|ফিতরা/)) return { kind: 'zakat', tx: [h0] };
+    } else if (SEC === 'story') {
+      // general life stories only
+      if (has(/আংটি|বাগদান|এনগেজমেন্ট|বিয়ের দিন|বিয়ে হল|বিয়ে হয়|বিয়ে করল|বিয়ের/)) return { kind: 'ring', tx: [h0] };
+      if (has(/ক্রিকেট|ব্যাট|ছক্কা|উইকেট|খেলার মাঠ/)) return { kind: 'cricket', tx: [h0] };
+      if (has(/ঘুড়ি/)) return { kind: 'kite', tx: [h0] };
+    }
+    // common to every section: health (each illness gets its own picture, not one heartbeat for all)
+    if (has(/আইসিইউ|হার্ট অ্যাটাক|অপারেশন|অক্সিজেন|হৃদরোগ/)) return { kind: 'health', tx: [h0] };
+    if (has(/অ্যাম্বুলেন্স|এম্বুলেন্স/)) return { kind: 'ambulance', tx: [h0] };
+    if (has(/স্যালাইন|হাসপাতালে ভর্তি|ভর্তি করা হল|ভর্তি করল|বেডে|হাসপাতালের বিছানা/)) return { kind: 'saline', tx: [h0] };
+    if (has(/ইনজেকশন|ইঞ্জেকশন|টিকা|ভ্যাকসিন|সুঁই/)) return { kind: 'injection', tx: [h0] };
+    if (has(/জ্বর|থার্মোমিটার|সর্দি|কাশি|ঠান্ডা লেগে|ঠাণ্ডা লেগে|গা গরম/)) return { kind: 'fever', tx: [h0] };
+    if (has(/ওষুধ|ঔষধ|ট্যাবলেট|সিরাপ|ফার্মেসি|ওষুধের দোকান/)) return { kind: 'medicine', tx: [h0] };
+    if (has(/ডাক্তার|প্রেসক্রিপশন|চেকআপ|চেম্বার|কবিরাজ/)) return { kind: 'doctor', tx: [h0] };
+    if (has(/মারা গেল|মারা যান|মারা গেলেন|মৃত্যু|চলে গেলেন|পরপারে/)) return { kind: 'health', tx: [h0, 'flat'] };
+    if (has(/হাসপাতাল|ক্লিনিক/)) return { kind: pickBy(['saline', 'doctor', 'ambulance']), tx: [h0] };
+    if (has(/অসুখ|অসুস্থ|চিকিৎসা|রোগ|ক্যান্সার|ব্যথা|শরীর খারাপ/)) return { kind: pickBy(['fever', 'medicine', 'doctor', 'saline']), tx: [h0] };
+    // paper things: each its own picture
+    if (has(/ডায়েরি|ডায়েরি|দিনলিপি/)) return { kind: 'diary', tx: [h0] };
+    if (has(/বাকির খাতা|হিসাবের খাতা|হিসেবের খাতা|হিসাব|হিসেব|লেজার|জমা-খরচ|খরচের খাতা/)) return { kind: 'ledger', tx: [h0, has(/বাকি|দেনা/) ? 'due' : ''] };
+    if (has(/খাতা|নোটবুক|নোট করে|হোমওয়ার্ক|বাড়ির কাজ/)) return { kind: 'notebook', tx: [h0] };
+    if (has(/চিঠি|খাম|ডাকপিয়ন|পোস্ট অফিস|ডাকঘর/)) return { kind: 'envelope', tx: [h0] };
+    // home & everyday
+    if (has(/টিফিন/)) return { kind: 'tiffin', tx: [h0] };
+    if (has(/স্কুলব্যাগ|স্কুল ব্যাগ|ব্যাগ কাঁধে|বইখাতা/)) return { kind: 'schoolbag', tx: [h0] };
+    if (has(/হারিকেন|লোডশেডিং|কারেন্ট নেই|কারেন্ট চলে|বিদ্যুৎ নেই|মোমবাতি|কুপি|লণ্ঠন/)) return { kind: 'lantern', tx: [h0] };
+    if (has(/চাবি/)) return { kind: 'key', tx: [h0] };
+    if (has(/নবজাতক|জন্ম নিল|জন্ম হল|জন্ম হয়|বাচ্চা হল|ছেলে হয়েছে|মেয়ে হয়েছে|কোলে এল/)) return { kind: 'baby', tx: [h0] };
+    if (has(/ছাতা/)) return { kind: 'umbrella', tx: [h0] };
     if (has(/(দেয়াল|দেওয়াল|দেয়াল)[^।]{0,25}ছবি|ছবি[^।]{0,15}(দেয়াল|দেওয়াল|দেয়াল)|ফ্রেমে|ফ্রেম|বাঁধানো ছবি|পুরোনো ছবি|পুরনো ছবি|ফটো|অ্যালবাম/)) return { kind: 'frame', tx: [h0, has(/বিয়ে/) ? 'couple' : has(/বাবার|মায়ের|দাদার|নানার/) ? 'one' : ''] };
     if (has(/না খেয়ে|অভুক্ত|ক্ষুধা|ক্ষিধে|খিদে|খালি থালা|খাবার নেই|উপোস/)) return { kind: 'plate', tx: [h0, 'empty'] };
     if (has(/বিরিয়ানি|পোলাও/)) return { kind: 'plate', tx: [h0, 'biryani'] };
@@ -796,11 +1129,9 @@ const LV = (() => {
     if (has(/(?<![\u0980-\u09FF])ভাত(?!া)|থালা|খাবার|খেতে বস|তরকারি|ডাল-ভাত|ডালভাত|রান্না|মাছ-ভাত/)) return { kind: 'plate', tx: [h0] };
     if (has(/(^|\s)চা(\s|য়|য়|ের|-)|চায়ের|চায়ের|কফি/)) return { kind: 'tea', tx: [h0] };
     if (has(/পরীক্ষা[য়য়]? (পাস|ফেল|দিল|দিতে)|রেজাল্ট|ফলাফল|জিপিএ|গোল্ডেন|এ প্লাস|ফেল করল|পাস করল|এসএসসি|এইচএসসি|ভর্তি পরীক্ষা/)) return { kind: 'exam', tx: [h0, has(/ফেল/) ? 'ফেল' : has(/গোল্ডেন/) ? 'A+' : 'A+'] };
-    if (has(/মারা গেল|মারা যান|মারা গেলেন|মৃত্যু|চলে গেলেন|পরপারে/)) return { kind: 'health', tx: [h0, 'flat'] };
-    if (has(/হাসপাতাল|ডাক্তার|ওষুধ|অসুখ|অসুস্থ|ক্যান্সার|অপারেশন|চিকিৎসা|হার্ট অ্যাটাক|আইসিইউ|জ্বর/)) return { kind: 'health', tx: [h0] };
     if (has(/মসজিদ|নামাজ|আজান|ঈদ|রমজান|ইফতার|সেহরি|দোয়া/)) return { kind: 'mosque', tx: [h0] };
     if (has(/আগুন|পুড়ে|পুড়িয়ে|অগ্নি|জ্বলছে|দাউদাউ/)) return { kind: 'fire', tx: [h0] };
-    if (has(/(?<![\u0980-\u09FF])জেল(?!া)|কারাগার|গ্রেপ্তার|গ্রেফতার|পুলিশ|হাতকড়া|আটক|থানা/)) return { kind: 'jail', tx: [h0] };
+    if (has(/(?<![\u0980-\u09FF])জেল(?!া)|কারাগার|গ্রেপ্তার|গ্রেফতার|পুলিশ|হাতকড়া|আটক(?![ে])|থানায়? (?:নিয়ে|গেল|ডাক)/)) return { kind: 'jail', tx: [h0] };
     if (has(/জুয়া|ক্যাসিনো|লটারি|বাজি ধর|জুয়ার/)) return { kind: 'dice', tx: [h0] };
     if (has(/খবর|সংবাদ|টিভি|টেলিভিশন|পত্রিকা|মিডিয়া|ভাইরাল|শিরোনাম/)) return { kind: 'tv', tx: [h0, text.length < 60 ? text.replace(/[।]$/, '') : h0] };
     if (has(/উপহার|গিফট|সারপ্রাইজ/)) return { kind: 'gift', tx: [h0] };
@@ -850,7 +1181,7 @@ const LV = (() => {
     if (has(/বেড়ে|বাড়ল|বাড়তে|উঠে|লাফ|সাফল্য|বিক্রি বাড়/)) return { kind: 'chart_line', tx: [h0, 'up'] };
     // documents
     if (has(/ই-?মেইল|ইমেইল|মেইল/)) return { kind: 'email', tx: ['সবাইকে', h0 || text] };
-    if (has(/পদত্যাগ|সই|চুক্তি|চিঠি|দলিল/)) return { kind: 'doc', tx: [has(/পদত্যাগ/) ? 'পদত্যাগপত্র' : has(/চুক্তি/) ? 'চুক্তিপত্র' : has(/দলিল/) ? 'দলিল' : 'চিঠি', has(/গোপন/) ? 'গোপন' : ''] };
+    if (has(/পদত্যাগ|সই|চুক্তি|দলিল/)) return { kind: 'doc', tx: [has(/পদত্যাগ/) ? 'পদত্যাগপত্র' : has(/চুক্তি/) ? 'চুক্তিপত্র' : has(/দলিল/) ? 'দলিল' : 'চিঠি', has(/গোপন/) ? 'গোপন' : ''] };
     if (has(/রিপোর্ট|নথি|কাগজ|ফাইল|ফাইলের|মামলা|নোটিশ/)) return { kind: has(/ফাইল|স্তূপ|মামলা/) ? 'files' : 'doc', tx: [has(/মামলা/) ? 'মামলার ফাইল' : h0 || 'রিপোর্ট', has(/গোপন/) ? 'গোপন' : ''] };
     // everyday things the narration names: show that thing
     const obj = objectFor(text, has, h0); if (obj) return obj;
@@ -899,7 +1230,7 @@ const LV = (() => {
     const FW = o.FW, FH = o.FH, T = TH[v.th] || TH.night, fn = KINDS[v.kind]; if (!fn) return;
     const base = { FW, FH, u: o.u, t: o.t, seed: v.seed };
     c.save(); bg(c, base, v.th);
-    const ZM = { calendar: 1.08, doc: 1.1, files: 1.08, clock: 1.08, lock: 1.0, phone: 1.06, magnifier: 1.12, building: 1.2, network: 1.08, money: 1.0, route: 1.06, tv: .84, jail: .9, laptop: .95, mosque: .95, stairs: .95 }[v.kind] || 1, sc = ZM * Math.min(FW * .94 / 1600, FH * (o.land ? .74 : .5) / 800), cy = FH * (o.land ? .44 : .4), push = 1 + .035 * C.cl(o.lt / Math.max(1, o.dur));
+    const ZM = { calendar: 1.08, doc: 1.1, files: 1.08, clock: 1.08, lock: 1.0, phone: 1.06, magnifier: 1.12, building: 1.2, network: 1.08, money: 1.0, route: 1.06, tv: .84, jail: .9, laptop: .95, mosque: .95, stairs: .95 }[v.kind] || 1, sc = ZM * (o.zoom || 1) * Math.min(FW * .94 / 1600, FH * (o.land ? .74 : .5) / 800), cy = FH * (o.cy || (o.land ? .44 : .4)), push = 1 + .035 * C.cl(o.lt / Math.max(1, o.dur));
     c.save(); c.translate(FW / 2, cy); c.scale(sc * push, sc * push);
     try { fn(c, { lt: o.lt, dur: o.dur, t: o.t, tx: v.tx, T, seed: v.seed, FW, FH, u: o.u }); } catch (e) { if (window.LV_DEBUG) console.error("LV " + v.kind + ": " + e.message); /* a broken picture must never stop the export */ }
     c.restore(); grain(c, base);
@@ -936,5 +1267,5 @@ const LV = (() => {
     try { fn(c, { lt: o.lt == null ? 3 : o.lt, dur: 6, t: o.t || 0, tx: v.tx, T, seed: v.seed, FW: w, FH: h, u: base.u }); } catch (e) { if (window.LV_DEBUG) console.error('LV card ' + v.kind + ': ' + e.message); }
     c.restore(); c.restore(); c.restore();
   }
-  return { plan, draw, inset, card, THEME_OF: k => THEME_OF[k] || 'night', objectFor, auto, fromCard, normKind, kinds: Object.keys(KINDS), has: k => !!KINDS[k], TH, bg, grain };
+  return { plan, draw, inset, card, THEME_OF: k => THEME_OF[k] || 'night', objectFor, auto, fromCard, SEC, normKind, kinds: Object.keys(KINDS), has: k => !!KINDS[k], TH, bg, grain };
 })();
