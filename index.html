@@ -5871,6 +5871,7 @@ function parseTFScript(text) {
     if ((m = ln.match(head('ক্ষেত্র|area')))) { raw.area = m[2]; continue; }
     if ((m = ln.match(head('ফরম্যাট|format')))) { const p = m[2].split(/[|,\s]+/).map(x => x.trim().toLowerCase()).filter(Boolean); if (p.includes('long') || p.includes('লং')) raw.fmt = 'long'; const ls = p.find(x => ['life', 'thriller', 'guide', 'explainer'].includes(x)); if (ls) raw.longStyle = ls; continue; }
     if ((m = ln.match(head('ইউটিউব টাইটেল|youtube title|yt title')))) { raw.youtube.title = m[2].trim(); continue; }
+    if ((m = ln.match(head('থাম্বনেলের ছবি|থাম্বনেল ছবি|থাম্বনেলের পেছনের ছবি|thumb art|thumbnail art')))) { raw.thumbArt = m[2].trim(); continue; }
     if ((m = ln.match(head('থাম্বনেল|thumbnail|cover')))) { const p = m[2].split('|').map(x => x.trim()); raw.cover = { ctx: p[0] || '', l1: p[1] || '', l2: p[2] || '', icon: (p[3] || '').toLowerCase(), sym: p[4] || '', who: p[5] || '' }; continue; }
     if ((m = ln.match(/^##\s*(.*)$/))) {
       const parts = m[1].split('|').map(s => s.trim()); const words = parts[0].split(/\s+/).filter(Boolean);
@@ -10096,9 +10097,9 @@ function proDraw(c, FW, FH, st, bg) {
   const u = Math.min(FW, FH) / 1080, land = FW > FH * 1.15, sq = !land && FH < FW * 1.4;
   c.save(); rect(c, 0, 0, FW, FH, pal.bg);
   if (bg) { const key = FW + 'x' + FH + '|' + (bg.key || ''); if (!PRO_BG || PRO_BG.key !== key || !bg.key) { const cv = document.createElement('canvas'); cv.width = FW; cv.height = FH; const x = cv.getContext('2d', { alpha: false }); rect(x, 0, 0, FW, FH, pal.bg); try { bg(x); } catch (e) { console.warn('pro bg', e); } PRO_BG = { key, cv }; } c.drawImage(PRO_BG.cv, 0, 0, FW, FH); }
-  c.save(); c.globalCompositeOperation = 'soft-light'; c.fillStyle = pal.tint; c.fillRect(0, 0, FW, FH); c.restore();
-  const b = pal.band, g = c.createLinearGradient(0, 0, 0, FH);
-  g.addColorStop(0, `rgba(${b},.30)`); g.addColorStop(.22, `rgba(${b},.52)`); g.addColorStop(.5, `rgba(${b},.80)`); g.addColorStop(.78, `rgba(${b},.52)`); g.addColorStop(1, `rgba(${b},.35)`);
+  if (!(bg && bg.art)) { c.save(); c.globalCompositeOperation = 'soft-light'; c.fillStyle = pal.tint; c.fillRect(0, 0, FW, FH); c.restore(); }
+  const b = pal.band, g = c.createLinearGradient(0, 0, 0, FH), q = bg && bg.art ? .5 : 1; // subject picture (thumb-art.js): lighter band so the thing shows
+  g.addColorStop(0, `rgba(${b},${.30 * q})`); g.addColorStop(.22, `rgba(${b},${.52 * q})`); g.addColorStop(.5, `rgba(${b},${.80 * q})`); g.addColorStop(.78, `rgba(${b},${.52 * q})`); g.addColorStop(1, `rgba(${b},${.35 * q})`);
   c.fillStyle = g; c.fillRect(0, 0, FW, FH);
   const vg = c.createRadialGradient(FW / 2, FH / 2, Math.min(FW, FH) * .35, FW / 2, FH / 2, Math.hypot(FW, FH) * .62); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.45)'); c.fillStyle = vg; c.fillRect(0, 0, FW, FH);
   // sizes: the headline (series name / story name) is the biggest; the episode badge is a small chip under the tag
@@ -10318,6 +10319,7 @@ function proBgLong(r) {
 - "থাম্বনেল:" লাইন তিন টুকরো ছোট কথায় (প্রতিটা ২-৭ শব্দ), সত্যিটা না বলে: "থাম্বনেল: <পরিস্থিতি> | <বৈপরীত্য বা কাজ> | <রহস্য, ১-২ শব্দ {লাল}> | <আইকন> | <গল্পের একটা সংখ্যা>"। যেমন: "থাম্বনেল: গ্যাস বিল ১০৮০ টাকা | মা প্রতি মাসে নিতেন ১৫০০ | বাকি {৪২০ টাকা} কোথায়? | money | ৪২০"। আইকন: phone, money, paper, book, key, clock, heart, bag, pot, medicine, box, plate।
 - ইউটিউব টাইটেল: নাম${'' } (ধারাবাহিকে "<নাম> | পর্ব k") + এক লাইনে মূল ভাব; কৌতূহল রাখা যায়, কিন্তু মিথ্যা প্রতিশ্রুতি নয়।
 - দৃশ্যের জিনিস: প্রতিটা "##" দৃশ্যের লাইনে জায়গার পরে +জিনিস দিয়ে গল্পে যা আছে তা বসাও (সর্বোচ্চ ৩টা, যেমন "## govt_office+table+chair+flag night", "## mud_house+hurricane+kolshi"): ${objs}। চরিত্রের হাতের জিনিস লাইনের চতুর্থ ঘরে (যেমন rafiq:worried:talk:file)। এক দৃশ্যে পর্দায় সর্বোচ্চ ৩ জন।
+- থাম্বনেলের ছবি: "থাম্বনেল:" লাইনের ঠিক নিচে আলাদা লাইনে "থাম্বনেলের ছবি: <id>" — থাম্বনেলের পেছনে বড় করে আঁকা হবে, তাই গল্পের নাম/মূল বিষয়ের সাথে সবচেয়ে মেলে এমন একটাই জিনিস এই তালিকা থেকে বাছো (শিরোনামে যে জিনিসের কথা, সেটাই আগে): ${window.TF_THUMB_ART ? TF_THUMB_ART.forPrompt() : 'lamp, letter, money, book'}। ধারাবাহিকের সব পর্বে একই id।
 - এনগেজমেন্ট: শুরুর ৫ সেকেন্ডে কৌতূহল, মাঝে একটা মোড়, শেষে কমেন্টের জন্য নির্দিষ্ট প্রশ্ন, শেয়ারের ডাক (কাকে শেয়ার করবে বলে দাও)${ch ? `; cta-তে "${ch}" নাম ধরে সাবস্ক্রাইব/পেজ ফলোর ডাক` : ''}।${craft}
 
 ## শুদ্ধ বাংলা (জমা দেওয়ার আগে পুরোটা একবার পড়ে ঠিক করবে)
@@ -10389,6 +10391,7 @@ function proBgLong(r) {
 <script src="fx/motion.js"></script>
 <script src="fx/shadow.js"></script>
 <script src="elements.js"></script>
+<script src="thumb-art.js"></script>
 
 <script id="v13js">
 /* v13 — minimal mobile: tuck optional long-video fields (link, notes, web search) into one fold */
@@ -10501,6 +10504,139 @@ function proBgLong(r) {
       try { d.showModal(); } catch (e) { d.setAttribute('open', ''); } $('lvTxt').scrollTop = 0;
     };
   } catch (e) { console.warn('v14lib', e); }
+})();
+</script>
+<style id="v15sercov">#thumbFields{display:none!important}.v15hide{display:none!important}.v15np #btnProEdit{display:none!important}#proFields{display:grid!important}
+#proFields .v15chk{display:flex;gap:6px;align-items:center;font-size:.78rem}</style>
+<script id="v15sercov">
+/* ===================== v15 — ধারাবাহিকের সব পর্বে একই থাম্বনেল + সব ডিজাইনে একই লেখা (all parts, all ratios)
+   1) Series parts (… | পর্ব k): only the episode badge changes. Background picture, words (tag, headline, bottom line,
+      button) and positions (lay) are shared by every part: record localStorage tf_sercov_<kind>_<key> {pro, bgK, at}
+      + picture tf_sercov_<kind>_bg_<key> (jpeg dataURL). Part 1 is the master picture (else the first part drawn);
+      a hand edit in any part updates the shared words. key = series name. Off: S.serSameCov === false (#v15Same).
+   2) Every thumbnail design uses the pro words (proCopy): non-pro themes get st.thumb = "l1 | l2", cover.l1/l2 =
+      headline, cover.ctx = episode badge (series) or the bottom line — only while drawing. #proFields is the one text
+      editor for every design; the old per-theme #thumbFields are hidden. ===================== */
+(function () {
+  try {
+    const on = () => !(typeof S !== 'undefined' && S.serSameCov === false);
+    const PFX = 'tf_sercov_' + PRO_KIND + '_', REC = {}, IMG = {}, SIG = {};
+    const hash = s => { let h = 0; s = String(s); for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
+    function serOf(st) {
+      if (!st) return null; let ser; try { ser = proSeries(st); } catch (e) { return null; } if (!ser) return null;
+      const name = proClean(ser.name || '');
+      if (name) return { ser, key: 'n' + hash(name) };
+      const m = String((typeof app !== 'undefined' && app.story === st && app.libId) || '').match(/^((?:isl|life)_ser_[^_]+)_p\d+$/);
+      return m ? { ser, key: m[1] } : null;
+    }
+    function rec(key) { if (!(key in REC)) { let r = null; try { r = JSON.parse(localStorage.getItem(PFX + key) || 'null'); } catch (e) { } REC[key] = r; } return REC[key]; }
+    function prune(keep) { // keep only the newest series records (pictures are the big part)
+      const list = []; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith(PFX) && !k.startsWith(PFX + 'bg_')) { let at = 0; try { at = JSON.parse(localStorage.getItem(k)).at || 0; } catch (e) { } list.push([k, at]); } }
+      list.sort((a, b) => b[1] - a[1]).slice(keep).forEach(([k]) => { const key = k.slice(PFX.length); try { localStorage.removeItem(k); localStorage.removeItem(PFX + 'bg_' + key); } catch (e) { } delete REC[key]; delete IMG[key]; });
+    }
+    function put(key, r) { r.at = Date.now(); REC[key] = r; const js = JSON.stringify(r); try { localStorage.setItem(PFX + key, js); } catch (e) { prune(8); try { localStorage.setItem(PFX + key, js); } catch (e2) { } } }
+    function refresh() { try { PRO_BG = null; const r = app.renderer; if (r) { r._cov = null; r._lcov = null; r._proKey = null; } thumbSoon(); drawAt(app.t); } catch (e) { } }
+    function bgImg(key) {
+      if (IMG[key]) return IMG[key]; let d = null; try { d = localStorage.getItem(PFX + 'bg_' + key); } catch (e) { } if (!d) return null;
+      const im = new Image(); im.onload = refresh; im.onerror = () => { delete IMG[key]; try { localStorage.removeItem(PFX + 'bg_' + key); } catch (e) { } refresh(); }; im.src = d; return (IMG[key] = im);
+    }
+    function saveBg(key, cv, k) {
+      try { const sc = Math.min(1, 1280 / Math.max(cv.width, cv.height)), o = document.createElement('canvas'); o.width = Math.round(cv.width * sc); o.height = Math.round(cv.height * sc); o.getContext('2d').drawImage(cv, 0, 0, o.width, o.height);
+        const d = o.toDataURL('image/jpeg', .8);
+        try { localStorage.setItem(PFX + 'bg_' + key, d); } catch (e) { prune(4); try { localStorage.setItem(PFX + 'bg_' + key, d); } catch (e2) { return; } }
+        put(key, Object.assign({}, rec(key) || {}, { bgK: k })); const im = new Image(); im.src = d; IMG[key] = im;
+      } catch (e) { console.warn('sercov bg', e); }
+    }
+    /* shared words: everything but the episode badge */
+    const SHARED = ['tag', 'h', 'sub', 'cta', 'art'];
+    const strip = p => { const o = {}; SHARED.forEach(k => { if (p && p[k]) o[k] = p[k]; }); if (p && p.lay && Object.keys(p.lay).length) o.lay = JSON.parse(JSON.stringify(p.lay)); return o; };
+    const SUB = { story: 'একটি জীবনের গল্প, একটি শিক্ষা', isl: 'কুরআন-হাদিসের আলোয় একটি গল্প', exp: 'সহজ ভাষায় পুরো ব্যাখ্যা' };
+    const _copy = proCopy;
+    proCopy = function (st) {
+      const s0 = serOf(st);
+      if (s0 && on()) {
+        const r = rec(s0.key) || {}, mine = st.cover && st.cover.pro;
+        if (!mine) { if (r.pro && Object.keys(r.pro).length) st.cover = Object.assign({}, st.cover || {}, { pro: JSON.parse(JSON.stringify(r.pro)) }); }
+        else { const s = strip(mine); if (JSON.stringify(s) !== JSON.stringify(r.pro || {})) put(s0.key, Object.assign({}, r, { pro: s })); }
+      }
+      const out = _copy(st);
+      if (s0) { // the same bottom line and button in every part; only "পর্ব k / N" · "শেষ পর্ব" changes
+        const man = (st.cover && st.cover.pro) || {}, sub = SUB[PRO_KIND] || SUB.story, cta = 'পুরো পর্বটা দেখুন';
+        out.auto.sub = sub; out.auto.cta = cta;
+        if (!String(man.sub || '').trim()) out.sub = sub; if (!String(man.cta || '').trim()) out.cta = cta;
+      }
+      return out;
+    };
+    /* the subject picture (thumb-art.js): what the title is about — a tiffin box, two lamps, a letter …
+       cover.pro.art: '' = auto, 'scene' = the story's own picture, or a subject id. Series: the series name decides
+       (or, if the name names nothing, the most-mentioned thing of the first part drawn, kept in the record). */
+    function artFor(st, s0) {
+      const A = window.TF_THUMB_ART; if (!A) return null; const man = String((st.cover && st.cover.pro && st.cover.pro.art) || '');
+      if (man === 'scene') return null; if (man && A.has(man)) return { id: man, two: false, id2: null };
+      const r = s0 && rec(s0.key); if (r && 'autoArt' in r) return r.autoArt;
+      let txt = s0 ? s0.ser.name : String(st.title || '') + ' ' + String(proCopy(st).h || '');
+      // 1) the title names a thing  2) the AI's "থাম্বনেলের ছবি:" line (cover.artAuto)  3) the most-mentioned thing in the story
+      let pk = A.pick(txt); const ICON = { money: 'money', phone: 'phone', envelope: 'letter', letter: 'letter', book: 'book', paper: 'pen', key: 'key', laptop: 'phone', clock: 'clock', medicine: 'medicine', ring: 'ring', gift: 'gift', lamp: 'lamp', house: 'house' };
+      const ai = (st.cover && st.cover.artAuto) || ICON[String((st.cover && st.cover.icon) || '').toLowerCase()]; if (!pk && ai && A.has(ai)) pk = { id: ai, two: false, id2: null };
+      if (!pk) { try { pk = A.best((st.scenes || []).map(sc => (sc.lines || []).map(l => l.say || l.text || '').join(' ')).join(' ') || JSON.stringify(st.scenes || [])); } catch (e) { } }
+      if (s0) put(s0.key, Object.assign({}, r || {}, { autoArt: pk || null }));
+      return pk || null;
+    }
+    /* the AI's "থাম্বনেলের ছবি: <id>" line → story.cover.artAuto (kept through save/load) */
+    if (typeof normalizeStory === 'function') { const _ns = normalizeStory; normalizeStory = function (raw) { const r = _ns.apply(this, arguments);
+      try { const a = raw && (raw.thumbArt || (raw.cover && raw.cover.artAuto)), st = r && r.story, id = a && window.TF_THUMB_ART && TF_THUMB_ART.resolve(a); if (st && id) st.cover = Object.assign({}, st.cover || {}, { artAuto: id }); } catch (e) { } return r; }; }
+    /* one picture for the whole series */
+    const _draw = proDraw;
+    proDraw = function (c, FW, FH, st, bg) {
+      if (bg && S.thumbArt !== false) { const s1 = serOf(st), pk = artFor(st, s1 && on() ? s1 : null);
+        if (pk) { const f = x => window.TF_THUMB_ART.draw(x, FW, FH, pk, PRO_KIND); f.key = 'art:' + JSON.stringify(pk); f.art = true; return _draw.call(this, c, FW, FH, st, f); } }
+      const s0 = bg && on() && serOf(st); if (!s0) return _draw.apply(this, arguments);
+      const r = rec(s0.key) || {}, k = s0.ser.k || 1, im = bgImg(s0.key);
+      if (im && r.bgK && r.bgK !== k && k !== 1) {
+        const ready = im.complete && im.naturalWidth > 0;
+        const f = x => { if (!ready) return; const s = Math.max(FW / im.naturalWidth, FH / im.naturalHeight), w = im.naturalWidth * s, h = im.naturalHeight * s; x.drawImage(im, (FW - w) / 2, (FH - h) / 2, w, h); };
+        f.key = (ready ? 'ser:' : 'serwait:') + s0.key + ':' + (r.at || 0); return _draw.call(this, c, FW, FH, st, f);
+      }
+      const ret = _draw.apply(this, arguments);
+      try { if (PRO_BG && PRO_BG.cv && SIG[s0.key] !== PRO_BG.key) { SIG[s0.key] = PRO_BG.key; saveBg(s0.key, PRO_BG.cv, k); } } catch (e) { }
+      return ret;
+    };
+    /* every other design: the same words as the pro design */
+    let busy = 0;
+    function uniText(st) {
+      const cp = proCopy(st), h = String(cp.h || '').replace(/[{}]/g, ''); let l1, l2;
+      if (/\|/.test(h)) { const p = h.split('|').map(s => s.trim()).filter(Boolean); l1 = p[0] || ''; l2 = p.slice(1).join(' '); }
+      else { const w = h.split(/\s+/).filter(Boolean), cut = w.length > 1 ? Math.ceil(w.length / 2) : 1; l1 = w.slice(0, cut).join(' '); l2 = w.slice(cut).join(' '); }
+      return { l1, l2, ctx: cp.ep || cp.sub || '' };
+    }
+    function withUni(st, key, fn) {
+      if (busy || !st || key === 'pro') return fn();
+      let u; try { u = uniText(st); } catch (e) { return fn(); }
+      const o = { thumb: st.thumb, cover: st.cover }; busy++;
+      st.thumb = u.l1 + (u.l2 ? ' | ' + u.l2 : ''); st.cover = Object.assign({}, st.cover || {}, { l1: u.l1, l2: u.l2, ctx: u.ctx });
+      try { return fn(); } finally { st.thumb = o.thumb; st.cover = o.cover; busy--; }
+    }
+    const theme = () => (typeof S !== 'undefined' && S.coverTheme) || '';
+    const _dc = drawCover;
+    drawCover = function (c, r, k) { const a = arguments, t = this; return withUni(r && r.story, k || theme(), () => _dc.apply(t, a)); };
+    if (typeof LongRenderer !== 'undefined') { const LP = LongRenderer.prototype, _dt = LP.drawThumb; LP.drawThumb = function () { const a = arguments, t = this; return withUni(this.story, theme(), () => _dt.apply(t, a)); }; }
+    /* the pro thumbnail once in every section (the old tf_pro_thumb2 flag was shared, so only the first section opened got it) */
+    try { const fk = 'tf_pro_thumb3_' + PRO_KIND; if (!localStorage.getItem(fk)) { localStorage.setItem(fk, '1'); const go = () => { if (S.coverTheme !== 'pro') { S.coverTheme = 'pro'; try { saveSettings(); } catch (e) { } const ct = $('coverTheme'); if (ct) ct.value = 'pro'; refresh(); } };
+      if (document.readyState === 'complete') setTimeout(go, 1200); else window.addEventListener('load', () => setTimeout(go, 1200)); } } catch (e) { }
+    /* UI: one text editor for every design + the series switch */
+    const np = () => document.body.classList.toggle('v15np', theme() !== 'pro');
+    let tries = 0; (function ui() {
+      const pf = $('proFields'); if (!pf) { if (tries++ < 40) setTimeout(ui, 500); return; }
+      const tt = $('thumbText'), lb = tt && tt.closest('label'); if (lb) { lb.classList.add('v15hide'); const p = lb.nextElementSibling; if (p && p.tagName === 'P') p.classList.add('v15hide'); }
+      if (!pf.querySelector('[data-pf="art"]') && window.TF_THUMB_ART) { const l = el('label'); l.innerHTML = 'পেছনের ছবি<select data-pf="art"><option value="">অটো (শিরোনাম দেখে)</option><option value="scene">গল্পের দৃশ্য</option>' + TF_THUMB_ART.list.map(a => `<option value="${a.id}">${a.label}</option>`).join('') + '</select>';
+        const ref = pf.querySelector('.row2'); ref ? ref.before(l) : pf.append(l); }
+      if (!$('v15Same')) { const l = el('label', { class: 'v15chk' }); l.innerHTML = '<input type="checkbox" id="v15Same"> ধারাবাহিকের সব পর্বে একই থাম্বনেল (শুধু পর্ব বদলায়)'; pf.append(l);
+        const cb = $('v15Same'); cb.checked = on(); cb.onchange = () => { S.serSameCov = cb.checked; try { saveSettings(); } catch (e) { } refresh(); }; }
+      const ct = $('coverTheme'); if (ct) ct.addEventListener('change', () => { np(); refresh(); }); np();
+    })();
+    /* "সব লেখা অটো" also clears the shared words of this series (runs before the button's own handler) */
+    document.addEventListener('click', e => { const b = e.target && e.target.closest && e.target.closest('#btnProReset'); if (!b || !app.story) return; const s0 = serOf(app.story); if (s0) { const r = rec(s0.key); if (r) put(s0.key, Object.assign({}, r, { pro: {} })); } }, true);
+  } catch (e) { console.warn('v15sercov', e); }
 })();
 </script>
 <script src="life-series.js"></script>
