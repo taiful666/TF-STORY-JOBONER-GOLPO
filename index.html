@@ -6095,10 +6095,11 @@ class StoryRenderer {
   /* background painted once per scene, softly blurred, with warm bokeh lights (depth of field) */
   bgFor(si) {
     if (this._bg.has(si)) return this._bg.get(si);
-    const sc = this.story.scenes[si]; const raw = document.createElement('canvas'); raw.width = W / 2; raw.height = H / 2; const rc = raw.getContext('2d', { alpha: false });
-    rc.scale(.5, .5); try { drawPlace(rc, sc.place, sc.start, sc.time, 'bg'); } catch (e) { rect(rc, 0, 0, W, H, '#ddd'); }
-    const out = document.createElement('canvas'); out.width = W / 2; out.height = H / 2; const oc = out.getContext('2d', { alpha: false });
-    oc.filter = this.golpo ? 'blur(1.5px) saturate(.92) sepia(.14)' : 'blur(7px)'; oc.drawImage(raw, -12, -12, W / 2 + 24, H / 2 + 24); oc.filter = 'none';
+    const sc = this.story.scenes[si]; const RS = this.golpo ? 1 : .5; const raw = document.createElement('canvas'); raw.width = W * RS; raw.height = H * RS; const rc = raw.getContext('2d', { alpha: false });
+    rc.scale(RS, RS); try { drawPlace(rc, sc.place, sc.start, sc.time, 'bg'); } catch (e) { rect(rc, 0, 0, W, H, '#ddd'); }
+    const out = document.createElement('canvas'); out.width = W * RS; out.height = H * RS; const oc = out.getContext('2d', { alpha: false });
+    // golpo: full resolution and sharp (the scene behind the text must stay clear); classic keeps its soft depth-of-field
+    if (this.golpo) { oc.filter = 'saturate(1.02) sepia(.06)'; oc.drawImage(raw, 0, 0); } else { oc.filter = 'blur(7px)'; oc.drawImage(raw, -12, -12, W / 2 + 24, H / 2 + 24); } oc.filter = 'none';
     const night = sc.time === 'night', seed = hashStr(sc.place + si);
     for (let k = 0; k < (this.golpo ? 0 : 16); k++) { const x = ((seed >> (k % 16)) * 37 + k * 131) % (W / 2), y = 40 + ((k * 211 + seed) % (H * .3)), r = 14 + (k * 7) % 30;
       const g = oc.createRadialGradient(x, y, 0, x, y, r); const col = night ? '255,214,150' : '255,236,200'; g.addColorStop(0, `rgba(${col},${night ? .55 : .32})`); g.addColorStop(1, `rgba(${col},0)`); oc.fillStyle = g; oc.beginPath(); oc.arc(x, y, r, 0, Math.PI * 2); oc.fill(); }
@@ -6170,7 +6171,7 @@ class StoryRenderer {
     const raw = document.createElement('canvas'); raw.width = W / 2; raw.height = H / 2; const rc = raw.getContext('2d', { alpha: false }); rc.scale(.5, .5);
     try { if (ls >= 0) this.drawStory(rc, ls, this.story.scenes[ls].end - .05); else BG.abstract(rc, 0); } catch (e) { rect(rc, 0, 0, W, H, '#3A2A20'); }
     const out = document.createElement('canvas'); out.width = W / 2; out.height = H / 2; const oc = out.getContext('2d', { alpha: false });
-    oc.filter = 'blur(9px) sepia(.35)'; oc.drawImage(raw, -16, -16, W / 2 + 32, H / 2 + 32); oc.filter = 'none'; oc.fillStyle = 'rgba(28,14,8,.6)'; oc.fillRect(0, 0, W / 2, H / 2);
+    oc.filter = 'blur(2px) sepia(.12)'; oc.drawImage(raw, -16, -16, W / 2 + 32, H / 2 + 32); oc.filter = 'none'; oc.fillStyle = 'rgba(28,14,8,.24)'; oc.fillRect(0, 0, W / 2, H / 2);
     this._gbg[key] = out; return out;
   }
   /* the book comes late and short: a cream "book page" card over the dimmed last scene */
@@ -6277,7 +6278,7 @@ class StoryRenderer {
       // per-person look (shy/sad = grey + gold glow, listener in close-up = soft blur): drawn once onto a layer
       const pf = []; let psh = null;
       if (this.cine2 && ln.who === id && (ln.feel === 'shy' || (ln.do === 'head_down' && /sad|crying/.test(ln.feel || '')))) { const g0 = cl(lt / .5); pf.push(`grayscale(${g0.toFixed(2)})`); psh = { color: `rgba(242,193,78,${(.85 * g0).toFixed(2)})`, blur: 22 }; }
-      if (this.cine2 && cam.z > 1.6 && ln.who && ln.who !== id && n > 1) pf.push('blur(4px)');
+      if (this.cine2 && !this.golpo && cam.z > 1.6 && ln.who && ln.who !== id && n > 1) pf.push('blur(4px)');
       filteredLayer(c, pf.join(' '), psh, c => drawPerson(c, { L: cr.L, x: P0[0], y: P0[1], s: P0[2], flip: n > 1 && i === n - 1, feel: m.feel, act: m.act, hold: m.hold, talk: talking, t, seed: cr.seed, eye, tear: m.feel === 'crying' }));
       c.restore();
       if (!this.golpo && this.nameTag[k] === id && lt < 2.2 && !(this.isLong && ln.speak) && !(this.cine2 && si === this.firstStory && t - sc.start < 3.3)) { const kk = back(lt, .05, .4) * cl((2.2 - lt) / .3); const s2 = P0[2], ty = P0[1] - 470 * s2 * (cr.L.kid ? .74 : cr.L.teen ? .92 : 1); const nm = cr.ch.name; const w2 = tw(c, nm, 40, 700) + 54; popAt(c, P0[0], ty, kk, () => { rr(c, P0[0] - w2 / 2, ty - 34, w2, 64, 32, C_G, C_GO2, 3); P(c, `M${P0[0] - 12},${ty + 29} L${P0[0]},${ty + 46} L${P0[0] + 12},${ty + 29}Z`, C_G); txt(c, nm, P0[0], ty + 13, 40, C_CR, 700, 'center', FONT_BN, 420); }); }
@@ -6365,7 +6366,7 @@ class StoryRenderer {
     if (!this._ctaBg) { let ls = -1; for (let i = si - 1; i >= 0; i--) if (this.story.scenes[i].type === 'story') { ls = i; break; }
       const raw = document.createElement('canvas'); raw.width = W / 2; raw.height = H / 2; const rc = raw.getContext('2d', { alpha: false }); rc.scale(.5, .5);
       try { if (ls >= 0) this.drawStory(rc, ls, this.story.scenes[ls].end - .05); else BG.abstract(rc, 0); } catch (e) { rect(rc, 0, 0, W, H, '#1F4733'); }
-      const out = document.createElement('canvas'); out.width = W / 2; out.height = H / 2; const oc = out.getContext('2d', { alpha: false }); oc.filter = 'blur(10px)'; oc.drawImage(raw, -16, -16, W / 2 + 32, H / 2 + 32); oc.filter = 'none'; oc.fillStyle = 'rgba(10,20,15,.68)'; oc.fillRect(0, 0, W / 2, H / 2); this._ctaBg = out; }
+      const out = document.createElement('canvas'); out.width = W / 2; out.height = H / 2; const oc = out.getContext('2d', { alpha: false }); oc.filter = 'blur(2.5px)'; oc.drawImage(raw, -16, -16, W / 2 + 32, H / 2 + 32); oc.filter = 'none'; oc.fillStyle = 'rgba(10,20,15,.4)'; oc.fillRect(0, 0, W / 2, H / 2); this._ctaBg = out; }
     c.drawImage(this._ctaBg, 0, 0, W, H);
     for (let i = 0; i < 40; i++) { const x = (i * 197) % W, y = (i * 331 + t * 12 * (1 + i % 3)) % H; withA(c, .15 + (i % 4) * .06, () => circ(c, x, y, 2 + i % 3, '#F3EBD6')); }
     const q = (sc.cta && sc.cta.question) || (sc.lines[0] ? sc.lines[0].cap.replace(/কমেন্টে লিখুন।?/, '') : '');
@@ -8697,7 +8698,7 @@ class LongRenderer extends StoryRenderer {
     const sc = this.story.scenes[si]; const raw = document.createElement('canvas'); raw.width = W; raw.height = H; const rc = raw.getContext('2d', { alpha: false });
     try { drawPlace(rc, sc.place, sc.start, sc.time, 'bg'); } catch (e) { rect(rc, 0, 0, W, H, '#ddd'); }
     const out = document.createElement('canvas'); out.width = W; out.height = H; const oc = out.getContext('2d', { alpha: false });
-    oc.filter = this.kt ? 'blur(3px) saturate(.8) brightness(.82)' : 'blur(2px) saturate(.9) sepia(.16)'; oc.drawImage(raw, -8, -8, W + 16, H + 16); oc.filter = 'none';
+    oc.filter = this.kt ? 'blur(3px) saturate(.8) brightness(.82)' : 'saturate(1) sepia(.06)'; oc.drawImage(raw, -8, -8, W + 16, H + 16); oc.filter = 'none';
     if (this._bgL.size > 3) this._bgL.delete(this._bgL.keys().next().value);
     this._bgL.set(si, out); return out;
   }
@@ -8738,7 +8739,7 @@ class LongRenderer extends StoryRenderer {
     const raw = document.createElement('canvas'); raw.width = FW / 2; raw.height = FH / 2; const rc = raw.getContext('2d', { alpha: false }); rc.scale(.5, .5);
     try { if (ls >= 0) { const sc = this.story.scenes[ls]; this.drawStoryL(rc, ls, Math.max(sc.start, sc.end - .3), { x: 540, y: cl(1180, this.HH, H - this.HH), z: 1 }); } else rect(rc, 0, 0, FW, FH, this.P.bg1); } catch (e) { rect(rc, 0, 0, FW, FH, this.P.bg1); }
     const out = document.createElement('canvas'); out.width = FW / 2; out.height = FH / 2; const oc = out.getContext('2d', { alpha: false });
-    oc.filter = 'blur(12px)'; oc.drawImage(raw, -20, -20, FW / 2 + 40, FH / 2 + 40); oc.filter = 'none'; oc.fillStyle = this.kt ? 'rgba(6,10,22,.7)' : 'rgba(30,16,8,.6)'; oc.fillRect(0, 0, FW / 2, FH / 2);
+    oc.filter = this.kt ? 'blur(12px)' : 'blur(2.5px)'; oc.drawImage(raw, -20, -20, FW / 2 + 40, FH / 2 + 40); oc.filter = 'none'; oc.fillStyle = this.kt ? 'rgba(6,10,22,.7)' : 'rgba(30,16,8,.3)'; oc.fillRect(0, 0, FW / 2, FH / 2);
     const ks = Object.keys(this._bb); if (ks.length > 6) delete this._bb[ks[0]];
     return (this._bb[key] = out);
   }

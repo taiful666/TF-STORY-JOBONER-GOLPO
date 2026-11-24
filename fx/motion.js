@@ -1,6 +1,7 @@
 /* TF Story — motion kit (গল্প শর্ট + ইসলামিক)
    রেফারেন্স ভিডিও বিশ্লেষণ থেকে:
    1. কথার সাথে সাথে মূল বাক্য বড় হয়ে আছড়ে পড়ে (ঝাপসা → স্পষ্ট, ছোট-বড় বাউন্স, আন্ডারলাইন, পেছনে আঁধার)
+      (পেছনে আর আঁধার নয় — দৃশ্য পরিষ্কার; প্রতিবার আলাদা অ্যানিমেশন, জায়গা ও রঙ)
    2. দৃশ্যের লেবেল ("সন্ধ্যা", "রাত") বড় হয়ে আছড়ে পড়ে, তারপর ছোট হয়ে উপরে উঠে যায়
    3. প্রতিটি দৃশ্য-বদলে প্যানেল-পর্দা (তির্যক ওয়াইপ / আইরিস / ব্লাইন্ডস) + সোনালি ধার
    4. হালকা সাউন্ড: আছড়ানোর ধাক্কা, শব্দ-পিছু ছোট টিক
@@ -50,36 +51,78 @@
       const ws = cap.split(/\s+/).filter(Boolean), tot = Math.max(1, cap.length); let cum = 0;
       ws.forEach(w => { const tm = sh.start + (cum / tot) * sh.dur * .92 + .02; cum += w.length + 1; if (tm - tkLast >= .2 && tm < sh.end) { p.ticks.push(tm); tkLast = tm; } });
     });
+    // every slam gets its own animation, place and colours (seeded by the title → preview = export; never the same twice in a row)
+    let h = 2166136261; String(story.title || '').split('').forEach(ch => { h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0; });
+    const rnd = () => { h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0; h = (h + 0x9E3779B9) >>> 0; return h / 4294967296; };
+    const shuf = n => { const a = [...Array(n).keys()]; for (let i = n - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+    const vo = shuf(SLAM_V), po = shuf(SLAM_POS.length); let pv = -1, pp = -1;
+    p.slams.forEach((e, i) => {
+      let v = vo[i % SLAM_V]; if (v === pv) v = vo[(i + 1) % SLAM_V];
+      let q = po[i % po.length]; if (q === pp) q = po[(i + 1) % po.length];
+      e.v = v; e.pos = SLAM_POS[q]; e.pal = (v + Math.floor(rnd() * 3)) % SLAM_PAL.length; e.sz = 150 + Math.floor(rnd() * 36); pv = v; pp = q;
+    });
     PLAN.set(tl, p); return p;
   }
 
   /* =============================== DRAWING =============================== */
+  /* big key phrase: 8 animations × 6 places × 5 colour sets; NO dark layer over the scene (the picture stays clear) */
+  const SLAM_V = 8; // 0 slam-zoom · 1 slide-in words · 2 drop+bounce · 3 typewriter · 4 stamp · 5 rise · 6 split from both sides · 7 pop wave
+  const SLAM_POS = [{ y: .3, al: 'c' }, { y: .17, al: 'l' }, { y: .46, al: 'c' }, { y: .22, al: 'r' }, { y: .13, al: 'c' }, { y: .4, al: 'l' }];
+  const SLAM_PAL = [
+    { f: [GOLD2, GOLD], st: 'rgba(8,10,16,.92)', gl: 'rgba(255,190,60,.6)', ac: GOLD },
+    { f: ['#FFFFFF', '#FFF3E0'], st: 'rgba(10,10,14,.9)', gl: 'rgba(0,0,0,.45)', ac: '#C62828', mark: 1 },
+    { f: ['#FFE3C2', '#FF8A3D'], st: 'rgba(40,12,4,.92)', gl: 'rgba(255,120,40,.55)', ac: '#FF8A3D' },
+    { f: ['#E8FBFF', '#7FD8FF'], st: 'rgba(6,18,32,.92)', gl: 'rgba(80,190,255,.55)', ac: '#4FC3F7' },
+    { f: ['#FFFFFF', '#FFD6D6'], st: 'rgba(90,8,8,.95)', gl: 'rgba(0,0,0,.4)', ac: '#E53935', mark: 1 }];
   function drawSlam(c, e, tt, fw, fh, u) {
-    const inT = .22, outT = .26, k = eb(tt / inT), a = Math.min(cl(tt / .09), cl((e.dur - tt) / outT));
-    const sc = lerp(2.15, 1, k) * (tt > e.dur - outT ? 1 + .08 * (1 - cl((e.dur - tt) / outT)) : 1), blur = (1 - cl(tt / inT)) * 14 * u;
-    withA(c, a * .5, () => rect(c, 0, 0, fw, fh, '#02040a'));
-    const cy = fh * .3;
-    if (tt < .2) withA(c, (1 - tt / .2) * .32, () => { const g = c.createRadialGradient(fw / 2, cy, 0, fw / 2, cy, fw * .7); g.addColorStop(0, '#fff'); g.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = g; c.fillRect(0, 0, fw, fh); });
-    const maxW = fw * .86; let size = 176 * u, lines = [e.text]; font(c, size);
+    const V = e.v || 0, POS = e.pos || SLAM_POS[0], PAL = SLAM_PAL[e.pal || 0], outT = .26;
+    const a = Math.min(cl(tt / .09), cl((e.dur - tt) / outT)); if (a <= 0) return;
+    const maxW = fw * .84; let size = (e.sz || 170) * u, lines = [e.text]; font(c, size);
     if (c.measureText(e.text).width > maxW) {
       const ws = e.text.split(/\s+/);
       if (ws.length > 1) { let best = 1, bd = 1e9; for (let i = 1; i < ws.length; i++) { const d = Math.abs(c.measureText(ws.slice(0, i).join(' ')).width - c.measureText(ws.slice(i).join(' ')).width); if (d < bd) { bd = d; best = i; } } lines = [ws.slice(0, best).join(' '), ws.slice(best).join(' ')]; }
       const mw = Math.max(...lines.map(l => c.measureText(l).width)); size *= Math.min(1, maxW / mw);
     }
-    font(c, size); const lw = Math.max(...lines.map(l => c.measureText(l).width)), lh = size * 1.2, y0 = -(lines.length - 1) * lh / 2;
+    font(c, size); const lh = size * 1.2, sp = c.measureText(' ').width, bh = lines.length * lh;
+    const ax = POS.al === 'l' ? fw * .08 : POS.al === 'r' ? fw * .92 : fw / 2;
+    const cy = cl(fh * POS.y, fh * .08 + bh / 2, fh * .56 - bh / 2) / 1; // keep clear of the caption box
+    const W2 = []; let wi = 0; const lws = lines.map(l => c.measureText(l).width), lw = Math.max(...lws);
+    lines.forEach((l, li) => { const x0 = POS.al === 'l' ? ax : POS.al === 'r' ? ax - lws[li] : ax - lws[li] / 2; let x = x0; const y = cy - bh / 2 + li * lh + lh * .5 + size * .34;
+      l.split(/\s+/).forEach(w => { const ww = c.measureText(w).width; W2.push({ w, x, y, ww, i: wi++ }); x += ww + sp; }); });
+    const n = W2.length, stag = V === 0 || V === 4 ? 0 : V === 3 ? .11 : .075, inT = V === 3 ? .05 : .26;
+    const bx = Math.min(...W2.map(o => o.x)), bcx = bx + lw / 2;
+    if (V === 0 && tt < .2) withA(c, (1 - tt / .2) * .18, () => { const g = c.createRadialGradient(bcx, cy, 0, bcx, cy, fw * .6); g.addColorStop(0, '#fff'); g.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = g; c.fillRect(0, 0, fw, fh); });
     withA(c, a, () => {
-      c.save(); c.translate(fw / 2, cy); c.scale(sc, sc);
-      if (blur > .6) { try { c.filter = `blur(${blur}px)`; } catch (_) { } }
-      c.textAlign = 'center'; c.lineJoin = 'round'; font(c, size);
-      lines.forEach((l, i) => {
-        const y = y0 + i * lh + size * .34;
-        c.lineWidth = 16 * u; c.strokeStyle = 'rgba(8,10,16,.92)'; c.strokeText(l, 0, y);
-        const g = c.createLinearGradient(0, y - size * .8, 0, y + size * .2); g.addColorStop(0, GOLD2); g.addColorStop(1, GOLD);
-        c.save(); c.shadowColor = 'rgba(255,190,60,.6)'; c.shadowBlur = 38 * u; c.fillStyle = g; c.fillText(l, 0, y); c.restore();
+      c.save();
+      const exitS = tt > e.dur - outT ? 1 + .08 * (1 - cl((e.dur - tt) / outT)) : 1;
+      c.translate(bcx, cy);
+      if (V === 0) { const k = eb(tt / inT), s0 = lerp(2.15, 1, k) * exitS; c.scale(s0, s0); }
+      else if (V === 4) { const k = eb(tt / .2), s0 = lerp(1.7, 1, k) * exitS, sh = tt < .3 ? Math.sin(tt * 90) * (1 - tt / .3) * 10 * u : 0; c.translate(sh, 0); c.rotate(-.07); c.scale(s0, s0); }
+      else c.scale(exitS, exitS);
+      c.translate(-bcx, -cy);
+      const blur0 = V === 0 ? (1 - cl(tt / inT)) * 14 * u : 0; if (blur0 > .6) { try { c.filter = `blur(${blur0}px)`; } catch (_) { } }
+      c.textAlign = 'left'; c.lineJoin = 'round'; font(c, size);
+      let lastShown = null;
+      W2.forEach(o => {
+        const p = cl((tt - o.i * stag) / inT); if (p <= 0) return; lastShown = o;
+        let dx = 0, dy = 0, al = 1, s1 = 1;
+        if (V === 1) { dx = -(1 - eo(p)) * fw * .45; al = p; }
+        else if (V === 2) { dy = (1 - eb(p)) * -260 * u; al = cl(p * 3); }
+        else if (V === 5) { dy = (1 - eo(p)) * 140 * u; al = p; }
+        else if (V === 6) { dx = (o.i < n / 2 ? -1 : 1) * (1 - eo(p)) * fw * .55; al = cl(p * 2); }
+        else if (V === 7) { s1 = Math.max(.01, eb(p)); al = cl(p * 2.5); }
+        c.save(); c.globalAlpha *= al; c.translate(o.x + o.ww / 2 + dx, o.y - size * .3 + dy); c.scale(s1, s1); c.translate(-(o.x + o.ww / 2), -(o.y - size * .3));
+        if (PAL.mark) { const mk = cl((tt - o.i * stag - .12) / .22); if (mk > 0) { c.fillStyle = PAL.ac; c.fillRect(o.x - 6 * u, o.y - size * .2, (o.ww + 12 * u) * eo(mk), size * .32); } }
+        c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 16 * u; c.shadowOffsetY = 5 * u;
+        c.lineWidth = 15 * u; c.strokeStyle = PAL.st; c.strokeText(o.w, o.x, o.y); c.shadowOffsetY = 0;
+        const g = c.createLinearGradient(0, o.y - size * .8, 0, o.y + size * .2); g.addColorStop(0, PAL.f[0]); g.addColorStop(1, PAL.f[1]);
+        c.shadowColor = PAL.gl; c.shadowBlur = 30 * u; c.fillStyle = V === 7 && o.i % 2 ? SLAM_PAL[0].f[1] : g; c.fillText(o.w, o.x, o.y); c.restore();
       });
       c.filter = 'none';
-      const ux = cl((tt - .2) / .25); if (ux > 0) { const by = y0 + (lines.length - 1) * lh + size * .34 + 22 * u, w = lw * eo(ux); c.save(); c.shadowColor = 'rgba(255,190,60,.7)'; c.shadowBlur = 18 * u; c.lineCap = 'round'; c.lineWidth = 10 * u; c.strokeStyle = GOLD; c.beginPath(); c.moveTo(-w / 2, by); c.lineTo(w / 2, by); c.stroke(); c.restore(); }
-      if (ISL) { c.fillStyle = GOLD; const sx = lw / 2 + 80 * u, sr = 30 * u * cl(tt / .3); star8(c, -sx, 0, sr, tt * .9); star8(c, sx, 0, sr, -tt * .9); }
+      if (V === 3 && lastShown && tt < e.dur - .3 && Math.floor(tt * 4) % 2 === 0) { c.fillStyle = PAL.ac; c.fillRect(lastShown.x + lastShown.ww + 10 * u, lastShown.y - size * .78, 9 * u, size * .92); }
+      if (V === 4) { const k = cl((tt - .12) / .2); if (k > 0) { c.save(); c.globalAlpha *= k; c.strokeStyle = PAL.ac; c.lineWidth = 9 * u; c.shadowColor = 'rgba(0,0,0,.4)'; c.shadowBlur = 10 * u; const pad = 34 * u; c.strokeRect(bx - pad, cy - bh / 2 - pad * .4, lw + pad * 2, bh + pad * .8); c.restore(); } }
+      if (!PAL.mark && V !== 3 && V !== 4) { const ux = cl((tt - .2 - (n - 1) * stag) / .25); if (ux > 0) { const by = cy + bh / 2 + 14 * u, w = lw * eo(ux), x1 = POS.al === 'l' ? bx : POS.al === 'r' ? bx + lw - w : bcx - w / 2; c.save(); c.shadowColor = PAL.gl; c.shadowBlur = 18 * u; c.lineCap = 'round'; c.lineWidth = 10 * u; c.strokeStyle = PAL.ac; c.beginPath(); c.moveTo(x1, by); c.lineTo(x1 + w, by); c.stroke(); c.restore(); } }
+      if (ISL) { c.fillStyle = GOLD; const sx = lw / 2 + 80 * u, sr = 30 * u * cl(tt / .3); star8(c, bcx - sx, cy, sr, tt * .9); star8(c, bcx + sx, cy, sr, -tt * .9); }
       c.restore();
     });
   }
@@ -88,7 +131,7 @@
     const T = lab.dur; if (lt < 0 || lt > T) return;
     const k = eb(lt / .24), x2 = cl((lt - .9) / .4), a = Math.min(cl(lt / .08), 1 - cl((x2 - .7) / .3));
     const sc = lerp(2.6, 1, k) * lerp(1, .34, eo(x2)), cy = lerp(fh * .4, 188 * u, eo(x2)), size = 130 * u;
-    withA(c, a * (1 - x2 * .8), () => { const g = c.createLinearGradient(0, cy - 190 * u, 0, cy + 190 * u); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(.5, 'rgba(0,0,0,.58)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, cy - 190 * u, fw, 380 * u); });
+    withA(c, a * (1 - x2 * .8), () => { const g = c.createLinearGradient(0, cy - 190 * u, 0, cy + 190 * u); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(.5, 'rgba(0,0,0,.2)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, cy - 190 * u, fw, 380 * u); });
     withA(c, a, () => {
       c.save(); c.translate(fw / 2, cy); c.scale(sc, sc); c.textAlign = 'center'; c.lineJoin = 'round'; font(c, size);
       if (lt < .24) { try { c.filter = `blur(${(1 - lt / .24) * 10 * u}px)`; } catch (_) { } }
