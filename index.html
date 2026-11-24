@@ -9240,7 +9240,7 @@ ${style === 'life' ? 'বই: বইয়ের ইংরেজি নাম | 
 - চরিত্রের role: ${ROLE_LIST_FOR_PROMPT()}
 - মুখের ভাব: ${FEELS.join(', ')} | কাজ: ${ACTIONS.join(', ')} | হাতে: ${PROPS.join(', ')}
 - কার্ড (মোট ১২-২৫টা, ছড়িয়ে): [reveal: জিনিস / লেখা] [sms: শিরোনাম / লেখা] [chat: নাম / লেখা] [call: নাম] [alert: লেখা] [date: তারিখ] [doc: শিরোনাম / লেখা] [source: সূত্র / কী বলেছে] [counter: লেবেল / শুরু / শেষ / আগে-চিহ্ন] [compare: বাম / মান / ডান / মান] [check: + কাজ / + কাজ] [price: লেখা] [big: লেখা] [progress: লেবেল / শতাংশ] [scene: ধরন / লেখা১ / লেখা২]${style === 'thriller' ? ' [statement: ছোট লাইন / বড় সোনালি লেখা] [label: সূত্র: নাম]' : style === 'life' ? ' [tag: ✗ লেখা / ✓ লেখা] [hud: লেবেল / আগে → এখন] [label: ছোট লেখা]' : ' [label: ছোট লেখা]'}
-- অ্যানিমেটেড কনসেপ্ট ছবি (পুরো পর্দা জুড়ে, ক্যারেক্টার ছাড়া; ১০-২০টা, যেখানে সংখ্যা/তারিখ/জায়গা/নথি/তালা/ফোন/চার্ট বোঝানো দরকার): [scene: ধরন / লেখা১ / লেখা২]। ধরন: calendar(তারিখ), skyline, building(স্কুল/ব্যাংক/অফিস), chart_line(লেখা, up/down/crash), chart_bars, counter, doc, email, money, people, route(দেশ১ / দেশ২), magnifier, lock(লেখা, lock/open), phone(মেসেজ...), balance, timeline, question, network, files, clock, alert। যেমন: [scene: chart_line / ১০১ মিলিয়ন ডলার / crash]
+- অ্যানিমেটেড কনসেপ্ট ছবি (পুরো পর্দা জুড়ে, ক্যারেক্টার ছাড়া; ১০-২০টা, যেখানে সংখ্যা/তারিখ/জায়গা/নথি/তালা/ফোন/চার্ট বোঝানো দরকার): [scene: ধরন / লেখা১ / লেখা২]। ধরন: calendar(তারিখ), skyline, building(স্কুল/ব্যাংক/অফিস), chart_line(লেখা, up/down/crash), chart_bars, counter, doc, email, money, people, route(দেশ১ / দেশ২), magnifier, lock(লেখা, lock/open), phone(মেসেজ...), balance, timeline, question, network, files, clock, alert; জিনিস: fever(জ্বর), medicine(ওষুধ), doctor(ডাক্তার/প্রেসক্রিপশন), saline(হাসপাতালে ভর্তি), injection, ambulance, health(আইসিইউ/হার্ট), diary(ডায়েরি), notebook(খাতা), ledger(হিসাবের খাতা, লেখা২ due = বাকি), envelope(চিঠি/খাম), book(বই), lantern(হারিকেন/লোডশেডিং), key, baby, tiffin, schoolbag, umbrella, plate, tea, frame, wallet, piggy, gift, house, field, rain, door; ইসলামিক গল্পে: quran, tasbih, prayer_mat, dua, iftar, crescent, kaaba, zakat, mosque; সাধারণ গল্পে: ring(বিয়ে), cricket, kite। একই অসুখে সব জায়গায় একই ছবি নয় — জ্বর হলে fever, ওষুধ হলে medicine। যেমন: [scene: chart_line / ১০১ মিলিয়ন ডলার / crash]
 - থাম্বনেল: টিজার ৫-৯ শব্দের রহস্য; উক্তি মোট ৩-৯ শব্দ, দুই ভাগ, ১-৩টা শব্দ {} দিয়ে লাল।
 - থাম্বনেলের টিজার (সবচেয়ে বড় লেখা, ৪-৭ শব্দ) হবে খোলা প্রশ্ন, যার উত্তর জানতে ভিডিও দেখতেই হবে। গল্পের শেষ বা ফলাফল কখনো বলবে না। এই ছাঁচগুলোর একটা নাও:
   ১) লুকানো জিনিস: "কিপটে চাচার কৌটোয় এমন কী ছিল?" / "শেষ পাতায় লেখা ছিল একটাই কথা..."
@@ -10684,6 +10684,273 @@ function proBgLong(r) {
     window.addEventListener('resize', adapt); if (mq.addEventListener) mq.addEventListener('change', adapt);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(start, 0)); else setTimeout(start, 0);
+})();
+</script>
+<script id="v17lv">
+/* v17 — the picture library (long-visuals.js) in SHORT 9:16 videos too, in every section (story, Islamic, explainer).
+   A narration line that names a concrete thing (fever, medicine, diary, letter, Quran, tasbih …) cuts to that picture
+   for its shot, on a bright "paper" theme; Islamic-only / story-only pictures are chosen by LV's section (LV.SEC).
+   Explicit [scene: kind / text] cards work in shorts too. At most every 3rd shot, never the same picture twice in a row. */
+(function () {
+  'use strict';
+  if (typeof StoryRenderer === 'undefined' || typeof LV === 'undefined') return;
+  const NIGHT = new Set(['sun', 'rain', 'mosque', 'crescent', 'kaaba', 'lantern', 'fire', 'skyline', 'umbrella', 'kite', 'tv', 'jail']);
+  function planShort(r) {
+    const st = r.story, tl = r.tl, out = []; if (!st || !tl) return out; if (r.settings && r.settings.visuals === false) return out;
+    let last = -9, recent = [], first = true;
+    tl.shots.forEach((sh, k) => {
+      const sc = st.scenes[sh.si], ln = sc && sc.lines[sh.li]; if (!sc || sc.type !== 'story' || !ln) return;
+      if (first) { first = false; return; } // the hook shot keeps the characters
+      let v = null; const card = ln.card;
+      if (card && card.type === 'scene') v = LV.fromCard(card);
+      else if (!card && !ln.speak && k - last >= 3 && sh.dur >= 1.6) { const text = String(ln.cap || ''), hl = String(ln.hl || '').split('|').map(x => x.replace(/[।,.!?“”"]/g, '').trim()).filter(Boolean); v = LV.objectFor(text, re => re.test(text), hl[0] || ''); if (v && recent.slice(-2).includes(v.kind)) v = null; }
+      if (!v || !LV.has(v.kind)) return;
+      out[k] = { kind: v.kind, tx: (v.tx || []).map(x => String(x == null ? '' : x)), th: NIGHT.has(v.kind) ? LV.THEME_OF(v.kind) : 'paper', seed: (k * 7919 + 17) >>> 0 };
+      last = k; recent.push(v.kind);
+    });
+    return out;
+  }
+  const _load = StoryRenderer.prototype.load;
+  StoryRenderer.prototype.load = function (story, tl, settings) { const r = _load.apply(this, arguments); try { this._sv = this.isLong ? null : planShort(this); } catch (e) { console.error('v17lv', e); this._sv = null; } return r; };
+  const _ds = StoryRenderer.prototype.drawScene;
+  StoryRenderer.prototype.drawScene = function (c, si, t) {
+    if (!this.isLong && this._sv && this._sv.length && this.tl) {
+      const k = this.shotAt(t), sh = this.tl.shots[k], v = this._sv[k];
+      if (v && sh && sh.si === si) { try { LV.draw(c, v, { FW: W, FH: H, u: 1, t, lt: Math.max(0, t - sh.start), dur: sh.dur, land: false, zoom: v.kind === 'img' ? 1.05 : 1.5, cy: .36 }); return; } catch (e) { console.warn('v17lv draw', e); } }
+    }
+    return _ds.apply(this, arguments);
+  };
+  window.TF_SHORT_VIS = planShort;
+})();
+</script>
+<style id="v18hub">
+/* v18 — Settings & asset library hub (index.html?hub=1, opened from the home page) */
+body.hub-on{overflow:hidden}
+#tfHub{position:fixed;inset:0;z-index:2000;overflow:auto;background:#F4F5F2;color:#17201B;font-family:inherit;-webkit-overflow-scrolling:touch}
+#tfHub *{box-sizing:border-box}
+#tfHub .hb-top{position:sticky;top:0;z-index:3;display:flex;align-items:center;gap:10px;padding:max(12px,env(safe-area-inset-top)) 16px 10px;background:rgba(244,245,242,.94);backdrop-filter:blur(8px);border-bottom:1px solid rgba(23,32,27,.08)}
+#tfHub .hb-top h1{font-size:18px;font-weight:700;margin:0;flex:1}
+#tfHub .hb-ic{width:40px;height:40px;border-radius:12px;border:1px solid rgba(23,32,27,.12);background:#fff;display:grid;place-items:center;cursor:pointer;color:#17201B}
+#tfHub .hb-ic svg{width:20px;height:20px}
+#tfHub .hb-in{max-width:1200px;margin:0 auto;padding:14px 16px 60px}
+#tfHub .hb-tabs{display:flex;gap:4px;padding:4px;border-radius:14px;background:#E6E9E3;margin-bottom:14px;width:max-content;max-width:100%;overflow-x:auto}
+#tfHub .hb-tabs button,#tfHub .hb-chips button{border:0;background:transparent;padding:9px 16px;border-radius:10px;font:inherit;font-size:15px;font-weight:600;color:#5C6660;cursor:pointer;white-space:nowrap}
+#tfHub .hb-tabs button.on{background:#fff;color:#17201B;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+#tfHub .hb-chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 12px}
+#tfHub .hb-chips button{padding:6px 12px;font-size:13.5px;border:1px solid rgba(23,32,27,.14);background:#fff;border-radius:999px}
+#tfHub .hb-chips button.on{background:#1E3A2F;color:#fff;border-color:#1E3A2F}
+#tfHub .hb-chips input{flex:1;min-width:140px;max-width:280px;height:34px;border-radius:999px;border:1px solid rgba(23,32,27,.14);padding:0 14px;font:inherit;font-size:14px;background:#fff}
+#tfHub .hb-drop{display:flex!important;flex-direction:row!important;text-align:left;align-items:center;gap:14px;padding:16px;border:2px dashed rgba(30,58,47,.3);border-radius:16px;background:#fff;margin:0 0 14px;cursor:pointer;transition:border-color .15s,background .15s}
+#tfHub .hb-drop.over{border-color:#1E3A2F;background:#EEF4EF}
+#tfHub .hb-drop b{display:block;font-size:15px}
+#tfHub .hb-drop small{display:block;color:#5C6660;font-size:12.5px;margin-top:2px;line-height:1.5}
+#tfHub .hb-drop .hb-plus{width:44px;height:44px;border-radius:12px;background:#1E3A2F;color:#fff;display:grid;place-items:center;font-size:26px;flex:none}
+#tfHub .hb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+#tfHub .hb-grid.wide{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+#tfHub .hb-card{position:relative;background:#fff;border:1px solid rgba(23,32,27,.10);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+#tfHub .hb-card canvas,#tfHub .hb-card img{display:block;width:100%;aspect-ratio:16/9;object-fit:contain;background:#F3F1EA}
+#tfHub .hb-grid:not(.wide) .hb-card canvas,#tfHub .hb-grid:not(.wide) .hb-card img{aspect-ratio:5/6}
+#tfHub .hb-card .hb-m{padding:8px 10px 10px;display:grid;gap:4px}
+#tfHub .hb-card .hb-m b{font-size:14px;font-weight:600;line-height:1.3}
+#tfHub .hb-card .hb-m span{font-size:12px;color:#8A938D;line-height:1.35;word-break:break-word}
+#tfHub .hb-card .hb-m input,#tfHub .hb-card .hb-m select{width:100%;height:32px;border:1px solid rgba(23,32,27,.14);border-radius:8px;padding:0 8px;font:inherit;font-size:13.5px;background:#fff}
+#tfHub .hb-badge{position:absolute;top:8px;left:8px;font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.92);color:#1E3A2F;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+#tfHub .hb-badge.isl{background:#1F5D45;color:#fff}#tfHub .hb-badge.story,#tfHub .hb-badge.life{background:#B3261E;color:#fff}#tfHub .hb-badge.exp{background:#2B5C8A;color:#fff}#tfHub .hb-badge.mine{left:auto;right:8px;background:#E9B949;color:#17201B}
+#tfHub .hb-del{border:0;background:transparent;color:#B3261E;font:inherit;font-size:13px;font-weight:600;cursor:pointer;justify-self:start;padding:2px 0}
+#tfHub .hb-h{font-size:14px;font-weight:700;color:#5C6660;margin:18px 0 8px}
+#tfHub .hb-set{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+#tfHub .hb-row{display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:16px;background:#fff;border:1px solid rgba(23,32,27,.10)}
+#tfHub .hb-row b{font-size:16px}#tfHub .hb-row p{margin:0;color:#5C6660;font-size:13px;line-height:1.5}
+#tfHub .hb-row .hb-btns{display:flex;flex-wrap:wrap;gap:6px}
+#tfHub .hb-row .hb-btns a,#tfHub .hb-row .hb-btns button{border:1px solid rgba(23,32,27,.14);background:#F4F5F2;border-radius:10px;padding:8px 12px;font:inherit;font-size:13.5px;font-weight:600;color:#17201B;text-decoration:none;cursor:pointer}
+#tfHub .hb-row .hb-btns .pri{background:#1E3A2F;color:#fff;border-color:#1E3A2F}
+#tfHub .hb-empty{padding:24px;text-align:center;color:#8A938D;font-size:14px}
+#tfHub .hb-n{font-size:13px;color:#8A938D;font-weight:500;margin-left:6px}
+</style>
+<script id="v18hub">
+/* v18 — উপাদান লাইব্রেরি (asset library) + one Settings hub for every section.
+   TF_ASSETS: the user's own PNG/JPG pictures and characters in IndexedDB 'tf_assets'. The file NAME decides everything:
+   section (ইসলামিক/islamic · জীবন পাঠ/life · সাধারণ/general/story · এক্সপ্লেনার/explainer · otherwise কমন), kind (চরিত্র/character
+   or a role name → character, otherwise picture), keywords (Bangla + English synonyms) and variant number ("লাইব্রেরি ২").
+   A story line that names a keyword shows the picture (via LV 'img' in long and short videos); a story character whose
+   name/role matches a character upload is drawn with that image. Hub UI: index.html?hub=1 (home page ⚙). */
+(function () {
+  'use strict';
+  const BNUM = '০১২৩৪৫৬৭৮৯', toEn = s => String(s).replace(/[০-৯]/g, d => BNUM.indexOf(d));
+  const SYN = [
+    ['library', 'লাইব্রেরি', 'পাঠাগার'], ['book', 'বই'], ['diary', 'ডায়েরি', 'ডায়েরি'], ['notebook', 'খাতা'], ['letter', 'চিঠি'], ['envelope', 'খাম'],
+    ['school', 'স্কুল', 'বিদ্যালয়'], ['college', 'কলেজ'], ['university', 'বিশ্ববিদ্যালয়', 'ভার্সিটি'], ['mosque', 'masjid', 'মসজিদ'], ['madrasa', 'মাদ্রাসা'],
+    ['hospital', 'হাসপাতাল'], ['clinic', 'ক্লিনিক'], ['doctor', 'ডাক্তার'], ['medicine', 'ওষুধ', 'ঔষধ'], ['fever', 'জ্বর'], ['money', 'টাকা'],
+    ['phone', 'mobile', 'ফোন', 'মোবাইল'], ['house', 'home', 'বাড়ি', 'বাসা'], ['room', 'ঘর'], ['office', 'অফিস'], ['bank', 'ব্যাংক'], ['market', 'বাজার'], ['shop', 'দোকান'],
+    ['tea', 'চা'], ['rice', 'ভাত'], ['car', 'গাড়ি'], ['bus', 'বাস'], ['rickshaw', 'রিকশা'], ['train', 'ট্রেন'], ['boat', 'নৌকা'], ['river', 'নদী'],
+    ['village', 'গ্রাম'], ['city', 'শহর'], ['road', 'রাস্তা'], ['tree', 'গাছ'], ['rain', 'বৃষ্টি'], ['sun', 'সূর্য'], ['moon', 'চাঁদ'], ['sky', 'আকাশ'],
+    ['quran', 'কুরআন', 'কোরআন'], ['tasbih', 'তাসবিহ'], ['prayer mat', 'jaynamaz', 'জায়নামাজ', 'জায়নামাজ'], ['kaaba', 'কাবা'], ['dua', 'দোয়া', 'দোয়া'],
+    ['key', 'চাবি'], ['lock', 'তালা'], ['clock', 'watch', 'ঘড়ি'], ['lantern', 'lamp', 'হারিকেন', 'বাতি'], ['candle', 'মোমবাতি'], ['umbrella', 'ছাতা'], ['bag', 'ব্যাগ'],
+    ['ring', 'আংটি'], ['gift', 'উপহার'], ['flower', 'ফুল'], ['cow', 'গরু'], ['goat', 'ছাগল'], ['field', 'ক্ষেত', 'মাঠ'], ['laptop', 'ল্যাপটপ'], ['computer', 'কম্পিউটার'],
+    ['court', 'আদালত'], ['police', 'পুলিশ'], ['jail', 'prison', 'জেল', 'কারাগার'], ['exam', 'পরীক্ষা'], ['certificate', 'সার্টিফিকেট', 'সনদ'], ['wedding', 'বিয়ে', 'বিয়ে'],
+    ['baby', 'শিশু', 'বাচ্চা'], ['mother', 'মা'], ['father', 'বাবা'], ['teacher', 'শিক্ষক', 'স্যার'], ['student', 'ছাত্র'], ['farmer', 'কৃষক'], ['imam', 'ইমাম'],
+    ['hujur', 'হুজুর'], ['boss', 'বস'], ['friend', 'বন্ধু'], ['grandmother', 'দাদি', 'নানি'], ['grandfather', 'দাদা', 'নানা'], ['brother', 'ভাই'], ['sister', 'বোন'],
+    ['wife', 'স্ত্রী', 'বউ'], ['husband', 'স্বামী'], ['son', 'ছেলে'], ['daughter', 'মেয়ে', 'মেয়ে'], ['newspaper', 'পত্রিকা', 'খবরের কাগজ'], ['tiffin', 'টিফিন']];
+  const SEC_RE = [['isl', /islam|ইসলাম/i], ['life', /জীবন ?পাঠ|জীবনপাঠ|\blife\b|jibon/i], ['exp', /explain|এক্সপ্লেন/i], ['story', /সাধারণ|general|\bstory\b|গল্প/i], ['common', /\bcommon\b|কমন/i]];
+  const CHAR_RE = /চরিত্র|character|\bchar\b|person|মানুষ|লোক/i;
+  function words(name) {
+    let s = toEn(String(name || '')).replace(/\.[a-z0-9]{2,4}$/i, '').replace(/[_\-.(),[\]]+/g, ' ');
+    let n = 0; const m = s.match(/(\d+)\s*$/) || s.match(/\s(\d+)\s/); if (m) { n = +m[1]; s = s.replace(m[0], ' '); }
+    SEC_RE.forEach(([, re]) => { s = s.replace(new RegExp('\\S*(?:' + re.source + ')\\S*', 'gi'), ' '); }); s = s.replace(new RegExp('\\S*(?:' + CHAR_RE.source + ')\\S*', 'gi'), ' ');
+    s = s.replace(/\b(png|jpe?g|webp|image|img|pic|picture|photo|icon|copy|final)\b|ছবি/gi, ' ').replace(/\s+/g, ' ').trim();
+    return { base: s.toLowerCase(), n };
+  }
+  function keysFor(base) {
+    const out = new Set(); if (!base) return []; out.add(base);
+    base.split(' ').filter(w => w.length > 1).forEach(w => out.add(w));
+    SYN.forEach(row => { if (row.some(x => out.has(x.toLowerCase()) || base === x.toLowerCase())) row.forEach(x => out.add(x.toLowerCase())); });
+    try { Object.keys(ROLES).forEach(k => { const r = ROLES[k]; if (out.has(k) || (r.bn || '').split('/').some(b => out.has(b))) { out.add(k); (r.bn || '').split('/').forEach(b => out.add(b)); } }); } catch (e) { }
+    return [...out].filter(x => x.length > 1 || /[ঀ-৿]/.test(x));
+  }
+  function detect(name, forceKind) {
+    const raw = String(name || ''); let sec = 'common'; for (const [k, re] of SEC_RE) if (re.test(raw)) { sec = k; break; }
+    const w = words(raw); let kind = forceKind || (CHAR_RE.test(raw) ? 'char' : 'pic');
+    if (!forceKind && kind === 'pic') { try { if (Object.keys(ROLES).some(k => w.base === k || (ROLES[k].bn || '').split('/').includes(w.base))) kind = 'char'; } catch (e) { } }
+    return { sec, kind, base: w.base, n: w.n, keys: keysFor(w.base) };
+  }
+  /* ---------- storage ---------- */
+  let db = null, LIST = [], IMG = {}; const ready = [];
+  function open() { return new Promise((res, rej) => { if (db) return res(db); const r = indexedDB.open('tf_assets', 1); r.onupgradeneeded = () => r.result.createObjectStore('a', { keyPath: 'id' }); r.onsuccess = () => { db = r.result; res(db); }; r.onerror = () => rej(r.error); }); }
+  const tx = (mode, fn) => open().then(d => new Promise((res, rej) => { const t = d.transaction('a', mode), st = t.objectStore('a'); const out = fn(st); t.oncomplete = () => res(out && out.result !== undefined ? out.result : out); t.onerror = () => rej(t.error); }));
+  function mkImg(a) { if (IMG[a.id]) return IMG[a.id]; const im = new Image(); im.src = URL.createObjectURL(a.blob); IMG[a.id] = im; return im; }
+  async function load() { try { const all = await tx('readonly', st => st.getAll()); LIST = (all || []).sort((x, y) => (x.at || 0) - (y.at || 0)); LIST.forEach(mkImg); } catch (e) { console.warn('assets', e); LIST = []; } ready.forEach(f => f()); return LIST; }
+  function shrink(file) { return new Promise(res => { const im = new Image(), url = URL.createObjectURL(file); im.onload = () => { const max = 1600, k = Math.min(1, max / Math.max(im.width, im.height)); if (k >= 1 && file.size < 2.5e6) { URL.revokeObjectURL(url); return res({ blob: file, w: im.width, h: im.height }); }
+    const cv = document.createElement('canvas'); cv.width = Math.round(im.width * k); cv.height = Math.round(im.height * k); cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height); URL.revokeObjectURL(url); const png = /png|webp|gif/.test(file.type);
+    cv.toBlob(b => res({ blob: b || file, w: cv.width, h: cv.height }), png ? 'image/png' : 'image/jpeg', .9); }; im.onerror = () => { URL.revokeObjectURL(url); res(null); }; im.src = url; }); }
+  async function add(files, forceKind) {
+    const added = [];
+    for (const f of files) { if (!/^image\/(png|jpe?g|webp|gif)$/.test(f.type) && !/\.(png|jpe?g|webp)$/i.test(f.name)) continue; const r = await shrink(f); if (!r) continue;
+      const d = detect(f.name, forceKind), a = Object.assign({ id: 'as_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7), name: f.name.replace(/\.[a-z0-9]+$/i, ''), type: r.blob.type || f.type, blob: r.blob, w: r.w, h: r.h, at: Date.now() }, d);
+      await tx('readwrite', st => st.put(a)); LIST.push(a); mkImg(a); added.push(a); }
+    changed(); return added;
+  }
+  async function update(id, patch) { const a = LIST.find(x => x.id === id); if (!a) return; Object.assign(a, patch); if (patch.name != null) { const d = detect(patch.name, a.kind); a.base = d.base; a.n = d.n; a.keys = d.keys; if (!patch.sec && a.secAuto !== false) a.sec = d.sec; } if (patch.sec) a.secAuto = false; await tx('readwrite', st => st.put(a)); changed(); return a; }
+  async function remove(id) { await tx('readwrite', st => st.delete(id)); LIST = LIST.filter(x => x.id !== id); if (IMG[id]) { URL.revokeObjectURL(IMG[id].src); delete IMG[id]; } changed(); }
+  let chT = 0; function changed() { clearTimeout(chT); chT = setTimeout(() => { try { if (typeof app === 'object' && app.story && typeof rebuild === 'function') rebuild(true); } catch (e) { } }, 300); }
+  /* ---------- matching ---------- */
+  const RX = new Map();
+  function rx(k) { if (RX.has(k)) return RX.get(k); const e = k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); const r = /[ঀ-৿]/.test(k) ? new RegExp('(?<![\\u0980-\\u09FF])' + e) : new RegExp('\\b' + e + '\\b', 'i'); RX.set(k, r); return r; }
+  const secOk = (a, sec) => a.sec === 'common' || a.sec === sec || (sec === 'story' && a.sec === 'life') || (sec === 'life' && a.sec === 'story');
+  function hashS(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+  function match(text, sec, kind) {
+    if (!LIST.length || !text) return null; let best = null, bs = 0;
+    LIST.forEach(a => { if (a.kind !== (kind || 'pic') || !secOk(a, sec || 'story')) return; (a.keys || []).forEach(k => { if (k.length < 2 && !/[ঀ-৿]{1}/.test(k)) return; if (!rx(k).test(text)) return; const s = k.length * 2 + (a.sec !== 'common' ? 100 : 0) + (k === a.base ? 5 : 0); if (s > bs) { bs = s; best = a; } }); });
+    if (!best) return null; const vars = LIST.filter(a => a.kind === best.kind && a.base === best.base && secOk(a, sec || 'story') && (a.sec === best.sec || best.sec === 'common')).sort((x, y) => (x.n || 0) - (y.n || 0));
+    return vars.length > 1 ? vars[hashS(text) % vars.length] : best;
+  }
+  window.TF_ASSETS = { load, add, update, remove, detect, match, list: () => LIST, img: id => { const a = LIST.find(x => x.id === id); return a ? mkImg(a) : null; }, alpha: id => { const a = LIST.find(x => x.id === id); return !!a && /png|webp|gif/.test(a.type || ''); }, onReady: f => ready.push(f), SYN };
+  const SEC_NOW = (typeof LV !== 'undefined' && LV.SEC) || 'story';
+  load().then(l => { if (l.length) changed(); });
+
+  /* ---------- uploaded characters: a story character whose name/role matches is drawn with the image ---------- */
+  if (typeof StoryRenderer !== 'undefined') {
+    const _ld = StoryRenderer.prototype.load;
+    StoryRenderer.prototype.load = function (story) { const r = _ld.apply(this, arguments); try { Object.values(this.chars || {}).forEach(cr => { const ch = cr.ch || {}, role = ROLES[ch.role] || {}; const a = match([ch.name, ch.role, role.bn].filter(Boolean).join(' '), SEC_NOW, 'char'); if (a) cr.L = Object.assign({}, cr.L, { asset: a.id }); }); } catch (e) { } return r; };
+  }
+  if (typeof drawPerson === 'function') {
+    const _dp = drawPerson;
+    drawPerson = function (c, o) {
+      const id = o && o.L && o.L.asset, im = id && TF_ASSETS.img(id);
+      if (!im || !im.width) return _dp(c, o);
+      const s = (o.s || 1) * (o.L.kid ? .74 : o.L.teen ? .92 : 1), h = 790 * s, w = h * im.width / im.height, bob = Math.sin((o.t || 0) * 2.2 + (o.seed || 0)) * 4 * s * (o.talk ? 1.6 : 1);
+      c.save(); if (o.alpha != null) c.globalAlpha *= o.alpha; c.translate(o.x, o.y + 270 * s + bob); if (o.flip) c.scale(-1, 1);
+      c.fillStyle = 'rgba(0,0,0,.16)'; c.beginPath(); c.ellipse(0, -4 * s, w * .32, 18 * s, 0, 0, 7); c.fill();
+      c.drawImage(im, -w / 2, -h, w, h); c.restore();
+    };
+  }
+
+  /* ---------- deep link: index.html?settings=1 opens this section's settings ---------- */
+  if (/[?&]settings=1\b/.test(location.search)) window.addEventListener('load', () => setTimeout(() => { try { document.querySelectorAll('dialog[open]').forEach(d => d.close()); openSettings(); } catch (e) { } }, 900));
+
+  /* ---------- the hub page ---------- */
+  if (!/[?&]hub=1\b/.test(location.search)) return;
+  const KIND_BN = { calendar: 'ক্যালেন্ডার', skyline: 'শহরের আকাশরেখা', building: 'ভবন', chart_line: 'রেখা চার্ট', chart_bars: 'বার চার্ট', counter: 'সংখ্যা গণনা', doc: 'নথি', email: 'ইমেইল', money: 'টাকা', people: 'মানুষজন', route: 'পথ/দেশ', magnifier: 'আতশ কাচ', lock: 'তালা', phone: 'ফোন', balance: 'দাঁড়িপাল্লা', timeline: 'টাইমলাইন', question: 'প্রশ্ন', network: 'জাল/চক্র', files: 'ফাইলের স্তূপ', clock: 'ঘড়ি', alert: 'সতর্কতা', frame: 'দেয়ালের ছবি', plate: 'ভাতের থালা', tea: 'চা', house: 'বাড়ি', vehicle: 'গাড়ি/রিকশা', rain: 'বৃষ্টি', sun: 'সূর্য/চাঁদ', heart: 'হৃদয়', book: 'বই', exam: 'পরীক্ষা', health: 'হাসপাতাল মনিটর', gift: 'উপহার', trophy: 'ট্রফি', idea: 'আইডিয়া', cart: 'বাজার', wallet: 'মানিব্যাগ', laptop: 'ল্যাপটপ', field: 'ক্ষেত', plane: 'বিমান', piggy: 'মাটির ব্যাংক', handshake: 'হাত মেলানো', door: 'দরজা', mosque: 'মসজিদ', fire: 'আগুন', jail: 'জেল', dice: 'জুয়া', tv: 'টিভি/খবর', target: 'লক্ষ্য', rocket: 'রকেট', stairs: 'সিঁড়ি', hourglass: 'বালিঘড়ি', globe: 'পৃথিবী', family: 'পরিবার', gold: 'সোনা', fever: 'জ্বর', medicine: 'ওষুধ', doctor: 'ডাক্তার', saline: 'স্যালাইন', injection: 'ইনজেকশন', ambulance: 'অ্যাম্বুলেন্স', diary: 'ডায়েরি', notebook: 'খাতা', ledger: 'হিসাবের খাতা', envelope: 'চিঠি/খাম', lantern: 'হারিকেন', key: 'চাবি', baby: 'নবজাতক', tiffin: 'টিফিন বাটি', schoolbag: 'স্কুলব্যাগ', umbrella: 'ছাতা', quran: 'কুরআন', tasbih: 'তাসবিহ', prayer_mat: 'জায়নামাজ', dua: 'দোয়া', iftar: 'ইফতার', crescent: 'চাঁদ-তারা', kaaba: 'কাবা', zakat: 'যাকাত', ring: 'আংটি', cricket: 'ক্রিকেট', kite: 'ঘুড়ি' };
+  const SEC_BN = { common: 'কমন', story: 'সাধারণ', life: 'জীবন পাঠ', isl: 'ইসলামিক', exp: 'এক্সপ্লেনার' };
+  const IC = { back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>' };
+  const E = (tag, attrs, ...kids) => { const n = document.createElement(tag); Object.entries(attrs || {}).forEach(([k, v]) => { if (v == null || v === false) return; if (k === 'text') n.textContent = v; else if (k === 'html') n.innerHTML = v; else if (k.startsWith('on')) n.addEventListener(k.slice(2), v); else n.setAttribute(k, v === true ? '' : v); }); kids.flat().forEach(k => k != null && n.append(k)); return n; };
+  const st = { tab: 'set', fc: 'all', fp: 'all', q: '' };
+  let hub;
+  function build() {
+    document.body.classList.add('hub-on');
+    hub = E('div', { id: 'tfHub', role: 'main' });
+    const top = E('header', { class: 'hb-top' }, E('a', { class: 'hb-ic', href: 'home.html', 'aria-label': 'হোম', html: IC.back }), E('h1', { text: 'সেটিংস ও উপাদান লাইব্রেরি' }));
+    const tabs = E('div', { class: 'hb-tabs', role: 'tablist' }); [['set', 'সেটিংস'], ['char', 'চরিত্র'], ['pic', 'ছবি ও প্রতীক']].forEach(([k, t]) => tabs.append(E('button', { type: 'button', 'data-k': k, role: 'tab', onclick: () => { st.tab = k; paint(); } }, t)));
+    hub.append(top, E('div', { class: 'hb-in' }, tabs, E('div', { id: 'hbBody' })));
+    document.body.append(hub);
+    // drop anywhere on the page
+    hub.addEventListener('dragover', e => { if (st.tab !== 'set') { e.preventDefault(); const z = hub.querySelector('.hb-drop'); if (z) z.classList.add('over'); } });
+    hub.addEventListener('dragleave', e => { if (e.target === hub) { const z = hub.querySelector('.hb-drop'); if (z) z.classList.remove('over'); } });
+    hub.addEventListener('drop', e => { if (st.tab === 'set') return; e.preventDefault(); const z = hub.querySelector('.hb-drop'); if (z) z.classList.remove('over'); upload(e.dataTransfer.files); });
+    paint();
+  }
+  async function upload(files) { if (!files || !files.length) return; const got = await TF_ASSETS.add([...files], st.tab === 'char' ? 'char' : 'pic'); try { toast(got.length ? `${bnN(got.length)}টা যোগ হল — নাম দেখে জায়গা বসানো হয়েছে` : 'PNG / JPG দিন', got.length ? 'ok' : 'err'); } catch (e) { } paint(); }
+  const bnN = n => String(n).replace(/\d/g, d => BNUM[d]);
+  function chips(key, list) { const box = E('div', { class: 'hb-chips' }); list.forEach(([k, t]) => box.append(E('button', { type: 'button', class: st[key] === k ? 'on' : null, onclick: () => { st[key] = k; paint(); } }, t))); box.append(E('input', { type: 'search', placeholder: 'খুঁজুন… (বাংলা বা English)', value: st.q, oninput: e => { st.q = e.target.value; clearTimeout(st.qt); st.qt = setTimeout(paint, 220); } })); return box; }
+  function dropZone(kind) {
+    const inp = E('input', { type: 'file', accept: 'image/png,image/jpeg,image/webp', multiple: true, hidden: true, onchange: e => upload(e.target.files) });
+    return E('label', { class: 'hb-drop' }, inp, E('span', { class: 'hb-plus', text: '+' }), E('span', {}, E('b', { text: kind === 'char' ? 'নিজের চরিত্র যোগ করুন (PNG / JPG, একসাথে অনেকগুলো)' : 'নিজের ছবি যোগ করুন (PNG / JPG, একসাথে অনেকগুলো)' }),
+      E('small', { text: kind === 'char' ? 'টেনে এনে ছাড়ুন বা চাপ দিয়ে বাছুন। ফাইলের নামই চরিত্র: "মা.png", "ইসলামিক হুজুর.png", "boss 2.jpg" — গল্পে এই নাম/ভূমিকার চরিত্র এলে এই ছবিতেই আঁকা হবে।' : 'টেনে এনে ছাড়ুন বা চাপ দিয়ে বাছুন। ফাইলের নামই চাবি: "লাইব্রেরি ২.png", "islamic library.jpg", "জীবন পাঠ বাজার.png" — গল্পে শব্দটা (বাংলা বা English) এলে ছবিটা নিজে বসে যায়; একই নামে ১, ২, ৩… দিলে পালা করে আসে।' })));
+  }
+  function secSel(a) { const s = E('select', { 'aria-label': 'সেকশন', onchange: e => TF_ASSETS.update(a.id, { sec: e.target.value }).then(paint) }); Object.entries(SEC_BN).forEach(([k, t]) => s.append(E('option', { value: k, selected: a.sec === k ? true : null }, t))); return s; }
+  function mineCard(a, wide) {
+    const im = E('img', { alt: a.name, src: TF_ASSETS.img(a.id).src, loading: 'lazy' });
+    const nm = E('input', { value: a.name, 'aria-label': 'নাম', onchange: e => TF_ASSETS.update(a.id, { name: e.target.value.trim() || a.name }).then(paint) });
+    return E('div', { class: 'hb-card' }, im, E('span', { class: 'hb-badge ' + a.sec, text: SEC_BN[a.sec] || 'কমন' }), E('span', { class: 'hb-badge mine', text: 'আমার' + (a.n ? ' · ' + bnN(a.n) : '') }),
+      E('div', { class: 'hb-m' }, nm, secSel(a), E('span', { text: 'চেনে: ' + (a.keys || []).slice(0, 8).join(', ') }), E('button', { type: 'button', class: 'hb-del', onclick: () => { if (confirm('"' + a.name + '" মুছবেন?')) TF_ASSETS.remove(a.id).then(paint); } }, 'মুছুন')));
+  }
+  const qOk = (...xs) => !st.q || xs.join(' ').toLowerCase().includes(st.q.toLowerCase());
+  function paintSet(body) {
+    const row = (t, p, ...btns) => E('div', { class: 'hb-row' }, E('b', { text: t }), E('p', { text: p }), E('div', { class: 'hb-btns' }, ...btns));
+    const here = tab => E('button', { type: 'button', class: tab === 'ch' ? 'pri' : null, onclick: () => { try { openSettings(tab); } catch (e) { } } }, { ch: 'চ্যানেল ও লোগো', key: 'API key', vid: 'ভিডিও ও লেখা', data: 'ডেটা ও ব্যাকআপ' }[tab]);
+    const go = (href, t, pri) => E('a', { href, class: pri ? 'pri' : null }, t);
+    body.append(E('div', { class: 'hb-set' },
+      row('জীবন পাঠ (গল্প)', 'চ্যানেলের নাম, লোগো, AI key, ক্যাপশন, ফন্ট, ভিডিওর ধরন, ডেটা।', here('ch'), here('key'), here('vid'), here('data')),
+      row('ইসলামিক গল্পের ভিডিও', 'ইসলামিক সেকশনের নিজের লোগো, চ্যানেল ও ভিডিওর সেটিংস।', go('index.html?part=islamic&settings=1', 'সেটিংস খুলুন', 1)),
+      row('এক্সপ্লেনারি ভিডিও', 'এক্সপ্লেনার সেকশনের লোগো, চ্যানেল ও ভিডিওর সেটিংস।', go('index.html?part=explainer&settings=1', 'সেটিংস খুলুন', 1)),
+      row('পোস্ট মেকার', 'ছবি-কার্ড ও রিলের key, মেমরি, রিসেট।', go('islamic/index.html?settings=1', 'সেটিংস খুলুন', 1)),
+      row('উপাদান লাইব্রেরি', 'সব চরিত্র আর ছবি/প্রতীক দেখুন, নিজের PNG/JPG যোগ করুন।', E('button', { type: 'button', class: 'pri', onclick: () => { st.tab = 'char'; paint(); } }, 'চরিত্র'), E('button', { type: 'button', onclick: () => { st.tab = 'pic'; paint(); } }, 'ছবি ও প্রতীক'))));
+  }
+  function paintChar(body) {
+    body.append(chips('fc', [['all', 'সব'], ['common', 'কমন'], ['isl', 'ইসলামিক'], ['mine', 'আমার']]), dropZone('char'));
+    const mine = TF_ASSETS.list().filter(a => a.kind === 'char' && (st.fc === 'all' || st.fc === 'mine' || a.sec === st.fc) && qOk(a.name, (a.keys || []).join(' ')));
+    if (mine.length) { body.append(E('div', { class: 'hb-h' }, 'আমার চরিত্র', E('span', { class: 'hb-n', text: bnN(mine.length) + 'টা' }))); const g = E('div', { class: 'hb-grid' }); mine.forEach(a => g.append(mineCard(a))); body.append(g); }
+    if (st.fc === 'mine') { if (!mine.length) body.append(E('p', { class: 'hb-empty', text: 'এখনো নিজের চরিত্র নেই — ওপরে PNG/JPG দিন।' })); return; }
+    let isl = []; try { isl = ISLAMIC_ROLES; } catch (e) { }
+    const keys = Object.keys(ROLES).filter(k => { const s = isl.includes(k) ? 'isl' : 'common'; return (st.fc === 'all' || st.fc === s) && qOk(k, ROLES[k].bn); });
+    body.append(E('div', { class: 'hb-h' }, 'বিল্ট-ইন চরিত্র', E('span', { class: 'hb-n', text: bnN(keys.length) + 'টা' })));
+    const g = E('div', { class: 'hb-grid' }); const jobs = [];
+    keys.forEach(k => { const r = ROLES[k], cv = E('canvas', { width: 200, height: 240 }), s = isl.includes(k) ? 'isl' : 'common'; g.append(E('div', { class: 'hb-card' }, cv, E('span', { class: 'hb-badge ' + s, text: SEC_BN[s] }), E('div', { class: 'hb-m' }, E('b', { text: r.bn }), E('span', { text: k + ' · ' + (r.g === 'f' ? 'নারী' : 'পুরুষ') })))); jobs.push(() => drawRole(cv, k)); });
+    body.append(g); run(jobs);
+  }
+  function drawRole(cv, k) { const c = cv.getContext('2d'); c.fillStyle = '#F3F1EA'; c.fillRect(0, 0, cv.width, cv.height); const r = ROLES[k]; try { const L = lookFor({ id: 'g_' + k, name: r.bn, role: k, gender: r.g === 'f' ? 'female' : 'male', age: r.a }); c.save(); c.translate(cv.width / 2, cv.height * .66); c.scale(.25, .25); drawPerson(c, { L, x: 0, y: 0, s: 1, feel: 'happy', act: 'idle', t: 0, seed: 0 }); c.restore(); } catch (e) { } }
+  function paintPic(body) {
+    body.append(chips('fp', [['all', 'সব'], ['common', 'কমন'], ['story', 'জীবন পাঠ / সাধারণ'], ['isl', 'ইসলামিক'], ['exp', 'এক্সপ্লেনার'], ['mine', 'আমার']]), dropZone('pic'));
+    const want = s => st.fp === 'all' || st.fp === 'mine' || s === st.fp || (st.fp === 'story' && s === 'life');
+    const mine = TF_ASSETS.list().filter(a => a.kind === 'pic' && want(a.sec) && qOk(a.name, (a.keys || []).join(' ')));
+    if (mine.length) { body.append(E('div', { class: 'hb-h' }, 'আমার ছবি', E('span', { class: 'hb-n', text: bnN(mine.length) + 'টা' }))); const g = E('div', { class: 'hb-grid wide' }); mine.forEach(a => g.append(mineCard(a, 1))); body.append(g); }
+    if (st.fp === 'mine') { if (!mine.length) body.append(E('p', { class: 'hb-empty', text: 'এখনো নিজের ছবি নেই — ওপরে PNG/JPG দিন।' })); return; }
+    if (typeof LV === 'undefined') return;
+    const kinds = LV.kinds.filter(k => k !== 'img' && (st.fp === 'all' || LV.SECT_OF(k) === st.fp || (st.fp === 'exp' && LV.SECT_OF(k) === 'common')) && qOk(k, KIND_BN[k] || ''));
+    body.append(E('div', { class: 'hb-h' }, 'বিল্ট-ইন ছবি ও প্রতীক', E('span', { class: 'hb-n', text: bnN(kinds.length) + 'টা' })));
+    const g = E('div', { class: 'hb-grid wide' }), jobs = [];
+    kinds.forEach(k => { const cv = E('canvas', { width: 480, height: 270 }), s = LV.SECT_OF(k); g.append(E('div', { class: 'hb-card' }, cv, E('span', { class: 'hb-badge ' + s, text: SEC_BN[s] }), E('div', { class: 'hb-m' }, E('b', { text: KIND_BN[k] || k }), E('span', { text: '[scene: ' + k + ' / লেখা]' })))); jobs.push(() => { try { const c = cv.getContext('2d'), th = LV.THEME_OF(k); LV.draw(c, { kind: k, tx: ['', ''], th: ['night', 'steel', 'plum'].includes(th) ? th : th, seed: 7 }, { FW: 480, FH: 270, u: .25, t: 3, lt: 2.6, dur: 4, land: true }); } catch (e) { } }); });
+    body.append(g); run(jobs);
+  }
+  let runId = 0; function run(jobs) { const id = ++runId; const step = () => { if (id !== runId) return; const t0 = performance.now(); while (jobs.length && performance.now() - t0 < 14) jobs.shift()(); if (jobs.length) requestAnimationFrame(step); }; requestAnimationFrame(step); }
+  function paint() {
+    hub.querySelectorAll('.hb-tabs button').forEach(b => b.classList.toggle('on', b.dataset.k === st.tab));
+    const body = hub.querySelector('#hbBody'); body.innerHTML = '';
+    if (st.tab === 'set') paintSet(body); else if (st.tab === 'char') paintChar(body); else paintPic(body);
+  }
+  window.tfNavBack = () => { location.href = 'home.html'; };
+  const kill = () => document.querySelectorAll('dialog[open]').forEach(d => { if (!d.contains(document.activeElement) || d.id === 'dlgHelp') { if (d.id !== 'dlgSettings') d.close(); } });
+  const startHub = () => { build(); TF_ASSETS.onReady(paint); [300, 900, 1800, 3000].forEach(t => setTimeout(kill, t)); };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startHub); else startHub();
 })();
 </script>
 <script src="life-series.js"></script>
