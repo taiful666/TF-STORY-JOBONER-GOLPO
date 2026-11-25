@@ -10871,7 +10871,8 @@ body.hub-on{overflow:hidden}
    a daily-series follow line, one post a day at 10:30 AM. Wraps TF_PROMPT_RULES (AI prompts) and publishPack (captions). */
 (function () {
   'use strict';
-  if (typeof TF_ISL === 'undefined' || TF_ISL || TF_EXP) return;
+  if (typeof TF_ISL === 'undefined' || TF_EXP) return;
+  const LIFE = !TF_ISL; // v21: the thumbnail design below is used by জীবন পাঠ AND the Islamic story part
   const POST_TIME = 'সকাল ১০:৩০';
   window.TF_LIFE_PLAN = {
     time: POST_TIME, perDay: 1, shortMin: [2, 3],
@@ -10891,7 +10892,12 @@ body.hub-on{overflow:hidden}
   };
   if (typeof window.TF_PROMPT_RULES === 'function') {
     const _r = window.TF_PROMPT_RULES;
-    window.TF_PROMPT_RULES = function () { return _r.apply(this, arguments) + TF_LIFE_PLAN.rules(); };
+    const ISL_THUMB = `
+
+## থাম্বনেল (চূড়ান্ত নিয়ম)
+- "থাম্বনেল: <৩-৭ শব্দের প্রসঙ্গ, কী ঘটেছে/কী প্রশ্ন> | <সংলাপের প্রথম অংশ> | <সংলাপের শেষ অংশ, ১-২টা শব্দ {হলুদ}> | <আইকন> | <সংখ্যা> | <যে চরিত্র সংলাপটা বলে তার id>"। সংলাপটা গল্পেরই একটা "> " লাইন থেকে, মোট ৩-৭ শব্দ: টুইস্টের আগের সবচেয়ে কষ্টের বা প্রশ্নের কথা। বর্ণনার টুকরো নয়, সত্যিকারের কারো মুখের কথা। নবী/সাহাবিরা কখনো বক্তা নয় (তাঁদের দেখানো হয় না)।
+- ধারাবাহিকে প্রতিটা পর্বের থাম্বনেলে সেই পর্বেরই সংলাপ; ডিজাইন সব পর্বে একই, কোণে "সিরিজের নাম" আর "পর্ব k / N" অ্যাপ নিজে বসায়।`;
+    window.TF_PROMPT_RULES = function () { return _r.apply(this, arguments) + (LIFE ? TF_LIFE_PLAN.rules() : ISL_THUMB); };
   }
 
   // captions: one-number comment ask, a named share line, the daily follow line; placeholder questions replaced
@@ -10903,7 +10909,7 @@ body.hub-on{overflow:hidden}
     return { q, ops };
   };
   const bnN = n => (typeof bn === 'function' ? bn(n) : n);
-  if (typeof publishPack === 'function') {
+  if (LIFE && typeof publishPack === 'function') {
     const _pp = publishPack;
     publishPack = function (st) {
       const pk = _pp.apply(this, arguments);
@@ -10929,12 +10935,51 @@ body.hub-on{overflow:hidden}
   // the words = that character's line in quotes, big at the bottom, one or two words yellow; nothing else
   // except a small "<series> · পর্ব k" badge top-left. No book name, no sub line, no button. Every series part
   // gets its own line and picture (same design), so v15sercov's shared words/picture are not used here.
+  // v21: which line goes on the thumbnail. 1) the "থাম্বনেল:" line when it names a speaker (6th field) — real dialogue;
+  // 2) otherwise the strongest spoken line of the story (emotional, short, early: the hook), picked automatically —
+  // so old/AI stories whose thumbnail fields are narration fragments still get a real character's words;
+  // 3) no dialogue at all (e.g. a Quran-story) → the old l1/l2 words, drawn without quote marks.
+  const STRONG = { crying: 4, angry: 4, sad: 3, worried: 3, surprised: 2, scared: 3, tired: 1 };
+  const words = t => String(t || '').replace(/[{}]/g, '').trim().split(/\s+/).filter(Boolean);
+  const shorten = (txt, hl) => {
+    const t = String(txt || '').replace(/[{}]/g, '').trim().replace(/[,،;:]+$/, ''), n = words(t).length; if (n <= 8) return t;
+    const parts = t.split(/(?<=[,،;!?।])\s+/).map(x => x.trim()).filter(Boolean), hk = String(hl || '').split('|')[0].trim();
+    const ok = parts.filter(x => { const k = words(x).length; return k >= 2 && k <= 8; });
+    const best = (hk && ok.find(x => x.includes(hk))) || ok.find(x => /[?!]$/.test(x)) || ok[0];
+    return best ? best.replace(/[,،;:]+$/, '') : words(t).slice(0, 7).join(' ') + '…';
+  };
+  const mark = (t, hl) => {
+    if (/\{/.test(t)) return t;
+    const hs = String(hl || '').split('|').map(x => x.trim()).filter(Boolean).filter(h => t.includes(h));
+    if (hs.length) return t.replace(hs[0], '{' + hs[0] + '}');
+    const w = t.split(/\s+/); if (w.length < 3) return t; const k = Math.min(2, w.length - 2); return w.slice(0, -k).join(' ') + ' {' + w.slice(-k).join(' ') + '}';
+  };
+  function pickLine(st) {
+    const cv = st.cover || {}, scs = st.scenes || [];
+    if (cv.who && cv.l1) { let si = -1, li = -1; scs.some((sc, i) => (sc.lines || []).some((l, j) => { if (l.speak && l.who === cv.who) { si = i; li = j; return true; } return false; }));
+      return { text: (String(cv.l1).trim() + ' ' + String(cv.l2 || '').trim()).trim(), who: cv.who, si, li, dlg: true }; }
+    const all = []; scs.forEach((sc, i) => { if (sc.type && sc.type !== 'story') return; (sc.lines || []).forEach((l, j) => { if (l.speak && l.who && (l.cap || l.say)) all.push({ l, i, j }); }); });
+    if (all.length) {
+      let best = null, bs = -1e9;
+      all.forEach((o, n) => { const k = words(o.l.cap || o.l.say).length, t = shorten(o.l.cap || o.l.say, o.l.hl), kk = words(t).length;
+        const sc = (STRONG[o.l.feel] || 0) + (kk >= 3 && kk <= 8 ? 2 : 0) + (n < all.length * .4 ? 2 : 0) + (/[?!]/.test(t) ? 1 : 0) - (k > 14 ? 1 : 0) - (kk < 3 ? 3 : 0);
+        if (sc > bs) { bs = sc; best = o; } });
+      const t = shorten(best.l.cap || best.l.say, best.l.hl);
+      return { text: mark(t, best.l.hl), who: best.l.who, si: best.i, li: best.j, dlg: true };
+    }
+    return { text: (String(cv.l1 || '').trim() + ' ' + String(cv.l2 || '').trim()).trim() || String(st.title || '').split('|')[0].trim(), who: '', si: -1, li: -1, dlg: false };
+  }
   const lineOf = st => {
-    const cv = st.cover || {}; let a = String(cv.l1 || '').trim(), b = String(cv.l2 || '').trim();
-    if (!a) { for (const sc of (st.scenes || [])) { const ln = (sc.lines || []).find(l => l.speak && (l.cap || l.text)); if (ln) { const w = String(ln.cap || ln.text).replace(/[{}]/g, '').split(/\s+/).filter(Boolean).slice(0, 7); a = w.join(' '); break; } } }
-    let q = (a + (b ? ' ' + b : '')).trim(); if (!q) return '';
+    const p = pickLine(st); let q = p.text.trim().replace(/\s+([,،।!?…])/g, '$1').replace(/\}([,،।!?.…]+)/g, '$1}'); if (!q) return ''; if (!p.dlg) return q;
     q = q[0] === '{' ? '{“' + q.slice(1) : '“' + q; q = /\}$/.test(q) ? q.slice(0, -1) + '”}' : q + '”';
     return q;
+  };
+  window.TF_THUMB_LINE = lineOf;
+  // the scene/moment for the picture: the picked line's own shot, its speaker close up
+  const qOf = (st, tl) => {
+    const q = coverQuote(st, tl), p = pickLine(st); if (p.si < 0) return q;
+    const sh = (tl.shots || []).find(x => x.si === p.si && x.li === p.li); if (!sh) return q;
+    return Object.assign({}, q, { who: p.who, si: sh.si, t: sh.start + Math.min(.6, sh.dur * .4) });
   };
   if (typeof proCopy === 'function' && typeof proSeries === 'function') {
     const _pc = proCopy;
@@ -10943,7 +10988,7 @@ body.hub-on{overflow:hidden}
       try {
         const man = (st.cover && st.cover.pro) || {}, ser = proSeries(st), m = k => String(man[k] == null ? '' : man[k]).trim();
         const ctx = String((st.cover && st.cover.ctx) || '').replace(/[{}]/g, '').replace(/[.…]{2,}.*$/, '').trim().split(/\s+/).slice(0, 7).join(' ');
-        const auto = { tag: ser ? ser.name : '', ep: ser ? (ser.last && ser.k > 1 ? 'শেষ পর্ব' : 'পর্ব ' + bnN(ser.k)) : '', h: lineOf(st) || out.auto.h, sub: ctx, cta: '' };
+        const auto = { tag: ser ? ser.name : '', ep: ser ? (ser.last && ser.k > 1 ? 'শেষ পর্ব' + (ser.of ? ' · ' + bnN(ser.k) + ' / ' + bnN(ser.of) : '') : 'পর্ব ' + bnN(ser.k) + (ser.of ? ' / ' + bnN(ser.of) : '')) : '', h: lineOf(st) || out.auto.h, sub: ctx, cta: '' };
         Object.keys(auto).forEach(k => { const v = m(k); out[k] = v === '-' ? '' : (v || auto[k]); });
         out.auto = auto;
       } catch (e) { }
@@ -10955,7 +11000,7 @@ body.hub-on{overflow:hidden}
     const _bs = proBgShort;
     proBgShort = function (r) {
       try {
-        const st = r.story, tl = r.tl, q = coverQuote(st, tl), sc = st.scenes[q.si] || {}, cast = sc.cast || [];
+        const st = r.story, tl = r.tl, q = qOf(st, tl), sc = st.scenes[q.si] || {}, cast = sc.cast || [];
         if (!cast.length) return _bs(r);
         const f = c => { const n = Math.min(3, cast.length), who = cast.includes(q.who) ? q.who : cast[0], i = Math.max(0, cast.indexOf(who)), pos = CAST_POS[n] || CAST_POS[1], P0 = pos[i] || pos[0];
           const cr = r.chars && r.chars[who], kf = cr && cr.L ? (cr.L.kid ? .74 : cr.L.teen ? .92 : 1) : 1, z = 1.45, headY = P0[1] - 300 * P0[2] * kf;
@@ -10971,7 +11016,7 @@ body.hub-on{overflow:hidden}
     proBgLong = function (r) {
       try {
         if (r.xp) return _bl(r);
-        const q = coverQuote(r.story, r.tl);
+        const q = qOf(r.story, r.tl);
         const f = c => { const off = document.createElement('canvas'); off.width = r.FW; off.height = r.FH; const oc = off.getContext('2d', { alpha: false });
           r.drawSceneL(oc, q.si, q.t); c.filter = 'saturate(1.15) contrast(1.05)'; c.drawImage(off, 0, 0, r.FW, r.FH); c.filter = 'none'; };
         f.key = proBgKey(r) + '|q' + q.si; return f;
@@ -10997,11 +11042,12 @@ body.hub-on{overflow:hidden}
       const y0 = Math.round(FH * (land ? .6 : sq ? .6 : .6) - (th - sh) / 2);
       { const a = y0 - sh - 60 * u, b = y0 + th + 60 * u, g = c.createLinearGradient(0, a, 0, b);
         g.addColorStop(0, 'rgba(8,5,3,0)'); g.addColorStop(.22, 'rgba(8,5,3,.62)'); g.addColorStop(.78, 'rgba(8,5,3,.62)'); g.addColorStop(1, 'rgba(8,5,3,0)'); c.fillStyle = g; c.fillRect(0, a, FW, b - a); }
-      if (cp.sub) { const sw = Math.min(pillW(c, cp.sub, ss), FW * .9), sy = y0 - sh; place('sub', cx - sw / 2, sy, sw, ss * 1.8, () => proPill(c, cp.sub, cx, sy + ss * .9, ss, '#C62F22', '#FFFFFF', null)); }
+      if (cp.sub) { const sw = Math.min(pillW(c, cp.sub, ss), FW * .9), sy = y0 - sh; place('sub', cx - sw / 2, sy, sw, ss * 1.8, () => proPill(c, cp.sub, cx, sy + ss * .9, ss, LIFE ? '#C62F22' : '#1F5D45', '#FFFFFF', null)); }
       if (cp.h) { const w = proRowsW(c, T.rows, T.sp, hs, 800); place('h', cx - w / 2, y0, w, th, () => proText(c, T.rows, T.sp, cx, y0, hs, 800, '#FFFFFF', '#FFD23F', .16)); }
       // series badge, top-left
-      const badge = [cp.tag, cp.ep].filter(Boolean).join(' · ');
-      if (badge) { const bs = 40 * u, w = pillW(c, badge, bs), bh = bs * 1.8, bx = 56 * u, by = 64 * u; place('ep', bx, by, w, bh, () => proPill(c, badge, bx + w / 2, by + bh / 2, bs, 'rgba(12,8,6,.72)', '#FFD23F', 'rgba(255,210,63,.55)')); }
+      { const bs = 38 * u, bh = bs * 1.8, bx = 52 * u; let by = 60 * u;
+        if (cp.tag) { const tw = Math.min(pillW(c, cp.tag, bs), FW - 220 * u); place('tag', bx, by, tw, bh, () => proPill(c, cp.tag, bx + tw / 2, by + bh / 2, bs, 'rgba(12,8,6,.74)', '#FFFFFF', 'rgba(255,255,255,.35)')); by += bh + 12 * u; }
+        if (cp.ep) { const es = 44 * u, eh = es * 1.8, ew = pillW(c, cp.ep, es); place('ep', bx, by, ew, eh, () => proPill(c, cp.ep, bx + ew / 2, by + eh / 2, es, '#FFD23F', '#2A1500', null)); } }
       if (!Sx.proLogoOff && typeof drawLogo === 'function') { const ls = 92 * u; place('logo', FW - 84 * u - ls / 2, 84 * u - ls / 2, ls, ls, () => { c.save(); c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 12 * u; drawLogo(c, FW - 84 * u, 84 * u, ls, Sx.logo || 'TF'); c.restore(); }); }
       PRO_BOXES = { FW, FH, list: boxes };
       c.restore();
@@ -11020,7 +11066,7 @@ body.hub-on{overflow:hidden}
     } catch (e) { }
     if (p.textContent !== t) p.textContent = t;
   }
-  const start = () => { tip(); setInterval(tip, 2500); };
+  const start = () => { if (!LIFE) return; tip(); setInterval(tip, 2500); };
   if (document.readyState === 'complete') setTimeout(start, 900); else window.addEventListener('load', () => setTimeout(start, 900));
 })();
 </script>
