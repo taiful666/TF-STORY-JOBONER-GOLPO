@@ -10942,7 +10942,8 @@ body.hub-on{overflow:hidden}
       const out = _pc.apply(this, arguments);
       try {
         const man = (st.cover && st.cover.pro) || {}, ser = proSeries(st), m = k => String(man[k] == null ? '' : man[k]).trim();
-        const auto = { tag: ser ? ser.name : '', ep: ser ? (ser.last && ser.k > 1 ? 'শেষ পর্ব' : 'পর্ব ' + bnN(ser.k)) : '', h: lineOf(st) || out.auto.h, sub: '', cta: '' };
+        const ctx = String((st.cover && st.cover.ctx) || '').replace(/[{}]/g, '').replace(/[.…]{2,}.*$/, '').trim().split(/\s+/).slice(0, 7).join(' ');
+        const auto = { tag: ser ? ser.name : '', ep: ser ? (ser.last && ser.k > 1 ? 'শেষ পর্ব' : 'পর্ব ' + bnN(ser.k)) : '', h: lineOf(st) || out.auto.h, sub: ctx, cta: '' };
         Object.keys(auto).forEach(k => { const v = m(k); out[k] = v === '-' ? '' : (v || auto[k]); });
         out.auto = auto;
       } catch (e) { }
@@ -10983,8 +10984,6 @@ body.hub-on{overflow:hidden}
       const u = Math.min(FW, FH) / 1080, land = FW > FH * 1.15, sq = !land && FH < FW * 1.4;
       c.save(); rect(c, 0, 0, FW, FH, '#1B130E');
       if (bg) { const key = FW + 'x' + FH + '|' + (bg.key || ''); if (!PRO_BG || PRO_BG.key !== key || !bg.key) { const cv = document.createElement('canvas'); cv.width = FW; cv.height = FH; const x = cv.getContext('2d', { alpha: false }); rect(x, 0, 0, FW, FH, '#1B130E'); try { bg(x); } catch (e) { console.warn('life bg', e); } PRO_BG = { key, cv }; } c.drawImage(PRO_BG.cv, 0, 0, FW, FH); }
-      const top = FH * (land ? .35 : .5), g = c.createLinearGradient(0, top, 0, FH);
-      g.addColorStop(0, 'rgba(10,6,4,0)'); g.addColorStop(.5, 'rgba(10,6,4,.55)'); g.addColorStop(1, 'rgba(10,6,4,.88)'); c.fillStyle = g; c.fillRect(0, top, FW, FH - top);
       const boxes = [], place = (k, x, yy, w, h, fn) => { const L = LAY[k] || {}, s = cl(+L.s || 1, .3, 4), dx = (+L.dx || 0) * FW, dy = (+L.dy || 0) * FH, ccx = x + w / 2, ccy = yy + h / 2;
         c.save(); c.translate(ccx + dx, ccy + dy); c.scale(s, s); c.translate(-ccx, -ccy); fn(); c.restore();
         boxes.push({ k, x: ccx + dx - w * s / 2, y: ccy + dy - h * s / 2, w: w * s, h: h * s, cx: ccx + dx, cy: ccy + dy, s }); };
@@ -10993,8 +10992,13 @@ body.hub-on{overflow:hidden}
       let hs = hs0, T = proWrap(c, segs, hs, maxW, 800);
       while ((T.rows.length > 3 || !T.ok) && hs > hs0 * .5) { hs -= 4 * u; T = proWrap(c, segs, hs, maxW, 800); }
       T.rows = T.rows.slice(0, 3);
-      const th = T.rows.length * hs * 1.2, cx = FW / 2, y0 = FH * (land ? .93 : .9) - th;
-      if (cp.h) { const w = proRowsW(c, T.rows, T.sp, hs, 800); place('h', cx - w / 2, y0, w, th, () => proText(c, T.rows, T.sp, cx, y0, hs, 800, '#FFFFFF', '#FFD23F', .09)); }
+      // v21: the line sits just below the middle, under the faces (bottom ~25% of a Reel is covered by the caption/buttons, top by the header)
+      const th = T.rows.length * hs * 1.2, cx = FW / 2, ss = (land ? 40 : 46) * u, sh = cp.sub ? ss * 1.8 + 22 * u : 0;
+      const y0 = Math.round(FH * (land ? .6 : sq ? .6 : .6) - (th - sh) / 2);
+      { const a = y0 - sh - 60 * u, b = y0 + th + 60 * u, g = c.createLinearGradient(0, a, 0, b);
+        g.addColorStop(0, 'rgba(8,5,3,0)'); g.addColorStop(.22, 'rgba(8,5,3,.62)'); g.addColorStop(.78, 'rgba(8,5,3,.62)'); g.addColorStop(1, 'rgba(8,5,3,0)'); c.fillStyle = g; c.fillRect(0, a, FW, b - a); }
+      if (cp.sub) { const sw = Math.min(pillW(c, cp.sub, ss), FW * .9), sy = y0 - sh; place('sub', cx - sw / 2, sy, sw, ss * 1.8, () => proPill(c, cp.sub, cx, sy + ss * .9, ss, '#C62F22', '#FFFFFF', null)); }
+      if (cp.h) { const w = proRowsW(c, T.rows, T.sp, hs, 800); place('h', cx - w / 2, y0, w, th, () => proText(c, T.rows, T.sp, cx, y0, hs, 800, '#FFFFFF', '#FFD23F', .16)); }
       // series badge, top-left
       const badge = [cp.tag, cp.ep].filter(Boolean).join(' · ');
       if (badge) { const bs = 40 * u, w = pillW(c, badge, bs), bh = bs * 1.8, bx = 56 * u, by = 64 * u; place('ep', bx, by, w, bh, () => proPill(c, badge, bx + w / 2, by + bh / 2, bs, 'rgba(12,8,6,.72)', '#FFD23F', 'rgba(255,210,63,.55)')); }
