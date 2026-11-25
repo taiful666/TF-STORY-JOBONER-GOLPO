@@ -14,7 +14,7 @@ Open code with Read(file, offset=line, limit=…) — never read a big file whol
   `295` $ · `301` remember · `304` islShow · `314` paint
   - element ids (5): islSub@256 · islBack@257 · acct@282 · acAv@283 · acBtn@285
 
-## index.html  (11720 lines)
+## index.html  (11722 lines)
 - `6` ▸ <script fitjs> /* PC / big screens: scale the whole UI with the window, smoothly on r…
   `10` fit
 - `20` ▸ <style fitcss> html.fitz body{min-height:calc(100dvh / var(--z))}html.fitz dialog{max…
@@ -287,17 +287,17 @@ Open code with Read(file, offset=line, limit=…) — never read a big file whol
   `11001` qOk · `11002` paintSet · `11013` paintChar · `11025` drawRole · `11026` paintPic · `11040` paint · `11046` kill · `11047` startHub
 - `11051` ▸ <script v19life> 
   `11095` qFix · `11101` bnN · `11134` thumbStyle · `11137` words · `11138` shorten · `11145` mark · `11151` pickLine · `11166` lineOf
-  `11173` qOf · `11311` tip · `11322` start
-- `11326` ▸ <script v22engage> 
-  `11338` on · `11339` hash · `11340` isSerMid · `11348` keyOf · `11349` picks · `11350` autoTrick · `11351` trickOf · `11352` setPick
-  `11354` inject · `11382` pauseAt · `11391` drawPause
-- `11474` ▸ <style v23quiz> 
-- `11487` ▸ <script v23quiz> 
-  `11501` on · `11502` hash · `11503` ttl · `11504` J · `11506` put · `11508` qAt · `11509` push · `11513` pull
-  `11543` ownQuiz · `11544` laterPart · `11561` autoQuiz · `11578` blankQuiz · `11597` quizOf · `11598` mkLine · `11599` ansText · `11601` apply
-  `11639` reapply · `11642` drawAns · `11682` el2 · `11683` btn · `11684` paint
-- `11716` ▸ <script life-series.js> </script>
-- `11717` ▸ <script lib-studio.js> </script>
+  `11173` qOf · `11313` tip · `11324` start
+- `11328` ▸ <script v22engage> 
+  `11340` on · `11341` hash · `11342` isSerMid · `11350` keyOf · `11351` picks · `11352` autoTrick · `11353` trickOf · `11354` setPick
+  `11356` inject · `11384` pauseAt · `11393` drawPause
+- `11476` ▸ <style v23quiz> 
+- `11489` ▸ <script v23quiz> 
+  `11503` on · `11504` hash · `11505` ttl · `11506` J · `11508` put · `11510` qAt · `11511` push · `11515` pull
+  `11545` ownQuiz · `11546` laterPart · `11563` autoQuiz · `11580` blankQuiz · `11599` quizOf · `11600` mkLine · `11601` ansText · `11603` apply
+  `11641` reapply · `11644` drawAns · `11684` el2 · `11685` btn · `11686` paint
+- `11718` ▸ <script life-series.js> </script>
+- `11719` ▸ <script lib-studio.js> </script>
   - element ids (311): btnNew@1119 · stepBar@1120 · btnAccount@1129 · btnGallery@1130 · btnHelp@1131 · btnSettings@1132 · step1@1140 · fmtPick@1141 · ratioQuick@1145 · srcPick@1147 · srcBack@1153 · btnSrcBack@1153 · srcTabs@1154 · src-lib@1156 · libSearch@1157 · libRandom@1157 · libChips@1158 · libMineChip@1161 · libArea@1162 · libBook@1164 · libFilter@1165 · libCount@1166 · src-ai@1170 · aiNew@1171 · aiWay@1172 · pTopic@1178 · topicChips@1179 · longBox@1181 · longStyles@1183 · longMin@1190 · longWebRow@1191 · longWeb@1191 · longLink@1193 · longFactsRow@1194 · longFacts@1194 · way-app@1199 · genAI@1201 · genN@1202 · btnGen@1205 · btnGenStop@1206 · genBar@1207 · genArea@1210 · genBook@1211 · genLen@1212 · pStyle@1213 · pHero@1214 · way-ext@1220 · xN@1223 · xMinRow@1223 · xMin@1223 · btnXCopy@1224 · addIn@1228 · btnAddLib@1229 · btnAddPaste@1229 · addFiles@1229 · addedBox@1235 · btnSeeLib@1237 · genTopic@1242 · xTopic@1242 · xChips@1242 · xSub@1242 · extPromptCard@1242 · pArea@1243 · pBook@1243 · pLesson@1243 · pLen@1244 · btnRandom@1245 · usedInfo@1245 · aiTabs@1246 · ai-api@1247 · btnWrite@1247 · aiStatus@1247 · bulkN@1248 · btnBulkWrite@1248 · btnBulkStop@1248 · bulkBar@1248 · ai-chat@1249 · btnCopyPrompt@1249 · chatIn@1249 · btnChatParse@1249 · btnChatPaste@1249 · bulkNChat@1250 · btnCopyBulkPrompt@1250 · src-paste@1255 · storyIn@1256 · pasteKeep@1257 · btnParse@1258 · fileImport@1258 · btnCopyScript@1258 · src-add@1261 · myLibInfo@1262 · btnLibExport@1262 · btnLibClear@1262 · next1@1266 · step2@1270 · btnAutoDirect@1272 · charEditor@1274 · sceneOverview@1276 · sceneEditor@1277 · next2@1278 · step3@1282 · voiceTabs@1284 · v-tts@1285 · cVoice@1288 · btnVoices@1288 · btnVoicePrev@1288 · cVoiceId@1289 · cSpeed@1290 · cEmotion@1291 · sMultiVoice@1293 · charVoices@1294 · btnTTS@1295 · ttsInfo@1295 · ttsBar@1296 · v-rec@1299 · recPos@1301 · recDot@1301 · recPrev@1304 · recBtn@1305 · recPlay@1306 · recNext@1307 · recAuto@1309 · recAll@1311 · recInfo@1311 · v-upload@1313 · audioUpload@1315 · v-none@1318 · mStyle@1322 · mVol@1323 · musicUpload@1326 · musicInfo@1326 · mSfx@1327 · mPops@1328 · mVisuals@1329 · lenTabs@1332 · lenFixedRow@1334 · lenSec@1334 · lenNote@1334 · next3@1335 · step4@1339 · ratioPick@1343 · resPick@1350 · thumbPv@1352 · thumbText@1352 · thumbFields@1352 · btnThumbReset@1357 · coverTheme@1357 · btnThumbDl@1357 · sAutoThumb@1358 · btnExport@1361 · expProg@1362 · expBar@1364 · expEta@1365 · btnCancel@1365 · expDone@1368 · expDoneText@1369 · btnSaveAgain@1372 · btnShare@1373 · pubPack@1379 · pubYtTitle@1380 · ytText@1382 · btnCopyYT@1383 · pubYtTags@1384 · pubFb@1386 · aiNotes@1394 · aiSheet@1396 · btnAI@1397 · btnBackup@1397 · btnWav@1397 · pv@1404 · btnBigPlay@1405 · pvEmpty@1406 · pvLogo@1406 · pvRatio@1408 · btnPlay@1410 · seek@1411 · tLabel@1412 · btnMark@1413 · btnPvMin@1414 · dlgShare@1420 · btnShareX@1421 · platGrid@1422 · platBox@1429 · dlgSettings@1432 · setTabs@1434 · st-ch@1435 · logoPrev@1437 · sLogoFile@1439 · btnLogoClear@1439 · sSeries@1444 · sTagline@1445 · sLogo@1446 · sHero@1447 · sOutro@1449 · sWatermark@1450 · sWm@1451 · st-key@1453 · gKey@1458 · gModel@1459 · gLoad@1459 · gRemember@1461 · aKey@1464 · aModel@1465 · aLoad@1465 · aRemember@1467 · cKey@1470 · cModel@1471 · cRemember@1473 · btnForgetKey@1474 · st-vid@1476 · capFontPick@1478 · titleFontPick@1480 · accFontPick@1482 · sFontFile@1483 · sCapLook@1485 · sCapStyle@1486 · sCap@1487 · sGap@1488 · sCaptions@1490 · sProgress@1491 · sAnimStyle@1492 · sHookCard@1493 · sCinema@1494 · sCtxBg@1495 · sThumb@1496 · st-data@1498 · btnClearCache@1499 · btnClearUsed@1499 · btnLibExport2@1500 · libImportFile@1500 · btnAccount2@1501 · appInfo@1502 · appVer@1502 · btnCheckUpdate@1502 · dlgAccount@1507 · acOff@1509 · acApp@1510 · acOut@1511 · btnSignIn@1513 · acOutErr@1514 · acIn@1517 · acEmail@1518 · acSync@1519 · btnAcLib@1526 · btnSignOut@1526 · dlgChars@1531 · galFilter@1534 · galGrid@1535 · dlgHelp@1538 · toasts@1552 · edTop@9658 · edBrand@9658 · edMeta@9659 · edAct@9660 · edExport@9661 · edRail@9662 · edPanel@9663 · edStage@9664 · edTl@9665 · tlInfo@9666 · tlOut@9667 · tlZl@9668 · tlIn@9669 · tlScroll@9671 · tlInner@9671 · tlRuler@9671 · tlScenes@9672 · tlLines@9672 · tlPh@9672 · proStyleRow@10123 · btnProEdit@10123 · btnProReset@10123 · peStyle@10169 · peAll@10169 · peDone@10169 · peAddT@10170 · peAddI@10170 · peAddL@10170 · peFile@10170 · peCv@10172 · peSel@10173 · peMinus@10173 · peSize@10173 · pePlus@10173 · peCenter@10173 · peBack@10173 · peFull@10173 · peOne@10173 · peHide@10173 · peTxtBar@10174 · peTxt@10174 · peFont@10174 · peFontName@10174 · peBold@10174 · peCol@10174 · peSw@10174 · peFontFile@10174 · peCropBar@10175 · peCropReset@10175 · peLib@10176 · peLibX@10176 · peGrid@10176 · tfNavBack@10516 · tfNavHome@10517 · lvX@10554 · lvTxt@10555 · lvNote@10556 · lvSave@10556 · lvReset@10556 · lvUse@10556 · v15Same@10713
 
 ## cloud-core.js  (58 lines)
