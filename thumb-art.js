@@ -201,5 +201,7 @@
   /* "tiffin" / "টিফিন বক্স" / any words → an id (the AI's "থাম্বনেলের ছবি:" line) */
   function resolve(s) { s = String(s || '').trim(); if (!s) return ''; const k = s.toLowerCase().replace(/[^a-z]/g, ''); if (BYID[k]) return k; const l = ART.find(a => a[1] === s); if (l) return l[0]; const p = pick(s); return p ? p.id : ''; }
   window.TF_THUMB_ART = { list: ART.map(a => ({ id: a[0], label: a[1] })), pick, best, draw, resolve, has: id => !!BYID[id],
+    // v24: one thing on its own (thumbnail editor sticker): standing on (x, y), h tall; wide(id) = half-width in heights
+    obj: (c, id, x, y, h) => { const f = D[id]; if (!f) return; c.save(); c.translate(x, y); c.scale(h / 100, h / 100); try { f(c); } catch (e) { } c.restore(); }, wide: id => WIDE[id] || .9,
     forPrompt: () => ART.map(a => a[0] + ' (' + a[1] + ')').join(', ') };
 })();
