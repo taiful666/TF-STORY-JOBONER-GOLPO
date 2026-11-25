@@ -11075,6 +11075,148 @@ body.hub-on{overflow:hidden}
   if (document.readyState === 'complete') setTimeout(start, 900); else window.addEventListener('load', () => setTimeout(start, 900));
 })();
 </script>
+<script id="v22engage">
+/* v22 — engagement that gives people a REASON to comment / share / follow (জীবন পাঠ + Islamic stories; not explainer).
+   1) "থামুন" prediction card right before the twist (first ## rewind scene, else ~62% into the story): viewers guess in
+      the comments before they see the ending. Drawn over the frame for 3.2 s, both short and long renderers.
+   2) One end trick per story, rotating by the title so back-to-back videos differ: name shout-out, hidden clue (rewatch),
+      tag someone, debate (no wrong answer), pinned-comment payoff, save. Added as a spoken line inside the cta scene.
+   3) Publish pack: a ready "প্রথম কমেন্ট" to post + pin (the pinned-comment payoff, question, own answer in reply).
+   4) AI prompt: clue early, a guessing moment before the twist, a cta question people disagree on.
+   Off: S.engage = false. */
+(function () {
+  'use strict';
+  if (typeof TF_ISL === 'undefined' || TF_EXP) return;
+  const on = () => typeof S === 'undefined' || S.engage !== false;
+  const hash = s => { let h = 7; String(s || '').split('').forEach(ch => { h = (h * 31 + ch.charCodeAt(0)) >>> 0; }); return h; };
+  const isSerMid = st => { try { const s = proSeries(st); return s && !s.last; } catch (e) { return false; } };
+  const TRICKS = [
+    { k: 'shout', say: 'সবচেয়ে সুন্দর তিনটা কমেন্টের নাম পরের ভিডিওতে বলব।', hl: 'নাম বলব', cap: '🏆 সেরা তিনটা কমেন্টের নাম পরের ভিডিওতে বলা হবে।' },
+    { k: 'clue', say: 'শেষটা জানার পর শুরুটা আরেকবার দেখুন, একদম অন্যরকম লাগবে।', hl: 'আরেকবার দেখুন', cap: '🔁 শেষটা জানার পর শুরুটা আরেকবার দেখুন, অন্যরকম লাগবে।' },
+    { k: 'tag', say: 'যার কথা মনে পড়ল, কমেন্টে তাঁর নামটা ট্যাগ করুন।', hl: 'ট্যাগ করুন', cap: '👥 যার কথা মনে পড়ল, কমেন্টে তাঁকে ট্যাগ করুন।' },
+    { k: 'debate', say: 'এখানে কোনো উত্তর ভুল নয়। কে ঠিক ছিল, কমেন্টে তর্কটা হোক।', hl: 'কে ঠিক ছিল', cap: '⚖️ কে ঠিক ছিল? কোনো উত্তর ভুল নয়, কমেন্টে তর্কটা হোক।' },
+    { k: 'pin', say: 'গল্পের পেছনের আসল কথাটা প্রথম কমেন্টে পিন করা আছে।', hl: 'প্রথম কমেন্টে', cap: '📌 গল্পের পেছনের আসল কথাটা প্রথম কমেন্টে পিন করা আছে।' },
+    { k: 'save', say: 'একদিন এই কথাটা কাজে লাগবে, ভিডিওটা সেভ করে রাখুন।', hl: 'সেভ করে রাখুন', cap: '🔖 একদিন কাজে লাগবে, সেভ করে রাখুন।' }];
+  const trickOf = st => { const n = isSerMid(st) ? 2 : TRICKS.length; return TRICKS[hash(String(st.title || '').split('|')[0]) % n]; };
+  window.TF_ENGAGE = { trickOf, TRICKS };
+
+  // 2) the end trick: one spoken line in the cta scene, after the comment ask
+  if (typeof normalizeStory === 'function') {
+    const _ns = normalizeStory;
+    normalizeStory = function () {
+      const r = _ns.apply(this, arguments);
+      try {
+        const st = r && r.story; if (!st || !on()) return r;
+        const cta = (st.scenes || []).find(s => s.type === 'cta'); if (!cta) return r;
+        const tr = trickOf(st), all = (cta.lines || []).map(l => l.cap || l.say || '').join(' ');
+        if (TRICKS.some(t => all.includes(t.say))) return r;
+        const base = (cta.lines || [])[0] || {};
+        const L = Object.assign({ who: '', speak: false, focus: '', feel: '', do: '', hold: '', card: null, item: '' }, base, { say: tr.say, cap: tr.say, hl: tr.hl, who: '', speak: false, card: null });
+        cta.lines = cta.lines || [];
+        const at = cta.lines.findIndex(l => /কমেন্ট/.test(l.cap || l.say || ''));
+        cta.lines.splice(at >= 0 ? at + 1 : 0, 0, L);
+      } catch (e) { console.warn('v22 trick', e); }
+      return r;
+    };
+  }
+
+  // 1) the guessing card before the twist
+  const PAUSE = [['✋ এক সেকেন্ড থামুন', 'এরপর কী হবে? আন্দাজটা কমেন্টে লিখুন, তারপর দেখুন'],
+    ['🤔 আপনি হলে এখন কী করতেন?', 'কমেন্টে লিখে রাখুন, শেষে মিলিয়ে নিন'],
+    ['👀 শেষটা আন্দাজ করতে পারবেন?', 'আপনার আন্দাজ কমেন্টে, তারপর দেখুন মিলল কি না']];
+  function pauseAt(r) {
+    const st = r.story; if (!st) return null;
+    if (r._egSt === st) return r._egT; r._egSt = st; r._egT = null;
+    const sc = st.scenes || [], rw = sc.find(s => s.type === 'rewind');
+    if (rw && rw.start > 6) return (r._egT = rw.start + .2);
+    const story = sc.filter(s => s.type === 'story'); if (story.length < 4) return null;
+    const pick = story[Math.min(story.length - 2, Math.round(story.length * .62))];
+    return (r._egT = pick && pick.start > 6 ? pick.start + .3 : null);
+  }
+  function drawPause(c, r, t) {
+    const t0 = pauseAt(r); if (t0 == null || t < t0 || t > t0 + 3.2) return;
+    const FW = r.isLong ? r.FW : W, FH = r.isLong ? r.FH : H, u = Math.min(FW, FH) / 1080, k = (t - t0), a = Math.min(1, k / .25, (3.2 - k) / .3);
+    const [h1, h2] = PAUSE[hash(r.story.title) % PAUSE.length];
+    c.save(); c.setTransform(c.getTransform()); c.globalAlpha = Math.max(0, a);
+    const w = Math.min(FW * .9, 960 * u), x = (FW - w) / 2, y = FH * (FH > FW ? .17 : .13) + (1 - Math.min(1, k / .25)) * -40 * u, h = 190 * u;
+    c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 30 * u; rr(c, x, y, w, h, 28 * u, 'rgba(14,10,8,.88)'); c.shadowColor = 'transparent';
+    rr(c, x, y, w, h, 28 * u, null, '#FFD23F', 4 * u);
+    c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = '#FFD23F'; c.font = `800 ${58 * u}px ${FONT_BN}, ${FONT_FALLBACK}`;
+    c.fillText(h1, FW / 2, y + 62 * u, w - 60 * u);
+    c.fillStyle = '#FFFFFF'; c.font = `600 ${38 * u}px ${FONT_BN}, ${FONT_FALLBACK}`; c.fillText(h2, FW / 2, y + 134 * u, w - 60 * u);
+    c.restore();
+  }
+  [typeof StoryRenderer !== 'undefined' && StoryRenderer, typeof LongRenderer !== 'undefined' && LongRenderer].forEach(K => {
+    if (!K || !K.prototype.hasOwnProperty('render')) return;
+    const _r = K.prototype.render;
+    K.prototype.render = function (c, t, opt) {
+      if (this._eg) return _r.apply(this, arguments);
+      this._eg = true; let out; try { out = _r.apply(this, arguments); } finally { this._eg = false; }
+      try { if (on() && this.story && !(this.xp)) drawPause(c, this, t); } catch (e) { }
+      return out;
+    };
+  });
+
+  // 3) publish pack: the first comment to post and pin, + the trick in the caption
+  const BN = '০১২৩৪৫৬৭৮৯', bnN = n => String(n).replace(/\d/g, d => BN[d]);
+  if (typeof publishPack === 'function') {
+    const _pp = publishPack;
+    publishPack = function (st) {
+      const pk = _pp.apply(this, arguments);
+      try {
+        if (!on()) return pk;
+        const tr = trickOf(st), cta = ((st.scenes || []).find(x => x.type === 'cta') || {}).cta || {};
+        const q = String(cta.question || 'আপনি হলে কী করতেন?').trim(), ops = (cta.options || []).slice(0, 3).map(o => String(o).replace(/^\s*[০-৯\d]+\s*[.)।:]\s*/, ''));
+        const lesson = String(((st.youtube || {}).description || '').split(/(?<=[।!?])\s/)[0] || '').trim();
+        const pin = [tr.k === 'pin' && lesson ? `📌 গল্পের পেছনের আসল কথা: ${lesson}` : `📌 ${q}`,
+          tr.k === 'pin' ? q : '', ...ops.map((o, i) => `${bnN(i + 1)}. ${o}`), '',
+          tr.k === 'shout' ? 'সবচেয়ে সুন্দর তিনটা কমেন্টের নাম পরের ভিডিওতে বলব 🏆' : tr.k === 'debate' ? 'কোনো উত্তর ভুল নয়, যুক্তি দিয়ে লিখুন। আমার উত্তর রিপ্লাইতে 👇' : 'আগে আপনারটা লিখুন, আমার উত্তর রিপ্লাইতে দিচ্ছি 👇'];
+        pk.pin = pin.filter((x, i, a) => x || (a[i - 1] && i < a.length - 1)).join('\n').trim();
+        if (TF_ISL && pk.fb && /💬/.test(pk.fb)) {
+          // Islamic caption: question + numbered options + one-number ask + the trick + share + follow (was just "কমেন্টে লিখুন")
+          const blk = [`💬 ${q}`, ...ops.map((o, i) => `${bnN(i + 1)}. ${o}`), ops.length ? `${ops.map((_, i) => bnN(i + 1)).join(', ')} — কমেন্টে শুধু সংখ্যাটা লিখুন 👇` : 'কমেন্টে লিখুন 👇', tr.cap, '',
+            '📤 ভিডিওটা পাঠান এমন একজনকে, যার আজ এই কথাটা শোনা দরকার।', '🔔 এমন ঈমান জাগানো গল্প প্রতিদিন আসে, পেজটা ফলো করে রাখুন।'].join('\n');
+          pk.fb = pk.fb.replace(/💬[^\n]*(\n[^\n]*কমেন্টে[^\n]*)?/, blk);
+        }
+        if (pk.fb && !pk.fb.includes(tr.cap)) pk.fb = pk.fb.replace(/(\n\n📤|\n📤)/, '\n' + tr.cap + '$1');
+        if (pk.fb && !pk.fb.includes(tr.cap)) pk.fb += '\n\n' + tr.cap;
+      } catch (e) { }
+      return pk;
+    };
+  }
+  if (typeof updateYT === 'function') {
+    const _u = updateYT;
+    updateYT = function () {
+      const out = _u.apply(this, arguments);
+      try {
+        if (!app.story) return out;
+        let ta = document.getElementById('pubPin');
+        if (!ta) { const fb = document.getElementById('pubFb'); if (!fb) return out;
+          const lab = document.createElement('label'); lab.textContent = '📌 প্রথম কমেন্ট (নিজে কমেন্ট করে পিন করুন)'; ta = document.createElement('textarea'); ta.id = 'pubPin'; ta.rows = 5; ta.readOnly = true; lab.append(ta);
+          const row = document.createElement('div'); row.className = 'row'; const b = document.createElement('button'); b.className = 'ghost sm'; b.type = 'button'; b.innerHTML = '<span class="mo">কমেন্ট </span>কপি'; b.onclick = () => copyText(ta.value); row.append(b);
+          const anchor = fb.closest('.pubitem') || fb.closest('label'); const after = anchor.classList.contains('pubitem') ? anchor : anchor.nextElementSibling || anchor;
+          const w = document.createElement('div'); w.className = 'pubitem'; w.dataset.g = 'fb'; w.append(lab, row); after.after(w); }
+        ta.value = publishPack(app.story).pin || '';
+      } catch (e) { }
+      return out;
+    };
+  }
+
+  // 4) AI prompt: build the reasons into the story itself
+  if (typeof window.TF_PROMPT_RULES === 'function') {
+    const _r = window.TF_PROMPT_RULES;
+    const ENG = `
+
+## দর্শককে কমেন্ট/শেয়ার/ফলো করতে আগ্রহী করার কৌশল (শুধু অনুরোধ নয়, কারণ তৈরি করো)
+- গল্পের প্রথম তৃতীয়াংশে একটা ছোট সূত্র রাখো (একটা জিনিস, একটা কথা) যেটা টুইস্টে কাজে লাগে, যাতে শেষে দর্শক ভাবে "আরে, শুরুতেই তো বলেছিল!" এবং আবার দেখে।
+- টুইস্টের ঠিক আগে এমন একটা মুহূর্ত রাখো যেখানে দর্শক আন্দাজ করতে চায় (অ্যাপ এখানে নিজে "থামুন, আন্দাজ কমেন্টে লিখুন" কার্ড দেখায়)। টুইস্ট যেন সহজে আন্দাজ না হয়, কিন্তু পরে ভাবলে যুক্তিসঙ্গত লাগে।
+- cta-র প্রশ্নে মত যেন ভাগ হয়: তিনটা বিকল্পই যুক্তিসঙ্গত, কোনোটা স্পষ্ট "ঠিক" নয় (কে ঠিক ছিল? আপনি কী করতেন?)। এমন প্রশ্ন নয় যার উত্তর সবাই একই দেবে।
+- শেয়ারের ডাকে নির্দিষ্ট মানুষ: "যে বন্ধু…", "যে মা…", "প্রবাসে থাকা…" — যাকে দেখে মনে পড়ে।
+- অ্যাপ শেষে নিজে একটা কৌশলের লাইন বসায় (সেরা কমেন্টের নাম পরের ভিডিওতে / আবার দেখা / ট্যাগ / তর্ক / পিন কমেন্ট / সেভ), তাই এগুলো নিজে লিখবে না।`;
+    window.TF_PROMPT_RULES = function () { return _r.apply(this, arguments) + ENG; };
+  }
+})();
+</script>
 <script src="life-series.js"></script>
 <script src="lib-studio.js"></script>
 </body>
