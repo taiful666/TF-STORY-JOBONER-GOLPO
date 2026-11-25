@@ -10760,7 +10760,23 @@ body.hub-on{overflow:hidden}
   }
 
   /* ---------- deep link: index.html?settings=1 opens this section's settings ---------- */
-  if (/[?&]settings=1\b/.test(location.search)) window.addEventListener('load', () => setTimeout(() => { try { document.querySelectorAll('dialog[open]').forEach(d => d.close()); openSettings(); } catch (e) { } }, 900));
+  /* v20: settings live ONLY on the outside hub. Inside a section the ⚙ button is gone; opened from the hub (?settings=1)
+     the editor is covered, only the settings dialog shows, and closing it / Back returns to the hub (never into a story). */
+  const SET_ONLY = /[?&]settings=1\b/.test(location.search), HUB = /[?&]hub=1\b/.test(location.search);
+  if (!SET_ONLY && !HUB) { const cs = document.createElement('style'); cs.id = 'v20noset'; cs.textContent = '#btnSettings{display:none!important}'; document.head.append(cs); }
+  if (SET_ONLY) {
+    document.documentElement.classList.add('set-only');
+    const cs = document.createElement('style'); cs.textContent = 'html.set-only body{overflow:hidden}#v20cover{position:fixed;inset:0;z-index:1990;background:#F4F5F2}'; document.head.append(cs);
+    const cover = () => { if (!document.getElementById('v20cover') && document.body) document.body.append(Object.assign(document.createElement('div'), { id: 'v20cover' })); };
+    if (document.body) cover(); else document.addEventListener('DOMContentLoaded', cover);
+    let opened = false, left = false;
+    const leave = () => { if (left) return; left = true; try { location.replace('index.html?hub=1'); } catch (e) { location.href = 'index.html?hub=1'; } };
+    // any dialog closing: once nothing is open any more, go back to the hub
+    document.addEventListener('close', () => { if (!opened) return; setTimeout(() => { if (!document.querySelector('dialog[open]')) leave(); }, 250); }, true);
+    window.tfNavBack = () => { const d = document.querySelector('dialog[open]'); if (d) { try { d.close(); } catch (e) { d.removeAttribute('open'); leave(); } return true; } leave(); return true; };
+    const keep = () => document.querySelectorAll('dialog[open]').forEach(d => { if (d.id !== 'dlgSettings' && d.id !== 'dlgAccount') d.close(); });
+    window.addEventListener('load', () => setTimeout(() => { try { keep(); openSettings(); opened = true; [400, 1200, 2500].forEach(t => setTimeout(keep, t)); } catch (e) { } }, 700));
+  }
 
   /* ---------- the hub page ---------- */
   if (!/[?&]hub=1\b/.test(location.search)) return;
@@ -10842,7 +10858,7 @@ body.hub-on{overflow:hidden}
     const body = hub.querySelector('#hbBody'); body.innerHTML = '';
     if (st.tab === 'set') paintSet(body); else if (st.tab === 'char') paintChar(body); else paintPic(body);
   }
-  window.tfNavBack = () => { location.href = 'home.html'; };
+  window.tfNavBack = () => { const d = document.querySelector('dialog[open]'); if (d) { try { d.close(); } catch (e) { d.removeAttribute('open'); } return true; } location.href = 'home.html'; return true; };
   const kill = () => document.querySelectorAll('dialog[open]').forEach(d => { if (!d.contains(document.activeElement) || d.id === 'dlgHelp') { if (d.id !== 'dlgSettings') d.close(); } });
   const startHub = () => { build(); TF_ASSETS.onReady(paint); [300, 900, 1800, 3000].forEach(t => setTimeout(kill, t)); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startHub); else startHub();

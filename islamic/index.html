@@ -5017,6 +5017,20 @@ MEM.load().then(startApp, startApp);
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(start, 0)); else setTimeout(start, 0);
 })();
 </script>
-<script>/* deep link from the home Settings hub */ if (/[?&]settings=1\b/.test(location.search)) window.addEventListener('load', () => setTimeout(() => { try { showTab('settings'); } catch (e) { const t = document.querySelector('.tab[data-tab="settings"]'); if (t) t.click(); } }, 700));</script>
+<script>/* v20: settings only on the outside hub. Opened from there (?settings=1): only the settings page shows, Back → hub. Otherwise the menu's Settings item is hidden. */
+(function(){
+  const SET_ONLY = /[?&]settings=1\b/.test(location.search), st = document.createElement('style');
+  st.textContent = SET_ONLY ? 'nav.tabs,[data-v2go]:not([data-v2go="settings"]){display:none!important}' : '[data-v2go="settings"]{display:none!important}';
+  document.head.append(st);
+  if (!SET_ONLY) return;
+  const toHub = () => { try { persistNow(); } catch (e) { } location.replace('../index.html?hub=1'); return true; };
+  const show = () => { try { (window.TFPC && window.TFPC.showTab ? window.TFPC.showTab : showTab)('settings'); } catch (e) { const b = document.querySelector('[data-v2go="settings"]'); if (b) b.click(); } };
+  window.addEventListener('load', () => {
+    setTimeout(show, 600);
+    const base = window.TFBack;
+    window.TFBack = () => { const m = Array.from(document.querySelectorAll('.modal,.v2sheet')).find(x => !x.classList.contains('hidden')); if (m && base) return base(); return toHub(); };
+  });
+})();
+</script>
 </body>
 </html>
