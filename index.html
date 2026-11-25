@@ -11097,8 +11097,22 @@ body.hub-on{overflow:hidden}
     { k: 'debate', say: 'এখানে কোনো উত্তর ভুল নয়। কে ঠিক ছিল, কমেন্টে তর্কটা হোক।', hl: 'কে ঠিক ছিল', cap: '⚖️ কে ঠিক ছিল? কোনো উত্তর ভুল নয়, কমেন্টে তর্কটা হোক।' },
     { k: 'pin', say: 'গল্পের পেছনের আসল কথাটা প্রথম কমেন্টে পিন করা আছে।', hl: 'প্রথম কমেন্টে', cap: '📌 গল্পের পেছনের আসল কথাটা প্রথম কমেন্টে পিন করা আছে।' },
     { k: 'save', say: 'একদিন এই কথাটা কাজে লাগবে, ভিডিওটা সেভ করে রাখুন।', hl: 'সেভ করে রাখুন', cap: '🔖 একদিন কাজে লাগবে, সেভ করে রাখুন।' }];
-  const trickOf = st => { const n = isSerMid(st) ? 2 : TRICKS.length; return TRICKS[hash(String(st.title || '').split('|')[0]) % n]; };
-  window.TF_ENGAGE = { trickOf, TRICKS };
+  const keyOf = st => 'e' + hash(String(st.title || '').split('|')[0]);
+  const picks = () => { try { return JSON.parse(localStorage.getItem('tf_eng_pick') || '{}'); } catch (e) { return {}; } };
+  const autoTrick = st => { const n = isSerMid(st) ? 2 : TRICKS.length; return TRICKS[hash(String(st.title || '').split('|')[0]) % n]; };
+  const trickOf = st => { const k = picks()[keyOf(st)]; return TRICKS.find(t => t.k === k) || autoTrick(st); };
+  const setPick = (st, k) => { const m = picks(); if (k) m[keyOf(st)] = k; else delete m[keyOf(st)]; try { localStorage.setItem('tf_eng_pick', JSON.stringify(m)); } catch (e) { } };
+  // put this story's trick line into its cta scene (replacing any older trick line)
+  function inject(st) {
+    const cta = (st.scenes || []).find(s => s.type === 'cta'); if (!cta) return;
+    cta.lines = (cta.lines || []).filter(l => !TRICKS.some(t => (l.cap || l.say || '') === t.say));
+    if (!on()) return;
+    const tr = trickOf(st), base = cta.lines[0] || {};
+    const L = Object.assign({ who: '', speak: false, focus: '', feel: '', do: '', hold: '', card: null, item: '' }, base, { say: tr.say, cap: tr.say, hl: tr.hl, who: '', speak: false, card: null });
+    const at = cta.lines.findIndex(l => /কমেন্ট/.test(l.cap || l.say || ''));
+    cta.lines.splice(at >= 0 ? at + 1 : 0, 0, L);
+  }
+  window.TF_ENGAGE = { trickOf, autoTrick, setPick, inject, TRICKS, on };
 
   // 2) the end trick: one spoken line in the cta scene, after the comment ask
   if (typeof normalizeStory === 'function') {
@@ -11106,15 +11120,7 @@ body.hub-on{overflow:hidden}
     normalizeStory = function () {
       const r = _ns.apply(this, arguments);
       try {
-        const st = r && r.story; if (!st || !on()) return r;
-        const cta = (st.scenes || []).find(s => s.type === 'cta'); if (!cta) return r;
-        const tr = trickOf(st), all = (cta.lines || []).map(l => l.cap || l.say || '').join(' ');
-        if (TRICKS.some(t => all.includes(t.say))) return r;
-        const base = (cta.lines || [])[0] || {};
-        const L = Object.assign({ who: '', speak: false, focus: '', feel: '', do: '', hold: '', card: null, item: '' }, base, { say: tr.say, cap: tr.say, hl: tr.hl, who: '', speak: false, card: null });
-        cta.lines = cta.lines || [];
-        const at = cta.lines.findIndex(l => /কমেন্ট/.test(l.cap || l.say || ''));
-        cta.lines.splice(at >= 0 ? at + 1 : 0, 0, L);
+        const st = r && r.story; if (st) inject(st);
       } catch (e) { console.warn('v22 trick', e); }
       return r;
     };
@@ -11152,7 +11158,7 @@ body.hub-on{overflow:hidden}
     K.prototype.render = function (c, t, opt) {
       if (this._eg) return _r.apply(this, arguments);
       this._eg = true; let out; try { out = _r.apply(this, arguments); } finally { this._eg = false; }
-      try { if (on() && this.story && !(this.xp)) drawPause(c, this, t); } catch (e) { }
+      try { if (on() && S.engPause !== false && this.story && !(this.xp)) drawPause(c, this, t); } catch (e) { }
       return out;
     };
   });
@@ -11215,6 +11221,94 @@ body.hub-on{overflow:hidden}
 - অ্যাপ শেষে নিজে একটা কৌশলের লাইন বসায় (সেরা কমেন্টের নাম পরের ভিডিওতে / আবার দেখা / ট্যাগ / তর্ক / পিন কমেন্ট / সেভ), তাই এগুলো নিজে লিখবে না।`;
     window.TF_PROMPT_RULES = function () { return _r.apply(this, arguments) + ENG; };
   }
+})();
+</script>
+<style id="v22ui">
+#engCard{margin:12px 0;padding:14px;border-radius:16px;background:var(--e-surf,#fff);border:1px solid var(--e-line2,rgba(23,32,27,.14));display:grid;gap:10px}
+#engCard .eg-h{display:flex;align-items:center;gap:8px}#engCard .eg-h b{flex:1;font-size:15.5px}
+#engCard .eg-l{font-size:12.5px;opacity:.7;margin-bottom:-4px}
+#engCard .eg-chips{display:flex;gap:6px;flex-wrap:wrap}
+#engCard button.eg-c{border:1px solid var(--e-line2,rgba(23,32,27,.18));background:transparent;color:inherit;border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+#engCard button.eg-c.on{background:#1E3A2F;color:#fff;border-color:#1E3A2F}
+#engCard .eg-sw{border:0;border-radius:999px;padding:6px 14px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;background:#1E3A2F;color:#fff}#engCard .eg-sw.off{background:#B9BFBA}
+#engCard ol{margin:0;padding:0;list-style:none;display:grid;gap:8px;counter-reset:eg}
+#engCard li{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;line-height:1.5;counter-increment:eg}
+#engCard li::before{content:counter(eg,bengali);flex:none;width:24px;height:24px;border-radius:50%;background:#FFD23F;color:#2A1500;font-weight:800;display:grid;place-items:center;font-size:13px}
+#engCard li span{flex:1}#engCard li button{flex:none;border:1px solid var(--e-line2,rgba(23,32,27,.18));background:transparent;color:inherit;border-radius:8px;padding:3px 10px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
+#engCard .eg-sh{padding:10px;border-radius:12px;background:rgba(255,210,63,.18);display:grid;gap:8px;font-size:13.5px}
+#engCard .eg-sh input{height:36px;border-radius:9px;border:1px solid var(--e-line2,rgba(23,32,27,.18));padding:0 10px;font:inherit;background:var(--e-surf,#fff);color:inherit}
+#engCard .eg-sh .eg-chips button{flex:1}
+#engCard.off .eg-body{display:none}
+</style>
+<script id="v22ui">
+/* v22 UI — the engagement card on the export step (above the YouTube/Facebook texts): one switch, which end trick
+   (chips, remembered per story), the "থামুন" card on/off, a numbered "after posting" checklist with copy buttons,
+   and the name shout-out: a "best comments" promise is remembered on export and the next video asks for the names. */
+(function () {
+  'use strict';
+  if (typeof TF_ISL === 'undefined' || TF_EXP || !window.TF_ENGAGE) return;
+  const E = window.TF_ENGAGE, SEC = TF_ISL ? 'isl' : 'life', SK = 'tf_eng_shout_' + SEC;
+  const LABEL = { shout: 'নাম বলব', clue: 'আবার দেখা', tag: 'ট্যাগ', debate: 'তর্ক', pin: 'পিন কমেন্ট', save: 'সেভ' };
+  const TODO = {
+    shout: 'কাল সেরা ৩টা কমেন্ট বেছে রাখুন। পরের ভিডিও বানানোর সময় এখানেই নাম লেখার ঘর আসবে, অ্যাপ নিজে বসিয়ে দেবে।',
+    clue: 'কেউ "আবার দেখলাম" লিখলে লাইক দিন, রিপ্লাইতে জিজ্ঞেস করুন কোন জায়গাটা আগে চোখে পড়েনি।',
+    tag: 'যারা কাউকে ট্যাগ করছে, তাদের কমেন্টে লাইক দিন।',
+    debate: 'দুই পক্ষের কমেন্টেই ভদ্রভাবে উত্তর দিন, কারও পক্ষ নেবেন না। তর্ক চললে ভিডিও বেশি মানুষের কাছে যায়।',
+    pin: 'প্রথম কমেন্টটা অবশ্যই পিন করুন, ভিডিওতে বলা আছে আসল কথা ওখানে।',
+    save: 'আলাদা কিছু করার নেই, প্রতিদিন একই সময়ে পোস্ট করুন।' };
+  const pend = () => { try { return JSON.parse(localStorage.getItem(SK) || 'null'); } catch (e) { return null; } };
+  const ttl = st => String((st && st.title) || '').split('|')[0].trim();
+  const el2 = (tag, cls, txt) => { const n = document.createElement(tag); if (cls) n.className = cls; if (txt != null) n.textContent = txt; return n; };
+  const btn = (cls, txt, fn) => { const b = el2('button', cls, txt); b.type = 'button'; b.onclick = fn; return b; };
+  const redo = () => { try { E.inject(app.story); rebuild(true); updateYT(); } catch (e) { } paint(); };
+  function paint() {
+    const det = document.getElementById('pubDetails'); if (!det || !app.story) return;
+    let card = document.getElementById('engCard');
+    if (!card) { card = el2('div'); card.id = 'engCard'; det.before(card); }
+    const st = app.story, on = E.on(), tr = E.trickOf(st), auto = E.autoTrick(st);
+    card.className = on ? '' : 'off'; card.innerHTML = '';
+    const head = el2('div', 'eg-h'); head.append(el2('b', '', '📣 দর্শক টানার কৌশল'), btn('eg-sw' + (on ? '' : ' off'), on ? 'চালু' : 'বন্ধ', () => { S.engage = !on; saveSettings(); redo(); }));
+    card.append(head);
+    const body = el2('div', 'eg-body'); body.style.display = 'grid'; body.style.gap = '10px'; card.append(body);
+    // shout-out from the previous video
+    const p = pend();
+    if (on && p && p.title !== ttl(st)) {
+      const box = el2('div', 'eg-sh'); box.append(el2('span', '', `আগের ভিডিও "${p.title}"-এ সেরা কমেন্টের নাম বলার কথা দিয়েছিলেন। তিনজনের নাম লিখুন:`));
+      const inp = el2('input'); inp.placeholder = 'যেমন: রহিম, সুমি, করিম'; box.append(inp);
+      const row = el2('div', 'eg-chips');
+      row.append(btn('eg-c on', 'এই ভিডিওতে বসান', () => {
+        const names = inp.value.split(/[,،\n]+/).map(x => x.trim()).filter(Boolean).slice(0, 3); if (!names.length) { inp.focus(); return; }
+        const cta = (st.scenes || []).find(s => s.type === 'cta'); if (!cta) { toast('এই গল্পে শেষের অংশ (cta) নেই', 'err'); return; }
+        const say = `আগের ভিডিওর সেরা কমেন্ট: ${names.join(', ')}। সবাইকে ধন্যবাদ!`, base = cta.lines[0] || {};
+        cta.lines.unshift(Object.assign({}, base, { say, cap: say, hl: names[0], who: '', speak: false, card: null }));
+        localStorage.removeItem(SK); toast('নামগুলো ভিডিওর শেষে বসানো হলো, কণ্ঠ আবার তৈরি করে নিন', 'ok'); redo();
+      }), btn('eg-c', 'বাদ দিন', () => { localStorage.removeItem(SK); paint(); }));
+      box.append(row); body.append(box);
+    }
+    // which trick
+    body.append(el2('div', 'eg-l', 'ভিডিওর শেষে কোন কৌশল:'));
+    const chips = el2('div', 'eg-chips');
+    E.TRICKS.forEach(t => chips.append(btn('eg-c' + (t.k === tr.k ? ' on' : ''), LABEL[t.k] + (t.k === auto.k ? ' (অটো)' : ''), () => { E.setPick(st, t.k === auto.k ? '' : t.k); redo(); })));
+    body.append(chips);
+    body.append(el2('div', 'eg-l', 'টুইস্টের আগে "থামুন, আন্দাজ লিখুন" কার্ড:'));
+    const pc = el2('div', 'eg-chips'), po = S.engPause !== false;
+    pc.append(btn('eg-c' + (po ? ' on' : ''), 'দেখাও', () => { S.engPause = true; saveSettings(); redo(); }), btn('eg-c' + (po ? '' : ' on'), 'দেখিও না', () => { S.engPause = false; saveSettings(); redo(); }));
+    body.append(pc);
+    // the checklist
+    body.append(el2('div', 'eg-l', 'পোস্ট করার পর যা করবেন:'));
+    const ol = el2('ol'), li = (t, b) => { const x = el2('li'); x.append(el2('span', '', t)); if (b) x.append(b); ol.append(x); };
+    const val = id => (document.getElementById(id) || {}).value || '';
+    li('ওপরের বোতাম দিয়ে ভিডিও সেভ বা শেয়ার করে পোস্ট করুন।');
+    li('ক্যাপশন কপি করে পোস্টে বসান।', btn('', 'কপি', () => copyText(val('pubFb'), 'ক্যাপশন কপি হয়েছে')));
+    li('পোস্টের নিচে নিজে প্রথম কমেন্ট করে সেটা পিন করুন।', btn('', 'কপি', () => copyText(val('pubPin'), 'প্রথম কমেন্ট কপি হয়েছে')));
+    li(TODO[tr.k]);
+    li('প্রথম এক ঘণ্টা প্রতিটা কমেন্টের উত্তর দিন। এতে ভিডিও বেশি মানুষের কাছে যায়।');
+    body.append(ol);
+  }
+  // remember the shout-out promise when this video is exported
+  document.addEventListener('click', e => { if (!e.target.closest || !e.target.closest('#btnExport')) return; try { if (E.on() && app.story && E.trickOf(app.story).k === 'shout') localStorage.setItem(SK, JSON.stringify({ title: ttl(app.story), at: Date.now() })); } catch (x) { } }, true);
+  if (typeof updateYT === 'function') { const _u = updateYT; updateYT = function () { const o = _u.apply(this, arguments); try { paint(); } catch (e) { } return o; }; }
+  if (typeof goStep === 'function') { const _g = goStep; goStep = function (n) { const o = _g.apply(this, arguments); if (n === 4) setTimeout(paint, 60); return o; }; }
 })();
 </script>
 <script src="life-series.js"></script>
