@@ -10115,17 +10115,18 @@ function proBgLong(r) {
     LP.drawThumb = function (c) { const k = (typeof S !== 'undefined' && S.coverTheme) + '|' + JSON.stringify((this.story && this.story.cover && this.story.cover.pro) || {}); if (this._proKey !== k) { this._lcov = null; this._proKey = k; } return _dt.call(this, c); };
   }
   /* manual editor: one field per text, empty = auto (shown as the placeholder), "-" hides it */
-  const PF = [['tag', 'উপরের ট্যাগ'], ['ep', 'পর্ব ব্যাজ (যেমন: পর্ব ২ / ৩, শেষ পর্ব)'], ['h', 'মূল শিরোনাম (| দিলে নতুন লাইন, {শব্দ} হাইলাইট)'], ['sub', 'নিচের এক লাইন — গল্পটা কী নিয়ে'], ['cta', 'বোতামের লেখা']];
+  const PF = [['tag', 'উপরের ট্যাগ'], ['ep', 'পর্ব ব্যাজ (যেমন: পর্ব ২ / ৩, শেষ পর্ব)'], ['h', 'মূল শিরোনাম (| দিলে নতুন লাইন, {শব্দ} হাইলাইট)'], ['sub', 'নিচের এক লাইন — গল্পটা কী নিয়ে'], ['cta', 'বোতামের লেখা'], ['name', 'বক্তার নাম (কার্ড ডিজাইনে)']];
   function proUI() {
     const tf = $('thumbFields'); if (!tf || $('proFields')) return;
     const box = el('div', { class: 'thumbfields', id: 'proFields' });
-    box.innerHTML = '<b class="sm">থাম্বনেলের লেখা <span class="muted">(খালি = অটো · লুকাতে - লিখুন)</span></b>' + PF.map(([k, l]) => `<label>${l}<input data-pf="${k}"></label>`).join('') + '<div class="row2"><button type="button" class="ghost sm" id="btnProEdit">✥ লেখা সরান · বড়-ছোট</button><button type="button" class="link" id="btnProReset">↺ সব লেখা অটো করুন</button></div>';
+    box.innerHTML = '<b class="sm">থাম্বনেলের লেখা <span class="muted">(খালি = অটো · লুকাতে - লিখুন)</span></b>' + '<div class="row2" id="proStyleRow" hidden><span class="sm">ডিজাইন:</span><button type="button" class="ghost sm" data-ts="card">কার্ড</button><button type="button" class="ghost sm" data-ts="quote">বড় সংলাপ</button></div>' + PF.map(([k, l]) => `<label>${l}<input data-pf="${k}"></label>`).join('') + '<div class="row2"><button type="button" class="ghost sm" id="btnProEdit">✥ লেখা সরান · বড়-ছোট</button><button type="button" class="link" id="btnProReset">↺ সব লেখা অটো করুন</button></div>';
     tf.before(box);
     box.addEventListener('input', () => { if (!app.story) return; const v = {}; box.querySelectorAll('[data-pf]').forEach(e => { if (e.value.trim()) v[e.dataset.pf] = e.value.trim(); }); const old = (app.story.cover && app.story.cover.pro) || {}; if (old.lay) v.lay = old.lay; app.story.cover = Object.assign({}, app.story.cover || {}, { pro: v }); thumbSoon(); try { drawAt(app.t); } catch (e) { } try { autosave(); } catch (e) { } });
     $('btnProReset').onclick = () => { if (!app.story) return; if (app.story.cover) delete app.story.cover.pro; proFill(); thumbSoon(); try { drawAt(app.t); } catch (e) { } try { autosave(); } catch (e) { } };
     const rb = $('btnThumbReset'); if (rb) rb.addEventListener('click', () => { if (app.story && app.story.cover) delete app.story.cover.pro; proFill(); });
     const ct = $('coverTheme'); if (ct) ct.addEventListener('change', proShow);
     $('btnProEdit').onclick = () => proEditor();
+    box.querySelectorAll('[data-ts]').forEach(b => b.onclick = () => { if (window.TF_THUMB_STYLE) { TF_THUMB_STYLE.set(b.dataset.ts); proFill(); } });
     const pv = $('thumbPv'); if (pv) { pv.style.cursor = 'pointer'; pv.title = 'চাপ দিয়ে লেখা সরান / বড়-ছোট করুন'; pv.addEventListener('click', () => { if (S.coverTheme === 'pro') proEditor(); }); }
   }
   function proShow() {
@@ -10134,7 +10135,8 @@ function proBgLong(r) {
     if (tt) { const lb = tt.closest('label'); if (lb) lb.style.display = on ? 'none' : ''; const p = lb && lb.nextElementSibling; if (p && p.tagName === 'P') p.style.display = on ? 'none' : ''; }
   }
   function proFill() {
-    const box = $('proFields'); if (!box) return; proShow(); if (!app.story) return; let cp; try { cp = proCopy(app.story); } catch (e) { return; }
+    const box = $('proFields'); if (!box) return; proShow(); const T = window.TF_THUMB_STYLE, sr = $('proStyleRow'); if (sr) { sr.hidden = !T; if (T) sr.querySelectorAll('[data-ts]').forEach(b => { b.classList.toggle('pri', b.dataset.ts === T.get()); }); }
+    if (!app.story) return; let cp; try { cp = proCopy(app.story); } catch (e) { return; }
     const man = (app.story.cover && app.story.cover.pro) || {};
     box.querySelectorAll('[data-pf]').forEach(e => { const k = e.dataset.pf; e.placeholder = cp.auto[k] || '(খালি)'; if (document.activeElement !== e) e.value = man[k] || ''; });
   }
@@ -10163,7 +10165,7 @@ function proBgLong(r) {
 #proEd .pe-grid button{border-radius:12px;padding:5px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;min-height:92px;height:auto;line-height:1.2}
 #proEd .pe-grid canvas,#proEd .pe-grid img{width:76px;height:60px;object-fit:contain;border-radius:8px;box-shadow:none;background:#2A2A30}
 #proEd [hidden]{display:none!important}</style>
-<div class="pe-top"><b>১ম ফ্রেম · থাম্বনেল</b><button type="button" id="peAll">↺ সব আগের জায়গায়</button><button type="button" class="pri" id="peDone">হয়ে গেছে</button></div>
+<div class="pe-top"><b>১ম ফ্রেম</b><button type="button" id="peStyle" hidden></button><button type="button" id="peAll">↺ সব আগের জায়গায়</button><button type="button" class="pri" id="peDone">হয়ে গেছে</button></div>
 <div class="pe-bar"><button type="button" id="peAddT">＋ লেখা</button><button type="button" id="peAddI">＋ ছবি (PNG/JPG)</button><button type="button" id="peAddL">＋ লাইব্রেরি থেকে</button><input type="file" id="peFile" accept="image/png,image/jpeg,image/webp" multiple hidden></div>
 <div class="pe-hint">টেনে যেকোনো জায়গায় নিন · কোণ টেনে / দুই আঙুলে বড়-ছোট · খালি জায়গায় দুবার চাপলে সেখানে নতুন লেখা</div>
 <canvas id="peCv"></canvas>
@@ -10220,6 +10222,7 @@ function proBgLong(r) {
     ov.querySelector('#peFull').onclick = () => { const x = proX(ED.sel); if (!x) return; x.x = .5; x.y = .5; x.w = 1; x.back = true; const l = L(ED.sel); l.dx = 0; l.dy = 0; l.s = 1; proEdSel(); later(); proEdSave(); };
     ov.querySelector('#peAll').onclick = () => { proPro().lay = {}; if (S.proLogoOff) { S.proLogoOff = false; saveSettings(); } proEdSel(); later(); proEdSave(); };
     ov.querySelector('#peDone').onclick = () => ov.close();
+    ov.querySelector('#peStyle').onclick = () => { const T = window.TF_THUMB_STYLE; if (!T) return; T.set(T.get() === 'card' ? 'quote' : 'card'); ED.sel = null; proEdSel(); proFill(); later(); proEdSave(); };
     ov.addEventListener('close', () => { document.body.style.overflow = ''; proEdSave(); });
     // add: text, picture file, library
     ov.querySelector('#peAddT').onclick = () => proAddText(.5, .4);
@@ -10301,6 +10304,7 @@ function proBgLong(r) {
     const k = ED.sel, x = proX(k), s = $('peSel'); if (!s) return;
     const nm = x ? ({ text: 'লেখা', img: 'ছবি', asset: 'ছবি', art: 'জিনিস', lv: 'ছবি' })[x.type] : PRO_NAMES[k];
     s.textContent = k ? 'বাছা: ' + (nm || k) : 'একটা জিনিসে চাপুন';
+    const stb = $('peStyle'), T = window.TF_THUMB_STYLE; if (stb) { stb.hidden = !T; if (T) stb.textContent = (T.get() === 'card' ? 'কার্ড ⇄' : 'সংলাপ ⇄'); }
     ['peMinus', 'pePlus', 'peCenter', 'peOne', 'peHide', 'peSize'].forEach(id => { const b = $(id); if (b) b.disabled = !k; });
     const isT = proIsText(k), isI = !!(x && (x.type === 'img' || x.type === 'asset'));
     $('peTxtBar').hidden = !isT; $('peCropBar').hidden = !isI; $('peBack').hidden = !x; $('peFull').hidden = !isI;
@@ -11060,7 +11064,7 @@ body.hub-on{overflow:hidden}
 ## জীবন পাঠ — ফলোয়ার, শেয়ার আর কমেন্টের নিয়ম (এটাই সবার শেষে, তাই এটাই চূড়ান্ত; ওপরের কোনো নিয়মের সাথে না মিললে এটা মানবে)
 - বই: শুধু খুব চেনা বিখ্যাত বই বা ক্লাসিক গল্প (Atomic Habits, The Psychology of Money, Emotional Intelligence, The Laws of Human Nature, The 48 Laws of Power, Mindset, Rich Dad Poor Dad, The Courage to Be Disliked, The 5 Love Languages, Man's Search for Meaning, রবীন্দ্রনাথের ছোটগল্প…)। অচেনা বই নয়।
 - "===" শিরোনাম: গল্পের কৌতূহল ৩-৮ শব্দে, বইয়ের নাম ছাড়া (বইয়ের নাম অ্যাপ নিজে ইউটিউব টাইটেল আর ক্যাপশনে বসায়)। পরিণতি ফাঁস নয়।
-- থাম্বনেল (sus.lessons ধাঁচ, সবচেয়ে জরুরি): "থাম্বনেল: <৩-৫ শব্দের পরিস্থিতি> | <সংলাপের প্রথম অংশ> | <সংলাপের শেষ অংশ, ১-২টা শব্দ {হলুদ}> | <আইকন> | <সংখ্যা> | <যে চরিত্র সংলাপটা বলে তার id>"। সংলাপটা গল্পেরই একটা "> " লাইন থেকে, হুবহু বা ছোট করে, মোট ৩-৭ শব্দ: টুইস্টের আগের সবচেয়ে কষ্টের, অভিযোগের বা খোঁচার কথা, যেটা পড়ে মনে হয় "এ কথা বলল কেন? তারপর কী হলো?"। যেমন: "বাবা, তুমি | {কী বুঝবে?}", "ছবি আঁকবি? | {লোকে কী বলবে?}", "একটা খেলে | {কিছু হয় না!}", "চাচা, দুই হাজার | টাকা {হবে?}"। বইয়ের নাম, শিক্ষা, সংখ্যার হিসাব, "তারপর যা হলো" থাম্বনেলে নয়। যে সংলাপ বলে, সেই চরিত্র যেন সেই দৃশ্যে পর্দায় থাকে আর মুখে রাগ/কষ্ট/অবাক ভাব থাকে।
+- থাম্বনেল (sus.lessons ধাঁচ, সবচেয়ে জরুরি): "থাম্বনেল: <প্রসঙ্গ, দুই ভাগে: ঘটনা… মোড়, মোট ৭-১২ শব্দ> | <সংলাপের প্রথম অংশ> | <সংলাপের শেষ অংশ, মূল ১-৩টা শব্দ {ব্র্যাকেটে}> | <আইকন> | <সংখ্যা> | <যে চরিত্র সংলাপটা বলে তার id>"। প্রসঙ্গের উদাহরণ: "বিয়ের টাকা 'তিন বছরে ডবল'… খাতায় শালার নাম!", "১৪ বছর রিকশা টেনে পড়ালেন… ছেলে বলল গেটের বাইরে দাঁড়াও", "মেলায় ৫০ টাকার দুল কিনলেন… দশ বছর পর আসল দাম জানলেন" — প্রথম ভাগে কী ঘটল (সংখ্যা/টাকা/সময় থাকলে ভালো), "…" এর পরে চমকের মোড়। সংলাপ ঘরোয়া মুখের ভাষায় (চলিত, কথ্য: "দাদাকে বলো {ঘরটা} ছেড়ে দিতে।", "আপনি চান {আমি চলে যাই!}", "সব টাকা কি {তোমার ওষুধেই} যাবে?!", "এক ইঞ্চি জমিও {ছাড়বো না!}"), শেষে ! ? বা …। সংলাপটা গল্পেরই একটা "> " লাইন থেকে, হুবহু বা ছোট করে, মোট ৩-৭ শব্দ: টুইস্টের আগের সবচেয়ে কষ্টের, অভিযোগের বা খোঁচার কথা, যেটা পড়ে মনে হয় "এ কথা বলল কেন? তারপর কী হলো?"। যেমন: "বাবা, তুমি | {কী বুঝবে?}", "ছবি আঁকবি? | {লোকে কী বলবে?}", "একটা খেলে | {কিছু হয় না!}", "চাচা, দুই হাজার | টাকা {হবে?}"। বইয়ের নাম, শিক্ষা, সংখ্যার হিসাব, "তারপর যা হলো" থাম্বনেলে নয়। যে সংলাপ বলে, সেই চরিত্র যেন সেই দৃশ্যে পর্দায় থাকে আর মুখে রাগ/কষ্ট/অবাক ভাব থাকে।
 - একই বইয়ের কয়েকটা শিক্ষা হলে সিরিজ, একই পরিবার/চরিত্র সব পর্বে: "=== <বইয়ের বাংলা নাম> · পর্ব k / N: <পর্বের নাম>"। প্রতিটা পর্বের থাম্বনেলে সেই পর্বের নিজের সংলাপ (ডিজাইন সব পর্বে একই, কোণে "পর্ব k" ব্যাজ)।
 - গল্প: বাংলাদেশের মধ্যবিত্ত পরিবার — মা-বাবা আর সন্তান, পড়াশোনা/রেজাল্ট, প্রবাস, সংসারের টাকা, বিশ্বাস ভাঙা, রাগ/ফোনের অভ্যাস। "কীভাবে করবেন" ধরনের রোডম্যাপ, কোম্পানির খবর বা পরামর্শের তালিকা নয়।
 - দৈর্ঘ্য (শর্ট/রিলস): ২ থেকে ৩ মিনিট, ২৮-৩৬ লাইন। এর বেশি নয়।
@@ -11074,7 +11078,7 @@ body.hub-on{overflow:hidden}
     const ISL_THUMB = `
 
 ## থাম্বনেল (চূড়ান্ত নিয়ম)
-- "থাম্বনেল: <৩-৭ শব্দের প্রসঙ্গ, কী ঘটেছে/কী প্রশ্ন> | <সংলাপের প্রথম অংশ> | <সংলাপের শেষ অংশ, ১-২টা শব্দ {হলুদ}> | <আইকন> | <সংখ্যা> | <যে চরিত্র সংলাপটা বলে তার id>"। সংলাপটা গল্পেরই একটা "> " লাইন থেকে, মোট ৩-৭ শব্দ: টুইস্টের আগের সবচেয়ে কষ্টের বা প্রশ্নের কথা। বর্ণনার টুকরো নয়, সত্যিকারের কারো মুখের কথা। নবী/সাহাবিরা কখনো বক্তা নয় (তাঁদের দেখানো হয় না)।
+- "থাম্বনেল: <প্রসঙ্গ, দুই ভাগে: ঘটনা… মোড়, মোট ৭-১২ শব্দ, যেমন 'রোজ দুটো টিফিন বক্স… দ্বিতীয়টা যেত অচেনা ছেলের কাছে'> | <সংলাপের প্রথম অংশ> | <সংলাপের শেষ অংশ, মূল ১-৩টা শব্দ {ব্র্যাকেটে}> | <আইকন> | <সংখ্যা> | <যে চরিত্র সংলাপটা বলে তার id>"। সংলাপ ঘরোয়া মুখের ভাষায়, ছোট, শেষে ! ? বা … ("বাবা, এই টাকা {হালাল তো?}", "আমি তো {শুধু} একটা রুটি চেয়েছিলাম!")। সংলাপটা গল্পেরই একটা "> " লাইন থেকে, মোট ৩-৭ শব্দ: টুইস্টের আগের সবচেয়ে কষ্টের বা প্রশ্নের কথা। বর্ণনার টুকরো নয়, সত্যিকারের কারো মুখের কথা। নবী/সাহাবিরা কখনো বক্তা নয় (তাঁদের দেখানো হয় না)।
 - ধারাবাহিকে প্রতিটা পর্বের থাম্বনেলে সেই পর্বেরই সংলাপ; ডিজাইন সব পর্বে একই, কোণে "সিরিজের নাম" আর "পর্ব k / N" অ্যাপ নিজে বসায়।
 
 ## লাইক, কমেন্ট, শেয়ার, ফলো (শর্ট ইসলামিক গল্প, চূড়ান্ত নিয়ম)
@@ -11123,6 +11127,10 @@ body.hub-on{overflow:hidden}
   // 2) otherwise the strongest spoken line of the story (emotional, short, early: the hook), picked automatically —
   // so old/AI stories whose thumbnail fields are narration fragments still get a real character's words;
   // 3) no dialogue at all (e.g. a Quran-story) → the old l1/l2 words, drawn without quote marks.
+  // v25: thumbnail design per section — 'card' (sus.lessons: cream card, red words, gold series badge) or 'quote' (big white line).
+  // জীবন পাঠ starts on card, Islamic on quote; his choice is kept in localStorage tf_thumb_style_<story|isl>.
+  const thumbStyle = () => { try { return localStorage.getItem('tf_thumb_style_' + PRO_KIND) || (LIFE ? 'card' : 'quote'); } catch (e) { return LIFE ? 'card' : 'quote'; } };
+  window.TF_THUMB_STYLE = { get: thumbStyle, set: v => { try { localStorage.setItem('tf_thumb_style_' + PRO_KIND, v); } catch (e) { } if (window.TF_PRO_REFRESH) TF_PRO_REFRESH(); } };
   const STRONG = { crying: 4, angry: 4, sad: 3, worried: 3, surprised: 2, scared: 3, tired: 1 };
   const words = t => String(t || '').replace(/[{}]/g, '').trim().split(/\s+/).filter(Boolean);
   const shorten = (txt, hl) => {
@@ -11170,13 +11178,19 @@ body.hub-on{overflow:hidden}
     proCopy = function (st) {
       const out = _pc.apply(this, arguments);
       try {
-        const man = (st.cover && st.cover.pro) || {}, ser = proSeries(st), m = k => String(man[k] == null ? '' : man[k]).trim();
-        const ctx = String((st.cover && st.cover.ctx) || '').replace(/[{}]/g, '').replace(/[.…]{2,}.*$/, '').trim().split(/\s+/).slice(0, 7).join(' ');
+        const man = (st.cover && st.cover.pro) || {}, ser = proSeries(st), m = k => String(man[k] == null ? '' : man[k]).trim(), card = thumbStyle() === 'card';
+        const ctxRaw = String((st.cover && st.cover.ctx) || '').replace(/[{}]/g, '').replace(/\.{3,}/g, '…').trim();
+        const ctx = ctxRaw.replace(/….*$/, '').trim().split(/\s+/).slice(0, 7).join(' ');
         // v24: a series part is named by the series: "<series> · পর্ব k" / "<series> · শেষ পর্ব" (never the part's own title)
-        const serLbl = ser ? (ser.name || ser.partName) + ' · ' + (ser.last && ser.k > 1 ? 'শেষ পর্ব' : 'পর্ব ' + bnN(ser.k)) : '';
-        const auto = { tag: '', ep: '', h: lineOf(st) || out.auto.h, sub: ser ? serLbl : ctx, cta: '' };
+        const epBig = ser ? (ser.last && ser.k > 1 ? 'শেষ পর্ব' : 'পর্ব ' + bnN(ser.k)) : '';
+        const serLbl = ser ? (ser.name || ser.partName) + ' · ' + epBig : '';
+        // v25 card style (sus.lessons): top pill = the story in two beats "ঘটনা… মোড়", badge = series name + পর্ব k, card = the line + speaker
+        const p = pickLine(st), ch = (st.characters || []).find(x => x.id === p.who);
+        const auto = card
+          ? { tag: ser ? (ser.name || ser.partName) : '', ep: epBig, h: lineOf(st) || out.auto.h, sub: ctxRaw.split(/\s+/).slice(0, 14).join(' ') || (ser ? '' : String(st.title || '').split('|')[0].trim()), cta: '', name: ch ? ch.name : '' }
+          : { tag: '', ep: '', h: lineOf(st) || out.auto.h, sub: ser ? serLbl : ctx, cta: '' };
         Object.keys(auto).forEach(k => { const v = m(k); out[k] = v === '-' ? '' : (v || auto[k]); });
-        out.auto = auto;
+        out.epSub = ser && ser.of ? 'পর্ব ' + bnN(ser.k) + ' / ' + bnN(ser.of) : ''; out.auto = auto;
       } catch (e) { }
       return out;
     };
@@ -11210,8 +11224,45 @@ body.hub-on{overflow:hidden}
     };
   }
   if (typeof proDraw === 'function') {
+    // card style text: no glow, dark ink on cream, {words} in red
+    const inkText = (c, rows, sp, cx, y, size, col, hi) => { c.save(); c.textAlign = 'left'; c.textBaseline = 'alphabetic'; c.font = proF(800, size); const lh = size * 1.22;
+      rows.forEach((r, i) => { const tot = r.reduce((a, q) => a + c.measureText(q.w).width, 0) + sp * (r.length - 1); let x = cx - tot / 2; const base = y + lh * i + size * .92;
+        r.forEach(q => { c.fillStyle = q.h ? hi : col; c.fillText(q.w, x, base); x += c.measureText(q.w).width + sp; }); }); c.restore(); return lh * rows.length; };
+    const CARD = { cream: '#FBF5E9', ink: '#2A1A12', red: '#B3261E', pill: 'rgba(52,18,14,.94)', gold: '#EBB94A', line: '#C9A04A', tx: '#F7E9CC', badge: '#3A1511' };
+    function drawCardStyle(c, FW, FH, cp, LAY, Sx, place, u, land, sq) {
+      const cx = FW / 2, CF = 'TFSerif', proWith = (lay, k, fn) => window.proWith(lay, k, sty => { if (!sty.fam) PRO_FAM = CF; return fn(sty); }); // the card look: a plain serif Bangla face unless he picks another
+      // 1) top pill: "ঘটনা… মোড়" — first beat cream, the turn after … in gold
+      let pillB = FH * .035;
+      if (cp.sub) proWith(LAY, 'sub', sty => { const t = cp.sub, i = t.indexOf('…'), a = i >= 0 ? t.slice(0, i + 1) : t, b = i >= 0 ? t.slice(i + 1).trim() : '';
+        let fs = (land ? 32 : 38) * u; const mw = FW * .9; let wa, wb, sp; const meas = () => { c.font = proF(800, fs); sp = c.measureText(' ').width; wa = c.measureText(a).width; wb = b ? c.measureText(b).width : 0; return wa + (b ? sp + wb : 0) + fs * 1.6; };
+        while (meas() > mw && fs > 16 * u) fs -= 1 * u;
+        const w = meas(), h = fs * 2, x = cx - w / 2, y = FH * (land ? .04 : .03); pillB = y + h;
+        place('sub', x, y, w, h, () => { c.save(); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 14 * u; c.shadowOffsetY = 4 * u; rr(c, x, y, w, h, h / 2, CARD.pill); c.restore(); rr(c, x, y, w, h, h / 2, null, 'rgba(235,185,74,.35)', 2 * u);
+          c.save(); c.font = proF(800, fs); c.textBaseline = 'middle'; c.textAlign = 'left'; let tx = x + fs * .8; c.fillStyle = sty.col || CARD.tx; c.fillText(a, tx, y + h / 2 + fs * .05); if (b) { tx += wa + sp; c.fillStyle = CARD.gold; c.fillText(b, tx, y + h / 2 + fs * .05); } c.restore(); }); });
+      // 2) series badge: series name · big "পর্ব k" in gold · "পর্ব k / N"
+      if (cp.ep) proWith(LAY, 'ep', sty => { const f1 = (land ? 26 : 30) * u, f2 = (/শেষ/.test(cp.ep) ? 100 : 122) * u * (land ? .8 : 1), f3 = (land ? 24 : 28) * u, top = cp.tag || '', bot = cp.epSub || '';
+        c.font = proF(800, f1); const w1 = top ? c.measureText(top).width : 0; c.font = proF(800, f2); const w2 = c.measureText(cp.ep).width; c.font = proF(700, f3); const w3 = bot ? c.measureText(bot).width : 0;
+        const w = Math.min(FW * .7, Math.max((land ? 270 : 330) * u, w1, w2, w3) + 70 * u), h = 30 * u + (top ? f1 * 1.35 : 0) + f2 * 1.05 + (bot ? f3 * 1.5 : 0) + 18 * u, x = 54 * u, y = pillB + (land ? 30 : 46) * u;
+        place('ep', x, y, w, h, () => { c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 22 * u; c.shadowOffsetY = 8 * u; rr(c, x, y, w, h, 16 * u, CARD.badge); c.restore();
+          rr(c, x, y, w, h, 16 * u, null, CARD.line, 4 * u); rr(c, x + 8 * u, y + 8 * u, w - 16 * u, h - 16 * u, 10 * u, null, 'rgba(201,160,74,.45)', 1.5 * u);
+          c.save(); c.textAlign = 'center'; c.textBaseline = 'alphabetic'; let yy = y + 18 * u;
+          if (top) { c.font = proF(800, f1); c.fillStyle = CARD.tx; let tt = top; while (c.measureText(tt).width > w - 40 * u && tt.length > 4) tt = tt.slice(0, -2); if (tt !== top) tt += '…'; yy += f1 * 1.1; c.fillText(tt, x + w / 2, yy); yy += f1 * .25; }
+          c.font = proF(800, f2); yy += f2 * .95; c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 6 * u; c.shadowOffsetY = 3 * u; c.fillStyle = sty.col || CARD.gold; c.fillText(cp.ep, x + w / 2, yy); c.shadowColor = 'transparent';
+          if (bot) { c.font = proF(700, f3); yy += f3 * 1.35; c.fillStyle = 'rgba(247,233,204,.85)'; c.fillText(bot, x + w / 2, yy); } c.restore(); }); });
+      // 3) the cream card: channel logo in a circle, "• speaker" under it, the line in dark ink with red words
+      if (cp.h) proWith(LAY, 'h', sty => { const cw = FW * (land ? .52 : .8), hs0 = (land ? 70 : sq ? 76 : 86) * u, maxW = cw - 90 * u, segs = proWords(cp.h); let hs = hs0, T = proWrap(c, segs, hs, maxW, 800);
+        while ((T.rows.length > 3 || !T.ok) && hs > hs0 * .55) { hs -= 3 * u; T = proWrap(c, segs, hs, maxW, 800); } T.rows = T.rows.slice(0, 3);
+        const logo = !Sx.proLogoOff && typeof drawLogo === 'function', d = 92 * u, nf = 27 * u, nm = cp.name || '';
+        const head = 22 * u + (logo ? d + 8 * u : 0) + (nm ? nf * 1.4 : 0) + 8 * u, th = T.rows.length * hs * 1.22;
+        const w = cw, h = head + th + 40 * u, x = cx - w / 2, bottom = FH * (land ? .93 : sq ? .93 : FH > FW * 1.5 ? .83 : .92), y = bottom - h;
+        place('h', x, y, w, h, () => { c.save(); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 30 * u; c.shadowOffsetY = 10 * u; rr(c, x, y, w, h, 26 * u, CARD.cream); c.restore();
+          let yy = y + 22 * u;
+          if (logo) { c.save(); c.beginPath(); c.arc(cx, yy + d / 2, d / 2, 0, Math.PI * 2); c.clip(); drawLogo(c, cx, yy + d / 2, d * 1.42, Sx.logo || 'TF'); c.restore(); c.beginPath(); c.arc(cx, yy + d / 2, d / 2, 0, Math.PI * 2); c.lineWidth = 3 * u; c.strokeStyle = '#FFFFFF'; c.stroke(); yy += d + 8 * u; }
+          if (nm) { c.save(); c.font = proF(700, nf); c.textAlign = 'left'; c.textBaseline = 'alphabetic'; const nw = c.measureText(nm).width, dr = nf * .2, sx = cx - (nw + dr * 2 + nf * .3) / 2; c.beginPath(); c.arc(sx + dr, yy + nf * .62, dr, 0, Math.PI * 2); c.fillStyle = CARD.red; c.fill(); c.fillStyle = '#5A4638'; c.fillText(nm, sx + dr * 2 + nf * .3, yy + nf * .95); c.restore(); yy += nf * 1.4; }
+          inkText(c, T.rows, T.sp, cx, yy + 8 * u, hs, sty.col || CARD.ink, CARD.red); }); });
+    }
     proDraw = function (c, FW, FH, st, bg) {
-      const cp = proCopy(st), Sx = (typeof S !== 'undefined' ? S : {}), LAY = cp.lay || {};
+      const cp = proCopy(st), Sx = (typeof S !== 'undefined' ? S : {}), LAY = cp.lay || {}, card = thumbStyle() === 'card';
       const u = Math.min(FW, FH) / 1080, land = FW > FH * 1.15, sq = !land && FH < FW * 1.4;
       c.save(); rect(c, 0, 0, FW, FH, '#1B130E');
       if (bg) { const key = FW + 'x' + FH + '|' + (bg.key || ''); if (!PRO_BG || PRO_BG.key !== key || !bg.key) { const cv = document.createElement('canvas'); cv.width = FW; cv.height = FH; const x = cv.getContext('2d', { alpha: false }); rect(x, 0, 0, FW, FH, '#1B130E'); try { bg(x); } catch (e) { console.warn('life bg', e); } PRO_BG = { key, cv }; } c.drawImage(PRO_BG.cv, 0, 0, FW, FH); }
@@ -11219,6 +11270,7 @@ body.hub-on{overflow:hidden}
         c.save(); c.translate(ccx + dx, ccy + dy); c.scale(s, s); c.translate(-ccx, -ccy); fn(); c.restore();
         boxes.push({ k, x: ccx + dx - w * s / 2, y: ccy + dy - h * s / 2, w: w * s, h: h * s, cx: ccx + dx, cy: ccy + dy, s }); };
       proExtras(c, FW, FH, st, place, u, 'back');
+      if (card) { drawCardStyle(c, FW, FH, cp, LAY, Sx, place, u, land, sq); proExtras(c, FW, FH, st, place, u, 'front'); PRO_BOXES = { FW, FH, list: boxes }; c.restore(); return; }
       // the line
       const maxW = FW * (land ? .84 : .88), hs0 = (land ? 104 : sq ? 100 : 112) * u, segs = proWords(cp.h);
       let hs = hs0, T; proWith(LAY, 'h', () => { T = proWrap(c, segs, hs, maxW, 800);
