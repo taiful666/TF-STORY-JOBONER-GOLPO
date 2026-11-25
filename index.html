@@ -10144,7 +10144,7 @@ function proBgLong(r) {
   /* drag editor: move any text with a finger or the mouse, resize from a corner or with two fingers (all parts, all ratios) */
   const PRO_NAMES = { tag: 'গল্পের নাম', ep: 'পর্ব', h: 'শিরোনাম', sub: 'প্রসঙ্গ লাইন', src: 'উৎস', name: 'বক্তা', cta: 'বোতাম', logo: 'লোগো' };
   let ED = null;
-  function proPro() { const st = app.story; st.cover = st.cover || {}; st.cover.pro = st.cover.pro || {}; st.cover.pro.lay = st.cover.pro.lay || {}; return st.cover.pro; }
+  function proPro() { const st = app.story; st.cover = st.cover || {}; st.cover.pro = st.cover.pro || {}; const L = st.cover.pro.lay = st.cover.pro.lay || {}; if (!L._v25) { ['tag', 'ep', 'sub', 'h', 'src', 'name'].forEach(k => delete L[k]); L._v25 = 1; } return st.cover.pro; }
   function proEdFrame() { const r = app.renderer; if (r && r.isLong) { r.setFrame(S.expRatio); return { FW: r.FW, FH: r.FH, draw: c => { r._lcov = null; r.drawThumb(c); } }; } return { FW: W, FH: H, draw: c => drawCover(c, r) }; }
   function proEdBuild() {
     const ov = el('dialog', { id: 'proEd' }); ov.innerHTML = `<style>
@@ -11269,7 +11269,9 @@ body.hub-on{overflow:hidden}
           inkText(c, T.rows, T.sp, cx, yy + 8 * u, hs, sty.col || CARD.ink, CARD.red); }); });
     }
     proDraw = function (c, FW, FH, st, bg) {
-      const cp = proCopy(st), Sx = (typeof S !== 'undefined' ? S : {}), LAY = cp.lay || {}, card = thumbStyle() === 'card';
+      const cp = proCopy(st), Sx = (typeof S !== 'undefined' ? S : {}), card = thumbStyle() === 'card';
+      // v25: positions saved for the old layout (tag/ep/sub/h were other boxes) would throw the new title off-frame: ignore them until the editor saves a v25 layout
+      let LAY = cp.lay || {}; if (!LAY._v25) { LAY = Object.assign({}, LAY); ['tag', 'ep', 'sub', 'h', 'src', 'name'].forEach(k => delete LAY[k]); }
       const u = Math.min(FW, FH) / 1080, land = FW > FH * 1.15, sq = !land && FH < FW * 1.4;
       c.save(); rect(c, 0, 0, FW, FH, '#1B130E');
       if (bg) { const key = FW + 'x' + FH + '|' + (bg.key || ''); if (!PRO_BG || PRO_BG.key !== key || !bg.key) { const cv = document.createElement('canvas'); cv.width = FW; cv.height = FH; const x = cv.getContext('2d', { alpha: false }); rect(x, 0, 0, FW, FH, '#1B130E'); try { bg(x); } catch (e) { console.warn('life bg', e); } PRO_BG = { key, cv }; } c.drawImage(PRO_BG.cv, 0, 0, FW, FH); }
@@ -11291,7 +11293,7 @@ body.hub-on{overflow:hidden}
       if (cp.sub) proWith(LAY, 'sub', sty => { const sw = Math.min(pillW(c, cp.sub, ss), FW * .94), sy = y0 - sh; place('sub', cx - sw / 2, sy, sw, ss * 1.8, () => proPill(c, cp.sub, cx, sy + ss * .9, ss, LIFE ? '#C62F22' : '#1F5D45', sty.col || '#FFFFFF', null)); });
       if (cp.h) proWith(LAY, 'h', sty => { const w = proRowsW(c, T.rows, T.sp, hs, 800); place('h', cx - w / 2, y0, w, th, () => proText(c, T.rows, T.sp, cx, y0, hs, 800, sty.col || '#FFFFFF', '#FFD23F', .16)); });
       // v25 top block: source label (Islamic) + the SERIES NAME big (the first thing people read) + পর্ব pill
-      { let y = 58 * u; const mw = FW - 2 * 150 * u;
+      { let y = FH * (land ? .08 : sq ? .09 : .13); const mw = FW * .8;
         if (cp.src) proWith(LAY, 'src', sty => { let fs = (land ? 34 : 38) * u; c.font = proF(800, fs); while (c.measureText(cp.src).width + fs * 1.6 > mw && fs > 20 * u) { fs -= u; c.font = proF(800, fs); }
           const w = c.measureText(cp.src).width + fs * 1.6, h = fs * 1.9, x = FW / 2 - w / 2, yy = y;
           place('src', x, yy, w, h, () => { rr(c, x, yy, w, h, h / 2, 'rgba(9,58,43,.92)'); rr(c, x, yy, w, h, h / 2, null, '#E9C46A', 2.5 * u); c.save(); c.font = proF(800, fs); c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = sty.col || '#F6D77B'; c.fillText(cp.src, FW / 2, yy + h / 2 + fs * .05); c.restore(); }); y += h + 22 * u; });
